@@ -27,7 +27,7 @@ const StatsSection: React.FC = () => {
 
  <div className="grid md:grid-cols-3 gap-6">
   {/* Stat Card 1 */}
-  <div className="bg-white/5 border border-white/10 p-10 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:bg-white/10 transition-colors">
+  <div className="bg-white/5 border border-white/10 p-10 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:bg-white/10 transition-colors h-full flex flex-col justify-between">
    <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/20 blur-3xl rounded-full group-hover:bg-primary/30 transition-colors"></div>
    <div className="flex items-center gap-3 mb-8">
     <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center bg-[#0b1121]/50">
@@ -40,7 +40,7 @@ const StatsSection: React.FC = () => {
   </div>
 
   {/* Stat Card 2 */}
-  <div className="bg-white/5 border border-white/10 p-10 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:bg-white/10 transition-colors">
+  <div className="bg-white/5 border border-white/10 p-10 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:bg-white/10 transition-colors h-full flex flex-col justify-between">
    <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full"></div>
    <div className="flex items-center gap-3 mb-8">
     <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center bg-[#0b1121]/50">
@@ -53,7 +53,7 @@ const StatsSection: React.FC = () => {
   </div>
 
   {/* Stat Card 3 */}
-  <div className="bg-white/5 border border-white/10 p-10 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:bg-white/10 transition-colors">
+  <div className="bg-white/5 border border-white/10 p-10 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:bg-white/10 transition-colors h-full flex flex-col justify-between">
    <div className="absolute -right-10 -top-10 w-40 h-40 bg-green-500/10 blur-3xl rounded-full"></div>
    <div className="flex items-center gap-3 mb-8">
     <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center bg-[#0b1121]/50">

@@ -89,7 +89,7 @@ const Navbar: React.FC<NavbarProps> = ({ isHome = true, onNavigate }) => {
  <a className="text-gray-300 hover:text-white text-sm font-medium transition-colors cursor-pointer" href="#core" onClick={(e) => scrollToSection(e, 'core')}>Features</a>
  <a className="text-gray-300 hover:text-white text-sm font-medium transition-colors cursor-pointer" href="#vision" onClick={(e) => scrollToSection(e, 'vision')}>The Vision</a>
  <a 
- className="relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-bold text-[#0b1121] bg-gradient-to-r from-primary to-yellow-500 transition-all duration-200 hover:brightness-110 rounded-full group shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] hover:scale-105"
+ className="relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-black text-[#0b1121] bg-gradient-to-br from-yellow-300 via-[#cca02a] to-yellow-600 transition-all duration-200 hover:brightness-110 rounded-full group shadow-[0_0_20px_rgba(212,175,55,0.7)] hover:shadow-[0_0_30px_rgba(212,175,55,1)] hover:scale-105"
  href="#partner"
  onClick={(e) => scrollToSection(e, 'partner')}
  >

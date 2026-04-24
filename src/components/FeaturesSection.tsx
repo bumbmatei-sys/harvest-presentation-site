@@ -30,7 +30,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onNavigate }) => {
    </div>
    
    {/* Mockup visual representation completely pulled out of opacity/blend divs */}
-   <div className="absolute right-0 top-10 translate-x-1/4 rounded-[24px] border border-white/20 border-r-0 w-[300px] h-[400px] bg-[#1e293b]/90 backdrop-blur-2xl shadow-[0_0_50px_rgba(212,175,55,0.15)] rotate-12 flex flex-col p-5 gap-4 transition-transform duration-700 group-hover:rotate-6 z-10">
+   <div className="absolute right-0 top-10 translate-x-1/4 rounded-[24px] border border-white/20 border-r-0 w-[300px] h-[400px] bg-[#1e293b]/90 backdrop-blur-2xl shadow-[0_0_50px_rgba(212,175,55,0.3)] rotate-12 flex flex-col p-5 gap-4 transition-transform duration-700 group-hover:rotate-6 z-20">
     <div className="w-full h-40 bg-black/40 rounded-xl flex items-center justify-center border border-white/10 shadow-inner">
      <span className="material-symbols-outlined text-5xl text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">play_circle</span>
     </div>
@@ -60,11 +60,11 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onNavigate }) => {
    </div>
    
    {/* Mockup visual */}
-   <div className="absolute left-1/2 -translate-x-1/2 top-10 w-36 h-36 bg-blue-500/20 rounded-full border border-blue-400/40 flex items-center justify-center backdrop-blur-2xl group-hover:scale-110 transition-transform duration-500 shadow-[0_0_50px_rgba(59,130,246,0.25)] z-10">
+   <div className="absolute left-1/2 -translate-x-1/2 top-10 w-36 h-36 bg-blue-500/30 rounded-full border border-blue-400/50 flex items-center justify-center backdrop-blur-2xl group-hover:scale-110 transition-transform duration-500 shadow-[0_0_50px_rgba(59,130,246,0.4)] z-20">
     <span className="material-symbols-outlined text-6xl text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]">my_location</span>
    </div>
 
-   <div className="relative z-20">
+   <div className="relative z-30">
    <h3 className="text-2xl font-bold text-white mb-3">Church Locator</h3>
    <p className="text-gray-400 leading-relaxed mb-4">
     An integrated global map directing new believers to sound, gospel-preaching local churches in their exact area.
@@ -83,7 +83,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onNavigate }) => {
    </div>
    
    {/* Mockup */}
-   <div className="absolute left-6 top-10 w-[120%] h-36 bg-[#1e293b]/90 rounded-2xl border border-white/20 backdrop-blur-2xl p-6 flex flex-col gap-4 group-hover:translate-x-3 transition-transform duration-500 shadow-[0_0_40px_rgba(168,85,247,0.15)] z-10 border-r-0">
+   <div className="absolute left-6 top-10 w-[120%] h-36 bg-[#1e293b]/95 rounded-2xl border border-white/30 backdrop-blur-2xl p-6 flex flex-col gap-4 group-hover:translate-x-3 transition-transform duration-500 shadow-[0_0_40px_rgba(168,85,247,0.3)] z-20 border-r-0">
     <div className="flex items-center gap-4">
      <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
       <span className="material-symbols-outlined text-sm text-purple-400">smart_toy</span>
@@ -94,7 +94,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onNavigate }) => {
     <div className="w-1/2 h-3 bg-white/20 rounded-full ml-14"></div>
    </div>
 
-   <div className="relative z-20">
+   <div className="relative z-30">
    <h3 className="text-2xl font-bold text-white mb-3">24/7 AI Counselor</h3>
    <p className="text-gray-400 leading-relaxed mb-4">
     Trained strictly on scripture to answer hard questions, provide prayer, and guide believers through struggles.
@@ -111,9 +111,9 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onNavigate }) => {
    <div className="absolute top-0 right-0 w-1/2 h-full mix-blend-screen opacity-30 group-hover:opacity-50 transition-opacity duration-700 pointer-events-none">
     <div className="w-full h-full bg-gradient-to-bl from-green-500/30 to-transparent blur-[80px]"></div>
    </div>
-   <div className="absolute top-1/2 right-10 md:right-20 -translate-y-1/2 text-[120px] md:text-[150px] font-black text-white/20 select-none -rotate-12 transition-all duration-700 group-hover:rotate-0 group-hover:text-white/30 z-10 drop-shadow-xl text-transparent bg-clip-text bg-gradient-to-b from-white/40 to-white/5">190+</div>
+   <div className="absolute top-1/2 right-10 md:right-20 -translate-y-1/2 text-[120px] md:text-[150px] font-black text-white/20 select-none -rotate-12 transition-all duration-700 group-hover:rotate-0 group-hover:text-white/40 z-20 drop-shadow-xl text-transparent bg-clip-text bg-gradient-to-b from-white/60 to-white/10">190+</div>
 
-   <div className="relative z-20 max-w-lg">
+   <div className="relative z-30 max-w-lg">
    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-6 border border-white/5 backdrop-blur-md">
     <span className="material-symbols-outlined text-green-400">translate</span>
    </div>
