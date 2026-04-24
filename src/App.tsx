@@ -23,8 +23,7 @@ const App: React.FC = () => {
 
  const navigateTo = (page: string) => {
   if (page === 'auth' || page === 'home') {
-    // In the future, this should point to your separated App URL
-    alert("This would navigate to the separated Web App's URL.");
+    window.location.href = 'https://theharvest.app';
     return;
   }
   setCurrentPage(page);
