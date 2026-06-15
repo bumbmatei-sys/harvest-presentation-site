@@ -544,10 +544,18 @@
         <h2 class="section-title">Your Ministry. Your Platform.</h2>
         <p class="section-body" style="margin:0 auto">Get your own isolated instance with your own feed, courses, and community. Empower your congregation with purpose-built discipleship tools.</p>
       </div>
+      <!-- Billing Toggle -->
+      <div class="billing-toggle" style="display:flex;justify-content:center;margin-bottom:40px;">
+        <div style="display:inline-flex;background:#f3f4f6;border-radius:16px;padding:4px;gap:4px;">
+          <button onclick="setBilling('monthly')" id="btn-monthly" style="padding:10px 24px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,0.08);transition:all .2s;">Monthly</button>
+          <button onclick="setBilling('yearly')" id="btn-yearly" style="padding:10px 24px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:#6b7280;transition:all .2s;position:relative;">Yearly<span style="position:absolute;top:-8px;right:-8px;background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;">-2mo</span></button>
+        </div>
+      </div>
+      <p id="yearly-promo" style="display:none;text-align:center;color:#16a34a;font-weight:600;font-size:14px;margin:-28px 0 32px;">🎉 First year: 2 months free! Pay for 10, get 12.</p>
       <div class="plans-grid">
         <div class="plan-card reveal">
           <div class="plan-name">Plus</div>
-          <div class="plan-price">$100 <span>/mo</span></div>
+          <div class="plan-price" id="price-plus">$100 <span>/mo</span></div>
           <p class="plan-desc">Everything you need to start discipling your congregation online.</p>
           <ul class="plan-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Subdomain (yourname.theharvest.app)</li>
@@ -560,7 +568,7 @@
         <div class="plan-card featured reveal">
           <div class="plan-badge">Most Popular</div>
           <div class="plan-name">Pro</div>
-          <div class="plan-price">$250 <span>/mo</span></div>
+          <div class="plan-price" id="price-pro">$250 <span>/mo</span></div>
           <p class="plan-desc">Advanced tools for growing churches that want more control.</p>
           <ul class="plan-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Plus</li>
@@ -572,7 +580,7 @@
         </div>
         <div class="plan-card reveal">
           <div class="plan-name">Ultra</div>
-          <div class="plan-price">$500 <span>/mo</span></div>
+          <div class="plan-price" id="price-ultra">$500 <span>/mo</span></div>
           <p class="plan-desc">Full white-label experience with your own domain and branding.</p>
           <ul class="plan-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Pro</li>
@@ -805,6 +813,28 @@
     document.getElementById('customAmt').addEventListener('input', function() { const v = parseInt(this.value); if(v > 0) { selAmt = v; document.querySelectorAll('.donate-amount').forEach(b => b.classList.remove('selected')); } });
     function handleDonate() { alert('Thank you for your ' + freq + ' donation of $' + selAmt + '! Payment integration coming soon.'); }
     document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if(t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); } }); });
+
+    // Billing toggle
+    function setBilling(period) {
+      const btnM = document.getElementById('btn-monthly');
+      const btnY = document.getElementById('btn-yearly');
+      const promo = document.getElementById('yearly-promo');
+      if (period === 'yearly') {
+        btnM.style.background = 'transparent'; btnM.style.color = '#6b7280'; btnM.style.boxShadow = 'none';
+        btnY.style.background = '#fff'; btnY.style.color = '#111'; btnY.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+        document.getElementById('price-plus').innerHTML = '$1,000 <span>/yr</span>';
+        document.getElementById('price-pro').innerHTML = '$2,500 <span>/yr</span>';
+        document.getElementById('price-ultra').innerHTML = '$5,000 <span>/yr</span>';
+        promo.style.display = 'block';
+      } else {
+        btnY.style.background = 'transparent'; btnY.style.color = '#6b7280'; btnY.style.boxShadow = 'none';
+        btnM.style.background = '#fff'; btnM.style.color = '#111'; btnM.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+        document.getElementById('price-plus').innerHTML = '$100 <span>/mo</span>';
+        document.getElementById('price-pro').innerHTML = '$250 <span>/mo</span>';
+        document.getElementById('price-ultra').innerHTML = '$500 <span>/mo</span>';
+        promo.style.display = 'none';
+      }
+    }
   </script>
 </body>
 </html>
