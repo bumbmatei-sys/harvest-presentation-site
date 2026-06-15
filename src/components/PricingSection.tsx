@@ -83,7 +83,7 @@ const plans = [
       map: true,
       rebranding: true,
     },
-    cta: 'Contact Us',
+    cta: 'Get Started',
     popular: false,
   },
 ];
@@ -153,16 +153,16 @@ const PricingSection: React.FC<PricingSectionProps> = ({ onNavigate }) => {
               </div>
 
               <div className="mt-auto">
-                <button
-                  onClick={() => onNavigate && onNavigate(plan.cta === 'Contact Us' ? 'contact-support' : 'auth')}
-                  className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${
+                <a
+                  href="https://harvest-agent.vercel.app?signup=church"
+                  className={`block w-full py-3 rounded-xl font-bold text-sm text-center transition-all no-underline ${
                     plan.popular
                       ? 'bg-primary text-white hover:bg-yellow-600 shadow-lg shadow-primary/20'
                       : 'bg-gray-900 text-white hover:bg-gray-800'
                   }`}
                 >
                   {plan.cta}
-                </button>
+                </a>
               </div>
             </div>
           ))}

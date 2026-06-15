@@ -77,16 +77,16 @@ const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
  
  {/* CTA Buttons */}
  <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5 mt-12 items-center justify-center w-full">
- <button 
- onClick={() => onNavigate && onNavigate('auth')}
- className="relative flex items-center justify-center gap-3 bg-white text-[#0b1121] h-14 md:h-16 px-10 rounded-full font-black text-lg transition-transform hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden group"
+ <a 
+ href="https://harvest-agent.vercel.app"
+ className="relative flex items-center justify-center gap-3 bg-white text-[#0b1121] h-14 md:h-16 px-10 rounded-full font-black text-lg transition-transform hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden group no-underline"
  >
  <span className="absolute inset-0 bg-gradient-to-r from-primary to-yellow-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
  <span className="relative z-10 flex items-center gap-2 font-bold tracking-wide">
   Start Growing Today
   <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
  </span>
- </button>
+ </a>
  
  <button 
  onClick={scrollToPartner}
