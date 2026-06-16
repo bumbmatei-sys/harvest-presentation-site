@@ -288,12 +288,12 @@
     }
     .carousel-dot.active { background: var(--gold); width: 24px; border-radius: 4px; }
     .plan-card:hover { border-color: var(--border-gold); box-shadow: var(--shadow-lg); transform: translateY(-3px); }
-    .plan-card.featured { border-color: var(--gold); box-shadow: var(--shadow-gold); }
+    .plan-card.featured { border-color: var(--gold); box-shadow: var(--shadow-gold); padding-top: 52px; }
     .plan-badge {
-      position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
-      padding: 4px 14px; background: var(--gold); color: var(--navy);
-      font-size: 10px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
-      border-radius: 4px;
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      padding: 5px 16px; background: var(--gold); color: var(--navy);
+      font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+      border-radius: 6px; white-space: nowrap; z-index: 2;
     }
     .plan-name { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
     .plan-price { font-size: 44px; font-weight: 900; letter-spacing: -2px; color: var(--heading); margin-bottom: 2px; }
@@ -518,7 +518,7 @@
         <div class="plan-card reveal">
           <div class="plan-name">Plus</div>
           <div class="plan-price" id="price-plus">$79 <span>/mo</span></div>
-          <p class="plan-desc">Everything you need to start discipling your congregation online.</p>
+          <p class="plan-desc">Get your own subdomain and everything you need to start discipling your congregation online.</p>
           <ul class="plan-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Subdomain (yourname.theharvest.app)</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Isolated feed & courses</li>
@@ -532,7 +532,7 @@
         <div class="plan-card reveal">
           <div class="plan-name">Pro</div>
           <div class="plan-price" id="price-pro">$199 <span>/mo</span></div>
-          <p class="plan-desc">Advanced tools for growing churches that want more control.</p>
+          <p class="plan-desc">Your own subdomain plus advanced tools for growing churches that want more control.</p>
           <ul class="plan-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Plus</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 admin accounts</li>
