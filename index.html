@@ -661,7 +661,7 @@
                 <td style='text-align:center;padding:12px;'><span style='color:#d4a017;font-size:12px;font-weight:700;'>Soon</span></td>
               </tr>
               <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Personal AI Assistant</td>
+                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Personal AI Assistant <span class="ai-info-trigger" onclick="toggleAiInfo(event)" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--gold);color:#fff;font-size:10px;font-weight:800;cursor:pointer;vertical-align:middle;margin-left:4px;">?</span><span class="ai-info-popup" id="aiInfoPopup" style="display:none;position:absolute;z-index:200;background:#1a1f2e;border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:14px 16px;max-width:280px;font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6;box-shadow:0 8px 30px rgba(0,0,0,0.4);">Your personal AI assistant that connects to <strong style="color:#fff;">900+ apps</strong>, automates tasks, manages schedules, and streamlines your admin workflow. Accessible through the app or <strong style="color:#fff;">Telegram</strong>.<br><span style="color:var(--gold);font-weight:700;">$500 setup + $200/mo</span> — cancel anytime.</span></td>
                 <td style='text-align:center;padding:12px;'><span style='color:#d4a017;font-size:11px;font-weight:700;'>Add-on</span></td>
                 <td style='text-align:center;padding:12px;'><span style='color:#d4a017;font-size:11px;font-weight:700;'>Add-on</span></td>
                 <td style='text-align:center;padding:12px;'><span style='color:#d4a017;font-size:11px;font-weight:700;'>Add-on</span></td>
@@ -746,6 +746,21 @@
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
     function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+    function toggleAiInfo(e) {
+      e.stopPropagation();
+      var popup = document.getElementById('aiInfoPopup');
+      var isVisible = popup.style.display !== 'none';
+      popup.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) {
+        var rect = e.target.getBoundingClientRect();
+        popup.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+        popup.style.left = Math.max(8, rect.left + window.scrollX - 100) + 'px';
+      }
+    }
+    document.addEventListener('click', function() {
+      var popup = document.getElementById('aiInfoPopup');
+      if (popup) popup.style.display = 'none';
+    });
     const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }), { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
