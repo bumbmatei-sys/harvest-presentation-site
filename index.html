@@ -301,54 +301,6 @@
     .plan-btn.outline { background: transparent; color: var(--heading); border: 1px solid var(--border); }
     .plan-btn.outline:hover { border-color: var(--label); background: var(--bg-alt); }
 
-    /* ─── Donate ───────────────────────────────────────── */
-    .donate-inner { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
-    @media (min-width: 768px) { .donate-inner { grid-template-columns: 1fr 1fr; gap: 56px; } }
-    .donate-body { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.8; margin-bottom: 14px; }
-    @media (max-width: 767px) { .donate-body { text-align: center; } }
-    .donate-body strong { color: #fff; }
-    .donate-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 32px; }
-    @media (min-width: 768px) { .donate-stats { grid-template-columns: repeat(4, 1fr); } }
-    .donate-stat { text-align: center; padding: 16px 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; }
-    .donate-stat-value { font-size: 22px; font-weight: 900; color: var(--gold); margin-bottom: 2px; }
-    .donate-stat-label { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; }
-
-    .donate-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 32px; }
-    .donate-card-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-    .donate-card-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
-    .donate-tabs { display: flex; gap: 3px; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 3px; margin-bottom: 20px; }
-    .donate-tab {
-      flex: 1; padding: 10px; text-align: center;
-      font-family: inherit; font-size: 13px; font-weight: 600;
-      color: rgba(255,255,255,0.5); background: transparent;
-      border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s;
-    }
-    .donate-tab.active { background: rgba(255,255,255,0.1); color: #fff; }
-    .donate-amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-    .donate-amount {
-      padding: 13px; text-align: center;
-      font-family: inherit; font-size: 15px; font-weight: 700;
-      color: #fff; background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .donate-amount.selected { border-color: var(--gold); background: rgba(212,175,55,0.1); color: var(--gold); }
-    .donate-amount:hover:not(.selected) { border-color: rgba(255,255,255,0.2); }
-    .donate-custom {
-      width: 100%; padding: 13px 14px;
-      font-family: inherit; font-size: 14px; color: #fff;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px; outline:0; margin-bottom: 16px; transition: border-color 0.2s;
-    }
-    .donate-custom::placeholder { color: rgba(255,255,255,0.3); }
-    .donate-custom:focus { border-color: var(--gold); }
-    .donate-submit {
-      width: 100%; padding: 15px; font-family: inherit; font-size: 15px; font-weight: 700;
-      background: var(--gold); color: var(--navy); border: none; border-radius: 8px;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .donate-submit:hover { background: var(--gold-hover); transform: translateY(-1px); box-shadow: var(--shadow-gold); }
-
     /* ─── CTA Banner ───────────────────────────────────── */
     .cta-banner { padding: 80px 0; }
     .cta-box {
@@ -410,10 +362,7 @@
         <a href="#features" class="nav-link">Features</a>
         <a href="#vision" class="nav-link">The Vision</a>
         <a href="#plans" class="nav-link">Ministries</a>
-        <a href="#partner" class="nav-cta">
-          Donate
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </a>
+
       </div>
       <button class="nav-mobile" onclick="toggleMenu()" aria-label="Menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -430,7 +379,7 @@
     <a href="#features" onclick="toggleMenu()">Features</a>
     <a href="#vision" onclick="toggleMenu()">The Vision</a>
     <a href="#plans" onclick="toggleMenu()">Ministries</a>
-    <a href="#partner" onclick="toggleMenu()">Donate</a>
+
   </div>
 
   <!-- Hero -->
@@ -718,43 +667,6 @@
     </div>
   </section>
 
-  <!-- Donate -->
-  <section class="section section-dark" id="partner">
-    <div class="container">
-      <div class="donate-inner">
-        <div class="reveal">
-          <div class="section-label"><span class="section-label-line"></span>Partner With Us</div>
-          <h2 class="section-title" style="color:#fff">Sow into the Harvest.</h2>
-          <p class="donate-body"><strong>The Gospel is free, and we believe this discipleship journey should be too.</strong></p>
-          <p class="donate-body">We have made a firm commitment: no new believer should ever have to pay to learn about Jesus. The entire platform is completely free for the user. We want there to be zero barriers between a soul and their Savior.</p>
-          <p class="donate-body">However, building high-level technology, training advanced AI, and maintaining global servers requires significant resources.</p>
-          <p class="donate-body">When you give, you aren't just paying for software. <strong>You are sponsoring the discipleship of a new believer.</strong> You are ensuring that when a hand goes up, a digital safety net is there to catch them.</p>
-          <p class="donate-body">Help us keep this tool free for the billion-soul harvest.</p>
-          <div class="donate-stats">
-            <div class="donate-stat"><div class="donate-stat-value">$0</div><div class="donate-stat-label">Cost to Believers</div></div>
-            <div class="donate-stat"><div class="donate-stat-value">100%</div><div class="donate-stat-label">Donor Funded</div></div>
-            <div class="donate-stat"><div class="donate-stat-value">501(c)(3)</div><div class="donate-stat-label">Tax Deductible</div></div>
-            <div class="donate-stat"><div class="donate-stat-value">Global</div><div class="donate-stat-label">Kingdom Impact</div></div>
-          </div>
-        </div>
-        <div class="donate-card reveal">
-          <h3 class="donate-card-title">Make a Donation</h3>
-          <p class="donate-card-subtitle">Every gift helps equip the global church.</p>
-          <div class="donate-tabs">
-            <button class="donate-tab active" onclick="setFreq(this,'one-time')">One-time</button>
-            <button class="donate-tab" onclick="setFreq(this,'monthly')">Monthly</button>
-          </div>
-          <div class="donate-amounts">
-            <button class="donate-amount" onclick="pickAmt(this,25)">$25</button>
-            <button class="donate-amount selected" onclick="pickAmt(this,50)">$50</button>
-            <button class="donate-amount" onclick="pickAmt(this,100)">$100</button>
-          </div>
-          <input type="text" class="donate-custom" placeholder="Custom amount ($)" id="customAmt">
-          <button class="donate-submit" onclick="handleDonate()">Donate Now</button>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- CTA -->
   <section class="cta-banner">
@@ -767,7 +679,7 @@
             Start Learning Today
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
-          <a href="#partner" class="btn-ghost">Support the Mission</a>
+
         </div>
       </div>
     </div>
@@ -793,7 +705,7 @@
           </div>
           <div class="footer-col">
             <h4>Support</h4>
-            <a href="#partner">Donate</a>
+
             <a href="#">Contact Us</a>
             <a href="#">FAQ</a>
           </div>
@@ -815,11 +727,7 @@
     function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
     const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }), { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    let selAmt = 50, freq = 'one-time';
-    function setFreq(btn, f) { freq = f; document.querySelectorAll('.donate-tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
-    function pickAmt(btn, a) { selAmt = a; document.querySelectorAll('.donate-amount').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); document.getElementById('customAmt').value = ''; }
-    document.getElementById('customAmt').addEventListener('input', function() { const v = parseInt(this.value); if(v > 0) { selAmt = v; document.querySelectorAll('.donate-amount').forEach(b => b.classList.remove('selected')); } });
-    function handleDonate() { alert('Thank you for your ' + freq + ' donation of $' + selAmt + '! Payment integration coming soon.'); }
+
     document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if(t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); } }); });
 
     // Billing toggle
