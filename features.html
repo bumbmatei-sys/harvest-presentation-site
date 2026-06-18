@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Features — Harvest</title>
-  <meta name="description" content="Explore every feature Harvest offers — from AI-powered knowledge bases to community engagement tools.">
+  <meta name="description" content="Everything your ministry needs to thrive. From AI-powered knowledge to evangelism analytics.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -14,662 +14,460 @@
     :root {
       --gold: #C9963A;
       --gold-light: #d4a94f;
+      --gold-dark: #b5862f;
       --navy: #0b1121;
       --navy-light: #131b2e;
       --white: #ffffff;
       --body: #4a5568;
-      --body-light: #718096;
+      --body-dark: #2d3748;
+      --heading: #0b1121;
       --light-gold: #faf5eb;
-      --light-alt: #faf9f7;
+      --light-alt: #f8f9fb;
       --border: #e2e8f0;
       --gold-gradient: linear-gradient(135deg, #C9963A 0%, #d4a94f 100%);
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-      --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
-      --radius: 12px;
-      --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(11,17,33,0.04), 0 1px 2px rgba(11,17,33,0.03);
+      --shadow-md: 0 4px 16px rgba(11,17,33,0.06), 0 1px 4px rgba(11,17,33,0.04);
+      --shadow-lg: 0 12px 40px rgba(11,17,33,0.08), 0 4px 12px rgba(11,17,33,0.04);
+      --shadow-xl: 0 24px 60px rgba(11,17,33,0.10), 0 8px 20px rgba(11,17,33,0.05);
+      --shadow-gold: 0 8px 30px rgba(201,150,58,0.15), 0 2px 8px rgba(201,150,58,0.08);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .fade-in { opacity: 1 !important; transform: none !important; transition: none !important; }
     }
 
     html { scroll-behavior: smooth; }
     body {
       font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
       color: var(--body);
+      background: var(--white);
       line-height: 1.7;
       font-size: 16px;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
     }
-
+    a { color: inherit; text-decoration: none; }
     .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
 
-    /* ── NAV ── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(226,232,240,0.6);
-    }
-    nav .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 64px;
-    }
-    .nav-logo {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--navy);
-      text-decoration: none;
-      letter-spacing: -0.5px;
-    }
+    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    .section-label { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+    .section-title { font-size: 40px; font-weight: 800; color: var(--heading); line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 16px; }
+    .section-desc { font-size: 18px; color: var(--body); max-width: 600px; line-height: 1.7; }
+    .center { text-align: center; }
+    .center .section-desc { margin: 0 auto; }
+
+    @media (max-width: 768px) { .section-title { font-size: 30px; } }
+
+    /* NAV — same as index */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(226,232,240,0.6); }
+    nav .container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .nav-logo { font-size: 22px; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
     .nav-logo span { color: var(--gold); }
     .nav-links { display: flex; gap: 32px; align-items: center; }
-    .nav-links a {
-      text-decoration: none;
-      color: var(--body);
-      font-size: 15px;
-      font-weight: 600;
-      transition: color 0.2s;
-    }
+    .nav-links a { font-size: 15px; font-weight: 600; color: var(--body); transition: color 0.15s; }
     .nav-links a:hover, .nav-links a.active { color: var(--gold); }
-    .nav-cta {
-      background: var(--gold-gradient);
-      color: var(--white) !important;
-      padding: 8px 20px;
-      border-radius: 8px;
-      font-weight: 700 !important;
-      transition: opacity 0.2s;
-    }
+    .nav-cta { background: var(--gold-gradient); color: var(--white) !important; padding: 10px 24px; border-radius: 8px; font-weight: 700 !important; font-size: 14px !important; box-shadow: var(--shadow-gold); transition: opacity 0.15s; }
     .nav-cta:hover { opacity: 0.9; }
-    .mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
     .mobile-toggle svg { stroke: var(--navy); }
-
     @media (max-width: 768px) {
       .nav-links { display: none; }
-      .nav-links.open {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        top: 64px;
-        left: 0;
-        right: 0;
-        background: var(--white);
-        padding: 24px;
-        gap: 20px;
-        border-bottom: 1px solid var(--border);
-        box-shadow: var(--shadow-lg);
-      }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: var(--white); padding: 24px; gap: 20px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-lg); }
       .mobile-toggle { display: block; }
     }
 
-    /* ── HERO ── */
-    .hero {
-      background: var(--navy);
-      padding: 100px 0 80px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -20%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(201,150,58,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero .container { position: relative; z-index: 1; }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(201,150,58,0.15);
-      border: 1px solid rgba(201,150,58,0.3);
-      color: var(--gold);
-      padding: 6px 16px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 28px;
-    }
-    .hero h1 {
-      font-size: 56px;
-      font-weight: 800;
-      color: var(--white);
-      line-height: 1.1;
-      letter-spacing: -1.5px;
-      max-width: 700px;
-      margin: 0 auto 20px;
-    }
-    .hero h1 .gold { color: var(--gold); }
-    .hero p {
-      font-size: 19px;
-      font-weight: 300;
-      color: rgba(255,255,255,0.55);
-      max-width: 540px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 768px) {
-      .hero { padding: 72px 0 56px; }
-      .hero h1 { font-size: 34px; letter-spacing: -1px; }
-    }
-
-    /* ── HELPERS ── */
-    section { padding: 100px 0; }
-    .section-label {
-      display: inline-block;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-size: 40px;
-      font-weight: 800;
-      color: var(--navy);
-      line-height: 1.15;
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
-    }
-    .section-desc {
-      font-size: 18px;
-      color: var(--body-light);
-      max-width: 600px;
-      line-height: 1.7;
-      font-weight: 400;
-    }
-    .section-header { margin-bottom: 56px; }
-    .section-header.center { text-align: center; }
-    .section-header.center .section-desc { margin: 0 auto; }
-    .bg-white { background: var(--white); }
-    .bg-light { background: var(--light-alt); }
-    .bg-light-gold { background: var(--light-gold); }
-    .bg-navy { background: var(--navy); }
-
-    .btn-gold {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--gold-gradient);
-      color: var(--white);
-      padding: 14px 32px;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.2s;
-    }
+    /* BUTTONS */
+    .btn-gold { display: inline-flex; align-items: center; gap: 8px; background: var(--gold-gradient); color: var(--white); padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 700; box-shadow: var(--shadow-gold); transition: opacity 0.15s, transform 0.15s; cursor: pointer; }
     .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-ghost {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: var(--white);
-      padding: 14px 32px;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      text-decoration: none;
-      border: 1.5px solid rgba(255,255,255,0.25);
-      cursor: pointer;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.5); transform: translateY(-1px); }
+    .btn-ghost { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 700; border: 2px solid rgba(255,255,255,0.3); transition: border-color 0.15s; cursor: pointer; }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.6); }
 
-    /* ── FEATURE DETAIL BLOCKS ── */
-    .feature-block {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-    .feature-block.reverse { direction: rtl; }
-    .feature-block.reverse > * { direction: ltr; }
-    .feature-block-text {}
-    .feature-block-text .feature-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .feature-block-text .feature-label .icon-dot {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .feature-block-text .feature-label .icon-dot svg { width: 18px; height: 18px; stroke-width: 1.5; }
-    .feature-block-text h2 {
-      font-size: 36px;
-      font-weight: 800;
-      color: var(--navy);
-      line-height: 1.15;
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
-    }
-    .feature-block-text p {
-      font-size: 17px;
-      color: var(--body);
-      line-height: 1.7;
-      margin-bottom: 24px;
-    }
-    .feature-block-text ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .feature-block-text ul li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 15px;
-      color: var(--body);
-      font-weight: 500;
-    }
-    .feature-block-text ul li svg {
-      flex-shrink: 0;
-      width: 20px;
-      height: 20px;
-      stroke: var(--gold);
-      stroke-width: 2.5;
-      margin-top: 1px;
-    }
-    .feature-block-visual {
-      border-radius: var(--radius-lg);
-      padding: 56px 40px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .feature-block-visual .big-icon {
-      width: 100px;
-      height: 100px;
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-    }
-    .feature-block-visual .big-icon svg { width: 48px; height: 48px; stroke-width: 1.2; }
+    /* HERO */
+    .features-hero { background: var(--navy); padding: 80px 0 60px; text-align: center; }
+    .features-hero h1 { font-size: 48px; font-weight: 300; color: var(--white); line-height: 1.1; letter-spacing: -1.2px; margin-bottom: 16px; }
+    .features-hero h1 em { font-style: normal; color: var(--gold); font-weight: 600; }
+    .features-hero p { font-size: 18px; color: rgba(255,255,255,0.6); max-width: 500px; margin: 0 auto; }
+    @media (max-width: 768px) { .features-hero { padding: 64px 0 48px; } .features-hero h1 { font-size: 32px; letter-spacing: -0.6px; } }
 
-    /* Tinted visuals */
-    .visual-purple { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); }
-    .visual-purple .big-icon { background: rgba(139,92,246,0.12); }
-    .visual-purple .big-icon svg { stroke: #8b5cf6; }
+    /* ANCHOR PILLS */
+    .anchor-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 32px; }
+    .anchor-pill { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.6); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); transition: all 0.15s; }
+    .anchor-pill:hover { color: var(--gold); border-color: var(--gold); background: rgba(201,150,58,0.1); }
 
-    .visual-blue { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
-    .visual-blue .big-icon { background: rgba(59,130,246,0.12); }
-    .visual-blue .big-icon svg { stroke: #3b82f6; }
+    /* FEATURE SECTIONS */
+    .feature-section { padding: 80px 0; }
+    .feature-section.alt { background: var(--light-alt); }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .feature-grid.reverse { direction: rtl; }
+    .feature-grid.reverse > * { direction: ltr; }
+    .feature-content h3 { font-size: 28px; font-weight: 800; color: var(--heading); margin-bottom: 12px; letter-spacing: -0.3px; }
+    .feature-content p { font-size: 16px; color: var(--body); margin-bottom: 24px; }
+    .feature-list { list-style: none; }
+    .feature-list li { display: flex; align-items: center; gap: 12px; padding: 8px 0; font-size: 15px; font-weight: 600; color: var(--body-dark); }
+    .feature-list li svg { width: 18px; height: 18px; color: var(--gold); flex-shrink: 0; }
 
-    .visual-green { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
-    .visual-green .big-icon { background: rgba(16,185,129,0.12); }
-    .visual-green .big-icon svg { stroke: #10b981; }
+    /* MOCKUP CARDS */
+    .mockup-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-lg); }
+    .mockup-card .mockup-header { display: flex; gap: 6px; margin-bottom: 16px; }
+    .mockup-card .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+    .mockup-card .dot:first-child { background: #ff5f57; }
+    .mockup-card .dot:nth-child(2) { background: #febc2e; }
+    .mockup-card .dot:nth-child(3) { background: #28c840; }
 
-    .visual-orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
-    .visual-orange .big-icon { background: rgba(249,115,22,0.12); }
-    .visual-orange .big-icon svg { stroke: #f97316; }
+    /* Chat mockup */
+    .chat-bubble { padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; max-width: 85%; }
+    .chat-user { background: var(--light-alt); color: var(--body-dark); margin-left: auto; border-bottom-right-radius: 4px; }
+    .chat-ai { background: rgba(201,150,58,0.08); color: var(--body-dark); border-bottom-left-radius: 4px; }
 
-    .visual-pink { background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); }
-    .visual-pink .big-icon { background: rgba(236,72,153,0.12); }
-    .visual-pink .big-icon svg { stroke: #ec4899; }
+    /* Stats mockup */
+    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-item { background: var(--light-alt); border-radius: 10px; padding: 16px; text-align: center; }
+    .stat-item .num { font-size: 24px; font-weight: 800; color: var(--heading); }
+    .stat-item .label { font-size: 12px; color: var(--body); font-weight: 600; }
 
-    .visual-gold { background: linear-gradient(135deg, #faf5eb 0%, #f5ead6 100%); }
-    .visual-gold .big-icon { background: rgba(201,150,58,0.15); }
-    .visual-gold .big-icon svg { stroke: var(--gold); }
+    /* Feed mockup */
+    .feed-post { padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .feed-post:last-child { border-bottom: none; }
+    .feed-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-gradient); display: inline-flex; align-items: center; justify-content: center; color: var(--white); font-size: 13px; font-weight: 800; margin-right: 10px; vertical-align: middle; }
+    .feed-name { font-size: 14px; font-weight: 700; color: var(--heading); }
+    .feed-text { font-size: 13px; color: var(--body); margin-top: 6px; }
 
-    .visual-teal { background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); }
-    .visual-teal .big-icon { background: rgba(20,184,166,0.12); }
-    .visual-teal .big-icon svg { stroke: #14b8a6; }
+    /* Chart mockup */
+    .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding: 0 8px; }
+    .chart-bar { flex: 1; border-radius: 4px 4px 0 0; transition: height 0.3s; }
+    .chart-bar.gold { background: var(--gold-gradient); }
+    .chart-bar.light { background: rgba(201,150,58,0.2); }
+
+    /* Course mockup */
+    .course-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: center; }
+    .course-item:last-child { border-bottom: none; }
+    .course-num { width: 28px; height: 28px; background: var(--gold-gradient); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+    .course-title { font-size: 14px; font-weight: 700; color: var(--heading); }
+    .course-meta { font-size: 12px; color: var(--body); }
 
     @media (max-width: 768px) {
-      .feature-block { grid-template-columns: 1fr; gap: 40px; }
-      .feature-block.reverse { direction: ltr; }
+      .feature-grid { grid-template-columns: 1fr; gap: 32px; }
+      .feature-grid.reverse { direction: ltr; }
+      .feature-section { padding: 56px 0; }
     }
 
-    /* ── CTA ── */
-    .features-cta {
-      background: var(--navy);
-      text-align: center;
-      padding: 100px 0;
-    }
-    .features-cta h2 {
-      font-size: 40px;
-      font-weight: 800;
-      color: var(--white);
-      line-height: 1.15;
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
-    }
-    .features-cta h2 .gold { color: var(--gold); }
-    .features-cta p {
-      font-size: 18px;
-      color: rgba(255,255,255,0.5);
-      max-width: 500px;
-      margin: 0 auto 36px;
-      font-weight: 300;
-    }
-    .features-cta .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    /* CTA */
+    .features-cta { background: var(--navy); padding: 80px 0; text-align: center; }
+    .features-cta h2 { font-size: 32px; font-weight: 800; color: var(--white); margin-bottom: 16px; letter-spacing: -0.5px; }
+    .features-cta p { font-size: 17px; color: rgba(255,255,255,0.6); margin-bottom: 32px; }
 
-    /* ── FOOTER ── */
-    footer {
-      background: #060a14;
-      padding: 48px 0 32px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
-    footer .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .footer-logo {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--white);
-      text-decoration: none;
-    }
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 40px 0; }
+    footer .container { display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-size: 18px; font-weight: 800; color: var(--navy); }
     .footer-logo span { color: var(--gold); }
     .footer-links { display: flex; gap: 24px; }
-    .footer-links a {
-      font-size: 14px;
-      color: rgba(255,255,255,0.4);
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.2s;
-    }
+    .footer-links a { font-size: 14px; font-weight: 600; color: var(--body); transition: color 0.15s; }
     .footer-links a:hover { color: var(--gold); }
-    .footer-copy {
-      font-size: 13px;
-      color: rgba(255,255,255,0.25);
-      width: 100%;
-      text-align: center;
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
+    .footer-copy { font-size: 13px; color: var(--body); margin-top: 24px; text-align: center; }
+    @media (max-width: 768px) { footer .container { flex-direction: column; gap: 16px; } .footer-links { flex-wrap: wrap; justify-content: center; } }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div class="container">
-      <a href="/" class="nav-logo">Harvest<span>.</span></a>
-      <div class="nav-links" id="nav-links">
-        <a href="/features.html" class="active">Features</a>
-        <a href="/#pricing">Pricing</a>
-        <a href="/#affiliate">Affiliate</a>
-        <a href="/#contact" class="nav-cta">Get Started</a>
-      </div>
-      <button class="mobile-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')" aria-label="Menu">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <a href="/" class="nav-logo">Harvest<span>.</span></a>
+    <div class="nav-links" id="navLinks">
+      <a href="/features.html" class="active">Features</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#affiliate">Affiliate</a>
+      <a href="https://theharvest.app" target="_blank" rel="noopener">App</a>
+      <a href="/#pricing" class="nav-cta">Get Started</a>
     </div>
-  </nav>
+    <button class="mobile-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Platform Features
-      </div>
-      <h1>Everything your <span class="gold">ministry</span> needs</h1>
-      <p>Seven powerful modules working together to help you disciple, engage, and grow your community.</p>
+<!-- HERO -->
+<section class="features-hero">
+  <div class="container">
+    <h1 class="fade-in">Everything your ministry<br>needs to <em>thrive</em></h1>
+    <p class="fade-in">Seven pillars of digital ministry — each designed to help you disciple, engage, and grow.</p>
+    <div class="anchor-pills fade-in">
+      <a href="#ai-knowledge" class="anchor-pill">AI Knowledge</a>
+      <a href="#ai-assistant" class="anchor-pill">AI Assistant</a>
+      <a href="#community" class="anchor-pill">Community</a>
+      <a href="#blog" class="anchor-pill">Blog</a>
+      <a href="#courses" class="anchor-pill">Courses</a>
+      <a href="#dashboard" class="anchor-pill">Dashboard</a>
+      <a href="#analytics" class="anchor-pill">Analytics</a>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- AI KNOWLEDGE BASE -->
-  <section class="bg-white">
-    <div class="container">
-      <div class="feature-block">
-        <div class="feature-block-text">
-          <div class="feature-label">
-            <span class="icon-dot" style="background: rgba(139,92,246,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
-            </span>
-            Knowledge Base
-          </div>
-          <h2>AI Knowledge Base</h2>
-          <p>Upload your sermons, study guides, and theological resources. Harvest's AI learns your church's unique voice and doctrine, then answers member questions with precision and care.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Upload sermons, PDFs, and documents</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> AI learns your theology and voice</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Members ask questions, get trusted answers</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Cites sources from your content</li>
-          </ul>
-        </div>
-        <div class="feature-block-visual visual-purple">
-          <div class="big-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
-          </div>
-        </div>
+<!-- AI KNOWLEDGE BASE -->
+<section class="feature-section" id="ai-knowledge">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-content fade-in">
+        <span class="section-label">AI Knowledge Base</span>
+        <h3>Your ministry's truth, amplified by AI</h3>
+        <p>Upload your sermons, studies, and doctrinal materials. Our AI learns exclusively from your content — no hallucination, no generic responses. Your community gets answers rooted in your teaching.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Upload sermons, studies, and doctrinal materials</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI answers only from your sources</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>No hallucination — verified responses</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>24/7 availability for your community</li>
+        </ul>
+      </div>
+      <div class="mockup-card fade-in">
+        <div class="mockup-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="chat-bubble chat-user">What does Pastor teach about grace?</div>
+        <div class="chat-bubble chat-ai">According to Pastor's sermon on March 15th: "Grace is not a license to sin — it's the power to overcome. God's grace meets you where you are but refuses to leave you there..."</div>
+        <div class="chat-bubble chat-user">Can you share the full passage?</div>
+        <div class="chat-bubble chat-ai">Of course. Here's the full excerpt from "Grace That Transforms" — a sermon series from Romans 5-8...</div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- PERSONAL AI ASSISTANT -->
-  <section class="bg-light-gold">
-    <div class="container">
-      <div class="feature-block reverse">
-        <div class="feature-block-text">
-          <div class="feature-label">
-            <span class="icon-dot" style="background: rgba(59,130,246,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-            </span>
-            AI Assistant
+<!-- PERSONAL AI ASSISTANT -->
+<section class="feature-section alt" id="ai-assistant">
+  <div class="container">
+    <div class="feature-grid reverse">
+      <div class="feature-content fade-in">
+        <span class="section-label">Personal AI Assistant</span>
+        <h3>Your pastoral co-pilot</h3>
+        <p>Connects to 900+ apps — email, calendar, tasks, notes. Automates workflows so you can focus on what matters: shepherding your people.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Connects to 900+ apps and services</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Manages schedules and automates tasks</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Available in-app and on mobile</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Add-on: $150 setup + $100/mo</li>
+        </ul>
+      </div>
+      <div class="mockup-card fade-in">
+        <div class="mockup-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;">
+          <div style="padding:16px 8px;background:var(--light-alt);border-radius:10px;">
+            <div style="font-size:20px;margin-bottom:4px;">📧</div>
+            <div style="font-size:12px;font-weight:700;color:var(--heading);">Email</div>
           </div>
-          <h2>Personal AI Assistant</h2>
-          <p>Every member gets a conversational AI companion — trained on your church's content — that helps them navigate scripture, find resources, and deepen their understanding.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Natural language conversations</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Scripture references and cross-references</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Personalized study recommendations</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Available 24/7 on any device</li>
-          </ul>
-        </div>
-        <div class="feature-block-visual visual-blue">
-          <div class="big-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+          <div style="padding:16px 8px;background:var(--light-alt);border-radius:10px;">
+            <div style="font-size:20px;margin-bottom:4px;">📅</div>
+            <div style="font-size:12px;font-weight:700;color:var(--heading);">Calendar</div>
+          </div>
+          <div style="padding:16px 8px;background:var(--light-alt);border-radius:10px;">
+            <div style="font-size:20px;margin-bottom:4px;">✅</div>
+            <div style="font-size:12px;font-weight:700;color:var(--heading);">Tasks</div>
+          </div>
+          <div style="padding:16px 8px;background:var(--light-alt);border-radius:10px;">
+            <div style="font-size:20px;margin-bottom:4px;">📝</div>
+            <div style="font-size:12px;font-weight:700;color:var(--heading);">Notes</div>
+          </div>
+          <div style="padding:16px 8px;background:var(--light-alt);border-radius:10px;">
+            <div style="font-size:20px;margin-bottom:4px;">💬</div>
+            <div style="font-size:12px;font-weight:700;color:var(--heading);">Messages</div>
+          </div>
+          <div style="padding:16px 8px;background:rgba(201,150,58,0.08);border-radius:10px;">
+            <div style="font-size:12px;font-weight:800;color:var(--gold);">900+</div>
+            <div style="font-size:12px;font-weight:700;color:var(--heading);">More</div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- COMMUNITY FEED -->
-  <section class="bg-white">
-    <div class="container">
-      <div class="feature-block">
-        <div class="feature-block-text">
-          <div class="feature-label">
-            <span class="icon-dot" style="background: rgba(16,185,129,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </span>
-            Community
-          </div>
-          <h2>Community Feed</h2>
-          <p>A private, safe space for your congregation to share encouragement, prayer requests, and life updates. Think of it as your church's own social network — without the noise.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Prayer request wall</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Photo and testimony sharing</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Group discussions</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Moderated and safe</li>
-          </ul>
+<!-- COMMUNITY FEED -->
+<section class="feature-section" id="community">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-content fade-in">
+        <span class="section-label">Community Feed</span>
+        <h3>Your people, your space</h3>
+        <p>Isolated social feed per ministry. Prayer requests, testimonies, announcements — moderated by your admin team. No algorithm, no ads, just community.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Isolated per ministry — your community only</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Prayer requests and testimonies</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Announcements and updates</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Moderated by your admin team</li>
+        </ul>
+      </div>
+      <div class="mockup-card fade-in">
+        <div class="mockup-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="feed-post">
+          <span class="feed-avatar">S</span><span class="feed-name">Sarah M.</span>
+          <div class="feed-text">Please pray for my mother's surgery next Tuesday. She's been such a pillar of faith for our family. 🙏</div>
         </div>
-        <div class="feature-block-visual visual-green">
-          <div class="big-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </div>
+        <div class="feed-post">
+          <span class="feed-avatar">D</span><span class="feed-name">David K.</span>
+          <div class="feed-text">Testimony: After 3 years of struggling, I finally found peace through the community here. God is faithful!</div>
+        </div>
+        <div class="feed-post">
+          <span class="feed-avatar">P</span><span class="feed-name">Pastor James</span>
+          <div class="feed-text">Sunday's sermon "Walking in Purpose" is now available. Join us next week for Part 2!</div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- BLOG -->
-  <section class="bg-light">
-    <div class="container">
-      <div class="feature-block reverse">
-        <div class="feature-block-text">
-          <div class="feature-label">
-            <span class="icon-dot" style="background: rgba(249,115,22,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-            </span>
-            Content
-          </div>
-          <h2>Blog &amp; Devotionals</h2>
-          <p>Publish sermons, devotionals, announcements, and articles with a clean, beautiful content management system. No technical skills required.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Rich text editor with media support</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Schedule and draft posts</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Categories and tags</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SEO-optimized out of the box</li>
-          </ul>
-        </div>
-        <div class="feature-block-visual visual-orange">
-          <div class="big-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-          </div>
-        </div>
+<!-- BLOG -->
+<section class="feature-section alt" id="blog">
+  <div class="container">
+    <div class="feature-grid reverse">
+      <div class="feature-content fade-in">
+        <span class="section-label">Blog & Publishing</span>
+        <h3>Share your teaching with the world</h3>
+        <p>Full publishing system for each ministry. Sermons, devotionals, and teaching content — beautifully presented and easy to manage.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Rich text editor with media support</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Draft and publish workflow</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>SEO-optimized for discovery</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Available on all plans</li>
+        </ul>
+      </div>
+      <div class="mockup-card fade-in">
+        <div class="mockup-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="background:var(--light-alt);border-radius:10px;height:100px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;color:var(--body);font-size:14px;">Featured Image</div>
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;">SERMON SERIES</div>
+        <div style="font-size:18px;font-weight:800;color:var(--heading);margin-bottom:8px;">Walking in Purpose: A 4-Part Series</div>
+        <div style="font-size:14px;color:var(--body);line-height:1.5;">Discover God's unique calling for your life through this transformative sermon series on identity, purpose, and destiny...</div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- COURSES -->
-  <section class="bg-white">
-    <div class="container">
-      <div class="feature-block">
-        <div class="feature-block-text">
-          <div class="feature-label">
-            <span class="icon-dot" style="background: rgba(236,72,153,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            </span>
-            Learning
-          </div>
-          <h2>Courses</h2>
-          <p>Build structured learning paths for every stage of faith — from new believer foundations to advanced theological training. Track progress and celebrate milestones.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Drag-and-drop course builder</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Video, audio, and text lessons</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Quizzes and completion tracking</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Certificates of completion</li>
-          </ul>
-        </div>
-        <div class="feature-block-visual visual-pink">
-          <div class="big-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-          </div>
-        </div>
+<!-- COURSES -->
+<section class="feature-section" id="courses">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-content fade-in">
+        <span class="section-label">Courses</span>
+        <h3>Guide your community's growth</h3>
+        <p>Build structured learning paths. From salvation foundations to spiritual disciplines — help your people grow step by step.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Course management system</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Structured lesson paths</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Progress tracking</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>From 5 courses to unlimited</li>
+        </ul>
+      </div>
+      <div class="mockup-card fade-in">
+        <div class="mockup-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="course-item"><div class="course-num">1</div><div><div class="course-title">Foundations of Faith</div><div class="course-meta">8 lessons · 2h 30m</div></div></div>
+        <div class="course-item"><div class="course-num">2</div><div><div class="course-title">Understanding Grace</div><div class="course-meta">6 lessons · 1h 45m</div></div></div>
+        <div class="course-item"><div class="course-num">3</div><div><div class="course-title">Prayer & Spiritual Disciplines</div><div class="course-meta">10 lessons · 3h 15m</div></div></div>
+        <div class="course-item"><div class="course-num">4</div><div><div class="course-title">Leadership Development</div><div class="course-meta">12 lessons · 4h</div></div></div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ADMIN DASHBOARD -->
-  <section class="bg-light-gold">
-    <div class="container">
-      <div class="feature-block reverse">
-        <div class="feature-block-text">
-          <div class="feature-label">
-            <span class="icon-dot" style="background: rgba(201,150,58,0.12);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#C9963A" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-            </span>
-            Management
-          </div>
-          <h2>Admin Dashboard</h2>
-          <p>A powerful command center for church leaders. Manage content, members, and platform settings from one clean, intuitive interface.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Member management and roles</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Content moderation tools</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Platform customization</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Multi-admin support</li>
-          </ul>
-        </div>
-        <div class="feature-block-visual visual-gold">
-          <div class="big-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-          </div>
+<!-- ADMIN DASHBOARD -->
+<section class="feature-section alt" id="dashboard">
+  <div class="container">
+    <div class="feature-grid reverse">
+      <div class="feature-content fade-in">
+        <span class="section-label">Admin Dashboard</span>
+        <h3>See who's growing, who needs care</h3>
+        <p>Full control with analytics and engagement tracking. Manage members, assign roles, and monitor your ministry's health — all from one dashboard.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Engagement analytics</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Member management</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Role-based permissions</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Multi-admin support</li>
+        </ul>
+      </div>
+      <div class="mockup-card fade-in">
+        <div class="mockup-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="stat-row">
+          <div class="stat-item"><div class="num">1,247</div><div class="label">Members</div></div>
+          <div class="stat-item"><div class="num">89%</div><div class="label">Engagement</div></div>
+          <div class="stat-item"><div class="num">342</div><div class="label">Enrolled</div></div>
+          <div class="stat-item"><div class="num">56</div><div class="label">Prayer Requests</div></div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- EVANGELISM ANALYTICS -->
-  <section class="bg-white">
-    <div class="container">
-      <div class="feature-block">
-        <div class="feature-block-text">
-          <div class="feature-label">
-            <span class="icon-dot" style="background: rgba(20,184,166,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-            </span>
-            Analytics
-          </div>
-          <h2>Evangelism Analytics</h2>
-          <p>Track engagement, measure outreach impact, and understand how your digital ministry is growing. Make data-driven decisions with confidence.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Member engagement metrics</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Content performance tracking</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Growth trends and forecasting</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Exportable reports</li>
-          </ul>
+<!-- EVANGELISM ANALYTICS -->
+<section class="feature-section" id="analytics">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-content fade-in">
+        <span class="section-label">Evangelism Analytics</span>
+        <h3>Count what matters for the Kingdom</h3>
+        <p>Track decisions for Christ and start follow-up automatically. Measure your ministry's impact with real data — not guesswork.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Track salvation decisions</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Automated follow-up workflows</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Measure evangelism impact</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Report to church leadership</li>
+        </ul>
+      </div>
+      <div class="mockup-card fade-in">
+        <div class="mockup-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+          <div class="stat-item" style="flex:1;margin-right:8px;"><div class="num">127</div><div class="label">Decisions</div></div>
+          <div class="stat-item" style="flex:1;margin-left:8px;"><div class="num">89</div><div class="label">Follow-ups</div></div>
         </div>
-        <div class="feature-block-visual visual-teal">
-          <div class="big-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-          </div>
+        <div class="chart-bars">
+          <div class="chart-bar gold" style="height:40%"></div>
+          <div class="chart-bar light" style="height:55%"></div>
+          <div class="chart-bar gold" style="height:70%"></div>
+          <div class="chart-bar light" style="height:45%"></div>
+          <div class="chart-bar gold" style="height:85%"></div>
+          <div class="chart-bar light" style="height:60%"></div>
+          <div class="chart-bar gold" style="height:95%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--body);">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- CTA -->
-  <section class="features-cta">
-    <div class="container">
-      <h2>Ready to see it in <span class="gold">action</span>?</h2>
-      <p>Join the churches already using Harvest to disciple, engage, and grow.</p>
-      <div class="hero-ctas">
-        <a href="/#pricing" class="btn-gold">View Plans</a>
-        <a href="mailto:hello@harvest.church" class="btn-ghost">Contact Us</a>
-      </div>
+<!-- CTA -->
+<section class="features-cta">
+  <div class="container">
+    <h2 class="fade-in">Ready to equip your ministry?</h2>
+    <p class="fade-in">Join churches worldwide using Harvest to disciple, engage, and grow.</p>
+    <div class="hero-ctas fade-in" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="/#pricing" class="btn-gold">View Pricing</a>
+      <a href="https://theharvest.app" class="btn-ghost" target="_blank" rel="noopener">Try the App</a>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="container">
-      <a href="/" class="footer-logo">Harvest<span>.</span></a>
-      <div class="footer-links">
-        <a href="/features.html">Features</a>
-        <a href="/#pricing">Pricing</a>
-        <a href="https://theharvest.app" target="_blank" rel="noopener">App</a>
-        <a href="mailto:hello@harvest.church">Contact</a>
-      </div>
-      <div class="footer-copy">&copy; 2026 Harvest. All rights reserved.</div>
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">Harvest<span>.</span></div>
+    <div class="footer-links">
+      <a href="/features.html">Features</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#affiliate">Affiliate</a>
+      <a href="https://theharvest.app" target="_blank" rel="noopener">App</a>
     </div>
-  </footer>
+  </div>
+  <p class="footer-copy">&copy; 2026 Harvest. All rights reserved.</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+});
+</script>
 
 </body>
 </html>
