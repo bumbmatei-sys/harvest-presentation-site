@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -748,6 +749,26 @@
       .features-table thead th, .features-table tbody td { padding: 10px 8px; font-size: 12px; }
     }
 
+    /* Contact Sales Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--white); border-radius: 16px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header { padding: 24px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 22px; font-weight: 800; color: var(--heading); }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--body); padding: 4px; line-height: 1; }
+    .modal-body { padding: 20px 24px 28px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--heading); margin-bottom: 6px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; font-family: 'Nunito', sans-serif; color: var(--heading); transition: border-color 0.15s; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,150,58,0.1); }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .btn-send { display: block; width: 100%; padding: 14px; background: var(--gold-gradient); color: var(--white); font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: opacity 0.15s; }
+    .btn-send:hover { opacity: 0.9; }
+    .btn-send:disabled { opacity: 0.5; cursor: wait; }
+    .form-success { text-align: center; padding: 32px 16px; }
+    .form-success h4 { font-size: 20px; font-weight: 800; color: var(--heading); margin-bottom: 8px; }
+    .form-success p { color: var(--body); font-size: 15px; line-height: 1.6; }
+
     @media (max-width: 768px) {
       .addon-card { grid-template-columns: 1fr; text-align: center; }
       .addon-price { text-align: center; }
@@ -1164,7 +1185,7 @@
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited AI Assistants</li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
             </ul>
-            <a href="https://theharvest.app?signup=enterprise" class="btn-card btn-card-outline">Contact Sales</a>
+            <a href="javascript:void(0)" class="btn-card btn-card-outline" onclick="document.getElementById('contactModal').classList.add('open')">Contact Sales</a>
           </div>
         </div>
       </div>
@@ -1340,6 +1361,80 @@ new Swiper('.swiper-pricing', {
     1024: { slidesPerView: 3, centeredSlides: false, spaceBetween: 20 },
   },
 });
+</script>
+
+<!-- Contact Sales Modal -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Enterprise Plan</h3>
+      <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('open')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="contactName">Full Name</label>
+          <input type="text" id="contactName" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="contactMinistry">Ministry Name</label>
+          <input type="text" id="contactMinistry" placeholder="Name of your ministry" required>
+        </div>
+        <div class="form-group">
+          <label for="contactSubject">Subject</label>
+          <input type="text" id="contactSubject" value="Enterprise Plan Proposal" required>
+        </div>
+        <div class="form-group">
+          <label for="contactBody">Message</label>
+          <textarea id="contactBody" placeholder="Tell us about your ministry and what you're looking for..." required></textarea>
+        </div>
+        <button type="submit" class="btn-send" id="contactSubmit">Send Request</button>
+      </form>
+      <div class="form-success" id="contactSuccess" style="display:none;">
+        <div style="width:64px;height:64px;border-radius:50%;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h4>Thank you for applying!</h4>
+        <p>One of our colleagues will contact you as soon as possible.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── EMAILJS CONTACT FORM ──
+// TODO: Replace with your actual EmailJS credentials
+// Sign up free at https://www.emailjs.com
+// 1. Create an Email Service (Gmail, Outlook, etc.)
+// 2. Create an Email Template with variables: {{from_name}}, {{ministry}}, {{subject}}, {{message}}, {{to_email}}
+// 3. Get your Public Key, Service ID, and Template ID
+(function() {
+  emailjs.init({ publicKey: 'YOUR_PUBLIC_KEY' }); // TODO: replace
+  const form = document.getElementById('contactForm');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('contactSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { // TODO: replace
+          from_name: document.getElementById('contactName').value,
+          ministry: document.getElementById('contactMinistry').value,
+          subject: document.getElementById('contactSubject').value,
+          message: document.getElementById('contactBody').value,
+          to_email: 'matei@theharvest.app',
+        });
+        form.style.display = 'none';
+        document.getElementById('contactSuccess').style.display = 'block';
+      } catch (err) {
+        alert('Failed to send. Please try again or email us directly at matei@theharvest.app');
+        btn.disabled = false;
+        btn.textContent = 'Send Request';
+      }
+    });
+  }
+})();
 </script>
 
 </body>
