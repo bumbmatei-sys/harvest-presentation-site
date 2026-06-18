@@ -458,14 +458,16 @@
       box-shadow: var(--shadow-lg);
     }
     .app-icon-large {
-      width: 120px;
-      height: auto;
+      width: 100px;
+      height: 100px;
       background: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
       box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
     }
     .app-icon-large img { width: 100%; height: auto; object-fit: contain; }
     .believers-card h4 {
@@ -586,6 +588,9 @@
       padding: 32px 24px;
       transition: box-shadow 0.2s;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
     .price-card:hover { box-shadow: var(--shadow-lg); }
     .price-card.popular {
@@ -649,7 +654,9 @@
     }
     .price-card ul {
       list-style: none;
-      margin-bottom: 24px;
+      margin-bottom: auto;
+      flex-grow: 1;
+      padding-top: 4px;
     }
     .price-card ul li {
       display: flex;
