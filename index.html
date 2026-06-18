@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Harvest — From Conversion to Devotion</title>
   <meta name="description" content="The digital foundation that turns a moment of decision into a lifetime of devotion. Your own branded ministry platform with AI, community, and courses.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://theharvest.site/">
+  <meta property="og:title" content="Harvest — From Conversion to Devotion">
+  <meta property="og:description" content="Your own branded ministry platform with AI, community, and courses.">
+  <meta property="og:image" content="https://theharvest.site/logos/harvest-field.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Harvest — From Conversion to Devotion">
+  <meta name="twitter:description" content="Your own branded ministry platform with AI, community, and courses.">
+  <meta name="twitter:image" content="https://theharvest.site/logos/harvest-field.jpg">
+  <link rel="canonical" href="https://theharvest.site/">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -531,7 +543,17 @@
       width: 48px;
       height: 26px;
     }
-    .toggle-switch input { display: none; }
+    .toggle-switch input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     .toggle-slider {
       position: absolute;
       inset: 0;
@@ -901,7 +923,7 @@
     <h1 class="fade-in">The digital foundation that turns<br>a moment of decision into<br><em>a lifetime of devotion.</em></h1>
     <p class="subtitle fade-in">Your own branded ministry platform. AI trained on your teachings, community built for your people, courses designed for growth.</p>
     <div class="hero-ctas fade-in">
-      <a href="https://theharvest.app" class="btn-gold" target="_blank" rel="noopener">Access Harvest</a>
+      <a href="https://theharvest.app?signup=true" class="btn-gold" target="_blank" rel="noopener">Access Harvest</a>
       <a href="#pricing" class="btn-ghost">See Plans</a>
     </div>
   </div>
@@ -1097,12 +1119,12 @@
     </div>
 
     <div class="billing-toggle fade-in">
-      <label id="monthly-label" class="active" for="billing-toggle">Monthly</label>
+      <label id="monthly-label" class="active">Monthly</label>
       <label class="toggle-switch" for="billing-toggle">
         <input type="checkbox" id="billing-toggle">
         <span class="toggle-slider"></span>
       </label>
-      <label id="yearly-label" for="billing-toggle">Yearly <span class="yearly-badge">2 months free</span></label>
+      <label id="yearly-label">Yearly <span class="yearly-badge">2 months free</span></label>
     </div>
 
     <!-- Plan Carousel -->
@@ -1316,6 +1338,12 @@ document.addEventListener('DOMContentLoaded', function() {
     priceEls.forEach(function(el) {
       el.textContent = isYearly ? el.dataset.yearly : el.dataset.monthly;
     });
+    // Update signup links with billing period
+    document.querySelectorAll('a[href*="signup="]').forEach(function(a) {
+      var url = new URL(a.href);
+      url.searchParams.set('billing', isYearly ? 'yearly' : 'monthly');
+      a.href = url.toString();
+    });
     monthlyLabel.classList.toggle('active', !isYearly);
     yearlyLabel.classList.toggle('active', isYearly);
   }
@@ -1383,11 +1411,11 @@ equalizeCardHeights();
 </script>
 
 <!-- Contact Sales Modal -->
-<div class="modal-overlay" id="contactModal">
+<div class="modal-overlay" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>Enterprise Plan</h3>
-      <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('open')">&times;</button>
+      <h3 id="modalTitle">Enterprise Plan</h3>
+      <button class="modal-close" aria-label="Close dialog" onclick="document.getElementById('contactModal').classList.remove('open')">&times;</button>
     </div>
     <div class="modal-body">
       <form id="contactForm">
@@ -1440,7 +1468,7 @@ equalizeCardHeights();
           ministry: document.getElementById('contactMinistry').value,
           _subject: document.getElementById('contactSubject').value,
           message: document.getElementById('contactBody').value,
-          _captcha: 'false',
+          _captcha: 'true',
           _template: 'table'
         })
       });
