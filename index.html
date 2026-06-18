@@ -458,16 +458,14 @@
       box-shadow: var(--shadow-lg);
     }
     .app-icon-large {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: auto;
       background: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
       box-shadow: none;
-      border-radius: 0;
-      overflow: visible;
     }
     .app-icon-large img { width: 100%; height: auto; object-fit: contain; }
     .believers-card h4 {
@@ -590,7 +588,6 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      height: 100%;
     }
     .price-card:hover { box-shadow: var(--shadow-lg); }
     .price-card.popular {
@@ -1357,7 +1354,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 });
 
 // ── SWIPER PRICING CAROUSEL ──
-new Swiper('.swiper-pricing', {
+const pricingSwiper = new Swiper('.swiper-pricing', {
   slidesPerView: 1.2,
   spaceBetween: 16,
   centeredSlides: true,
@@ -1367,7 +1364,20 @@ new Swiper('.swiper-pricing', {
     640: { slidesPerView: 2.2, centeredSlides: false },
     1024: { slidesPerView: 3, centeredSlides: false, spaceBetween: 20 },
   },
+  on: {
+    init: function() { equalizeCardHeights(); },
+    resize: function() { equalizeCardHeights(); },
+  },
 });
+function equalizeCardHeights() {
+  const cards = document.querySelectorAll('.swiper-pricing .price-card');
+  if (!cards.length) return;
+  let maxH = 0;
+  cards.forEach(c => { c.style.height = 'auto'; });
+  cards.forEach(c => { if (c.offsetHeight > maxH) maxH = c.offsetHeight; });
+  cards.forEach(c => { c.style.height = maxH + 'px'; });
+}
+equalizeCardHeights();
 </script>
 
 <!-- Contact Sales Modal -->
