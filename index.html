@@ -110,6 +110,9 @@
       height: 64px;
     }
     .nav-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       font-size: 22px;
       font-weight: 800;
       color: var(--navy);
@@ -458,13 +461,13 @@
     .app-icon-large {
       width: 72px;
       height: 72px;
-      background: var(--gold-gradient);
+      background: transparent;
       border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
-      box-shadow: var(--shadow-gold);
+      box-shadow: none;
     }
     .app-icon-large svg { width: 36px; height: 36px; color: var(--white); }
     .believers-card h4 {
@@ -835,7 +838,7 @@
 <!-- NAV -->
 <nav>
   <div class="container">
-    <a href="/" class="nav-logo"><img src="/logo.png" alt="Harvest" width="24" height="24" style="vertical-align:-5px;margin-right:6px;"> Harvest<span>.</span></a>
+    <a href="/" class="nav-logo"><img src="/logo.png" alt="Harvest" width="28" height="28"> Harvest<span>.</span></a>
     <div class="nav-links" id="navLinks">
       <a href="/features.html">Features</a>
       <a href="#pricing">Pricing</a>
