@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -562,17 +563,20 @@
     }
 
     .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
       margin-bottom: 20px;
     }
     .pricing-grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      max-width: 760px;
-      margin: 0 auto;
+      margin-bottom: 20px;
+    }
+    .swiper-pricing { padding: 20px 0 40px; overflow: visible; }
+    .swiper-pricing .swiper-slide { height: auto; }
+    .swiper-pagination-bullets { bottom: 0 !important; }
+    .swiper-pagination-bullet { background: var(--gold) !important; opacity: 0.3; }
+    .swiper-pagination-bullet-active { opacity: 1 !important; }
+    .swiper-button-next, .swiper-button-prev { color: var(--gold); width: 40px; height: 40px; background: var(--white); border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .swiper-button-next::after, .swiper-button-prev::after { font-size: 16px; font-weight: bold; }
+    @media (max-width: 768px) {
+      .swiper-button-next, .swiper-button-prev { display: none; }
     }
     .price-card {
       background: var(--white);
@@ -613,14 +617,14 @@
       margin-bottom: 16px;
     }
     .price-card .price {
-      font-size: 72px;
+      font-size: 80px;
       font-weight: 800;
       color: var(--heading);
       line-height: 1;
-      letter-spacing: -2.5px;
+      letter-spacing: -3px;
     }
     .price-card .price span {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--body);
       letter-spacing: normal;
@@ -628,8 +632,8 @@
 
     @media (max-width: 768px) {
       .price-card .price {
-        font-size: 60px;
-        letter-spacing: -2px;
+        font-size: 68px;
+        letter-spacing: -2.5px;
       }
     }
     .price-card .retention {
@@ -724,6 +728,24 @@
     .addon-price .detail {
       font-size: 13px;
       color: var(--body);
+    }
+
+    /* Features Comparison Table */
+    .features-table-wrap { overflow-x: auto; margin-top: 48px; -webkit-overflow-scrolling: touch; }
+    .features-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
+    .features-table thead th { padding: 14px 12px; font-size: 13px; font-weight: 800; color: var(--heading); text-align: center; border-bottom: 2px solid var(--border); background: var(--light-alt); }
+    .features-table thead th:first-child { text-align: left; min-width: 180px; }
+    .features-table thead th.highlight { color: var(--gold); background: rgba(201,150,58,0.06); }
+    .features-table tbody td { padding: 12px; text-align: center; border-bottom: 1px solid var(--border); color: var(--body); }
+    .features-table tbody td:first-child { text-align: left; font-weight: 600; color: var(--heading); }
+    .features-table tbody td.highlight { background: rgba(201,150,58,0.03); }
+    .features-table .check { color: var(--gold); font-weight: 700; font-size: 18px; }
+    .features-table .cross { color: #ccc; font-size: 16px; }
+    .features-table .feat-section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gold); padding: 16px 12px 8px; background: transparent; }
+    .features-table .feat-section td { border-bottom: none; }
+    @media (max-width: 768px) {
+      .features-table { min-width: 600px; }
+      .features-table thead th, .features-table tbody td { padding: 10px 8px; font-size: 12px; }
     }
 
     @media (max-width: 768px) {
@@ -1058,77 +1080,93 @@
       <label id="yearly-label" for="billing-toggle">Yearly <span class="yearly-badge">2 months free</span></label>
     </div>
 
-    <!-- Row 1: 3 cards -->
-    <div class="pricing-grid">
-      <div class="price-card fade-in">
-        <div class="plan-name">Individual</div>
-        <div class="plan-display">Plus plan</div>
-        <div class="price"><span data-monthly="$49" data-yearly="$490">$49</span><span>/mo</span></div>
-        <div class="retention">85% donations retained</div>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Subdomain (you.theharvest.app)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 admin accounts</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>5 courses</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Blog</li>
-        </ul>
-        <a href="https://harvest-agent.vercel.app/?signup=plus" class="btn-card btn-card-outline">Get Started</a>
+    <!-- Plan Carousel -->
+    <div class="swiper swiper-pricing fade-in">
+      <div class="swiper-wrapper">
+        <!-- Individual -->
+        <div class="swiper-slide">
+          <div class="price-card">
+            <div class="plan-name">Individual</div>
+            <div class="plan-display">Plus plan</div>
+            <div class="price"><span data-monthly="$49" data-yearly="$490">$49</span><span>/mo</span></div>
+            <div class="retention">85% donations retained</div>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Subdomain (you.theharvest.app)</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 admin accounts</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>5 courses</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Blog</li>
+            </ul>
+            <a href="https://theharvest.app?signup=plus" class="btn-card btn-card-outline">Get Started</a>
+          </div>
+        </div>
+        <!-- Community -->
+        <div class="swiper-slide">
+          <div class="price-card">
+            <div class="plan-name">Community</div>
+            <div class="plan-display">Pro plan</div>
+            <div class="price"><span data-monthly="$99" data-yearly="$990">$99</span><span>/mo</span></div>
+            <div class="retention">90% donations retained</div>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Individual</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>5 admin accounts</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited courses</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI Knowledge Base</li>
+            </ul>
+            <a href="https://theharvest.app?signup=pro" class="btn-card btn-card-outline">Get Started</a>
+          </div>
+        </div>
+        <!-- Church (Popular) -->
+        <div class="swiper-slide">
+          <div class="price-card popular">
+            <div class="popular-badge">Most Popular</div>
+            <div class="plan-name">Church</div>
+            <div class="plan-display">Max plan</div>
+            <div class="price"><span data-monthly="$199" data-yearly="$1990">$199</span><span>/mo</span></div>
+            <div class="retention">95% donations retained</div>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Community</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom domain</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full rebranding (logo, colors)</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited admins</li>
+            </ul>
+            <a href="https://theharvest.app?signup=max" class="btn-card btn-card-gold">Get Started</a>
+          </div>
+        </div>
+        <!-- Ministry -->
+        <div class="swiper-slide">
+          <div class="price-card">
+            <div class="plan-name">Ministry</div>
+            <div class="plan-display">Ultra plan</div>
+            <div class="price"><span data-monthly="$349" data-yearly="$3490">$349</span><span>/mo</span></div>
+            <div class="retention">100% donations retained</div>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Church</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI Assistant included</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
+            </ul>
+            <a href="https://theharvest.app?signup=ultra" class="btn-card btn-card-outline">Get Started</a>
+          </div>
+        </div>
+        <!-- Enterprise -->
+        <div class="swiper-slide">
+          <div class="price-card">
+            <div class="plan-name">Enterprise</div>
+            <div class="plan-display">Custom</div>
+            <div class="price" style="font-size:48px;letter-spacing:-1px;">Custom</div>
+            <div class="retention">100% donations retained</div>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Ministry</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited churches</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited AI Assistants</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
+            </ul>
+            <a href="https://theharvest.app?signup=enterprise" class="btn-card btn-card-outline">Contact Sales</a>
+          </div>
+        </div>
       </div>
-      <div class="price-card fade-in">
-        <div class="plan-name">Community</div>
-        <div class="plan-display">Pro plan</div>
-        <div class="price"><span data-monthly="$99" data-yearly="$990">$99</span><span>/mo</span></div>
-        <div class="retention">90% donations retained</div>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Individual</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>5 admin accounts</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited courses</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI Knowledge Base</li>
-        </ul>
-        <a href="https://harvest-agent.vercel.app/?signup=pro" class="btn-card btn-card-outline">Get Started</a>
-      </div>
-      <div class="price-card popular fade-in">
-        <div class="popular-badge">Most Popular</div>
-        <div class="plan-name">Church</div>
-        <div class="plan-display">Max plan</div>
-        <div class="price"><span data-monthly="$199" data-yearly="$1990">$199</span><span>/mo</span></div>
-        <div class="retention">95% donations retained</div>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Community</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom domain</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full rebranding (logo, colors)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited admins</li>
-        </ul>
-        <a href="https://harvest-agent.vercel.app/?signup=max" class="btn-card btn-card-gold">Get Started</a>
-      </div>
-    </div>
-
-    <!-- Row 2: 2 cards centered -->
-    <div class="pricing-grid-2">
-      <div class="price-card fade-in">
-        <div class="plan-name">Ministry</div>
-        <div class="plan-display">Ultra plan</div>
-        <div class="price"><span data-monthly="$349" data-yearly="$3490">$349</span><span>/mo</span></div>
-        <div class="retention">100% donations retained</div>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Church</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI Assistant included</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
-        </ul>
-        <a href="https://harvest-agent.vercel.app/?signup=ultra" class="btn-card btn-card-outline">Get Started</a>
-      </div>
-      <div class="price-card fade-in">
-        <div class="plan-name">Enterprise</div>
-        <div class="plan-display">Custom</div>
-        <div class="price">Custom</div>
-        <div class="retention">100% donations retained</div>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Ministry</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited churches</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited AI Assistants</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
-        </ul>
-        <a href="https://harvest-agent.vercel.app/?signup=enterprise" class="btn-card btn-card-outline">Contact Sales</a>
-      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
     </div>
 
     <!-- AI Add-On -->
@@ -1141,6 +1179,43 @@
         <div class="amount">$150 <span style="font-size:16px;font-weight:600;color:var(--body)">setup</span></div>
         <div class="detail">+ $100/mo</div>
       </div>
+    </div>
+
+    <!-- Features Comparison Table -->
+    <div class="features-table-wrap fade-in">
+      <table class="features-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Individual<br><small style="font-weight:600;color:var(--body);">$49/mo</small></th>
+            <th>Community<br><small style="font-weight:600;color:var(--body);">$99/mo</small></th>
+            <th class="highlight">Church<br><small style="font-weight:600;color:var(--body);">$199/mo</small></th>
+            <th>Ministry<br><small style="font-weight:600;color:var(--body);">$349/mo</small></th>
+            <th>Enterprise<br><small style="font-weight:600;color:var(--body);">Custom</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="feat-section"><td colspan="6">Platform</td></tr>
+          <tr><td>Subdomain (you.theharvest.app)</td><td class="check">✓</td><td class="check">✓</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Blog & Publishing</td><td class="check">✓</td><td class="check">✓</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Community Feed</td><td class="check">✓</td><td class="check">✓</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Courses</td><td>5</td><td>Unlimited</td><td class="highlight">Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>Admin Accounts</td><td>2</td><td>5</td><td class="highlight">Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>Donations Retained</td><td>85%</td><td>90%</td><td class="highlight">95%</td><td>100%</td><td>100%</td></tr>
+          <tr class="feat-section"><td colspan="6">Intelligence</td></tr>
+          <tr><td>AI Knowledge Base</td><td class="cross">—</td><td class="check">✓</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>AI Assistant (add-on)</td><td class="check">✓</td><td class="check">✓</td><td class="check highlight">✓</td><td class="check">Included</td><td class="check">Included</td></tr>
+          <tr><td>Automated Newsletter</td><td class="check">✓</td><td class="check">✓</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Evangelism Analytics</td><td class="check">✓</td><td class="check">✓</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr class="feat-section"><td colspan="6">Branding</td></tr>
+          <tr><td>Custom Domain</td><td class="cross">—</td><td class="cross">—</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Full Rebranding (logo, colors)</td><td class="cross">—</td><td class="cross">—</td><td class="check highlight">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr class="feat-section"><td colspan="6">Enterprise</td></tr>
+          <tr><td>Multiple Churches</td><td class="cross">—</td><td class="cross">—</td><td class="cross highlight">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+          <tr><td>Unlimited AI Assistants</td><td class="cross">—</td><td class="cross">—</td><td class="cross highlight">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+          <tr><td>Dedicated Support</td><td class="cross">—</td><td class="cross">—</td><td class="cross highlight">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -1199,6 +1274,7 @@
   <p class="footer-copy">&copy; 2026 Harvest. All rights reserved.</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
 // ── BILLING TOGGLE ──
 document.addEventListener('DOMContentLoaded', function() {
@@ -1246,6 +1322,19 @@ document.querySelectorAll('.nav-links a').forEach(link => {
   link.addEventListener('click', () => {
     document.getElementById('navLinks').classList.remove('open');
   });
+});
+
+// ── SWIPER PRICING CAROUSEL ──
+new Swiper('.swiper-pricing', {
+  slidesPerView: 1.2,
+  spaceBetween: 16,
+  centeredSlides: true,
+  pagination: { el: '.swiper-pagination', clickable: true },
+  navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+  breakpoints: {
+    640: { slidesPerView: 2.2, centeredSlides: false },
+    1024: { slidesPerView: 3, centeredSlides: false, spaceBetween: 20 },
+  },
 });
 </script>
 
