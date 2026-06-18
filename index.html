@@ -620,11 +620,11 @@
       margin-bottom: 16px;
     }
     .price-card .price {
-      font-size: 48px;
+      font-size: 56px;
       font-weight: 800;
       color: var(--heading);
       line-height: 1;
-      letter-spacing: -1.5px;
+      letter-spacing: -2px;
     }
     .price-card .price span {
       font-size: 18px;
@@ -635,7 +635,7 @@
 
     @media (max-width: 768px) {
       .price-card .price {
-        font-size: 48px;
+        font-size: 52px;
         letter-spacing: -1.5px;
       }
     }
@@ -1358,6 +1358,8 @@ const pricingSwiper = new Swiper('.swiper-pricing', {
   slidesPerView: 1.2,
   spaceBetween: 16,
   centeredSlides: true,
+  preventClicks: false,
+  preventClicksPropagation: false,
   pagination: { el: '.swiper-pagination', clickable: true },
   navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
   breakpoints: {
