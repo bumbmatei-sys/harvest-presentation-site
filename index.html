@@ -614,11 +614,11 @@
       margin-bottom: 16px;
     }
     .price-card .price {
-      font-size: 42px;
+      font-size: 52px;
       font-weight: 800;
       color: var(--heading);
       line-height: 1;
-      letter-spacing: -1.5px;
+      letter-spacing: -2px;
     }
     .price-card .price span {
       font-size: 15px;
@@ -828,7 +828,7 @@
 <!-- NAV -->
 <nav>
   <div class="container">
-    <a href="/" class="nav-logo">Harvest<span>.</span></a>
+    <a href="/" class="nav-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px;color:var(--gold)"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/></svg>Harvest<span>.</span></a>
     <div class="nav-links" id="navLinks">
       <a href="/features.html">Features</a>
       <a href="#pricing">Pricing</a>
@@ -898,7 +898,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
         </div>
         <h3>Grow Your Ministry</h3>
-        <p>Evangelism analytics, engagement tracking, and admin dashboards. Count decisions for Christ and start follow-up automatically.</p>
+        <p>Evangelism analytics, engagement tracking, and admin dashboards. Count decisions for Christ and start follow-up workflows.</p>
       </div>
     </div>
   </div>
@@ -973,7 +973,7 @@
         </div>
         <div>
           <h4>Evangelism Analytics</h4>
-          <p>Count decisions for Christ and start follow-up automatically. Measure what matters for the Kingdom.</p>
+          <p>Count decisions for Christ and start follow-up workflows. Measure what matters for the Kingdom.</p>
         </div>
       </div>
     </div>
@@ -1179,18 +1179,33 @@
 
 <script>
 // ── BILLING TOGGLE ──
-const toggle = document.getElementById('billing-toggle');
-const monthlyLabel = document.getElementById('monthly-label');
-const yearlyLabel = document.getElementById('yearly-label');
-const priceEls = document.querySelectorAll('[data-monthly]');
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('billing-toggle');
+  const monthlyLabel = document.getElementById('monthly-label');
+  const yearlyLabel = document.getElementById('yearly-label');
+  const priceEls = document.querySelectorAll('[data-monthly]');
 
-toggle.addEventListener('change', function() {
-  const isYearly = this.checked;
-  priceEls.forEach(el => {
-    el.textContent = isYearly ? el.dataset.yearly : el.dataset.monthly;
+  function updatePrices(isYearly) {
+    priceEls.forEach(function(el) {
+      el.textContent = isYearly ? el.dataset.yearly : el.dataset.monthly;
+    });
+    monthlyLabel.classList.toggle('active', !isYearly);
+    yearlyLabel.classList.toggle('active', isYearly);
+  }
+
+  toggle.addEventListener('change', function() {
+    updatePrices(this.checked);
   });
-  monthlyLabel.classList.toggle('active', !isYearly);
-  yearlyLabel.classList.toggle('active', isYearly);
+
+  // Click labels to toggle
+  monthlyLabel.addEventListener('click', function() {
+    toggle.checked = false;
+    updatePrices(false);
+  });
+  yearlyLabel.addEventListener('click', function() {
+    toggle.checked = true;
+    updatePrices(true);
+  });
 });
 
 // ── FADE IN ON SCROLL ──
