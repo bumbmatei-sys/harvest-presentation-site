@@ -1,861 +1,1500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Harvest — From Conversion to Spiritual Maturity</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harvest — The Digital Foundation for Ministry</title>
+<meta name="description" content="Your own branded ministry app with AI trained on YOUR teachings. Community, courses, and pastoral care — all in one place.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    :root {
-      --gold:       #D4AF37;
-      --gold-hover: #c9a431;
-      --gold-light: #f5edd4;
-      --gold-glow:  rgba(212,175,55,0.08);
-      --navy:       #0b1121;
-      --navy-900:   #1c1e54;
-      --heading:    #0b1121;
-      --body:       #5a6478;
-      --label:      #273951;
-      --muted:      #8896ab;
-      --bg:         #ffffff;
-      --bg-alt:     #f8f9fb;
-      --bg-warm:    #fdfbf7;
-      --border:     #e8ecf1;
-      --border-gold: rgba(212,175,55,0.2);
-      --shadow-sm:  0 1px 3px rgba(11,17,33,0.04), 0 1px 2px rgba(11,17,33,0.03);
-      --shadow-md:  0 4px 16px rgba(11,17,33,0.06), 0 1px 4px rgba(11,17,33,0.04);
-      --shadow-lg:  0 12px 40px rgba(11,17,33,0.08), 0 4px 12px rgba(11,17,33,0.04);
-      --shadow-xl:  0 24px 60px rgba(11,17,33,0.10), 0 8px 20px rgba(11,17,33,0.05);
-      --shadow-gold: 0 8px 30px rgba(212,175,55,0.15), 0 2px 8px rgba(212,175,55,0.08);
-    }
+:root {
+  --gold: #C9963A;
+  --gold-light: #d4a94f;
+  --gold-dark: #b5862f;
+  --navy: #0b1121;
+  --white: #ffffff;
+  --body: #4a5568;
+  --light-alt: #faf9f7;
+  --border: #e2e8f0;
+  --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
 
-    body {
-      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--body);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
 
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
+body {
+  font-family: var(--font);
+  color: var(--body);
+  background: var(--white);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
 
-    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-    @media (min-width: 768px) { .container { padding: 0 40px; } }
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-    /* ─── Nav ──────────────────────────────────────────── */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 0;
-      background: rgba(255,255,255,0.8);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      backdrop-filter: saturate(180%) blur(20px);
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.3s;
-    }
-    .nav.scrolled { border-bottom-color: var(--border); }
-    .nav-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px; max-width: 1120px; margin: 0 auto; padding: 0 24px;
-    }
-    @media (min-width: 768px) { .nav-inner { padding: 0 40px; } }
-    .nav-brand { display: flex; align-items: center; gap: 10px; }
-    .nav-logo { width: 28px; height: 28px; object-fit: contain; }
-    .nav-name { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; color: var(--heading); }
-    .nav-links { display: none; align-items: center; gap: 28px; }
-    @media (min-width: 768px) { .nav-links { display: flex; } }
-    .nav-link { font-size: 14px; font-weight: 600; color: var(--body); transition: color 0.2s; cursor: pointer; }
-    .nav-link:hover { color: var(--heading); }
-    .nav-cta {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 9px 20px; background: var(--gold); color: var(--navy);
-      font-size: 14px; font-weight: 700; border-radius: 8px; border: none;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .nav-cta:hover { background: var(--gold-hover); transform: translateY(-1px); box-shadow: var(--shadow-gold); }
-    .nav-mobile { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: none; border: none; cursor: pointer; color: var(--heading); }
-    @media (min-width: 768px) { .nav-mobile { display: none; } }
-    .nav-mobile svg { width: 22px; height: 22px; }
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
 
-    /* Mobile menu */
-    .mobile-menu {
-      position: fixed; inset: 0; z-index: 99;
-      background: rgba(255,255,255,0.98);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s;
-    }
-    .mobile-menu.open { opacity: 1; pointer-events: all; }
-    .mobile-menu a { font-size: 22px; font-weight: 700; color: var(--heading); }
-    .mobile-menu-close { position: absolute; top: 16px; right: 20px; background: none; border: none; cursor: pointer; color: var(--heading); }
-    .mobile-menu-close svg { width: 26px; height: 26px; }
+@media (min-width: 1440px) {
+  .container { max-width: 1320px; }
+}
 
-    /* ─── Hero ─────────────────────────────────────────── */
-    .hero {
-      padding: 140px 0 100px;
-      position: relative;
-      overflow: hidden;
-    }
-    @media (min-width: 768px) { .hero { padding: 160px 0 120px; } }
-    .hero::before {
-      content: '';
-      position: absolute; top: -200px; right: -200px;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 14px; background: var(--gold-light); border-radius: 6px;
-      font-size: 12px; font-weight: 700; color: var(--gold);
-      letter-spacing: 0.5px; text-transform: uppercase;
-      margin-bottom: 24px;
-    }
-    .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .hero-title {
-      font-size: clamp(38px, 6vw, 64px);
-      font-weight: 800; line-height: 1.08; letter-spacing: -1.5px;
-      color: var(--heading); margin-bottom: 20px;
-      max-width: 680px;
-    }
-    .hero-title .gold-text {
-      background: linear-gradient(135deg, var(--gold) 0%, #b8962e 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-subtitle {
-      font-size: clamp(17px, 2vw, 19px); color: var(--body);
-      line-height: 1.7; max-width: 520px; margin-bottom: 36px; font-weight: 400;
-    }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-    .btn-gold {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; background: var(--gold); color: var(--navy);
-      font-family: inherit; font-size: 15px; font-weight: 700;
-      border: none; border-radius: 8px; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-gold:hover { background: var(--gold-hover); transform: translateY(-1px); box-shadow: var(--shadow-gold); }
-    .btn-ghost {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; background: transparent; color: var(--heading);
-      font-family: inherit; font-size: 15px; font-weight: 600;
-      border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-ghost:hover { border-color: var(--label); background: var(--bg-alt); }
+/* Fade-in animation */
+.fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-    .hero-float {
-      position: absolute; right: -60px; top: 50%; transform: translateY(-50%);
-      width: 320px; opacity: 0.04;
-      animation: bob 6s ease-in-out infinite;
-      pointer-events: none;
-    }
-    @media (min-width: 1024px) { .hero-float { right: 4%; width: 400px; opacity: 0.05; } }
-    @keyframes bob { 0%,100% { transform: translateY(-50%); } 50% { transform: translateY(calc(-50% - 16px)); } }
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-    /* ─── Section Commons ──────────────────────────────── */
-    .section { padding: 80px 0; }
-    @media (min-width: 768px) { .section { padding: 100px 0; } }
-    .section-alt { background: var(--bg-alt); }
-    .section-warm { background: var(--bg-warm); }
-    .section-dark { background: var(--navy); color: #fff; }
-    .section-dark .section-label { color: var(--gold); }
-    .section-dark .section-label-line { background: var(--gold); }
-    .section-dark .section-title { color: #fff; }
-    .section-dark .section-body { color: rgba(255,255,255,0.65); }
-    .section-dark .section-body strong { color: #fff; }
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
 
-    .section-label {
-      display: inline-flex; align-items: center; gap: 10px;
-      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
-    }
-    .section-label-line { width: 28px; height: 1px; background: var(--gold); opacity: 0.5; }
-    .section-title {
-      font-size: clamp(28px, 4vw, 44px);
-      font-weight: 800; line-height: 1.12; letter-spacing: -1px;
-      color: var(--heading); margin-bottom: 16px;
-    }
-    .section-body { font-size: 16px; color: var(--body); line-height: 1.75; max-width: 580px; }
-    @media (max-width: 767px) {
-      .section-body { text-align: center; margin-left: auto; margin-right: auto; }
-      .section-title { text-align: center; }
-      .section-label { justify-content: center; }
-      .stats-grid { text-align: center; }
-    }
-    .section-body strong { color: var(--heading); font-weight: 700; }
+.section-heading {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
 
-    /* ─── Stats ────────────────────────────────────────── */
-    .stats-grid {
-      display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 48px;
-    }
-    @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
-    .stat-card {
-      padding: 28px 24px; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 12px; transition: all 0.3s;
-    }
-    .stat-card:hover { border-color: var(--border-gold); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-    .stat-number {
-      font-size: 40px; font-weight: 900; letter-spacing: -1.5px;
-      color: var(--heading); margin-bottom: 2px;
-    }
-    .stat-label { font-size: 14px; color: var(--muted); font-weight: 500; }
+@media (max-width: 768px) {
+  .section-heading { font-size: 30px; }
+}
 
-    /* ─── Features ─────────────────────────────────────── */
-    .features-header { text-align: center; max-width: 560px; margin: 0 auto 56px; }
-    .features-header .section-label { justify-content: center; }
-    .features-grid {
-      display: grid; grid-template-columns: 1fr; gap: 16px;
-    }
-    @media (min-width: 768px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
-    .feature-card {
-      position: relative; padding: 32px; background: var(--bg);
-      border: 1px solid var(--border); border-radius: 14px;
-      overflow: hidden; transition: all 0.3s;
-    }
-    .feature-card:hover { border-color: var(--border-gold); box-shadow: var(--shadow-lg); transform: translateY(-3px); }
-    .feature-card.wide { grid-column: 1; }
-    @media (min-width: 768px) { .feature-card.wide { grid-column: span 2; } }
-    .feature-icon {
-      width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-      border-radius: 10px; margin-bottom: 20px;
-    }
-    .feature-icon.gold { background: var(--gold-light); color: var(--gold); }
-    .feature-icon.blue { background: #eef4ff; color: #3b82f6; }
-    .feature-icon.purple { background: #f3f0ff; color: #7c3aed; }
-    .feature-icon.green { background: #ecfdf5; color: #059669; }
-    .feature-icon svg { width: 20px; height: 20px; }
-    .feature-tag {
-      display: inline-block; padding: 3px 10px;
-      background: var(--gold-light); border-radius: 4px;
-      font-size: 10px; font-weight: 700; color: var(--gold);
-      letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 14px;
-    }
-    .feature-title { font-size: 19px; font-weight: 800; color: var(--heading); margin-bottom: 8px; letter-spacing: -0.3px; }
-    .feature-desc { font-size: 14px; color: var(--body); line-height: 1.7; }
-    @media (max-width: 767px) { .feature-card { text-align: center; } .feature-icon { margin-left: auto; margin-right: auto; } }
+/* ==================== NAVIGATION ==================== */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
 
-    /* ─── Vision ───────────────────────────────────────── */
-    .vision { text-align: center; }
-    .vision .section-label { justify-content: center; }
-    .vision-quote {
-      font-size: clamp(26px, 4vw, 40px);
-      font-weight: 800; line-height: 1.15; letter-spacing: -1px;
-      color: var(--heading); max-width: 700px; margin: 20px auto;
-    }
-    .vision-quote .gold-text {
-      background: linear-gradient(135deg, var(--gold) 0%, #b8962e 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .vision-body {
-      font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.8;
-      max-width: 560px; margin: 20px auto 0;
-    }
-    .vision-body strong { color: #fff; }
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
 
-    /* ─── Plans ────────────────────────────────────────── */
-    .plans-header { text-align: center; max-width: 560px; margin: 0 auto 48px; }
-    .plans-header .section-label { justify-content: center; }
-    .plans-grid {
-      display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-      gap: 16px; padding: 0 24px 20px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .plans-grid::-webkit-scrollbar { display: none; }
-    .plan-card {
-      min-width: 280px; max-width: 320px; flex-shrink: 0;
-      scroll-snap-align: center;
-      padding: 32px; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 14px; display: flex; flex-direction: column;
-      transition: all 0.3s; position: relative;
-    }
-    .carousel-dots {
-      display: flex; justify-content: center; gap: 8px; margin-top: 16px;
-    }
-    .carousel-dot {
-      width: 8px; height: 8px; border-radius: 50%; background: #ddd;
-      border: none; cursor: pointer; padding: 0; transition: all 0.3s;
-    }
-    .carousel-dot.active { background: var(--gold); width: 24px; border-radius: 4px; }
-    .plan-card:hover { border-color: var(--border-gold); box-shadow: var(--shadow-lg); transform: translateY(-3px); }
-    .plan-card.featured { border-color: var(--gold); box-shadow: var(--shadow-gold); padding-top: 52px; }
-    .plan-badge {
-      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-      padding: 5px 16px; background: var(--gold); color: var(--navy);
-      font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
-      border-radius: 6px; white-space: nowrap; z-index: 2;
-    }
-    .plan-name { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
-    .plan-price { font-size: 44px; font-weight: 900; letter-spacing: -2px; color: var(--heading); margin-bottom: 2px; }
-    .plan-price span { font-size: 15px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
-    .plan-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-    @media (max-width: 767px) { .plan-card { text-align: center; } .plan-features { align-items: center; } }
-    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; flex: 1; }
-    .plan-features li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: var(--body); }
-    .plan-features li svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; color: var(--gold); }
-    .plan-btn {
-      display: block; width: 100%; padding: 13px; text-align: center;
-      font-family: inherit; font-size: 14px; font-weight: 700;
-      border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s;
-      text-decoration: none;
-    }
-    .plan-btn.primary { background: var(--gold); color: var(--navy); }
-    .plan-btn.primary:hover { background: var(--gold-hover); transform: translateY(-1px); box-shadow: var(--shadow-gold); }
-    .plan-btn.outline { background: transparent; color: var(--heading); border: 1px solid var(--border); }
-    .plan-btn.outline:hover { border-color: var(--label); background: var(--bg-alt); }
+@media (min-width: 1440px) {
+  .nav-inner { max-width: 1320px; }
+}
 
-    /* ─── CTA Banner ───────────────────────────────────── */
-    .cta-banner { padding: 80px 0; }
-    .cta-box {
-      position: relative; padding: 56px 32px; background: var(--bg-alt);
-      border: 1px solid var(--border); border-radius: 16px;
-      text-align: center; overflow: hidden;
-    }
-    @media (min-width: 768px) { .cta-box { padding: 64px 40px; } }
-    .cta-box::before {
-      content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .cta-title { font-size: clamp(26px, 3.5vw, 36px); font-weight: 800; letter-spacing: -0.8px; color: var(--heading); margin-bottom: 12px; position: relative; }
-    .cta-subtitle { font-size: 16px; color: var(--body); max-width: 440px; margin: 0 auto 28px; position: relative; }
-    .cta-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; position: relative; }
+.nav-logo {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
 
-    /* ─── Footer ───────────────────────────────────────── */
-    .footer { padding: 48px 0 32px; border-top: 1px solid var(--border); }
-    .footer-top { display: flex; flex-direction: column; gap: 28px; margin-bottom: 40px; }
-    @media (min-width: 768px) { .footer-top { flex-direction: row; justify-content: space-between; align-items: start; } }
-    .footer-brand { max-width: 340px; }
-    .footer-brand-name { display: flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 800; color: var(--heading); margin-bottom: 10px; }
-    .footer-brand-name img { width: 24px; height: 24px; object-fit: contain; }
-    .footer-tagline { font-size: 13px; color: var(--muted); line-height: 1.7; }
-    .footer-links { display: flex; gap: 40px; }
-    .footer-col h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
-    .footer-col a { display: block; font-size: 13px; color: var(--body); margin-bottom: 8px; transition: color 0.2s; }
-    .footer-col a:hover { color: var(--heading); }
-    .footer-bottom { display: flex; flex-direction: column; gap: 10px; align-items: center; padding-top: 24px; border-top: 1px solid var(--border); }
-    @media (min-width: 768px) { .footer-bottom { flex-direction: row; justify-content: space-between; } }
-    .footer-copy { font-size: 12px; color: var(--muted); }
-    .footer-legal { display: flex; gap: 20px; }
-    .footer-legal a { font-size: 12px; color: var(--muted); transition: color 0.2s; }
-    .footer-legal a:hover { color: var(--body); }
+.nav-logo span { color: var(--gold); }
 
-    /* ─── Divider ──────────────────────────────────────── */
-    .divider { width: 100%; height: 1px; background: var(--border); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  list-style: none;
+}
 
-    /* ─── Reveal ───────────────────────────────────────── */
-    .reveal { opacity: 0; transform: translateY(24px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
+.nav-links a {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
 
-    [id] { scroll-margin-top: 72px; }
-  </style>
+.nav-links a:hover { opacity: 1; }
+
+.nav-cta {
+  background: var(--gold);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 8px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.nav-cta:hover { background: var(--gold-dark); }
+
+.hamburger {
+  display: none;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger svg { width: 24px; height: 24px; color: var(--navy); }
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 24px;
+  z-index: 999;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+.mobile-menu.open { display: block; }
+
+.mobile-menu a {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--navy);
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-menu a:last-child { border-bottom: none; }
+
+.mobile-menu .nav-cta {
+  margin-top: 16px;
+  width: 100%;
+  justify-content: center;
+  font-size: 16px;
+  padding: 14px 24px;
+}
+
+@media (max-width: 768px) {
+  .nav-links, .nav-cta-desktop { display: none !important; }
+  .hamburger { display: flex; }
+}
+
+/* ==================== HERO ==================== */
+.hero {
+  padding: 160px 0 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(circle, rgba(201,150,58,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.08;
+  margin-bottom: 24px;
+  letter-spacing: -0.5px;
+}
+
+.hero p {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--body);
+  line-height: 1.65;
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 8px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(201,150,58,0.25);
+}
+
+.btn-gold:hover {
+  background: var(--gold-dark);
+  box-shadow: 0 4px 16px rgba(201,150,58,0.35);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gold);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-ghost:hover {
+  background: var(--gold);
+  color: var(--white);
+}
+
+.hero-screenshot {
+  margin-top: 64px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.hero-screenshot-inner {
+  background: var(--light-alt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  height: 400px;
+  box-shadow:
+    0 4px 6px rgba(0,0,0,0.02),
+    0 12px 24px rgba(0,0,0,0.04),
+    0 24px 48px rgba(11,17,33,0.06),
+    0 0 0 1px rgba(0,0,0,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-screenshot-inner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-screenshot-inner::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  box-shadow: 16px 0 0 #e2e8f0, 32px 0 0 #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 120px 0 64px; }
+  .hero h1 { font-size: 32px; }
+  .hero p { font-size: 16px; }
+  .hero-screenshot-inner { height: 240px; }
+}
+
+/* ==================== THE PROBLEM ==================== */
+.problem {
+  padding: 100px 0;
+  background: var(--light-alt);
+}
+
+.problem-stat {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 64px;
+}
+
+.problem-stat .big-number {
+  font-size: 72px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.problem-stat p {
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--body);
+}
+
+.problem-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.problem-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 28px;
+  text-align: center;
+  min-width: 200px;
+  max-width: 240px;
+  flex: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.problem-card-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.problem-card:nth-child(1) .problem-card-icon { background: rgba(201,150,58,0.1); color: var(--gold); }
+.problem-card:nth-child(3) .problem-card-icon { background: rgba(226,132,132,0.1); color: #e28484; }
+.problem-card:nth-child(5) .problem-card-icon { background: rgba(148,163,184,0.1); color: #94a3b8; }
+
+.problem-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.problem-card p {
+  font-size: 13px;
+  color: var(--body);
+}
+
+.problem-arrow {
+  color: var(--border);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .problem { padding: 64px 0; }
+  .problem-stat .big-number { font-size: 56px; }
+  .problem-flow { flex-direction: column; }
+  .problem-card { max-width: 100%; width: 100%; }
+  .problem-arrow { transform: rotate(90deg); }
+}
+
+/* ==================== WHAT HARVEST DOES ==================== */
+.solution {
+  padding: 100px 0;
+}
+
+.solution-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 64px;
+}
+
+.solution-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.pillar {
+  padding: 40px 32px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.pillar:hover {
+  box-shadow: 0 8px 32px rgba(11,17,33,0.06);
+  transform: translateY(-2px);
+}
+
+.pillar-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: rgba(201,150,58,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+
+.pillar h3 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.pillar p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--body);
+}
+
+@media (max-width: 768px) {
+  .solution { padding: 64px 0; }
+  .solution-pillars { grid-template-columns: 1fr; }
+}
+
+/* ==================== FEATURES GRID ==================== */
+.features {
+  padding: 100px 0;
+  background: var(--light-alt);
+}
+
+.features-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 64px;
+}
+
+.features-header p {
+  font-size: 17px;
+  color: var(--body);
+  margin-top: 12px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.feature-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  transition: box-shadow 0.3s;
+}
+
+.feature-card:hover {
+  box-shadow: 0 4px 16px rgba(11,17,33,0.05);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: rgba(201,150,58,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--body);
+}
+
+.feature-card-full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .features { padding: 64px 0; }
+  .features-grid { grid-template-columns: 1fr; }
+}
+
+/* ==================== VISION ==================== */
+.vision {
+  padding: 100px 0;
+  background: var(--navy);
+  text-align: center;
+}
+
+.vision-accent {
+  width: 48px;
+  height: 3px;
+  background: var(--gold);
+  margin: 0 auto 40px;
+  border-radius: 2px;
+}
+
+.vision blockquote {
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1.5;
+  max-width: 800px;
+  margin: 0 auto 32px;
+  font-style: italic;
+}
+
+.vision cite {
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  .vision { padding: 64px 0; }
+  .vision blockquote { font-size: 22px; }
+}
+
+/* ==================== PRICING ==================== */
+.pricing {
+  padding: 100px 0;
+}
+
+.pricing-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.pricing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 56px;
+}
+
+.pricing-toggle span {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--body);
+  transition: color 0.2s;
+}
+
+.pricing-toggle span.active { color: var(--navy); }
+
+.toggle-track {
+  width: 52px;
+  height: 28px;
+  background: var(--border);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-track.active { background: var(--gold); }
+
+.toggle-knob {
+  width: 22px;
+  height: 22px;
+  background: var(--white);
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.toggle-track.active .toggle-knob { transform: translateX(24px); }
+
+.pricing-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(201,150,58,0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-left: 8px;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.price-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 24px;
+  transition: box-shadow 0.3s;
+  position: relative;
+}
+
+.price-card:hover {
+  box-shadow: 0 8px 32px rgba(11,17,33,0.08);
+}
+
+.price-card.popular {
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 24px rgba(201,150,58,0.12);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.price-card-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.price-card-price {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.price-card-price .period {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--body);
+}
+
+.price-card-price-custom {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.price-card .donations {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.price-features {
+  list-style: none;
+  margin-bottom: 28px;
+}
+
+.price-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--body);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.price-features li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--gold);
+}
+
+.price-card .btn-gold,
+.price-card .btn-ghost {
+  width: 100%;
+  justify-content: center;
+  font-size: 14px;
+  padding: 12px 20px;
+}
+
+@media (max-width: 1024px) {
+  .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .pricing { padding: 64px 0; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+}
+
+/* ==================== AI ADD-ON ==================== */
+.addon {
+  padding: 80px 0;
+  background: var(--light-alt);
+}
+
+.addon-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(11,17,33,0.04);
+}
+
+.addon-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(201,150,58,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  margin: 0 auto 24px;
+}
+
+.addon-card h3 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.addon-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.addon-card p {
+  font-size: 15px;
+  color: var(--body);
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .addon { padding: 48px 0; }
+  .addon-card { padding: 32px 24px; }
+}
+
+/* ==================== AFFILIATE ==================== */
+.affiliate {
+  padding: 100px 0;
+}
+
+.affiliate-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 64px;
+}
+
+.affiliate-header p {
+  font-size: 17px;
+  color: var(--body);
+  margin-top: 12px;
+}
+
+.affiliate-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.affiliate-step {
+  text-align: center;
+  padding: 32px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--white);
+}
+
+.affiliate-step-number {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(201,150,58,0.1);
+  color: var(--gold);
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.affiliate-step h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.affiliate-step p {
+  font-size: 14px;
+  color: var(--body);
+  line-height: 1.6;
+}
+
+.affiliate-detail {
+  text-align: center;
+  font-size: 14px;
+  color: var(--body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.affiliate-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.affiliate-detail-item svg {
+  color: var(--gold);
+}
+
+@media (max-width: 768px) {
+  .affiliate { padding: 64px 0; }
+  .affiliate-steps { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto 32px; }
+}
+
+/* ==================== FINAL CTA ==================== */
+.final-cta {
+  padding: 100px 0;
+  background: var(--navy);
+  text-align: center;
+}
+
+.final-cta h2 {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 36px;
+  line-height: 1.15;
+}
+
+.final-cta .hero-buttons {
+  margin-bottom: 20px;
+}
+
+.btn-ghost-white {
+  background: transparent;
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.btn-ghost-white:hover {
+  border-color: var(--white);
+  background: rgba(255,255,255,0.05);
+}
+
+.final-cta .small-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+  .final-cta { padding: 64px 0; }
+  .final-cta h2 { font-size: 28px; }
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.footer-logo span { color: var(--gold); }
+
+.footer-tagline {
+  font-size: 13px;
+  color: var(--body);
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--body);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--navy); }
+
+.footer-copyright {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: var(--body);
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+</style>
 </head>
 <body>
 
-  <!-- Nav -->
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a href="#" class="nav-brand">
-        <img src="https://raw.githubusercontent.com/bumbmatei-sys/pictures/main/doar%20spic.png" alt="Harvest" class="nav-logo">
-        <span class="nav-name">Harvest</span>
-      </a>
-      <div class="nav-links">
-        <a href="#challenge" class="nav-link">The Challenge</a>
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#vision" class="nav-link">The Vision</a>
-        <a href="#plans" class="nav-link">Ministries</a>
-
-      </div>
-      <button class="nav-mobile" onclick="toggleMenu()" aria-label="Menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-    </div>
-  </nav>
-
-  <!-- Mobile Menu -->
-  <div class="mobile-menu" id="mobileMenu">
-    <button class="mobile-menu-close" onclick="toggleMenu()" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+<!-- ==================== NAVIGATION ==================== -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" aria-label="Harvest home">Harvest<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#affiliate">Affiliate</a></li>
+    </ul>
+    <a href="#pricing" class="nav-cta nav-cta-desktop">Start Free Trial</a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" onclick="toggleMenu()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
     </button>
-    <a href="#challenge" onclick="toggleMenu()">The Challenge</a>
-    <a href="#features" onclick="toggleMenu()">Features</a>
-    <a href="#vision" onclick="toggleMenu()">The Vision</a>
-    <a href="#plans" onclick="toggleMenu()">Ministries</a>
-
   </div>
+</nav>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-badge"><span class="hero-badge-dot"></span>The Next Generation</div>
-      <h1 class="hero-title">From Conversion to<br><span class="gold-text">Spiritual Maturity.</span></h1>
-      <p class="hero-subtitle">Providing the digital foundation for the global harvest. We don't just count decisions, we build disciples.</p>
-      <div class="hero-actions">
-        <a href="https://theharvest.app" class="btn-gold">
-          Start Learning Today
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
-        <a href="#plans" class="btn-ghost">
-          For Ministries
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </a>
+<div class="mobile-menu" id="mobileMenu" role="menu">
+  <a href="#features" role="menuitem" onclick="closeMenu()">Features</a>
+  <a href="#pricing" role="menuitem" onclick="closeMenu()">Pricing</a>
+  <a href="#affiliate" role="menuitem" onclick="closeMenu()">Affiliate</a>
+  <a href="#pricing" class="nav-cta" role="menuitem" onclick="closeMenu()">Start Free Trial</a>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-content fade-in">
+      <h1>The digital foundation that turns a moment of decision into a lifetime of devotion.</h1>
+      <p>Your own branded ministry app with AI trained on YOUR teachings. Community, courses, and pastoral care — all in one place.</p>
+      <div class="hero-buttons">
+        <a href="#pricing" class="btn-gold">Start Free Trial</a>
+        <a href="#pricing" class="btn-ghost">View Pricing</a>
       </div>
     </div>
-    <img src="https://raw.githubusercontent.com/bumbmatei-sys/pictures/main/doar%20spic.png" alt="" class="hero-float" role="presentation">
-  </section>
-
-  <!-- Challenge -->
-  <section class="section section-alt" id="challenge">
-    <div class="container">
-      <div class="reveal">
-        <div class="section-label"><span class="section-label-line"></span>The Challenge</div>
-        <h2 class="section-title">The Harvest is Plentiful, but...</h2>
-        <p class="section-body">
-          Every single week, hundreds of thousands of people across the world accept Jesus as their Savior. The Kingdom is expanding at an unprecedented rate.<br><br>
-          But with this amazing growth comes a vital question: <strong>"What is the retention percentage?"</strong> How many grow to maturity to fulfill the Great Commandment?<br><br>
-          The Harvest App was created to bridge the gap between the altar call and a lifetime of walking with Jesus.
-        </p>
-      </div>
-      <div class="stats-grid reveal">
-        <div class="stat-card">
-          <div class="stat-number">15%</div>
-          <div class="stat-label">Average new believer retention rate</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">1B+</div>
-          <div class="stat-label">Believers worldwide and growing</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">190</div>
-          <div class="stat-label">Countries reached by the Gospel</div>
-        </div>
+    <div class="hero-screenshot fade-in">
+      <div class="hero-screenshot-inner">
+        <!-- Product screenshot placeholder -->
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Features -->
-  <section class="section" id="features">
-    <div class="container">
-      <div class="features-header reveal">
-        <div class="section-label"><span class="section-label-line"></span>The Platform</div>
-        <h2 class="section-title">Built for Discipleship</h2>
-        <p class="section-body" style="margin:0 auto">Every feature designed to take a new believer from their first prayer to spiritual maturity.</p>
+<!-- ==================== THE PROBLEM ==================== -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="problem-stat fade-in">
+      <p class="section-label">The Challenge</p>
+      <div class="big-number">85%</div>
+      <p>of new believers fall away within the first year. Not because the gospel isn't powerful — because the follow-through isn't there.</p>
+    </div>
+    <div class="problem-flow fade-in">
+      <div class="problem-card">
+        <div class="problem-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <h3>Moment of Decision</h3>
+        <p>A heart changed forever</p>
       </div>
-      <div class="features-grid">
-        <div class="feature-card wide reveal">
-          <div class="feature-tag">Core Experience</div>
-          <div class="feature-icon gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          </div>
-          <h3 class="feature-title">The 40-Day Journey</h3>
-          <p class="feature-desc">An 8-column video curriculum that walks new believers through the foundations of faith. From salvation to spiritual disciplines, each day builds on the last — structured, intentional, transformative.</p>
+      <div class="problem-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
         </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <h3 class="feature-title">Church Locator</h3>
-          <p class="feature-desc">Help new believers find a local church community. Integrated map with real-time church data across the globe.</p>
+        <h3>No System</h3>
+        <p>No way to follow up</p>
+      </div>
+      <div class="problem-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="23" y1="11" y2="11"/><line x1="20" x2="20" y1="8" y2="14"/></svg>
         </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon purple">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <h3 class="feature-title">24/7 AI Counselor</h3>
-          <p class="feature-desc">Scripture-trained AI that answers questions, provides encouragement, and guides new believers anytime — day or night.</p>
-        </div>
-        <div class="feature-card wide reveal">
-          <div class="feature-tag">Global Reach</div>
-          <div class="feature-icon green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          </div>
-          <h3 class="feature-title">Native Languages</h3>
-          <p class="feature-desc">Available in 190+ languages. Every believer deserves to learn in their heart language. We're building for the global church, not just the English-speaking world.</p>
-        </div>
+        <h3>Lost Believer</h3>
+        <p>A soul that slipped away</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Vision -->
-  <section class="section section-dark vision" id="vision">
-    <div class="container reveal">
-      <div class="section-label"><span class="section-label-line"></span>The Vision</div>
-      <h2 class="vision-quote">Ready for the <span class="gold-text">Billion Soul Harvest.</span></h2>
-      <p class="vision-body">
-        We believe a one-billion soul harvest is coming. For that harvest to last, churches all over the world need to be prepared to receive the millions of converts and bring them to maturity. <strong>We are building the infrastructure to turn moments of decision into lifetimes of devotion.</strong>
-      </p>
+<!-- ==================== WHAT HARVEST DOES ==================== -->
+<section class="solution" id="solution">
+  <div class="container">
+    <div class="solution-header fade-in">
+      <p class="section-label">The Solution</p>
+      <h2 class="section-heading">What Harvest Does</h2>
     </div>
-  </section>
-
-  <!-- Plans -->
-  <section class="section" id="plans">
-    <div class="container">
-      <div class="plans-header reveal">
-        <div class="section-label"><span class="section-label-line"></span>For Ministries</div>
-        <h2 class="section-title">Your Ministry. Your Platform.</h2>
-        <p class="section-body" style="margin:0 auto">Get your own isolated instance with your own feed, courses, and community. Empower your congregation with purpose-built discipleship tools.</p>
+    <div class="solution-pillars">
+      <div class="pillar fade-in">
+        <div class="pillar-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+        </div>
+        <h3>Feed Your AI</h3>
+        <p>Train AI on YOUR sermons, studies, and resources. It answers ONLY from your materials — no hallucination, no generic responses.</p>
       </div>
-      <!-- Billing Toggle -->
-      <div class="billing-toggle" style="display:flex;justify-content:center;margin-bottom:40px;">
-        <div style="display:inline-flex;background:#f3f4f6;border-radius:16px;padding:4px;gap:4px;">
-          <button onclick="setBilling('monthly')" id="btn-monthly" style="padding:10px 24px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,0.08);transition:all .2s;">Monthly</button>
-          <button onclick="setBilling('yearly')" id="btn-yearly" style="padding:10px 24px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:#6b7280;transition:all .2s;position:relative;">Yearly<span style="position:absolute;top:-8px;right:-8px;background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;">-2mo</span></button>
+      <div class="pillar fade-in">
+        <div class="pillar-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
+        <h3>Build Your Community</h3>
+        <p>Isolated social feed, blog publishing, and course management. Each ministry gets their own branded space.</p>
       </div>
-      <p id="yearly-promo" style="display:none;text-align:center;color:#16a34a;font-weight:600;font-size:14px;margin:-28px 0 32px;">🎉 First year: 2 months free! Pay for 10, get 12.</p>
-      <div class="plans-grid">
-        <div class="plan-card reveal">
-          <div class="plan-name">Individual</div>
-          <div class="plan-price" id="price-plus">$49 <span>/mo</span></div>
-          <p class="plan-desc">Get your own subdomain and everything you need to start discipling your congregation online.</p>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Subdomain (yourname.theharvest.app)</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Isolated feed & courses</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 2 admin accounts</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 courses</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Blog</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Partner with Us — 85% donations to your ministry</li>
-          </ul>
-          <a href="https://harvest-agent.vercel.app?signup=church&plan=plus" class="plan-btn outline">Get Started</a>
+      <div class="pillar fade-in">
+        <div class="pillar-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
         </div>
-        <div class="plan-card reveal">
-          <div class="plan-name">Community</div>
-          <div class="plan-price" id="price-pro">$99 <span>/mo</span></div>
-          <p class="plan-desc">Your own subdomain plus advanced tools for growing churches that want more control.</p>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Plus</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 admin accounts</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited courses</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI chat trained on your knowledge base</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Newsletter Automation <span style="color:var(--gold);font-size:11px;font-weight:700;">Soon</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Partner with Us — 90% donations to your ministry</li>
-          </ul>
-          <a href="https://harvest-agent.vercel.app?signup=church&plan=pro" class="plan-btn primary">Get Started</a>
-        </div>
-        <div class="plan-card featured reveal">
-          <div class="plan-badge">Most Popular</div>
-          <div class="plan-name">Church</div>
-          <div class="plan-price" id="price-max">$199 <span>/mo</span></div>
-          <p class="plan-desc">Full white-label experience with your own domain and branding.</p>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Pro</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom domain (yourchurch.com)</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full rebranding (logo, colors)</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited admin accounts</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>SMS Automation <span style="color:var(--gold);font-size:11px;font-weight:700;">Soon</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Partner with Us — 95% donations to your ministry</li>
-          </ul>
-          <a href="https://harvest-agent.vercel.app?signup=church&plan=max" class="plan-btn primary">Get Started</a>
-        </div>
-        <div class="plan-card reveal">
-          <div class="plan-name">Ministry</div>
-          <div class="plan-price" id="price-ultra">$349 <span>/mo</span></div>
-          <p class="plan-desc">The ultimate plan with AI assistant included for your ministry.</p>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Max</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI Assistant included</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Partner with Us — 100% donations to your ministry</li>
-          </ul>
-          <a href="https://harvest-agent.vercel.app?signup=church&plan=ultra" class="plan-btn outline">Get Started</a>
-        </div>
-        <div class="plan-card reveal">
-          <div class="plan-name">Enterprise</div>
-          <div class="plan-price">Custom</div>
-          <p class="plan-desc">Unlimited scale for multi-campus churches and organizations.</p>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Ultra</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited churches / campuses</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited AI Assistants</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support & onboarding</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Church map directory</li>
-          </ul>
-          <a href="https://harvest-agent.vercel.app?signup=church&plan=enterprise" class="plan-btn outline">Get Started</a>
-        </div>
-      </div>
-      <div class="carousel-dots" id="carouselDots"></div>
-      <!-- Comparison Table -->
-      <div style="max-width:900px;margin:60px auto 0;">
-        <h3 style="text-align:center;font-size:22px;font-weight:800;color:var(--heading);margin-bottom:24px;">Compare all features</h3>
-        <div style="overflow-x:auto;border:1px solid var(--border);border-radius:16px;background:var(--card);">
-          <table style="width:100%;border-collapse:collapse;font-size:13px;">
-            <thead>
-              <tr style="border-bottom:1px solid var(--border);">
-                <th style="text-align:left;padding:14px 20px;font-weight:700;color:var(--heading);width:30%;">Feature</th>
-                <th style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">Individual<br><span style="font-weight:500;font-size:11px;color:var(--body);">$49/mo</span></th>
-                <th style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">Community<br><span style="font-weight:500;font-size:11px;color:var(--body);">$99/mo</span></th>
-                <th style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">Church<br><span style="font-weight:500;font-size:11px;color:var(--body);">$199/mo</span></th>
-                <th style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">Ministry<br><span style="font-weight:500;font-size:11px;color:var(--body);">$349/mo</span></th>
-                <th style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">Enterprise<br><span style="font-weight:500;font-size:11px;color:var(--body);">Custom</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Blog</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Newsletter Automation</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:12px;font-weight:700;">Soon</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:12px;font-weight:700;">Soon</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:12px;font-weight:700;">Soon</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:12px;font-weight:700;">Soon</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">AI Chat</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">AI Knowledge Base</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Courses</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">5</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Admin accounts</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">2</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">5</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Custom Domain</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Custom Background</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">SMS Automation</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:12px;font-weight:700;">Soon</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:12px;font-weight:700;">Soon</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:12px;font-weight:700;">Soon</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Church Map Directory</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Churches</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">1</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">1</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">1</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">1</td>
-                <td style="text-align:center;padding:12px;font-weight:700;color:var(--heading);">Unlimited</td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">AI Assistant Included</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Full rebranding</td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-                <td style="text-align:center;padding:12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--border-light);">
-                <td style="padding:12px 20px;color:var(--body);font-weight:500;">Personal AI Assistant <span class="ai-info-trigger" onclick="toggleAiInfo(event)" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--gold);color:#fff;font-size:10px;font-weight:800;cursor:pointer;vertical-align:middle;margin-left:4px;">?</span><span class="ai-info-popup" id="aiInfoPopup" style="display:none;position:absolute;z-index:200;background:#1a1f2e;border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:14px 16px;max-width:280px;font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6;box-shadow:0 8px 30px rgba(0,0,0,0.4);">Your personal AI assistant that connects to <strong style="color:#fff;">900+ apps</strong>, automates tasks, manages schedules, and streamlines your admin workflow. Accessible through the app or <strong style="color:#fff;">Telegram</strong>.<br><span style="color:var(--gold);font-weight:700;">$150 setup + $100/mo</span> — cancel anytime.</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:11px;font-weight:700;">Add-on</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:11px;font-weight:700;">Add-on</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:11px;font-weight:700;">Add-on</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:11px;font-weight:700;">Add-on</span></td>
-                <td style="text-align:center;padding:12px;"><span style="color:#d4a017;font-size:11px;font-weight:700;">Add-on</span></td>
-              </tr>
-              <tr style="border-top:2px solid var(--border);">
-                <td style="padding:14px 20px;color:var(--heading);font-weight:700;">Partner with Us revenue</td>
-                <td style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">85% <span style="font-weight:400;font-size:11px;color:var(--body);">to you</span></td>
-                <td style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">90% <span style="font-weight:400;font-size:11px;color:var(--body);">to you</span></td>
-                <td style="text-align:center;padding:14px 12px;font-weight:700;color:var(--heading);">95% <span style="font-weight:400;font-size:11px;color:var(--body);">to you</span></td>
-                <td style="text-align:center;padding:14px 12px;font-weight:700;color:#22c55e;">100% <span style="font-weight:400;font-size:11px;">to you</span></td>
-                <td style="text-align:center;padding:14px 12px;font-weight:700;color:#22c55e;">100% <span style="font-weight:400;font-size:11px;">to you</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <h3>Grow Your Ministry</h3>
+        <p>Evangelism analytics, engagement tracking, and admin dashboards. Count decisions for Christ and start follow-up automatically.</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-
-  <!-- CTA -->
-  <section class="cta-banner">
-    <div class="container">
-      <div class="cta-box reveal">
-        <h2 class="cta-title">Ready to begin your journey?</h2>
-        <p class="cta-subtitle">Join believers worldwide who are growing in faith, one day at a time.</p>
-        <div class="cta-actions">
-          <a href="https://theharvest.app" class="btn-gold">
-            Start Learning Today
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
-
+<!-- ==================== FEATURES GRID ==================== -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="features-header fade-in">
+      <p class="section-label">Features</p>
+      <h2 class="section-heading">Everything your ministry needs</h2>
+      <p>Built from the ground up for churches and ministries — not adapted from a generic template.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
         </div>
+        <h3>AI Knowledge Base</h3>
+        <p>Your own AI trained exclusively on your ministry's resources. Sermons, studies, doctrinal materials — it answers from YOUR truth.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><circle cx="12" cy="15" r="2"/></svg>
+        </div>
+        <h3>Personal AI Assistant</h3>
+        <p>Connects to 900+ apps. Manages schedules, automates tasks, streamlines admin workflow. Your pastoral co-pilot.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        </div>
+        <h3>Community Feed</h3>
+        <p>Isolated social feed per ministry. Prayer requests, testimonies, announcements — your people, your space.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+        </div>
+        <h3>Blog & Publishing</h3>
+        <p>Full publishing system for each ministry. Share sermons, devotionals, and teaching content with your community.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        </div>
+        <h3>Courses</h3>
+        <p>Course management system. Build structured learning paths from salvation to spiritual maturity.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        </div>
+        <h3>Admin Dashboard</h3>
+        <p>Full control with analytics and engagement tracking. See who's growing, who's struggling, who needs care.</p>
+      </div>
+      <div class="feature-card feature-card-full fade-in">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        </div>
+        <h3>Evangelism Analytics</h3>
+        <p>Count how many people said yes to Christ. Start follow-up automatically. Measure what matters for the Kingdom.</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <div class="footer-brand-name">
-            <img src="https://raw.githubusercontent.com/bumbmatei-sys/pictures/main/doar%20spic.png" alt="Harvest">
-            Harvest
-          </div>
-          <p class="footer-tagline">Providing the digital foundation for the global harvest. We don't just count decisions; we build disciples.</p>
-        </div>
-        <div class="footer-links">
-          <div class="footer-col">
-            <h4>Platform</h4>
-            <a href="https://theharvest.app">The App</a>
-            <a href="#features">Features</a>
-            <a href="#plans">For Ministries</a>
-          </div>
-          <div class="footer-col">
-            <h4>Support</h4>
+<!-- ==================== VISION STATEMENT ==================== -->
+<section class="vision">
+  <div class="container fade-in">
+    <div class="vision-accent"></div>
+    <blockquote>We're building infrastructure for a billion soul harvest. Every tool, every feature, every line of code serves one purpose: turning moments of decision into lifetimes of devotion.</blockquote>
+    <cite>— The Harvest Team</cite>
+  </div>
+</section>
 
-            <a href="#">Contact Us</a>
-            <a href="#">FAQ</a>
-          </div>
+<!-- ==================== PRICING ==================== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="pricing-header fade-in">
+      <p class="section-label">Pricing</p>
+      <h2 class="section-heading">Simple, transparent pricing</h2>
+    </div>
+    <div class="pricing-toggle fade-in">
+      <span class="toggle-label-monthly active">Monthly</span>
+      <button class="toggle-track" id="pricingToggle" role="switch" aria-checked="false" aria-label="Toggle yearly pricing" onclick="togglePricing()">
+        <div class="toggle-knob"></div>
+      </button>
+      <span class="toggle-label-yearly">Yearly <span class="pricing-badge">2 months free</span></span>
+    </div>
+    <div class="pricing-grid">
+      <!-- Individual -->
+      <div class="price-card fade-in">
+        <div class="price-card-name">Individual</div>
+        <div class="price-card-price">
+          $<span class="price-monthly">49</span><span class="price-yearly" style="display:none">490</span><span class="period">/<span class="period-text">mo</span></span>
         </div>
+        <div class="donations">85% donations retained</div>
+        <ul class="price-features">
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Subdomain hosting</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 admin accounts</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>5 courses</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Blog publishing</li>
+        </ul>
+        <a href="#" class="btn-ghost">Get Started</a>
       </div>
-      <div class="footer-bottom">
-        <span class="footer-copy">&copy; 2025 Harvest. All rights reserved.</span>
-        <div class="footer-legal">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
+      <!-- Community -->
+      <div class="price-card fade-in">
+        <div class="price-card-name">Community</div>
+        <div class="price-card-price">
+          $<span class="price-monthly">99</span><span class="price-yearly" style="display:none">990</span><span class="period">/<span class="period-text">mo</span></span>
         </div>
+        <div class="donations">90% donations retained</div>
+        <ul class="price-features">
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>5 admin accounts</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited courses</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI Knowledge Base</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Community feed</li>
+        </ul>
+        <a href="#" class="btn-ghost">Get Started</a>
+      </div>
+      <!-- Church (Popular) -->
+      <div class="price-card popular fade-in">
+        <div class="popular-badge">Most Popular</div>
+        <div class="price-card-name">Church</div>
+        <div class="price-card-price">
+          $<span class="price-monthly">199</span><span class="price-yearly" style="display:none">1990</span><span class="period">/<span class="period-text">mo</span></span>
+        </div>
+        <div class="donations">95% donations retained</div>
+        <ul class="price-features">
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom domain</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full rebranding</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited admins</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>All Community features</li>
+        </ul>
+        <a href="#" class="btn-gold">Get Started</a>
+      </div>
+      <!-- Ministry -->
+      <div class="price-card fade-in">
+        <div class="price-card-name">Ministry</div>
+        <div class="price-card-price">
+          $<span class="price-monthly">349</span><span class="price-yearly" style="display:none">3490</span><span class="period">/<span class="period-text">mo</span></span>
+        </div>
+        <div class="donations">100% donations retained</div>
+        <ul class="price-features">
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Church</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI Assistant included</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>900+ app integrations</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full automation suite</li>
+        </ul>
+        <a href="#" class="btn-ghost">Get Started</a>
+      </div>
+      <!-- Enterprise -->
+      <div class="price-card fade-in">
+        <div class="price-card-name">Enterprise</div>
+        <div class="price-card-price-custom">Custom</div>
+        <div class="donations">100% donations retained</div>
+        <ul class="price-features">
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited scale</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom integrations</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>White-glove onboarding</li>
+        </ul>
+        <a href="#" class="btn-ghost">Contact Sales</a>
       </div>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script>
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
-    function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
-    function toggleAiInfo(e) {
-      e.stopPropagation();
-      var popup = document.getElementById('aiInfoPopup');
-      var isVisible = popup.style.display !== 'none';
-      popup.style.display = isVisible ? 'none' : 'block';
-      if (!isVisible) {
-        var rect = e.target.getBoundingClientRect();
-        popup.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-        popup.style.left = Math.max(8, rect.left + window.scrollX - 100) + 'px';
+<!-- ==================== AI ASSISTANT ADD-ON ==================== -->
+<section class="addon">
+  <div class="container">
+    <div class="addon-card fade-in">
+      <div class="addon-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><circle cx="12" cy="15" r="2"/></svg>
+      </div>
+      <h3>Personal AI Assistant</h3>
+      <div class="addon-price">$150 setup + $100/mo</div>
+      <p>Connects to 900+ apps. Automates tasks, manages schedules, streamlines workflow. Available as add-on for Community and Church plans. Included in Ministry. Enterprise: unlimited assistants at $85/mo each.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== AFFILIATE PROGRAM ==================== -->
+<section class="affiliate" id="affiliate">
+  <div class="container">
+    <div class="affiliate-header fade-in">
+      <p class="section-label">Earn with Harvest</p>
+      <h2 class="section-heading">Share the mission, earn the reward</h2>
+      <p>Partner with us to bring Harvest to more ministries — and earn recurring income while doing it.</p>
+    </div>
+    <div class="affiliate-steps fade-in">
+      <div class="affiliate-step">
+        <div class="affiliate-step-number">1</div>
+        <h3>Share your link</h3>
+        <p>Get your unique referral link and share it with ministries you know.</p>
+      </div>
+      <div class="affiliate-step">
+        <div class="affiliate-step-number">2</div>
+        <h3>They subscribe</h3>
+        <p>When a ministry signs up through your link, they're tracked to you automatically.</p>
+      </div>
+      <div class="affiliate-step">
+        <div class="affiliate-step-number">3</div>
+        <h3>You earn 10% recurring</h3>
+        <p>Earn 10% of every payment, for as long as they stay subscribed.</p>
+      </div>
+    </div>
+    <div class="affiliate-detail fade-in">
+      <div class="affiliate-detail-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Auto-tracked via Stripe Connect
+      </div>
+      <div class="affiliate-detail-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Zero cost to join
+      </div>
+      <div class="affiliate-detail-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Paid monthly
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FINAL CTA ==================== -->
+<section class="final-cta">
+  <div class="container fade-in">
+    <h2>Ready to build your ministry's digital home?</h2>
+    <div class="hero-buttons">
+      <a href="#pricing" class="btn-gold">Start Free Trial</a>
+      <a href="#" class="btn-ghost-white">Contact Sales</a>
+    </div>
+    <p class="small-text">3-month free trial of the Church plan. No credit card required.</p>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">Harvest<span>.</span></div>
+        <div class="footer-tagline">The digital foundation for ministry.</div>
+      </div>
+      <ul class="footer-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#affiliate">Affiliate</a></li>
+        <li><a href="#">Terms</a></li>
+        <li><a href="#">Privacy</a></li>
+      </ul>
+      <div class="footer-copyright">&copy; 2026 Harvest. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Mobile menu
+function toggleMenu() {
+  var menu = document.getElementById('mobileMenu');
+  var btn = document.querySelector('.hamburger');
+  var isOpen = menu.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen);
+}
+
+function closeMenu() {
+  var menu = document.getElementById('mobileMenu');
+  var btn = document.querySelector('.hamburger');
+  menu.classList.remove('open');
+  btn.setAttribute('aria-expanded', 'false');
+}
+
+// Pricing toggle
+var isYearly = false;
+
+function togglePricing() {
+  isYearly = !isYearly;
+  var track = document.getElementById('pricingToggle');
+  var monthlyLabel = document.querySelector('.toggle-label-monthly');
+  var yearlyLabel = document.querySelector('.toggle-label-yearly');
+
+  track.classList.toggle('active', isYearly);
+  track.setAttribute('aria-checked', isYearly);
+  monthlyLabel.classList.toggle('active', !isYearly);
+  yearlyLabel.classList.toggle('active', isYearly);
+
+  document.querySelectorAll('.price-monthly').forEach(function(el) {
+    el.style.display = isYearly ? 'none' : '';
+  });
+  document.querySelectorAll('.price-yearly').forEach(function(el) {
+    el.style.display = isYearly ? '' : 'none';
+  });
+  document.querySelectorAll('.period-text').forEach(function(el) {
+    el.textContent = isYearly ? 'yr' : 'mo';
+  });
+}
+
+// Intersection Observer for fade-in
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
       }
-    }
-    document.addEventListener('click', function() {
-      var popup = document.getElementById('aiInfoPopup');
-      if (popup) popup.style.display = 'none';
     });
-    const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }), { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
-    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if(t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); } }); });
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+})();
+</script>
 
-    // Billing toggle
-    function setBilling(period) {
-      const btnM = document.getElementById('btn-monthly');
-      const btnY = document.getElementById('btn-yearly');
-      const promo = document.getElementById('yearly-promo');
-      if (period === 'yearly') {
-        btnM.style.background = 'transparent'; btnM.style.color = '#6b7280'; btnM.style.boxShadow = 'none';
-        btnY.style.background = '#fff'; btnY.style.color = '#111'; btnY.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
-        document.getElementById('price-plus').innerHTML = '$490 <span>/yr</span>';
-        document.getElementById('price-pro').innerHTML = '$990 <span>/yr</span>';
-        document.getElementById('price-max').innerHTML = '$1,990 <span>/yr</span>';
-        document.getElementById('price-ultra').innerHTML = '$3,490 <span>/yr</span>';
-        promo.style.display = 'block';
-      } else {
-        btnY.style.background = 'transparent'; btnY.style.color = '#6b7280'; btnY.style.boxShadow = 'none';
-        btnM.style.background = '#fff'; btnM.style.color = '#111'; btnM.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
-        document.getElementById('price-plus').innerHTML = '$49 <span>/mo</span>';
-        document.getElementById('price-pro').innerHTML = '$99 <span>/mo</span>';
-        document.getElementById('price-max').innerHTML = '$99 <span>/mo</span>';
-        document.getElementById('price-ultra').innerHTML = '$349 <span>/mo</span>';
-        promo.style.display = 'none';
-      }
-    }
-    // Carousel dots
-    (function() {
-      var grid = document.querySelector('.plans-grid');
-      var dotsContainer = document.getElementById('carouselDots');
-      var cards = grid.querySelectorAll('.plan-card');
-      cards.forEach(function(_, i) {
-        var dot = document.createElement('button');
-        dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-        dot.setAttribute('aria-label', 'Go to plan ' + (i + 1));
-        dot.addEventListener('click', function() {
-          cards[i].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        });
-        dotsContainer.appendChild(dot);
-      });
-      var dots = dotsContainer.querySelectorAll('.carousel-dot');
-      grid.addEventListener('scroll', function() {
-        var gridRect = grid.getBoundingClientRect();
-        var gridCenter = gridRect.left + gridRect.width / 2;
-        var closest = 0, minDist = Infinity;
-        cards.forEach(function(card, i) {
-          var cardRect = card.getBoundingClientRect();
-          var cardCenter = cardRect.left + cardRect.width / 2;
-          var dist = Math.abs(cardCenter - gridCenter);
-          if (dist < minDist) { minDist = dist; closest = i; }
-        });
-        dots.forEach(function(d, i) { d.classList.toggle('active', i === closest); });
-      });
-    })();
-  </script>
 </body>
 </html>
