@@ -86,6 +86,39 @@ const plans = [
   },
 ];
 
+type CellValue = boolean | string;
+
+const tableRows: { feature: string; values: CellValue[] }[] = [
+  { feature: "Blog", values: [true, true, true, true, true] },
+  { feature: "News Feed", values: [true, true, true, true, true] },
+  { feature: "Bible", values: [true, true, true, true, true] },
+  { feature: "Prayer Requests", values: [true, true, true, true, true] },
+  { feature: "Donation Page", values: [true, true, true, true, true] },
+  { feature: "AI Chat", values: [false, true, true, true, true] },
+  { feature: "AI Knowledge Base", values: [false, true, true, true, true] },
+  { feature: "Courses", values: ["2", "5", "∞", "∞", "∞"] },
+  { feature: "Admin Accounts", values: ["1", "5", "∞", "∞", "∞"] },
+  { feature: "Church Map", values: [false, true, true, true, true] },
+  { feature: "Newsletter", values: [false, true, true, true, true] },
+  { feature: "Custom Branding", values: [false, false, true, true, true] },
+  { feature: "AI Assistant", values: [false, false, false, "1", "∞"] },
+  { feature: "Unlimited Churches", values: [false, false, false, false, true] },
+  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%", "20%"] },
+  { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%", "100%"] },
+  // Coming soon
+  { feature: "Fundraising", values: [false, "soon", "soon", "soon", "soon"] },
+  { feature: "Automated Devotional", values: [false, false, "soon", "soon", "soon"] },
+  { feature: "Event Registration", values: [false, false, "soon", "soon", "soon"] },
+  { feature: "Docs", values: [false, false, "soon", "soon", "soon"] },
+  { feature: "Automated Blog Articles", values: [false, false, false, "soon", "soon"] },
+  { feature: "CRM (Donors & Members)", values: [false, false, false, "soon", "soon"] },
+  { feature: "Accounting Tools", values: [false, false, false, "soon", "soon"] },
+  { feature: "Community Groups", values: [false, false, false, "soon", "soon"] },
+  { feature: "Tax Receipt Generation", values: [false, false, false, false, "soon"] },
+];
+
+const soonRowStart = 16;
+
 export const PricingSection: React.FC = () => {
   return (
     <section id="pricing" className="bg-cream py-24 md:py-36">
@@ -208,40 +241,34 @@ export const PricingSection: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { feature: "Blog", values: [true, true, true, true, true] },
-                  { feature: "News Feed", values: [true, true, true, true, true] },
-                  { feature: "Bible", values: [true, true, true, true, true] },
-                  { feature: "Prayer Requests", values: [true, true, true, true, true] },
-                  { feature: "Donation Page", values: [true, true, true, true, true] },
-                  { feature: "AI Chat", values: [false, true, true, true, true] },
-                  { feature: "AI Knowledge Base", values: [false, true, true, true, true] },
-                  { feature: "Courses", values: ["2", "5", "∞", "∞", "∞"] },
-                  { feature: "Admin Accounts", values: ["1", "5", "∞", "∞", "∞"] },
-                  { feature: "Church Map", values: [false, true, true, true, true] },
-                  { feature: "Newsletter", values: [false, true, true, true, true] },
-                  { feature: "Custom Branding", values: [false, false, true, true, true] },
-                  { feature: "AI Assistant", values: [false, false, false, "1", "∞"] },
-                  { feature: "Unlimited Churches", values: [false, false, false, false, true] },
-                  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%", "20%"] },
-                  { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%", "100%"] },
-                ].map((row) => (
-                  <tr key={row.feature} className="border-b border-stone/50">
-                    <td className="py-3 text-warm-brown">{row.feature}</td>
-                    {row.values.map((val, i) => (
-                      <td key={i} className="text-center py-3">
-                        {typeof val === "boolean" ? (
-                          val ? (
-                            <span className="text-gold">✓</span>
+                {tableRows.map((row, idx) => (
+                  <React.Fragment key={row.feature}>
+                    {idx === soonRowStart && (
+                      <tr>
+                        <td colSpan={6} className="pt-5 pb-2 px-0">
+                          <span className="text-[10px] font-semibold tracking-widest uppercase text-amber-500">Coming Soon</span>
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="border-b border-stone/50">
+                      <td className="py-3 text-warm-brown">{row.feature}</td>
+                      {row.values.map((val, i) => (
+                        <td key={i} className="text-center py-3">
+                          {typeof val === "boolean" ? (
+                            val ? (
+                              <span className="text-gold">✓</span>
+                            ) : (
+                              <span className="text-stone">—</span>
+                            )
+                          ) : val === "soon" ? (
+                            <span className="text-amber-500 text-xs font-semibold">Soon</span>
                           ) : (
-                            <span className="text-stone">—</span>
-                          )
-                        ) : (
-                          <span className="text-warm-dark font-medium">{val}</span>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
+                            <span className="text-warm-dark font-medium">{val}</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
