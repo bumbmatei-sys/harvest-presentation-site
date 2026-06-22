@@ -3,44 +3,86 @@ import React from 'react';
 const plans = [
   {
     name: "Individual",
-    price: "$49",
-    period: "/month",
-    retention: 85,
-    desc: "For independent evangelists and solo ministers.",
-    features: ["Blog", "1 church", "5 courses", "2 admin accounts"],
-  },
-  {
-    name: "Community",
-    price: "$99",
+    price: "$59",
     period: "/month",
     retention: 90,
-    desc: "For growing ministries building their first community.",
-    features: ["Everything in Individual", "AI Chat", "Unlimited courses", "5 admin accounts", "Newsletter automation"],
+    desc: "For independent evangelists and solo ministers.",
+    features: [
+      "Blog",
+      "News Feed",
+      "Bible",
+      "2 courses",
+      "1 admin",
+      "Subdomain",
+      "10% lifetime affiliate",
+      "Donation page",
+      "Prayer requests",
+    ],
+  },
+  {
+    name: "Small Team",
+    price: "$99",
+    period: "/month",
+    retention: 95,
+    desc: "For small ministries ready to grow as a team.",
+    features: [
+      "Everything in Individual",
+      "5 Courses",
+      "5 admins",
+      "AI Chat",
+      "AI Knowledge Base",
+      "Newsletter",
+      "Church Map",
+      "Fundraising (soon)",
+    ],
     popular: true,
   },
   {
-    name: "Church",
+    name: "Community",
     price: "$199",
     period: "/month",
-    retention: 95,
+    retention: 100,
     desc: "For established churches ready to go deeper.",
-    features: ["Everything in Community", "Custom domain", "Unlimited admins", "Custom branding"],
+    features: [
+      "Everything in Small Team",
+      "Unlimited admins",
+      "Unlimited courses",
+      "Custom Branding",
+      "15% lifetime affiliate",
+      "Automated Newsletter",
+      "Automated devotional (soon)",
+      "Event registration (soon)",
+      "Docs (soon)",
+    ],
   },
   {
     name: "Ministry",
-    price: "$349",
+    price: "$399",
     period: "/month",
     retention: 100,
     desc: "For large ministries with full-time teams.",
-    features: ["Everything in Church", "AI Assistant included", "SMS automation", "Priority support"],
+    features: [
+      "Everything in Community",
+      "1 Personal AI Assistant",
+      "Automated Blog Articles (soon)",
+      "CRM for Donors & Members (soon)",
+      "Accounting Tools (soon)",
+      "Community Groups (soon)",
+    ],
   },
   {
-    name: "Enterprise",
+    name: "Organization",
     price: "Custom",
     period: "",
     retention: 100,
     desc: "For networks, denominations, and large organizations.",
-    features: ["Everything in Ministry", "Multi-church support", "Church map", "Dedicated support", "Custom integrations"],
+    features: [
+      "Everything in Ministry",
+      "Unlimited AI assistants",
+      "Unlimited churches",
+      "Tax receipt generation (soon)",
+      "20% lifetime affiliate",
+    ],
   },
 ];
 
@@ -54,7 +96,7 @@ export const PricingSection: React.FC = () => {
             Plans that grow with you
           </h2>
           <p className="text-warm-brown text-lg mt-6 max-w-[600px] mx-auto">
-            The more you grow, the more you keep. Donation retention climbs with every tier — from 85% to 100%.
+            The more you grow, the more you keep. Donation retention climbs with every tier — from 90% to 100%.
           </p>
         </div>
 
@@ -65,16 +107,16 @@ export const PricingSection: React.FC = () => {
             <span className="text-xs text-warm-brown/60">Grows with plan</span>
           </div>
           <div className="flex h-3 rounded-full overflow-hidden bg-stone">
-            <div className="bg-gold/40 flex-1" />
-            <div className="bg-gold/55 flex-1" />
-            <div className="bg-gold/75 flex-1" />
+            <div className="bg-gold/50 flex-1" />
+            <div className="bg-gold/65 flex-1" />
+            <div className="bg-gold flex-1" />
             <div className="bg-gold flex-1" />
             <div className="bg-gold flex-1" />
           </div>
           <div className="flex justify-between mt-2 text-xs text-warm-brown/60">
-            <span>85%</span>
             <span>90%</span>
             <span>95%</span>
+            <span>100%</span>
             <span>100%</span>
             <span>100%</span>
           </div>
@@ -97,7 +139,7 @@ export const PricingSection: React.FC = () => {
                 </div>
               )}
 
-              {/* Retention percentage — the visual hero of the card */}
+              {/* Retention percentage */}
               <div className="text-center mb-6">
                 <div className="text-gold font-serif text-4xl font-light">
                   {plan.retention}<span className="text-gold/50 text-2xl">%</span>
@@ -142,14 +184,14 @@ export const PricingSection: React.FC = () => {
                     : "border border-gold text-gold hover:bg-gold hover:text-white"
                 }`}
               >
-                {plan.name === "Enterprise" ? "Contact Us" : "Get Started"}
+                {plan.name === "Organization" ? "Contact Us" : "Get Started"}
               </a>
             </div>
           ))}
         </div>
 
         {/* Feature comparison table */}
-        <details className="mt-16 max-w-[800px] mx-auto">
+        <details className="mt-16 max-w-[900px] mx-auto">
           <summary className="cursor-pointer text-center text-gold font-semibold text-sm hover:text-gold-dark transition-colors">
             Compare all features →
           </summary>
@@ -168,18 +210,21 @@ export const PricingSection: React.FC = () => {
               <tbody>
                 {[
                   { feature: "Blog", values: [true, true, true, true, true] },
+                  { feature: "News Feed", values: [true, true, true, true, true] },
+                  { feature: "Bible", values: [true, true, true, true, true] },
+                  { feature: "Prayer Requests", values: [true, true, true, true, true] },
+                  { feature: "Donation Page", values: [true, true, true, true, true] },
                   { feature: "AI Chat", values: [false, true, true, true, true] },
                   { feature: "AI Knowledge Base", values: [false, true, true, true, true] },
-                  { feature: "Community Feed", values: [true, true, true, true, true] },
-                  { feature: "Courses", values: ["5", "∞", "∞", "∞", "∞"] },
-                  { feature: "Admin Accounts", values: ["2", "5", "∞", "∞", "∞"] },
-                  { feature: "Custom Domain", values: [false, false, true, true, true] },
+                  { feature: "Courses", values: ["2", "5", "∞", "∞", "∞"] },
+                  { feature: "Admin Accounts", values: ["1", "5", "∞", "∞", "∞"] },
+                  { feature: "Church Map", values: [false, true, true, true, true] },
+                  { feature: "Newsletter", values: [false, true, true, true, true] },
                   { feature: "Custom Branding", values: [false, false, true, true, true] },
-                  { feature: "AI Assistant", values: [false, false, false, true, true] },
-                  { feature: "SMS Automation", values: [false, false, true, true, true] },
-                  { feature: "Newsletter Automation", values: [false, true, true, true, true] },
-                  { feature: "Church Map", values: [false, false, false, false, true] },
-                  { feature: "Donation Retention", values: ["85%", "90%", "95%", "100%", "100%"] },
+                  { feature: "AI Assistant", values: [false, false, false, "1", "∞"] },
+                  { feature: "Unlimited Churches", values: [false, false, false, false, true] },
+                  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%", "20%"] },
+                  { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%", "100%"] },
                 ].map((row) => (
                   <tr key={row.feature} className="border-b border-stone/50">
                     <td className="py-3 text-warm-brown">{row.feature}</td>
