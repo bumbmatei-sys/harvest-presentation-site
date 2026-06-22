@@ -17,6 +17,7 @@ const plans = [
       "10% lifetime affiliate",
       "Donation page",
       "Prayer requests",
+      "Fundraising",
     ],
   },
   {
@@ -33,7 +34,6 @@ const plans = [
       "AI Knowledge Base",
       "Newsletter",
       "Church Map",
-      "Fundraising (soon)",
     ],
   },
   {
@@ -49,9 +49,9 @@ const plans = [
       "Custom Branding",
       "15% lifetime affiliate",
       "Automated Newsletter",
+      "Event Registration",
+      "Docs",
       "Automated devotional (soon)",
-      "Event registration (soon)",
-      "Docs (soon)",
     ],
     popular: true,
   },
@@ -64,9 +64,9 @@ const plans = [
     features: [
       "Everything in Community",
       "1 Personal AI Assistant",
+      "CRM for Donors & Members",
+      "Accounting Tools",
       "Automated Blog Articles (soon)",
-      "CRM for Donors & Members (soon)",
-      "Accounting Tools (soon)",
       "Community Groups (soon)",
     ],
   },
@@ -80,7 +80,7 @@ const plans = [
       "Everything in Ministry",
       "Unlimited AI assistants",
       "Unlimited churches",
-      "Tax receipt generation (soon)",
+      "Tax Receipt Generation",
       "20% lifetime affiliate",
     ],
   },
@@ -106,18 +106,21 @@ const tableRows: { feature: string; values: CellValue[] }[] = [
   { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%", "20%"] },
   { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%", "100%"] },
   // Coming soon
-  { feature: "Fundraising", values: [false, "soon", "soon", "soon", "soon"] },
   { feature: "Automated Devotional", values: [false, false, "soon", "soon", "soon"] },
-  { feature: "Event Registration", values: [false, false, "soon", "soon", "soon"] },
-  { feature: "Docs", values: [false, false, "soon", "soon", "soon"] },
   { feature: "Automated Blog Articles", values: [false, false, false, "soon", "soon"] },
-  { feature: "CRM (Donors & Members)", values: [false, false, false, "soon", "soon"] },
-  { feature: "Accounting Tools", values: [false, false, false, "soon", "soon"] },
   { feature: "Community Groups", values: [false, false, false, "soon", "soon"] },
-  { feature: "Tax Receipt Generation", values: [false, false, false, false, "soon"] },
+  // Live features
+  { feature: "Fundraising", values: [true, true, true, true, true] },
+  { feature: "Event Registration", values: [false, false, true, true, true] },
+  { feature: "Docs", values: [false, false, true, true, true] },
+  { feature: "CRM (Donors & Members)", values: [false, false, false, true, true] },
+  { feature: "Accounting Tools", values: [false, false, false, true, true] },
+  { feature: "Tax Receipt Generation", values: [false, false, false, false, true] },
 ];
 
+// First 3 rows after the live rows are "coming soon"; live new features start at index 19.
 const soonRowStart = 16;
+const liveNewFeatureStart = 19;
 
 export const PricingSection: React.FC = () => {
   return (
@@ -247,6 +250,13 @@ export const PricingSection: React.FC = () => {
                       <tr>
                         <td colSpan={6} className="pt-5 pb-2 px-0">
                           <span className="text-[10px] font-semibold tracking-widest uppercase text-amber-500">Coming Soon</span>
+                        </td>
+                      </tr>
+                    )}
+                    {idx === liveNewFeatureStart && (
+                      <tr>
+                        <td colSpan={6} className="pt-5 pb-2 px-0">
+                          <span className="text-[10px] font-semibold tracking-widest uppercase text-gold">New Features</span>
                         </td>
                       </tr>
                     )}
