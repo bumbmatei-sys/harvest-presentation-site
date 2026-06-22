@@ -35,7 +35,6 @@ const plans = [
       "Church Map",
       "Fundraising (soon)",
     ],
-    popular: true,
   },
   {
     name: "Community",
@@ -54,6 +53,7 @@ const plans = [
       "Event registration (soon)",
       "Docs (soon)",
     ],
+    popular: true,
   },
   {
     name: "Ministry",
