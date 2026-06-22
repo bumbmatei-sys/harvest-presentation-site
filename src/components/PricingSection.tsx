@@ -7,68 +7,32 @@ const plans = [
     period: "/month",
     retention: 90,
     desc: "For independent evangelists and solo ministers.",
-    features: [
-      "Blog",
-      "News Feed",
-      "Bible",
-      "2 courses",
-      "1 admin",
-      "Subdomain",
-      "10% lifetime affiliate",
-      "Donation page",
-      "Prayer requests",
-      "Fundraising",
-    ],
+    features: ["Blog", "News Feed", "Bible", "2 courses", "1 admin", "Subdomain", "10% lifetime affiliate", "Donation page", "Prayer requests", "Fundraising"],
   },
   {
     name: "Small Team",
-    price: "$99",
+    price: "$119",
     period: "/month",
     retention: 95,
     desc: "For small ministries ready to grow as a team.",
-    features: [
-      "Everything in Individual",
-      "5 Courses",
-      "5 admins",
-      "AI Chat",
-      "AI Knowledge Base",
-      "Newsletter",
-      "Church Map",
-    ],
-  },
-  {
-    name: "Community",
-    price: "$199",
-    period: "/month",
-    retention: 100,
-    desc: "For established churches ready to go deeper.",
-    features: [
-      "Everything in Small Team",
-      "Unlimited admins",
-      "Unlimited courses",
-      "Custom Branding",
-      "15% lifetime affiliate",
-      "Automated Newsletter",
-      "Event Registration",
-      "Docs",
-      "Automated devotional (soon)",
-    ],
+    features: ["Everything in Individual", "5 Courses", "5 admins", "AI Chat", "AI Knowledge Base", "Newsletter", "Church Map", "Community Feed"],
     popular: true,
   },
   {
+    name: "Community",
+    price: "$239",
+    period: "/month",
+    retention: 100,
+    desc: "For established churches ready to go deeper.",
+    features: ["Everything in Small Team", "Up to 10 admins", "Unlimited courses", "Custom Branding", "15% lifetime affiliate", "Automated Newsletter", "Event Registration", "Docs", "Automated devotional (soon)"],
+  },
+  {
     name: "Ministry",
-    price: "$399",
+    price: "$479",
     period: "/month",
     retention: 100,
     desc: "For large ministries with full-time teams.",
-    features: [
-      "Everything in Community",
-      "1 Personal AI Assistant",
-      "CRM for Donors & Members",
-      "Accounting Tools",
-      "Automated Blog Articles (soon)",
-      "Community Groups (soon)",
-    ],
+    features: ["Everything in Community", "1 Personal AI Assistant", "CRM for Donors & Members", "Accounting Tools", "Community Groups", "Automated Blog Articles (soon)"],
   },
   {
     name: "Organization",
@@ -76,51 +40,47 @@ const plans = [
     period: "",
     retention: 100,
     desc: "For networks, denominations, and large organizations.",
-    features: [
-      "Everything in Ministry",
-      "Unlimited AI assistants",
-      "Unlimited churches",
-      "Tax Receipt Generation",
-      "20% lifetime affiliate",
-    ],
+    features: ["Everything in Ministry", "Unlimited AI assistants", "Unlimited churches", "Tax Receipt Generation", "20% lifetime affiliate"],
   },
 ];
 
 type CellValue = boolean | string;
 
-const tableRows: { feature: string; values: CellValue[] }[] = [
+interface FeatureRow {
+  feature: string;
+  values: CellValue[];
+  section?: 'coming-soon';
+}
+
+const featureTable: FeatureRow[] = [
+  // Current features (merged with former "New Features" section)
   { feature: "Blog", values: [true, true, true, true, true] },
   { feature: "News Feed", values: [true, true, true, true, true] },
   { feature: "Bible", values: [true, true, true, true, true] },
   { feature: "Prayer Requests", values: [true, true, true, true, true] },
   { feature: "Donation Page", values: [true, true, true, true, true] },
+  { feature: "Fundraising", values: [true, true, true, true, true] },
   { feature: "AI Chat", values: [false, true, true, true, true] },
   { feature: "AI Knowledge Base", values: [false, true, true, true, true] },
   { feature: "Courses", values: ["2", "5", "∞", "∞", "∞"] },
-  { feature: "Admin Accounts", values: ["1", "5", "∞", "∞", "∞"] },
+  { feature: "Admin Accounts", values: ["1", "5", "10", "∞", "∞"] },
   { feature: "Church Map", values: [false, true, true, true, true] },
   { feature: "Newsletter", values: [false, true, true, true, true] },
   { feature: "Custom Branding", values: [false, false, true, true, true] },
-  { feature: "AI Assistant", values: [false, false, false, "1", "∞"] },
-  { feature: "Unlimited Churches", values: [false, false, false, false, true] },
-  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%", "20%"] },
-  { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%", "100%"] },
-  // Coming soon
-  { feature: "Automated Devotional", values: [false, false, "soon", "soon", "soon"] },
-  { feature: "Automated Blog Articles", values: [false, false, false, "soon", "soon"] },
-  { feature: "Community Groups", values: [false, false, false, "soon", "soon"] },
-  // Live features
-  { feature: "Fundraising", values: [true, true, true, true, true] },
   { feature: "Event Registration", values: [false, false, true, true, true] },
   { feature: "Docs", values: [false, false, true, true, true] },
+  { feature: "AI Assistant", values: [false, false, false, "1", "∞"] },
   { feature: "CRM (Donors & Members)", values: [false, false, false, true, true] },
   { feature: "Accounting Tools", values: [false, false, false, true, true] },
+  { feature: "Community Groups", values: [false, false, false, true, true] },
+  { feature: "Unlimited Churches", values: [false, false, false, false, true] },
   { feature: "Tax Receipt Generation", values: [false, false, false, false, true] },
+  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%", "20%"] },
+  { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%", "100%"] },
+  // Coming Soon
+  { feature: "Automated Devotional", values: [false, false, "soon", "soon", "soon"], section: 'coming-soon' },
+  { feature: "Automated Blog Articles", values: [false, false, false, "soon", "soon"], section: 'coming-soon' },
 ];
-
-// First 3 rows after the live rows are "coming soon"; live new features start at index 19.
-const soonRowStart = 16;
-const liveNewFeatureStart = 19;
 
 export const PricingSection: React.FC = () => {
   return (
@@ -143,8 +103,8 @@ export const PricingSection: React.FC = () => {
             <span className="text-xs text-warm-brown/60">Grows with plan</span>
           </div>
           <div className="flex h-3 rounded-full overflow-hidden bg-stone">
-            <div className="bg-gold/50 flex-1" />
-            <div className="bg-gold/65 flex-1" />
+            <div className="bg-gold/40 flex-1" />
+            <div className="bg-gold/60 flex-1" />
             <div className="bg-gold flex-1" />
             <div className="bg-gold flex-1" />
             <div className="bg-gold flex-1" />
@@ -175,7 +135,7 @@ export const PricingSection: React.FC = () => {
                 </div>
               )}
 
-              {/* Retention percentage */}
+              {/* Retention percentage — the visual hero of the card */}
               <div className="text-center mb-6">
                 <div className="text-gold font-serif text-4xl font-light">
                   {plan.retention}<span className="text-gold/50 text-2xl">%</span>
@@ -212,22 +172,31 @@ export const PricingSection: React.FC = () => {
                 ))}
               </ul>
 
-              <a
-                href="https://theharvest.app"
-                className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                  plan.popular
-                    ? "bg-gold text-white hover:bg-gold-light"
-                    : "border border-gold text-gold hover:bg-gold hover:text-white"
-                }`}
-              >
-                {plan.name === "Organization" ? "Contact Us" : "Get Started"}
-              </a>
+              {plan.name === "Organization" ? (
+                <a
+                  href="mailto:hello@theharvest.app?subject=Organization Plan Inquiry"
+                  className="block text-center py-2.5 rounded-lg text-sm font-semibold transition-all border border-gold text-gold hover:bg-gold hover:text-white"
+                >
+                  Contact Us
+                </a>
+              ) : (
+                <a
+                  href="https://theharvest.app"
+                  className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                    plan.popular
+                      ? "bg-gold text-white hover:bg-gold-light"
+                      : "border border-gold text-gold hover:bg-gold hover:text-white"
+                  }`}
+                >
+                  Get Started
+                </a>
+              )}
             </div>
           ))}
         </div>
 
         {/* Feature comparison table */}
-        <details className="mt-16 max-w-[900px] mx-auto">
+        <details className="mt-16 max-w-[800px] mx-auto">
           <summary className="cursor-pointer text-center text-gold font-semibold text-sm hover:text-gold-dark transition-colors">
             Compare all features →
           </summary>
@@ -244,26 +213,21 @@ export const PricingSection: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {tableRows.map((row, idx) => (
+                {featureTable.map((row, i) => (
                   <React.Fragment key={row.feature}>
-                    {idx === soonRowStart && (
+                    {row.section === 'coming-soon' && i === featureTable.findIndex(r => r.section === 'coming-soon') && (
                       <tr>
                         <td colSpan={6} className="pt-5 pb-2 px-0">
-                          <span className="text-[10px] font-semibold tracking-widest uppercase text-amber-500">Coming Soon</span>
-                        </td>
-                      </tr>
-                    )}
-                    {idx === liveNewFeatureStart && (
-                      <tr>
-                        <td colSpan={6} className="pt-5 pb-2 px-0">
-                          <span className="text-[10px] font-semibold tracking-widest uppercase text-gold">New Features</span>
+                          <span className="text-[10px] font-semibold tracking-widest uppercase text-amber-500">
+                            Coming Soon
+                          </span>
                         </td>
                       </tr>
                     )}
                     <tr className="border-b border-stone/50">
                       <td className="py-3 text-warm-brown">{row.feature}</td>
-                      {row.values.map((val, i) => (
-                        <td key={i} className="text-center py-3">
+                      {row.values.map((val, j) => (
+                        <td key={j} className="text-center py-3">
                           {typeof val === "boolean" ? (
                             val ? (
                               <span className="text-gold">✓</span>
@@ -271,7 +235,7 @@ export const PricingSection: React.FC = () => {
                               <span className="text-stone">—</span>
                             )
                           ) : val === "soon" ? (
-                            <span className="text-amber-500 text-xs font-semibold">Soon</span>
+                            <span className="text-amber-500 text-xs font-semibold">soon</span>
                           ) : (
                             <span className="text-warm-dark font-medium">{val}</span>
                           )}
