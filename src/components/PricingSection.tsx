@@ -34,14 +34,6 @@ const plans = [
     desc: "For large ministries with full-time teams.",
     features: ["Everything in Community", "1 Personal AI Assistant", "CRM for Donors & Members", "Accounting Tools", "Community Groups", "Automated Blog Articles (soon)"],
   },
-  {
-    name: "Organization",
-    price: "Custom",
-    period: "",
-    retention: 100,
-    desc: "For networks, denominations, and large organizations.",
-    features: ["Everything in Ministry", "Unlimited AI assistants", "Unlimited churches", "Tax Receipt Generation", "20% lifetime affiliate"],
-  },
 ];
 
 type CellValue = boolean | string;
@@ -55,31 +47,31 @@ interface FeatureRow {
 const featureTable: FeatureRow[] = [
   // Current features (merged with former "New Features" section)
   { feature: "Blog", values: [true, true, true, true, true] },
-  { feature: "News Feed", values: [true, true, true, true, true] },
-  { feature: "Bible", values: [true, true, true, true, true] },
-  { feature: "Prayer Requests", values: [true, true, true, true, true] },
-  { feature: "Donation Page", values: [true, true, true, true, true] },
-  { feature: "Fundraising", values: [true, true, true, true, true] },
-  { feature: "AI Chat", values: [false, true, true, true, true] },
-  { feature: "AI Knowledge Base", values: [false, true, true, true, true] },
-  { feature: "Courses", values: ["2", "5", "∞", "∞", "∞"] },
-  { feature: "Admin Accounts", values: ["1", "5", "10", "∞", "∞"] },
-  { feature: "Church Map", values: [false, true, true, true, true] },
-  { feature: "Newsletter", values: [false, true, true, true, true] },
-  { feature: "Custom Branding", values: [false, false, true, true, true] },
-  { feature: "Event Registration", values: [false, false, true, true, true] },
-  { feature: "Docs", values: [false, false, true, true, true] },
-  { feature: "AI Assistant", values: [false, false, false, "1", "∞"] },
-  { feature: "CRM (Donors & Members)", values: [false, false, false, true, true] },
-  { feature: "Accounting Tools", values: [false, false, false, true, true] },
-  { feature: "Community Groups", values: [false, false, false, true, true] },
-  { feature: "Unlimited Churches", values: [false, false, false, false, true] },
-  { feature: "Tax Receipt Generation", values: [false, false, false, false, true] },
-  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%", "20%"] },
-  { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%", "100%"] },
+  { feature: "News Feed", values: [true, true, true, true] },
+  { feature: "Bible", values: [true, true, true, true] },
+  { feature: "Prayer Requests", values: [true, true, true, true] },
+  { feature: "Donation Page", values: [true, true, true, true] },
+  { feature: "Fundraising", values: [true, true, true, true] },
+  { feature: "AI Chat", values: [false, true, true, true] },
+  { feature: "AI Knowledge Base", values: [false, true, true, true] },
+  { feature: "Courses", values: ["2", "5", "∞", "∞"] },
+  { feature: "Admin Accounts", values: ["1", "5", "10", "∞"] },
+  { feature: "Church Map", values: [false, true, true, true] },
+  { feature: "Newsletter", values: [false, true, true, true] },
+  { feature: "Custom Branding", values: [false, false, true, true] },
+  { feature: "Event Registration", values: [false, false, true, true] },
+  { feature: "Docs", values: [false, false, true, true] },
+  { feature: "AI Assistant", values: [false, false, false, "1"] },
+  { feature: "CRM (Donors & Members)", values: [false, false, false, true] },
+  { feature: "Accounting Tools", values: [false, false, false, true] },
+  { feature: "Community Groups", values: [false, false, false, true] },
+  { feature: "Unlimited Churches", values: [false, false, false, true] },
+  { feature: "Tax Receipt Generation", values: [false, false, false, true] },
+  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%"] },
+  { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%"] },
   // Coming Soon
-  { feature: "Automated Devotional", values: [false, false, "soon", "soon", "soon"], section: 'coming-soon' },
-  { feature: "Automated Blog Articles", values: [false, false, false, "soon", "soon"], section: 'coming-soon' },
+  { feature: "Automated Devotional", values: [false, false, "soon", "soon"], section: 'coming-soon' },
+  { feature: "Automated Blog Articles", values: [false, false, false, "soon"], section: 'coming-soon' },
 ];
 
 export const PricingSection: React.FC = () => {
@@ -172,25 +164,16 @@ export const PricingSection: React.FC = () => {
                 ))}
               </ul>
 
-              {plan.name === "Organization" ? (
-                <a
-                  href="mailto:hello@theharvest.app?subject=Organization Plan Inquiry"
-                  className="block text-center py-2.5 rounded-lg text-sm font-semibold transition-all border border-gold text-gold hover:bg-gold hover:text-white"
-                >
-                  Contact Us
-                </a>
-              ) : (
-                <a
-                  href="https://theharvest.app"
-                  className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                    plan.popular
-                      ? "bg-gold text-white hover:bg-gold-light"
-                      : "border border-gold text-gold hover:bg-gold hover:text-white"
-                  }`}
-                >
-                  Get Started
-                </a>
-              )}
+              <a
+                href="https://theharvest.app"
+                className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  plan.popular
+                    ? "bg-gold text-white hover:bg-gold-light"
+                    : "border border-gold text-gold hover:bg-gold hover:text-white"
+                }`}
+              >
+                Get Started
+              </a>
             </div>
           ))}
         </div>
@@ -217,7 +200,7 @@ export const PricingSection: React.FC = () => {
                   <React.Fragment key={row.feature}>
                     {row.section === 'coming-soon' && i === featureTable.findIndex(r => r.section === 'coming-soon') && (
                       <tr>
-                        <td colSpan={6} className="pt-5 pb-2 px-0">
+                        <td colSpan={5} className="pt-5 pb-2 px-0">
                           <span className="text-[10px] font-semibold tracking-widest uppercase text-amber-500">
                             Coming Soon
                           </span>
