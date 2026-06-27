@@ -11,8 +11,9 @@ const rows: ToolRow[] = [
     category: 'Website / Blog',
     tools: [
       { name: 'WordPress', logoUrl: 'https://cdn.simpleicons.org/wordpress' },
-      // The Church Co isn't on Simple Icons and Clearbit 404s — use the site favicon.
-      { name: 'The Church Co', logoUrl: 'https://www.thechurchco.com/favicon.ico' },
+      // Not on Simple Icons; Clearbit and the direct favicon were unreliable —
+      // Google's favicon service always returns an image.
+      { name: 'The Church Co', logoUrl: 'https://www.google.com/s2/favicons?domain=thechurchco.com&sz=64' },
     ],
     cost: '$39–99/mo',
   },
@@ -34,7 +35,8 @@ const rows: ToolRow[] = [
   {
     category: 'Church App + Livestream',
     tools: [
-      { name: 'Subsplash', logoUrl: 'https://www.subsplash.com/favicon.ico' },
+      // Direct favicon failed — Google's favicon service is reliable.
+      { name: 'Subsplash', logoUrl: 'https://www.google.com/s2/favicons?domain=subsplash.com&sz=64' },
       { name: 'Pushpay', logoUrl: 'https://pushpay.com/favicon.ico' },
     ],
     cost: '$300–500/mo',
@@ -70,7 +72,8 @@ const rows: ToolRow[] = [
   {
     category: 'SMS',
     tools: [
-      { name: 'Twilio', logoUrl: 'https://cdn.simpleicons.org/twilio' },
+      // White variant so the mark reads on the dark bg.
+      { name: 'Twilio', logoUrl: 'https://cdn.simpleicons.org/twilio/ffffff' },
     ],
     cost: '$50–150/mo',
   },
@@ -92,7 +95,8 @@ const rows: ToolRow[] = [
   {
     category: 'Courses / LMS',
     tools: [
-      { name: 'Teachable', logoUrl: 'https://teachable.com/favicon.ico' },
+      // On Simple Icons after all — crisper than the favicon.
+      { name: 'Teachable', logoUrl: 'https://cdn.simpleicons.org/teachable' },
     ],
     cost: '$39–119/mo',
   },
@@ -166,22 +170,24 @@ export const WhatHarvestReplaces: React.FC = () => {
                 </tr>
               ))}
 
-              {/* Total row */}
+              {/* Total row — keep the middle cell present (empty) on all breakpoints so the
+                  cost stays in the third column, aligned under Monthly with the rows above. */}
               <tr className="border-b border-white/10 bg-white/5">
                 <td className="py-4 px-5 text-white font-semibold" colSpan={1}>Total</td>
-                <td className="py-4 px-5 hidden sm:table-cell" />
+                <td className="py-4 px-5" />
                 <td className="py-4 px-5 text-white font-semibold text-right whitespace-nowrap">
                   $1,026–2,344/mo
                 </td>
               </tr>
 
-              {/* Harvest row */}
+              {/* Harvest row — middle cell stays present for column alignment; its label is
+                  hidden on mobile (as before) so it never crowds the narrow layout. */}
               <tr style={{ backgroundColor: 'rgba(184,150,46,0.12)' }}>
                 <td className="py-4 px-5" colSpan={1}>
                   <span className="text-gold font-bold text-base">Harvest Ministry</span>
                 </td>
-                <td className="py-4 px-5 text-white/60 text-sm hidden sm:table-cell">
-                  Everything above — in one platform
+                <td className="py-4 px-5 text-white/60 text-sm">
+                  <span className="hidden sm:inline">Everything above — in one platform</span>
                 </td>
                 <td className="py-4 px-5 text-right whitespace-nowrap">
                   <span className="text-gold font-black text-lg">$479</span>
