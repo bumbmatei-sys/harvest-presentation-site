@@ -6,6 +6,7 @@ import { PillarsSection } from './components/PillarsSection';
 import { FeaturesSection } from './components/FeaturesSection';
 import { BelieversSection } from './components/BelieversSection';
 import { PricingSection } from './components/PricingSection';
+import { WhatHarvestReplaces } from './components/WhatHarvestReplaces';
 import { AffiliateSection } from './components/AffiliateSection';
 import { AiAssistantProductCard } from './components/AiAssistantProductCard';
 import { FinalCTA, Footer } from './components/FinalCTA';
@@ -20,6 +21,7 @@ const App: React.FC = () => {
         <PillarsSection />
         <FeaturesSection />
         <BelieversSection />
+        <WhatHarvestReplaces />
         <PricingSection />
         <AiAssistantProductCard />
         <AffiliateSection />
