@@ -14,7 +14,7 @@ const steps = [
   {
     num: "03",
     title: "You Earn Monthly",
-    desc: "Earn 10% recurring commission for as long as they stay subscribed. Not a one-time payout — monthly, ongoing income.",
+    desc: "Earn 10–20% recurring commission — based on your plan — for as long as they stay subscribed. Not a one-time payout — monthly, ongoing income.",
   },
 ];
 
@@ -27,7 +27,7 @@ export const AffiliateSection: React.FC = () => {
             Affiliate Program
           </p>
           <h2 className="text-white font-serif text-4xl md:text-5xl font-light text-balance">
-            <span className="text-gold">10% recurring</span> commission
+            <span className="text-gold">Up to 20% recurring</span> commission
           </h2>
           <p className="text-white/40 text-lg mt-6 max-w-[500px] mx-auto">
             Partner with us and earn ongoing income for every ministry you refer.
