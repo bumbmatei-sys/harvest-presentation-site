@@ -1,4 +1,5 @@
 import React from 'react';
+import { AiAssistantAddonCard } from './AiAssistantAddonCard';
 
 const plans = [
   {
@@ -51,13 +52,6 @@ const plans = [
     ],
   },
 ];
-
-// Mirrors AI_ASSISTANT_ADDON_PRICING in the Harvest app — the assistant is a
-// standalone add-on available on any plan (and included free on Ministry).
-const AI_ASSISTANT_ADDON = {
-  monthly: '$200',
-  href: 'https://theharvest.app',
-};
 
 type CellValue = boolean | string;
 
@@ -208,38 +202,8 @@ export const PricingSection: React.FC = () => {
           ))}
         </div>
 
-        {/* AI Assistant — standalone add-on, sits beside the plans but is intentionally
-            styled distinctly (dark card, gold accent) so it never reads as a 5th tier. */}
-        <div
-          className="mt-6 rounded-2xl border border-gold/40 shadow-lg p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6"
-          style={{ backgroundColor: '#1e2330' }}
-        >
-          <div className="flex-1">
-            <div className="flex flex-wrap items-center gap-3 mb-3">
-              <span className="text-[10px] font-semibold tracking-[2px] uppercase text-gold bg-gold/10 border border-gold/30 px-2.5 py-1 rounded-full">
-                Add-on
-              </span>
-              <h3 className="text-white font-serif text-2xl font-medium">AI Assistant</h3>
-            </div>
-            <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-xl">
-              A Telegram-based AI discipleship assistant for your ministry. Add it to any plan —
-              no subscription tier required.{' '}
-              <span className="text-gold font-medium">Included free on Ministry.</span>
-            </p>
-          </div>
-          <div className="md:text-right md:flex-shrink-0">
-            <div className="mb-4">
-              <span className="text-gold font-serif text-3xl font-medium">{AI_ASSISTANT_ADDON.monthly}</span>
-              <span className="text-white/60 text-sm">/mo</span>
-            </div>
-            <a
-              href={AI_ASSISTANT_ADDON.href}
-              className="inline-block bg-gold text-white hover:bg-gold-light px-6 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
-            >
-              Add the Assistant
-            </a>
-          </div>
-        </div>
+        {/* AI Assistant — standalone add-on with its own Stripe checkout flow. */}
+        <AiAssistantAddonCard />
 
         {/* Feature comparison table */}
         <details className="mt-16 max-w-[800px] mx-auto">
