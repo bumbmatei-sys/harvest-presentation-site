@@ -2,7 +2,7 @@ import React from 'react';
 
 interface ToolRow {
   category: string;
-  tools: { name: string; logoUrl: string; logoType: 'simpleicons' | 'clearbit' }[];
+  tools: { name: string; logoUrl: string }[];
   cost: string;
 }
 
@@ -10,81 +10,99 @@ const rows: ToolRow[] = [
   {
     category: 'Website / Blog',
     tools: [
-      { name: 'WordPress', logoUrl: 'https://cdn.simpleicons.org/wordpress', logoType: 'simpleicons' },
-      { name: 'The Church Co', logoUrl: 'https://logo.clearbit.com/thechurchco.com', logoType: 'clearbit' },
+      { name: 'WordPress', logoUrl: 'https://cdn.simpleicons.org/wordpress' },
+      // The Church Co isn't on Simple Icons and Clearbit 404s — use the site favicon.
+      { name: 'The Church Co', logoUrl: 'https://www.thechurchco.com/favicon.ico' },
     ],
     cost: '$39–99/mo',
   },
   {
     category: 'Community',
     tools: [
-      { name: 'Skool', logoUrl: 'https://logo.clearbit.com/skool.com', logoType: 'clearbit' },
+      { name: 'Skool', logoUrl: 'https://www.skool.com/favicon.ico' },
     ],
     cost: '$99/mo',
   },
   {
     category: 'Notes / Docs',
     tools: [
-      { name: 'Notion', logoUrl: 'https://cdn.simpleicons.org/notion/ffffff', logoType: 'simpleicons' },
+      // White variant so the (otherwise black) Notion mark is visible on the dark bg.
+      { name: 'Notion', logoUrl: 'https://cdn.simpleicons.org/notion/ffffff' },
     ],
     cost: '$10–20/mo',
   },
   {
     category: 'Church App + Livestream',
     tools: [
-      { name: 'Subsplash', logoUrl: 'https://logo.clearbit.com/subsplash.com', logoType: 'clearbit' },
-      { name: 'Pushpay', logoUrl: 'https://logo.clearbit.com/pushpay.com', logoType: 'clearbit' },
+      { name: 'Subsplash', logoUrl: 'https://www.subsplash.com/favicon.ico' },
+      { name: 'Pushpay', logoUrl: 'https://pushpay.com/favicon.ico' },
     ],
     cost: '$300–500/mo',
   },
   {
     category: 'Events + Check-in',
     tools: [
-      { name: 'Planning Center', logoUrl: 'https://logo.clearbit.com/planningcenter.com', logoType: 'clearbit' },
+      { name: 'Planning Center', logoUrl: 'https://www.planningcenter.com/favicon.ico' },
     ],
     cost: '$99–199/mo',
   },
   {
     category: 'Newsletter / Email',
     tools: [
-      { name: 'Mailchimp', logoUrl: 'https://cdn.simpleicons.org/mailchimp', logoType: 'simpleicons' },
+      { name: 'Mailchimp', logoUrl: 'https://cdn.simpleicons.org/mailchimp' },
     ],
     cost: '$50–100/mo',
   },
   {
     category: 'CRM',
     tools: [
-      { name: 'HubSpot', logoUrl: 'https://cdn.simpleicons.org/hubspot', logoType: 'simpleicons' },
+      { name: 'HubSpot', logoUrl: 'https://cdn.simpleicons.org/hubspot' },
     ],
     cost: '$200–800/mo',
   },
   {
     category: 'Accounting',
     tools: [
-      { name: 'QuickBooks', logoUrl: 'https://cdn.simpleicons.org/quickbooks', logoType: 'simpleicons' },
+      { name: 'QuickBooks', logoUrl: 'https://cdn.simpleicons.org/quickbooks' },
     ],
     cost: '$50–80/mo',
   },
   {
     category: 'SMS',
     tools: [
-      { name: 'Twilio', logoUrl: 'https://cdn.simpleicons.org/twilio', logoType: 'simpleicons' },
+      { name: 'Twilio', logoUrl: 'https://cdn.simpleicons.org/twilio' },
     ],
     cost: '$50–150/mo',
   },
   {
     category: 'Forms',
     tools: [
-      { name: 'Typeform', logoUrl: 'https://cdn.simpleicons.org/typeform', logoType: 'simpleicons' },
+      // White variant so the Typeform mark reads on the dark bg.
+      { name: 'Typeform', logoUrl: 'https://cdn.simpleicons.org/typeform/ffffff' },
     ],
     cost: '$29–59/mo',
   },
   {
     category: 'Scheduling',
     tools: [
-      { name: 'Calendly', logoUrl: 'https://cdn.simpleicons.org/calendly', logoType: 'simpleicons' },
+      { name: 'Calendly', logoUrl: 'https://cdn.simpleicons.org/calendly' },
     ],
     cost: '$12–20/mo',
+  },
+  {
+    category: 'Courses / LMS',
+    tools: [
+      { name: 'Teachable', logoUrl: 'https://teachable.com/favicon.ico' },
+    ],
+    cost: '$39–119/mo',
+  },
+  {
+    category: 'Online Giving',
+    tools: [
+      { name: 'Tithe.ly', logoUrl: 'https://tithe.ly/favicon.ico' },
+      { name: 'Donorbox', logoUrl: 'https://donorbox.org/favicon.ico' },
+    ],
+    cost: '$49–99/mo',
   },
 ];
 
@@ -153,7 +171,7 @@ export const WhatHarvestReplaces: React.FC = () => {
                 <td className="py-4 px-5 text-white font-semibold" colSpan={1}>Total</td>
                 <td className="py-4 px-5 hidden sm:table-cell" />
                 <td className="py-4 px-5 text-white font-semibold text-right whitespace-nowrap">
-                  $929–2,026/mo
+                  $1,026–2,344/mo
                 </td>
               </tr>
 
