@@ -8,7 +8,6 @@ import { BelieversSection } from './components/BelieversSection';
 import { PricingSection } from './components/PricingSection';
 import { WhatHarvestReplaces } from './components/WhatHarvestReplaces';
 import { AffiliateSection } from './components/AffiliateSection';
-import { AiAssistantProductCard } from './components/AiAssistantProductCard';
 import { FinalCTA, Footer } from './components/FinalCTA';
 
 const App: React.FC = () => {
@@ -23,7 +22,6 @@ const App: React.FC = () => {
         <BelieversSection />
         <WhatHarvestReplaces />
         <PricingSection />
-        <AiAssistantProductCard />
         <AffiliateSection />
         <FinalCTA />
       </main>
