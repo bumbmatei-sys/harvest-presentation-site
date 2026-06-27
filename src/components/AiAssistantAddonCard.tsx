@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-// Same standalone Stripe checkout the dedicated AI Assistant section used before:
-// POST the email, then redirect to the Stripe Checkout URL it returns.
-const CHECKOUT_URL = 'https://theharvest.app/api/stripe/standalone-checkout';
+// Standalone AI Assistant add-on checkout. Links straight to a Stripe Payment
+// Link for the active $200/mo price (price_1TmgRP1YKkcSbTf33wjxEsdr) so checkout
+// is self-contained — Stripe collects the email on its own hosted page, with no
+// dependency on a backend checkout endpoint.
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/dRm6oAbK09Gc0HAdWc0Ba00';
 
 // Mirrors AI_ASSISTANT_ADDON_PRICING in the Harvest app — the assistant is a
 // standalone add-on available on any plan (and included free on Ministry).
@@ -11,35 +13,6 @@ const PRICE = '$200';
 // Compact add-on card shown beneath the pricing plans. Visually distinct from the
 // four plan tiers (dark card, gold accent) so it reads as an add-on, not a 5th tier.
 export const AiAssistantAddonCard: React.FC = () => {
-  const [showForm, setShowForm] = useState(false);
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setLoading(true);
-    setError('');
-    try {
-      const resp = await fetch(CHECKOUT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await resp.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data.error || 'Something went wrong. Please try again.');
-        setLoading(false);
-      }
-    } catch {
-      setError('Could not connect. Please try again.');
-      setLoading(false);
-    }
-  };
-
   return (
     <div
       className="mt-6 rounded-2xl border border-gold/40 shadow-lg p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6"
@@ -59,43 +32,18 @@ export const AiAssistantAddonCard: React.FC = () => {
         </p>
       </div>
 
-      <div className="md:w-72 md:flex-shrink-0">
+      <div className="md:w-64 md:flex-shrink-0">
         <div className="mb-4 md:text-right">
           <span className="text-gold font-serif text-3xl font-medium">{PRICE}</span>
           <span className="text-white/60 text-sm">/mo</span>
         </div>
-
-        {!showForm ? (
-          <button
-            onClick={() => setShowForm(true)}
-            className="w-full bg-gold text-white hover:bg-gold-light px-6 py-3 rounded-lg text-sm font-semibold transition-colors"
-          >
-            Add the Assistant
-          </button>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-2">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              required
-              autoFocus
-              className="w-full bg-warm-dark border border-gold/20 rounded-lg px-4 py-3 text-white placeholder-warm-brown text-sm focus:outline-none focus:border-gold/60"
-            />
-            {error && <p className="text-red-400 text-xs">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading || !email}
-              className="w-full bg-gold text-white hover:bg-gold-light disabled:opacity-50 px-6 py-3 rounded-lg text-sm font-semibold transition-colors"
-            >
-              {loading ? 'Redirecting to checkout…' : 'Continue to checkout'}
-            </button>
-            <p className="text-[11px] text-white/50 text-center">
-              Cancel anytime. You'll get a magic link by email to connect your Telegram bot.
-            </p>
-          </form>
-        )}
+        <a
+          href={STRIPE_PAYMENT_LINK}
+          className="block text-center w-full bg-gold text-white hover:bg-gold-light px-6 py-3 rounded-lg text-sm font-semibold transition-colors"
+        >
+          Add the Assistant
+        </a>
+        <p className="mt-2 text-[11px] text-white/45 text-center">Secure checkout via Stripe · cancel anytime</p>
       </div>
     </div>
   );
