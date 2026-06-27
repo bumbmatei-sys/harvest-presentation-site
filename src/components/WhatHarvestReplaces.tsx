@@ -1,78 +1,117 @@
 import React from 'react';
 
-// Real brand marks are loaded from a CDN at runtime — no local asset wrangling.
-// simple-icons covers the mainstream SaaS tools; Clearbit's logo API fills in the
-// church-specific brands that simple-icons doesn't carry. Both are fetched in the
-// visitor's browser, and every logo keeps a visible text label + onError fallback
-// so the grid still reads correctly if an image ever 404s.
-const si = (slug: string) => `https://cdn.simpleicons.org/${slug}`;
-const cb = (domain: string) => `https://logo.clearbit.com/${domain}`;
+interface ToolRow {
+  category: string;
+  tools: { name: string; logoUrl: string; logoType: 'simpleicons' | 'clearbit' }[];
+  cost: string;
+}
 
-type Brand = { name: string; src: string };
-
-const BRANDS: Record<string, Brand> = {
-  // simple-icons
-  wordpress: { name: 'WordPress', src: si('wordpress') },
-  notion: { name: 'Notion', src: si('notion') },
-  mailchimp: { name: 'Mailchimp', src: si('mailchimp') },
-  hubspot: { name: 'HubSpot', src: si('hubspot') },
-  quickbooks: { name: 'QuickBooks', src: si('quickbooks') },
-  twilio: { name: 'Twilio', src: si('twilio') },
-  typeform: { name: 'Typeform', src: si('typeform') },
-  calendly: { name: 'Calendly', src: si('calendly') },
-  // Clearbit fallback (not in simple-icons)
-  thechurchco: { name: 'The Church Co', src: cb('thechurchco.com') },
-  skool: { name: 'Skool', src: cb('skool.com') },
-  subsplash: { name: 'Subsplash', src: cb('subsplash.com') },
-  pushpay: { name: 'Pushpay', src: cb('pushpay.com') },
-  planningcenter: { name: 'Planning Center', src: cb('planningcenter.com') },
-};
-
-type Row = { category: string; brands: Brand[]; cost: string };
-
-const rows: Row[] = [
-  { category: 'Website / Blog', brands: [BRANDS.wordpress, BRANDS.thechurchco], cost: '$39–99' },
-  { category: 'Community', brands: [BRANDS.skool], cost: '$99' },
-  { category: 'Notes / Docs', brands: [BRANDS.notion], cost: '$10–20' },
-  { category: 'Church App + Livestream', brands: [BRANDS.subsplash, BRANDS.pushpay], cost: '$300–500' },
-  { category: 'Events + Check-in', brands: [BRANDS.planningcenter], cost: '$99–199' },
-  { category: 'Newsletter / Email', brands: [BRANDS.mailchimp], cost: '$50–100' },
-  { category: 'CRM', brands: [BRANDS.hubspot], cost: '$200–800' },
-  { category: 'Accounting', brands: [BRANDS.quickbooks], cost: '$50–80' },
-  { category: 'SMS', brands: [BRANDS.twilio], cost: '$50–150' },
-  { category: 'Forms', brands: [BRANDS.typeform], cost: '$29–59' },
-  { category: 'Scheduling', brands: [BRANDS.calendly], cost: '$12–20' },
+const rows: ToolRow[] = [
+  {
+    category: 'Website / Blog',
+    tools: [
+      { name: 'WordPress', logoUrl: 'https://cdn.simpleicons.org/wordpress', logoType: 'simpleicons' },
+      { name: 'The Church Co', logoUrl: 'https://logo.clearbit.com/thechurchco.com', logoType: 'clearbit' },
+    ],
+    cost: '$39–99/mo',
+  },
+  {
+    category: 'Community',
+    tools: [
+      { name: 'Skool', logoUrl: 'https://logo.clearbit.com/skool.com', logoType: 'clearbit' },
+    ],
+    cost: '$99/mo',
+  },
+  {
+    category: 'Notes / Docs',
+    tools: [
+      { name: 'Notion', logoUrl: 'https://cdn.simpleicons.org/notion/ffffff', logoType: 'simpleicons' },
+    ],
+    cost: '$10–20/mo',
+  },
+  {
+    category: 'Church App + Livestream',
+    tools: [
+      { name: 'Subsplash', logoUrl: 'https://logo.clearbit.com/subsplash.com', logoType: 'clearbit' },
+      { name: 'Pushpay', logoUrl: 'https://logo.clearbit.com/pushpay.com', logoType: 'clearbit' },
+    ],
+    cost: '$300–500/mo',
+  },
+  {
+    category: 'Events + Check-in',
+    tools: [
+      { name: 'Planning Center', logoUrl: 'https://logo.clearbit.com/planningcenter.com', logoType: 'clearbit' },
+    ],
+    cost: '$99–199/mo',
+  },
+  {
+    category: 'Newsletter / Email',
+    tools: [
+      { name: 'Mailchimp', logoUrl: 'https://cdn.simpleicons.org/mailchimp', logoType: 'simpleicons' },
+    ],
+    cost: '$50–100/mo',
+  },
+  {
+    category: 'CRM',
+    tools: [
+      { name: 'HubSpot', logoUrl: 'https://cdn.simpleicons.org/hubspot', logoType: 'simpleicons' },
+    ],
+    cost: '$200–800/mo',
+  },
+  {
+    category: 'Accounting',
+    tools: [
+      { name: 'QuickBooks', logoUrl: 'https://cdn.simpleicons.org/quickbooks', logoType: 'simpleicons' },
+    ],
+    cost: '$50–80/mo',
+  },
+  {
+    category: 'SMS',
+    tools: [
+      { name: 'Twilio', logoUrl: 'https://cdn.simpleicons.org/twilio', logoType: 'simpleicons' },
+    ],
+    cost: '$50–150/mo',
+  },
+  {
+    category: 'Forms',
+    tools: [
+      { name: 'Typeform', logoUrl: 'https://cdn.simpleicons.org/typeform', logoType: 'simpleicons' },
+    ],
+    cost: '$29–59/mo',
+  },
+  {
+    category: 'Scheduling',
+    tools: [
+      { name: 'Calendly', logoUrl: 'https://cdn.simpleicons.org/calendly', logoType: 'simpleicons' },
+    ],
+    cost: '$12–20/mo',
+  },
 ];
 
-// One brand mark: greyscale/white by default on the dark background, full brand
-// color on hover. The name is always rendered as a label (and as alt text) so the
-// row degrades gracefully into plain text if the logo image fails to load.
-const BrandLogo: React.FC<Brand> = ({ name, src }) => {
-  const [failed, setFailed] = React.useState(false);
-  return (
-    <span className="inline-flex items-center gap-2" title={name}>
-      {!failed && (
-        <img
-          src={src}
-          alt={name}
-          loading="lazy"
-          onError={() => setFailed(true)}
-          className="h-6 w-auto max-w-[110px] object-contain opacity-70 grayscale brightness-0 invert transition duration-200 hover:opacity-100 hover:grayscale-0 hover:brightness-100 hover:invert-0"
-        />
-      )}
-      <span className={`text-xs whitespace-nowrap ${failed ? 'text-white/80' : 'text-white/55'}`}>
-        {name}
-      </span>
-    </span>
-  );
-};
+const LogoChip: React.FC<{ tool: ToolRow['tools'][number] }> = ({ tool }) => (
+  <span className="inline-flex items-center gap-1.5">
+    <img
+      src={tool.logoUrl}
+      alt={tool.name}
+      width={20}
+      height={20}
+      loading="lazy"
+      className="w-5 h-5 object-contain rounded-sm flex-shrink-0"
+      // NO filter, NO grayscale — render at full natural color
+      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+    />
+    <span className="text-white/80 text-sm">{tool.name}</span>
+  </span>
+);
 
 export const WhatHarvestReplaces: React.FC = () => {
   return (
     <section id="replaces" className="py-24 md:py-32" style={{ backgroundColor: '#1e2330' }}>
-      <div className="max-w-[960px] mx-auto px-6">
+      <div className="max-w-[900px] mx-auto px-6">
         <div className="text-center mb-12">
-          <p className="text-gold text-xs font-semibold tracking-[3px] uppercase mb-4">What Harvest Replaces</p>
+          <p className="text-gold text-xs font-semibold tracking-[3px] uppercase mb-4">
+            What Harvest Replaces
+          </p>
           <h2 className="text-white font-serif text-3xl md:text-4xl font-light text-balance">
             Harvest Ministry replaces all of these
           </h2>
@@ -85,34 +124,51 @@ export const WhatHarvestReplaces: React.FC = () => {
           <table className="w-full text-sm md:text-base">
             <thead>
               <tr className="border-b border-white/10 bg-white/5">
-                <th className="text-left py-4 px-4 md:px-5 text-white/50 font-medium">Category</th>
-                <th className="text-left py-4 px-4 md:px-5 text-white/50 font-medium">Replaces</th>
-                <th className="text-right py-4 px-4 md:px-5 text-white/50 font-medium whitespace-nowrap">Monthly</th>
+                <th className="text-left py-4 px-5 text-white/50 font-medium">Category</th>
+                <th className="text-left py-4 px-5 text-white/50 font-medium">Replaces</th>
+                <th className="text-right py-4 px-5 text-white/50 font-medium">Monthly</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.category} className="border-b border-white/5">
-                  <td className="py-4 px-4 md:px-5 text-white align-middle">{r.category}</td>
-                  <td className="py-4 px-4 md:px-5 align-middle">
-                    <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                      {r.brands.map((b) => (
-                        <BrandLogo key={b.name} {...b} />
-                      ))}
-                    </span>
+              {rows.map((row) => (
+                <tr key={row.category} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                  <td className="py-3.5 px-5 text-white/70 text-sm font-medium align-top pt-4">
+                    {row.category}
                   </td>
-                  <td className="py-4 px-4 md:px-5 text-white/80 text-right whitespace-nowrap align-middle">{r.cost}</td>
+                  <td className="py-3.5 px-5 align-top pt-4">
+                    <div className="flex flex-wrap gap-x-4 gap-y-2">
+                      {row.tools.map((tool) => (
+                        <LogoChip key={tool.name} tool={tool} />
+                      ))}
+                    </div>
+                  </td>
+                  <td className="py-3.5 px-5 text-white/80 text-right whitespace-nowrap align-top pt-4">
+                    {row.cost}
+                  </td>
                 </tr>
               ))}
+
+              {/* Total row */}
               <tr className="border-b border-white/10 bg-white/5">
-                <td className="py-4 px-4 md:px-5 text-white font-semibold">Total</td>
-                <td className="py-4 px-4 md:px-5" />
-                <td className="py-4 px-4 md:px-5 text-white font-semibold text-right whitespace-nowrap">$900–2,000+/mo</td>
+                <td className="py-4 px-5 text-white font-semibold" colSpan={1}>Total</td>
+                <td className="py-4 px-5 hidden sm:table-cell" />
+                <td className="py-4 px-5 text-white font-semibold text-right whitespace-nowrap">
+                  $929–2,026/mo
+                </td>
               </tr>
-              <tr style={{ backgroundColor: 'rgba(201,150,58,0.15)' }}>
-                <td className="py-4 px-4 md:px-5 text-gold font-semibold">Harvest Ministry</td>
-                <td className="py-4 px-4 md:px-5 text-white/70">Everything above</td>
-                <td className="py-4 px-4 md:px-5 text-gold font-bold text-right whitespace-nowrap">$479/mo</td>
+
+              {/* Harvest row */}
+              <tr style={{ backgroundColor: 'rgba(184,150,46,0.12)' }}>
+                <td className="py-4 px-5" colSpan={1}>
+                  <span className="text-gold font-bold text-base">Harvest Ministry</span>
+                </td>
+                <td className="py-4 px-5 text-white/60 text-sm hidden sm:table-cell">
+                  Everything above — in one platform
+                </td>
+                <td className="py-4 px-5 text-right whitespace-nowrap">
+                  <span className="text-gold font-black text-lg">$479</span>
+                  <span className="text-gold/60 text-sm">/mo</span>
+                </td>
               </tr>
             </tbody>
           </table>

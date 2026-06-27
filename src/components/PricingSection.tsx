@@ -8,7 +8,7 @@ const plans = [
     period: "/month",
     retention: 90,
     desc: "For independent evangelists and solo ministers.",
-    features: ["Blog", "News Feed", "Bible", "2 courses", "1 admin", "Subdomain", "10% lifetime affiliate", "Donation page", "Prayer requests", "Fundraising"],
+    features: ["Mobile App (PWA)", "Blog", "News Feed", "Bible", "2 courses", "1 admin", "Subdomain", "10% Lifetime Affiliate Commission", "Donation page", "Prayer requests", "Fundraising"],
   },
   {
     name: "Small Team",
@@ -16,7 +16,7 @@ const plans = [
     period: "/month",
     retention: 95,
     desc: "For small ministries ready to grow as a team.",
-    features: ["Everything in Individual", "5 Courses", "5 admins", "AI Chat", "AI Knowledge Base", "Newsletter", "Church Map", "Community Feed"],
+    features: ["Everything in Individual", "Mobile App (PWA)", "5 Courses", "5 admins", "AI Chat", "AI Knowledge Base", "Newsletter", "Church Map", "Community Feed", "10% Lifetime Affiliate Commission"],
     popular: true,
   },
   {
@@ -25,7 +25,7 @@ const plans = [
     period: "/month",
     retention: 100,
     desc: "For established churches ready to go deeper.",
-    features: ["Everything in Small Team", "Unlimited Courses", "Up to 10 Admins", "Custom Branding", "Automated Newsletter", "Event Registration", "Docs & Notes", "15% Lifetime Affiliate", "Automated Devotional"],
+    features: ["Everything in Small Team", "Mobile App (PWA)", "Unlimited Courses", "Up to 10 Admins", "Custom Branding", "Automated Newsletter", "Event Registration", "Docs & Notes", "Automated SEO Blog Articles (from Knowledge Base)", "15% Lifetime Affiliate Commission", "Automated Devotional"],
   },
   {
     name: "Ministry",
@@ -35,6 +35,7 @@ const plans = [
     desc: "The complete platform for large ministries with full-time teams.",
     features: [
       "Everything in Community",
+      "Mobile App (PWA)",
       "Unlimited Admins",
       "Custom Domain",
       "1 Personal AI Assistant (Telegram)",
@@ -46,9 +47,10 @@ const plans = [
       "Custom Forms → CRM Pipeline",
       "Check-In System (QR Attendance)",
       "Livestream + Live Giving",
+      "Sermon Notes (shared to Livestream)",
       "SMS Automation (Twilio)",
-      "Automated Blog Articles",
-      "15% Lifetime Affiliate",
+      "Automated SEO Blog Articles (from Knowledge Base)",
+      "20% Lifetime Affiliate Commission",
     ],
   },
 ];
@@ -59,11 +61,15 @@ interface FeatureRow {
   feature: string;
   values: CellValue[];
   section?: 'coming-soon';
+  subLabel?: string;
 }
 
 const featureTable: FeatureRow[] = [
   // Current features (merged with former "New Features" section)
+  // Mobile App (PWA) — headline differentiator: every plan ships a branded installable app.
+  { feature: "Mobile App (PWA)", values: [true, true, true, true], subLabel: "Install on iOS & Android — no app store required" },
   { feature: "Blog", values: [true, true, true, true] },
+  { feature: "Automated SEO Blog Articles", values: [false, false, true, true] },
   { feature: "News Feed", values: [true, true, true, true] },
   { feature: "Bible", values: [true, true, true, true] },
   { feature: "Prayer Requests", values: [true, true, true, true] },
@@ -89,13 +95,13 @@ const featureTable: FeatureRow[] = [
   { feature: "Custom Forms", values: [false, false, false, true] },
   { feature: "Check-In System", values: [false, false, false, true] },
   { feature: "Livestream + Live Giving", values: [false, false, false, true] },
+  { feature: "Sermon Notes → Livestream", values: [false, false, false, true] },
   { feature: "SMS Automation", values: [false, false, false, true] },
   { feature: "Unlimited Churches", values: [false, false, false, true] },
-  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "15%"] },
+  { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "20%"] },
   { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%"] },
   // Coming Soon
   { feature: "Automated Devotional", values: [false, false, "soon", "soon"], section: 'coming-soon' },
-  { feature: "Automated Blog Articles", values: [false, false, false, "soon"], section: 'coming-soon' },
 ];
 
 export const PricingSection: React.FC = () => {
@@ -205,6 +211,31 @@ export const PricingSection: React.FC = () => {
         {/* AI Assistant — standalone add-on with its own Stripe checkout flow. */}
         <AiAssistantAddonCard />
 
+        {/* Affiliate program — tiered recurring commission, per plan. */}
+        <div className="mt-16 max-w-[640px] mx-auto text-center">
+          <p className="text-gold text-xs font-semibold tracking-[3px] uppercase mb-3">
+            Affiliate Program — Earn While You Grow
+          </p>
+          <p className="text-warm-brown text-sm leading-relaxed mb-6">
+            Share Harvest with other ministries and earn recurring monthly commission for every
+            referral — for as long as they stay subscribed. If they cancel, commission stops.
+          </p>
+          <div className="inline-flex flex-col gap-2 text-sm w-full max-w-[360px]">
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-warm-brown">Individual &amp; Small Team</span>
+              <span className="text-gold font-bold whitespace-nowrap">10% / month</span>
+            </div>
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-warm-brown">Community</span>
+              <span className="text-gold font-bold whitespace-nowrap">15% / month</span>
+            </div>
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-warm-brown">Ministry</span>
+              <span className="text-gold font-bold whitespace-nowrap">20% / month</span>
+            </div>
+          </div>
+        </div>
+
         {/* Feature comparison table */}
         <details className="mt-16 max-w-[800px] mx-auto">
           <summary className="cursor-pointer text-center text-gold font-semibold text-sm hover:text-gold-dark transition-colors">
@@ -235,7 +266,12 @@ export const PricingSection: React.FC = () => {
                       </tr>
                     )}
                     <tr className="border-b border-stone/50">
-                      <td className="py-3 text-warm-brown">{row.feature}</td>
+                      <td className="py-3 text-warm-brown">
+                        {row.feature}
+                        {row.subLabel && (
+                          <span className="block text-[11px] text-warm-brown/50 mt-0.5">{row.subLabel}</span>
+                        )}
+                      </td>
                       {row.values.map((val, j) => (
                         <td key={j} className="text-center py-3">
                           {typeof val === "boolean" ? (
