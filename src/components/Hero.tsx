@@ -1,5 +1,6 @@
 import React from 'react';
 import { ParallaxLayer } from './ParallaxLayer';
+import { appSignupUrl } from '../lib/ref';
 
 export const Hero: React.FC = () => {
   return (
@@ -42,7 +43,7 @@ export const Hero: React.FC = () => {
         </p>
         <div className="flex gap-4 justify-center mt-12 flex-wrap">
           <a
-            href="https://theharvest.app"
+            href={appSignupUrl()}
             className="bg-gold text-white px-8 py-4 rounded-lg font-semibold transition-all hover:bg-gold-light hover:-translate-y-0.5"
           >
             Access Harvest
