@@ -1,5 +1,6 @@
 import React from 'react';
 import { ParallaxLayer } from './ParallaxLayer';
+import { appSignupUrl } from '../lib/ref';
 
 const believerFeatures = [
   'Read the full Bible with reading plans',
@@ -37,7 +38,7 @@ export const BelieversSection: React.FC = () => {
               ))}
             </ul>
             <a
-              href="https://theharvest.app"
+              href={appSignupUrl()}
               className="inline-flex items-center gap-2 text-gold font-semibold hover:text-gold-dark transition-colors"
             >
               Open the app

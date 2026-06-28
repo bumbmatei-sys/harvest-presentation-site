@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Nav } from './components/Nav';
 import { Hero } from './components/Hero';
 import { ProblemSection } from './components/ProblemSection';
@@ -11,6 +11,14 @@ import { AffiliateSection } from './components/AffiliateSection';
 import { FinalCTA, Footer } from './components/FinalCTA';
 
 const App: React.FC = () => {
+  // The affiliate link path is /pricing (served the SPA via a Vercel rewrite).
+  // Scroll the pricing section into view when arriving on that path.
+  useEffect(() => {
+    if (window.location.pathname === '/pricing') {
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
   return (
     <div className="bg-cream">
       <Nav />
