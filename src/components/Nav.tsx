@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { appSignupUrl } from '../lib/ref';
 
 export const Nav: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -36,7 +37,7 @@ export const Nav: React.FC = () => {
             </a>
           ))}
           <a
-            href="https://theharvest.app"
+            href={appSignupUrl()}
             className="bg-gold text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:bg-gold-light hover:-translate-y-0.5"
           >
             Access Harvest
@@ -71,7 +72,7 @@ export const Nav: React.FC = () => {
             </a>
           ))}
           <a
-            href="https://theharvest.app"
+            href={appSignupUrl()}
             className="bg-gold text-white px-6 py-2.5 rounded-lg text-sm font-semibold text-center"
           >
             Access Harvest
