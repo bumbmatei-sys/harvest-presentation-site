@@ -1,4 +1,5 @@
 import React from 'react';
+import { appSignupUrl } from '../lib/ref';
 
 export const FinalCTA: React.FC = () => {
   return (
@@ -17,7 +18,7 @@ export const FinalCTA: React.FC = () => {
           Start your ministry platform today. Your community is waiting.
         </p>
         <a
-          href="https://theharvest.app"
+          href={appSignupUrl()}
           className="inline-flex items-center gap-2 bg-gold text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all hover:bg-gold-light hover:-translate-y-0.5"
         >
           Access Harvest
@@ -40,10 +41,10 @@ export const Footer: React.FC = () => {
             <span className="text-white/30 text-sm">From Conversion to Devotion</span>
           </div>
           <div className="flex gap-8 text-sm">
-            <a href="https://theharvest.app" className="text-white/40 hover:text-gold transition-colors">App</a>
+            <a href={appSignupUrl()} className="text-white/40 hover:text-gold transition-colors">App</a>
             <a href="#pricing" className="text-white/40 hover:text-gold transition-colors">Pricing</a>
             <a href="#features" className="text-white/40 hover:text-gold transition-colors">Features</a>
-            <a href="https://theharvest.app" className="text-white/40 hover:text-gold transition-colors">Get Started</a>
+            <a href={appSignupUrl()} className="text-white/40 hover:text-gold transition-colors">Get Started</a>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-white/5 text-center">

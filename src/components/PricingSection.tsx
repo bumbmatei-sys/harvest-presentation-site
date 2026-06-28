@@ -1,9 +1,11 @@
 import React from 'react';
 import { AiAssistantAddonCard } from './AiAssistantAddonCard';
+import { appSignupUrl } from '../lib/ref';
 
 const plans = [
   {
     name: "Individual",
+    planId: "plus",
     price: "$59",
     period: "/month",
     retention: 90,
@@ -12,6 +14,7 @@ const plans = [
   },
   {
     name: "Small Team",
+    planId: "pro",
     price: "$119",
     period: "/month",
     retention: 95,
@@ -21,6 +24,7 @@ const plans = [
   },
   {
     name: "Community",
+    planId: "max",
     price: "$239",
     period: "/month",
     retention: 100,
@@ -29,6 +33,7 @@ const plans = [
   },
   {
     name: "Ministry",
+    planId: "ultra",
     price: "$479",
     period: "/month",
     retention: 100,
@@ -195,7 +200,7 @@ export const PricingSection: React.FC = () => {
               </ul>
 
               <a
-                href="https://theharvest.app"
+                href={appSignupUrl(plan.planId)}
                 className={`block text-center py-2.5 rounded-lg text-sm font-semibold transition-all ${
                   plan.popular
                     ? "bg-gold text-white hover:bg-gold-light"
