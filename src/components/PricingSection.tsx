@@ -102,7 +102,7 @@ const featureTable: FeatureRow[] = [
   { feature: "Livestream + Live Giving", values: [false, false, false, true] },
   { feature: "Sermon Notes → Livestream", values: [false, false, false, true] },
   { feature: "SMS Automation", values: [false, false, false, true] },
-  { feature: "Unlimited Churches", values: [false, false, false, true] },
+  { feature: "Unlimited Churches", subLabel: "$10/mo per additional church — first free", values: [false, false, false, true] },
   { feature: "Lifetime Affiliate", values: ["10%", "10%", "15%", "20%"] },
   { feature: "Donation Retention", values: ["90%", "95%", "100%", "100%"] },
   // Coming Soon
