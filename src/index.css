@@ -228,10 +228,13 @@ a:hover { color: var(--brand-active); }
   .nav-links { display: none !important; }
   .nav-hamburger { display: inline-flex !important; }
   .nav-cta { display: none !important; }
-  .split-grid, .pricing-grid, .footer-grid, .feat-three, .bento-grid { grid-template-columns: 1fr !important; }
+  .split-grid, .pricing-grid, .feat-three, .bento-grid { grid-template-columns: 1fr !important; }
   .split-grid > *[style*="order: 2"] { order: 0 !important; }
   .bento-grid > * { grid-column: span 1 !important; }
   .dash-sidebar { display: none !important; }
+  /* Footer: keep the two link columns side by side; brand spans the full width. */
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 28px !important; }
+  .footer-brand { grid-column: 1 / -1; }
 }
 @media (max-width: 1180px) and (min-width: 901px) {
   .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }

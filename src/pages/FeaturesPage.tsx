@@ -7,6 +7,7 @@ import { L } from '../components/icons';
 import { Kicker, H2, container, softCard, SKY } from '../components/shared';
 import { CATALOG, slugify, type CatalogGroup, type CatalogItem } from '../components/catalog';
 import { FeaturePreview, PREVIEW_KINDS } from '../components/FeaturePreview';
+import { Globe } from '../components/Globe';
 
 const soonBadge: React.CSSProperties = {
   position: 'absolute', top: 16, right: 16, zIndex: 2, background: 'var(--sky-100)', color: 'var(--sky-700)',
@@ -66,26 +67,6 @@ function Group({ group, gi }: { group: CatalogGroup; gi: number }) {
   );
 }
 
-// Lightweight dotted globe — decorative, no cobe/webgl dependency, and inherently
-// mobile-safe (fluid width, capped max-width, centered) per B3.
-function DottedGlobe() {
-  const markers: [number, number][] = [[30, 34], [61, 27], [46, 58], [72, 52], [39, 46], [56, 70]];
-  return (
-    <div style={{ width: '100%', maxWidth: 340, aspectRatio: '1', margin: '0 auto', position: 'relative' }} aria-hidden="true">
-      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #ffffff, #F0E8DA 44%, #DCC9A2 74%, #C9963A 104%)', boxShadow: 'inset -18px -18px 48px rgba(45,37,25,0.16), 0 28px 60px rgba(45,37,25,0.14)' }} />
-      <div style={{
-        position: 'absolute', inset: 0, borderRadius: '50%', opacity: 0.55,
-        backgroundImage: 'radial-gradient(rgba(45,37,25,0.22) 1.1px, transparent 1.5px)', backgroundSize: '13px 13px',
-        WebkitMaskImage: 'radial-gradient(circle at 50% 50%, #000 54%, rgba(0,0,0,0.35) 74%, transparent 86%)',
-        maskImage: 'radial-gradient(circle at 50% 50%, #000 54%, rgba(0,0,0,0.35) 74%, transparent 86%)',
-      }} />
-      {markers.map(([x, y], i) => (
-        <span key={i} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: 9, height: 9, borderRadius: '50%', background: 'var(--gold-600)', border: '2px solid #fff', boxShadow: '0 0 10px rgba(201,150,58,0.8)' }} />
-      ))}
-    </div>
-  );
-}
-
 function GlobeSection() {
   const rows: [string, string][] = [
     ['contact', 'Donor & member profiles with full history'],
@@ -115,7 +96,7 @@ function GlobeSection() {
               </div>
             </Reveal>
           </div>
-          <Reveal delay={120}><DottedGlobe /></Reveal>
+          <Reveal delay={120}><Globe size={440} /></Reveal>
         </div>
       </div>
     </section>

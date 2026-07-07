@@ -34,7 +34,7 @@ export function Footer() {
     <footer style={{ background: 'var(--cream)', padding: '0 20px 28px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 32, padding: 'clamp(32px, 5vw, 56px)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: 40 }} className="footer-grid">
-          <div>
+          <div className="footer-brand">
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 16 }}>
               <Mark h={30} /><span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 21, color: 'var(--navy-900)' }}>Harvest<span style={{ color: 'var(--brand)' }}>.</span></span>
             </div>

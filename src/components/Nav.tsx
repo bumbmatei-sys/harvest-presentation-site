@@ -211,8 +211,8 @@ export function Nav() {
             </div>
           )}
 
-          {/* Page links */}
-          {PAGE_LINKS.map(([label, href]) => (
+          {/* Page links — Pillars is intentionally omitted from the mobile menu. */}
+          {PAGE_LINKS.filter(([label]) => label !== 'Pillars').map(([label, href]) => (
             <Link key={label} to={href} onClick={closeMobile}
               style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
           ))}
