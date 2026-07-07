@@ -215,12 +215,19 @@ a:hover { color: var(--brand-active); }
    collapses into an accordion inside .nav-mobile (see Nav.tsx). */
 .nav-hamburger { display: none; }
 
+/* "What Harvest replaces" — rendered as a CSS grid so it can stack to cards on
+   phones with every price fully visible (no clipped price column). */
+.replaces-row { display: grid; grid-template-columns: 0.9fr 1.5fr auto; gap: 16px; align-items: center; padding: 14px 22px; }
+.replaces-row + .replaces-row { border-top: 1px solid rgba(45,37,25,0.06); }
+.replaces-cost { text-align: right; white-space: nowrap; }
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 900px) {
   .nav-links { display: none !important; }
   .nav-hamburger { display: inline-flex !important; }
+  .nav-cta { display: none !important; }
   .split-grid, .pricing-grid, .footer-grid, .feat-three, .bento-grid { grid-template-columns: 1fr !important; }
   .split-grid > *[style*="order: 2"] { order: 0 !important; }
   .bento-grid > * { grid-column: span 1 !important; }
@@ -228,6 +235,14 @@ a:hover { color: var(--brand-active); }
 }
 @media (max-width: 1180px) and (min-width: 901px) {
   .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+/* Replaces table stacks to cards: category + price on the first line, the tool
+   logos wrap onto a second full-width line. */
+@media (max-width: 640px) {
+  .replaces-row { grid-template-columns: 1fr auto; column-gap: 12px; row-gap: 8px; padding: 14px 18px; }
+  .replaces-cat { grid-column: 1; grid-row: 1; }
+  .replaces-cost { grid-column: 2; grid-row: 1; }
+  .replaces-tools { grid-column: 1 / -1; grid-row: 2; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; animation: none !important; transition: none !important; }

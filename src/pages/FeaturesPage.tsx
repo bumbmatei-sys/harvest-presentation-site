@@ -6,26 +6,119 @@ import { Particles, AnimatedText, HBtn } from '../components/magic';
 import { L } from '../components/icons';
 import { Kicker, H2, container, softCard, SKY } from '../components/shared';
 import { CATALOG, slugify, type CatalogGroup, type CatalogItem } from '../components/catalog';
+import { FeaturePreview, PREVIEW_KINDS } from '../components/FeaturePreview';
+
+const soonBadge: React.CSSProperties = {
+  position: 'absolute', top: 16, right: 16, zIndex: 2, background: 'var(--sky-100)', color: 'var(--sky-700)',
+  fontSize: 9.5, fontWeight: 700, letterSpacing: '0.06em', padding: '4px 9px', borderRadius: 999,
+};
 
 function FeatureCard({ item, group, delay }: { item: CatalogItem; group: CatalogGroup; delay: number }) {
-  // Anchor id matches the mega-menu link (features.html#<slug> → /features#<slug>).
-  // scrollMarginTop keeps the card clear of the fixed nav when scrolled to.
+  // Bespoke vignette when the catalog names a known preview kind; otherwise fall
+  // back cleanly to the icon-square + title + description treatment.
+  const hasPreview = !!item.preview && PREVIEW_KINDS.has(item.preview);
   return (
     <Reveal y={0} delay={delay} style={{ display: 'flex' }}>
       <article
         id={slugify(item.title)}
-        style={{ ...softCard, padding: 24, scrollMarginTop: 104, width: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 12 }}
+        style={{ ...softCard, padding: 22, width: '100%', height: '100%', boxSizing: 'border-box', position: 'relative', scrollMarginTop: 104, display: 'flex', flexDirection: 'column' }}
       >
-        <div style={{ width: 48, height: 48, borderRadius: 13, background: group.bg, color: group.tint, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <L name={item.icon} size={22} color={group.tint} />
-        </div>
-        <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 19, color: 'var(--navy-900)', margin: 0, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          {item.title}
-          {item.soon && <span style={{ background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', padding: '3px 8px', borderRadius: 999 }}>SOON</span>}
-        </h3>
+        {item.soon && <span style={soonBadge}>SOON</span>}
+
+        {hasPreview ? (
+          <>
+            <FeaturePreview kind={item.preview} tint={group.tint} bg={group.bg} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8 }}>
+              <L name={item.icon} size={18} color={group.tint} />
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 18, color: 'var(--navy-900)', margin: 0 }}>{item.title}</h3>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ width: 48, height: 48, borderRadius: 13, background: group.bg, color: group.tint, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+              <L name={item.icon} size={22} color={group.tint} />
+            </div>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 18, color: 'var(--navy-900)', margin: '0 0 8px' }}>{item.title}</h3>
+          </>
+        )}
+
         <p style={{ color: 'var(--text-body)', fontSize: 14, lineHeight: 1.55, margin: 0 }}>{item.desc}</p>
       </article>
     </Reveal>
+  );
+}
+
+function Group({ group, gi }: { group: CatalogGroup; gi: number }) {
+  return (
+    <section style={{ background: gi % 2 ? 'var(--stone-100)' : 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
+      <div style={container}>
+        <div style={{ marginBottom: 34 }}>
+          <Kicker align="left" color={group.tint}>{group.kicker}</Kicker>
+          <H2 align="left" style={{ marginTop: 12, fontSize: 'clamp(1.7rem, 3vw, 2.4rem)' }}>{group.name}</H2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="feat-three">
+          {group.items.map((item, i) => (
+            <FeatureCard key={item.title} item={item} group={group} delay={(i % 3) * 60} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Lightweight dotted globe — decorative, no cobe/webgl dependency, and inherently
+// mobile-safe (fluid width, capped max-width, centered) per B3.
+function DottedGlobe() {
+  const markers: [number, number][] = [[30, 34], [61, 27], [46, 58], [72, 52], [39, 46], [56, 70]];
+  return (
+    <div style={{ width: '100%', maxWidth: 340, aspectRatio: '1', margin: '0 auto', position: 'relative' }} aria-hidden="true">
+      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #ffffff, #F0E8DA 44%, #DCC9A2 74%, #C9963A 104%)', boxShadow: 'inset -18px -18px 48px rgba(45,37,25,0.16), 0 28px 60px rgba(45,37,25,0.14)' }} />
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: '50%', opacity: 0.55,
+        backgroundImage: 'radial-gradient(rgba(45,37,25,0.22) 1.1px, transparent 1.5px)', backgroundSize: '13px 13px',
+        WebkitMaskImage: 'radial-gradient(circle at 50% 50%, #000 54%, rgba(0,0,0,0.35) 74%, transparent 86%)',
+        maskImage: 'radial-gradient(circle at 50% 50%, #000 54%, rgba(0,0,0,0.35) 74%, transparent 86%)',
+      }} />
+      {markers.map(([x, y], i) => (
+        <span key={i} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: 9, height: 9, borderRadius: '50%', background: 'var(--gold-600)', border: '2px solid #fff', boxShadow: '0 0 10px rgba(201,150,58,0.8)' }} />
+      ))}
+    </div>
+  );
+}
+
+function GlobeSection() {
+  const rows: [string, string][] = [
+    ['contact', 'Donor & member profiles with full history'],
+    ['chart-column', 'Engagement, growth and giving analytics'],
+    ['building-2', 'Multi-church view — every campus in one place'],
+  ];
+  return (
+    <section style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0', overflow: 'hidden' }}>
+      <div style={container}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'center' }} className="split-grid">
+          <div>
+            <Kicker align="left" color="var(--brand)">CRM &amp; Analytics</Kicker>
+            <H2 align="left" style={{ marginTop: 12 }}>{'One flock,\nevery nation'}</H2>
+            <Reveal delay={140}>
+              <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-body)', lineHeight: 1.6, margin: '18px 0 24px', maxWidth: 480 }}>
+                Your CRM holds every donor, member and seeker — wherever they are. Evangelism analytics show engagement, growth and impact across every church and nation you serve.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {rows.map(([ic, t]) => (
+                  <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ display: 'inline-flex', width: 32, height: 32, borderRadius: 9, background: 'var(--gold-100)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <L name={ic} size={16} color="var(--gold-700)" />
+                    </span>
+                    <span style={{ fontSize: 15, color: 'var(--navy-800)', fontWeight: 500 }}>{t}</span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+          <Reveal delay={120}><DottedGlobe /></Reveal>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -67,22 +160,13 @@ export function FeaturesPage() {
         </div>
       </section>
 
-      {/* One section per catalog group; each item is an anchored card. */}
-      {CATALOG.map((group, gi) => (
-        <section key={group.name} style={{ background: gi % 2 ? 'var(--stone-100)' : 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
-          <div style={container}>
-            <div style={{ marginBottom: 34 }}>
-              <Kicker align="left" color={group.tint}>{group.kicker}</Kicker>
-              <H2 align="left" style={{ marginTop: 12 }}>{group.name}</H2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="feat-three">
-              {group.items.map((item, i) => (
-                <FeatureCard key={item.title} item={item} group={group} delay={i * 40} />
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* First four catalog groups, then the CRM/analytics globe band, then the last group.
+          Every group still renders — all 31 card anchor ids are preserved. */}
+      {CATALOG.slice(0, 4).map((group, gi) => (
+        <Group key={group.name} group={group} gi={gi} />
       ))}
+      <GlobeSection />
+      <Group group={CATALOG[4]} gi={1} />
 
       {/* Final CTA */}
       <section style={{ position: 'relative', background: SKY, padding: 'var(--section-y) 0', textAlign: 'center', overflow: 'hidden' }}>

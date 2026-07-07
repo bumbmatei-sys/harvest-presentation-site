@@ -107,7 +107,9 @@ export function Nav() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <HBtn href={appSignupUrl()} size="sm" variant="dark">Access Harvest</HBtn>
+          {/* Hidden on mobile (see .nav-cta in index.css) — the CTA lives in the
+              hamburger menu there, so the sticky header shows it only once. */}
+          <span className="nav-cta"><HBtn href={appSignupUrl()} size="sm" variant="dark">Access Harvest</HBtn></span>
           <button
             type="button"
             className="nav-hamburger"

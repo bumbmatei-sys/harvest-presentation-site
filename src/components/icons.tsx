@@ -6,7 +6,7 @@ import {
   Smartphone, Palette, FileText, Send, Church, Contact, ClipboardList,
   Calculator, ReceiptText, Link, ShieldCheck, MessageSquareText, Zap, Sparkles,
   Crown, Inbox, Building2, MessageSquare, Lock, Youtube, Instagram, ChevronDown,
-  Sun, Share2, UserCheck, Monitor, Star, Circle,
+  Sun, Share2, UserCheck, Monitor, Star, Circle, MapPin, ArrowDownToLine, Play,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -68,6 +68,9 @@ const NAME_MAP: Record<string, LucideIcon> = {
   'user-check': UserCheck,
   monitor: Monitor,
   star: Star,
+  'map-pin': MapPin,
+  'arrow-down-to-line': ArrowDownToLine,
+  play: Play,
 };
 
 /** Name-based icon, e.g. <L name="arrow-right" size={16} color="currentColor" />. */
