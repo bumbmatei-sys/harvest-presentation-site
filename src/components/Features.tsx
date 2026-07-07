@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
 import { HBtn, BeamDiagram } from './magic';
 import { I, L } from './icons';
@@ -7,7 +8,7 @@ import { Kicker, H2, container, AV } from './shared';
 function BentoCard({ icon, name, desc, children, span = 1, minH = 300 }:
   { icon: React.ReactNode; name: string; desc: string; children?: React.ReactNode; span?: number; minH?: number }) {
   return (
-    <a href="features.html" className="bento" style={{
+    <Link to="/features" className="bento" style={{
       gridColumn: `span ${span}`, display: 'flex', flexDirection: 'column',
       textDecoration: 'none', position: 'relative', overflow: 'hidden',
       background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 28,
@@ -22,7 +23,7 @@ function BentoCard({ icon, name, desc, children, span = 1, minH = 300 }:
       <span className="bento-cta" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, position: 'absolute', bottom: 20, left: 28, fontSize: 13.5, fontWeight: 600, color: 'var(--brand)' }}>
         Learn more <L name="arrow-right" size={14} color="var(--brand)" />
       </span>
-    </a>
+    </Link>
   );
 }
 
@@ -90,7 +91,7 @@ export function Features() {
           </Reveal>
         </div>
         <Reveal delay={120} style={{ textAlign: 'center', marginTop: 40 }}>
-          <HBtn href="features.html" variant="dark" size="lg">See all features</HBtn>
+          <HBtn to="/features" variant="dark" size="lg">See all features</HBtn>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>30+ tools across community, discipleship, giving and AI</p>
         </Reveal>
       </div>

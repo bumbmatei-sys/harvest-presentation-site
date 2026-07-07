@@ -1,5 +1,9 @@
 {
+  "redirects": [
+    { "source": "/features.html", "destination": "/features", "permanent": true }
+  ],
   "rewrites": [
-    { "source": "/pricing", "destination": "/index.html" }
+    { "source": "/pricing", "destination": "/index.html" },
+    { "source": "/features", "destination": "/index.html" }
   ]
 }

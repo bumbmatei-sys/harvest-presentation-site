@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { L } from './icons';
 
 /* Harvest — premium interaction components adapted from MagicUI
@@ -182,9 +183,9 @@ export function Marquee({ children, duration = 45, reverse = false, gap = 24, st
 
 // ---------- Interactive hover button ----------
 type Variant = 'light' | 'dark' | 'gold';
-export function HBtn({ children, href, variant = 'light', size = 'md', style = {}, onClick, block = false }:
+export function HBtn({ children, href, to, variant = 'light', size = 'md', style = {}, onClick, block = false }:
   {
-    children: React.ReactNode; href?: string; variant?: Variant; size?: 'sm' | 'md' | 'lg';
+    children: React.ReactNode; href?: string; to?: string; variant?: Variant; size?: 'sm' | 'md' | 'lg';
     style?: React.CSSProperties; onClick?: () => void; block?: boolean;
   }) {
   const sizes = {
@@ -198,10 +199,12 @@ export function HBtn({ children, href, variant = 'light', size = 'md', style = {
     gold: { background: 'var(--brand)', border: '1px solid var(--brand)', color: '#fff', dot: 'var(--navy-900)', alt: '#fff' },
   } as const;
   const v = variants[variant] || variants.light;
-  const Tag = (href ? 'a' : 'button') as React.ElementType;
+  // Internal route → react-router Link (client nav); external/hash → <a>; else <button>.
+  const Tag = (to ? Link : href ? 'a' : 'button') as React.ElementType;
+  const navProps = to ? { to } : href ? { href } : {};
   return (
     <Tag
-      href={href}
+      {...navProps}
       onClick={onClick}
       className="hbtn"
       style={{

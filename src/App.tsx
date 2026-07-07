@@ -1,45 +1,38 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { ScrollProgress, ProgressiveBlur } from './components/magic';
 import { Nav } from './components/Nav';
-import { Hero } from './components/Hero';
-import { Sync } from './components/Sync';
-import { Community } from './components/Community';
-import { Analytics } from './components/Analytics';
-import { Features } from './components/Features';
-import { Replaces } from './components/Replaces';
-import { Pricing } from './components/Pricing';
-import { Affiliate } from './components/Affiliate';
-import { FinalCTA } from './components/FinalCTA';
 import { Footer } from './components/Footer';
+import { ScrollManager } from './components/ScrollManager';
+import { Landing } from './pages/Landing';
+import { FeaturesPage } from './pages/FeaturesPage';
 
-const App: React.FC = () => {
-  // The affiliate link path is /pricing (served the SPA via a Vercel rewrite).
-  // Scroll the pricing section into view when arriving on that path.
-  useEffect(() => {
-    if (window.location.pathname === '/pricing') {
-      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
-
+// Shared app shell — fixed nav + footer + global scroll/blur chrome wrap every route.
+function Layout() {
   return (
     <>
       <ScrollProgress />
       <Nav />
-      <main>
-        <Hero />
-        <Sync />
-        <Community />
-        <Analytics />
-        <Features />
-        <Replaces />
-        <Pricing />
-        <Affiliate />
-        <FinalCTA />
-      </main>
+      <Outlet />
       <Footer />
       <ProgressiveBlur />
     </>
   );
-};
+}
+
+const App: React.FC = () => (
+  <BrowserRouter>
+    <ScrollManager />
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Landing />} />
+        {/* Affiliate deep-link path (Vercel rewrites /pricing → index.html); ScrollManager scrolls to #pricing. */}
+        <Route path="/pricing" element={<Landing />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="*" element={<Landing />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>
+);
 
 export default App;

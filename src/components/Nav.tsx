@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { appSignupUrl } from '../lib/ref';
 import { HBtn } from './magic';
 import { L } from './icons';
@@ -8,9 +9,13 @@ import { CATALOG, slugify } from './catalog';
 /* Fixed glass nav with a Features mega-menu.
    Deliberately click-to-toggle (not hover) + keyboard accessible, with a mobile
    accordion fallback — a load-bearing requirement carried over from the existing
-   site, not the design's hover behavior. */
+   site, not the design's hover behavior.
 
-const featureHref = (title: string) => `features.html#${slugify(title)}`;
+   Internal targets use react-router <Link> so they work from any route; section
+   links are path-qualified (/#pricing) so they scroll on the landing even when
+   clicked from /features. Mega-menu items deep-link to the /features route. */
+
+const featureHref = (title: string) => `/features#${slugify(title)}`;
 
 const linkStyle: React.CSSProperties = {
   fontFamily: 'var(--font-sans)', fontSize: 14.5, fontWeight: 500, color: 'var(--navy-800)',
@@ -19,9 +24,9 @@ const linkStyle: React.CSSProperties = {
 };
 
 const PAGE_LINKS: [string, string][] = [
-  ['Pillars', '#pillars'],
-  ['Pricing', '#pricing'],
-  ['Believers', '#believers'],
+  ['Pillars', '/#pillars'],
+  ['Pricing', '/#pricing'],
+  ['Believers', '/#believers'],
 ];
 
 export function Nav() {
@@ -73,12 +78,12 @@ export function Nav() {
         boxShadow: scrolled ? '0 12px 34px rgba(45,37,25,0.1)' : '0 6px 22px rgba(45,37,25,0.06)',
         transition: 'background 300ms var(--ease-out), box-shadow 300ms var(--ease-out)',
       }}>
-        <a href="#hero" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
+        <Link to="/#hero" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
           <Mark h={32} />
           <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 21, color: 'var(--navy-900)' }}>
             Harvest<span style={{ color: 'var(--brand)' }}>.</span>
           </span>
-        </a>
+        </Link>
 
         <div style={{ display: 'flex', gap: 26, alignItems: 'center' }} className="nav-links">
           <button
@@ -95,9 +100,9 @@ export function Nav() {
             <L name="chevron-down" size={13} color="currentColor" style={{ transform: mega ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
           </button>
           {PAGE_LINKS.map(([label, href]) => (
-            <a key={label} href={href} style={linkStyle}
+            <Link key={label} to={href} style={linkStyle}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-800)')}>{label}</a>
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-800)')}>{label}</Link>
           ))}
         </div>
 
@@ -138,9 +143,9 @@ export function Nav() {
                 <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, marginBottom: 12 }}>{g.name}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {g.items.map((it) => (
-                    <a
+                    <Link
                       key={it.title}
-                      href={featureHref(it.title)}
+                      to={featureHref(it.title)}
                       role="menuitem"
                       onClick={() => setMega(false)}
                       style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', margin: '0 -8px', borderRadius: 9, textDecoration: 'none', fontSize: 13, fontWeight: 500, color: 'var(--navy-800)', transition: 'background 150ms' }}
@@ -149,7 +154,7 @@ export function Nav() {
                     >
                       <L name={it.icon} size={15} color={g.tint} />
                       <span>{it.title}</span>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -157,7 +162,7 @@ export function Nav() {
           </div>
           <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>30+ tools in one platform — from $59/mo</span>
-            <a href="features.html" onClick={() => setMega(false)} style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>See all features →</a>
+            <Link to="/features" onClick={() => setMega(false)} style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>See all features →</Link>
           </div>
         </div>
       )}
@@ -191,23 +196,23 @@ export function Nav() {
                   <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, margin: '6px 0 8px' }}>{g.name}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {g.items.map((it) => (
-                      <a key={it.title} href={featureHref(it.title)} onClick={closeMobile}
+                      <Link key={it.title} to={featureHref(it.title)} onClick={closeMobile}
                         style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 6px', borderRadius: 9, textDecoration: 'none', fontSize: 14, fontWeight: 500, color: 'var(--navy-800)' }}>
                         <L name={it.icon} size={16} color={g.tint} />
                         <span>{it.title}</span>
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
               ))}
-              <a href="features.html" onClick={closeMobile} style={{ display: 'inline-block', padding: '6px 8px', fontSize: 14, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>See all features →</a>
+              <Link to="/features" onClick={closeMobile} style={{ display: 'inline-block', padding: '6px 8px', fontSize: 14, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>See all features →</Link>
             </div>
           )}
 
           {/* Page links */}
           {PAGE_LINKS.map(([label, href]) => (
-            <a key={label} href={href} onClick={closeMobile}
-              style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</a>
+            <Link key={label} to={href} onClick={closeMobile}
+              style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
           ))}
 
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(45,37,25,0.06)' }}>
