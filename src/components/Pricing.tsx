@@ -11,6 +11,9 @@ import { Kicker, H2, container, softCard, SKY } from './shared';
    dedicated Stripe flow. */
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/dRm6oAbK09Gc0HAdWc0Ba00';
 
+/** Flip to true to relaunch the AI Assistant add-on (price + Stripe CTA). */
+const AI_ASSISTANT_LIVE = false;
+
 interface Plan {
   name: string;
   planId: string; // load-bearing: forwarded to the app via appSignupUrl(planId)
@@ -24,8 +27,8 @@ interface Plan {
 const plans: Plan[] = [
   { name: 'Individual', planId: 'plus', monthly: 59, retention: 90, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
   { name: 'Small Team', planId: 'pro', monthly: 119, retention: 95, popular: true, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
-  { name: 'Community', planId: 'max', monthly: 239, retention: 100, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'Unlimited courses', 'Up to 10 admins', 'Custom Branding', 'Event Registration', 'Docs & Notes'] },
-  { name: 'Ministry', planId: 'ultra', monthly: 479, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited admins · Custom domain', 'AI Assistant (Telegram)', 'CRM · Livestream · Check-in', 'SMS Automation', 'Unlimited Churches'] },
+  { name: 'Community', planId: 'max', monthly: 239, retention: 100, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
+  { name: 'Ministry', planId: 'ultra', monthly: 479, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'Community Groups', 'SMS Automation', 'Accounting + QuickBooks'] },
 ];
 
 const T = true;
@@ -41,13 +44,13 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   ] },
   { grp: 'Community', rows: [
     ['News Feed', [T, T, T, T]],
-    ['Community Feed', [false, T, T, T]],
+    ['Community Feed', [T, T, T, T]],
     ['Prayer Requests', [T, T, T, T]],
     ['Community Groups', [false, false, false, T]],
     ['Event Registration', [false, false, T, T]],
     ['Church Map', [false, T, T, T]],
-    ['Check-In System (QR)', [false, false, false, T]],
-    ['Livestream + Live Giving', [false, false, false, T]],
+    ['Check-In System (QR)', [false, false, T, T]],
+    ['Livestream + Live Giving', [false, false, T, T]],
   ] },
   { grp: 'Discipleship & Content', rows: [
     ['Bible', [T, T, T, T]],
@@ -55,24 +58,24 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Blog', [T, T, T, T]],
     ['Automated SEO Blog Articles', [false, false, T, T]],
     ['Docs & Notes', [false, false, T, T]],
-    ['Sermon Notes → Livestream', [false, false, false, T]],
+    ['Sermon Notes → Livestream', [false, false, T, T]],
     ['Automated Devotional', [false, false, 'soon', 'soon']],
   ] },
   { grp: 'AI & Automation', rows: [
     ['AI Chat', [false, T, T, T]],
     ['AI Knowledge Base', [false, T, T, T]],
-    ['Personal AI Assistant (Telegram)', [false, false, false, '1']],
+    ['Personal AI Assistant (Telegram)', [false, false, false, 'soon']],
     ['Newsletter', [false, T, T, T]],
     ['Automated Newsletter', [false, false, T, T]],
     ['SMS Automation (Twilio)', [false, false, false, T]],
-    ['Custom Forms → CRM', [false, false, false, T]],
+    ['Custom Forms → CRM', [false, false, T, T]],
   ] },
   { grp: 'Giving & Finance', rows: [
     ['Donation Page', [T, T, T, T]],
     ['Fundraising', [T, T, T, T]],
-    ['CRM (Donors & Members)', [false, false, false, T]],
+    ['CRM (Donors & Members)', [false, false, T, T]],
     ['Accounting + QuickBooks Sync', [false, false, false, T]],
-    ['Tax Receipts & Giving Statements', [false, false, false, T]],
+    ['Tax Receipts & Giving Statements', [false, false, T, T]],
     ['Donation Retention', ['90%', '95%', '100%', '100%']],
     ['Lifetime Affiliate', ['10%', '10%', '15%', '20%']],
   ] },
@@ -187,9 +190,15 @@ export function Pricing() {
               <p style={{ color: 'var(--navy-700)', fontSize: 14.5, lineHeight: 1.55, margin: 0, maxWidth: 520, opacity: 0.85 }}>Connect 900+ apps to schedule, automate and superboost your ministry. <b style={{ color: 'var(--brand)' }}>Included free on Ministry.</b></p>
             </div>
             <div style={{ textAlign: 'right', position: 'relative', zIndex: 2 }}>
-              <div style={{ marginBottom: 12 }}><span style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 500, color: 'var(--navy-900)' }}>$200</span><span style={{ color: 'var(--navy-700)', fontSize: 14 }}>/mo</span></div>
-              <HBtn href={STRIPE_PAYMENT_LINK} variant="dark">Add the Assistant</HBtn>
-              <p style={{ marginTop: 8, fontSize: 11, color: 'var(--navy-700)', opacity: 0.7 }}>Secure checkout via Stripe · cancel anytime</p>
+              {AI_ASSISTANT_LIVE ? (
+                <>
+                  <div style={{ marginBottom: 12 }}><span style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 500, color: 'var(--navy-900)' }}>$200</span><span style={{ color: 'var(--navy-700)', fontSize: 14 }}>/mo</span></div>
+                  <HBtn href={STRIPE_PAYMENT_LINK} variant="dark">Add the Assistant</HBtn>
+                  <p style={{ marginTop: 8, fontSize: 11, color: 'var(--navy-700)', opacity: 0.7 }}>Secure checkout via Stripe · cancel anytime</p>
+                </>
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', padding: '10px 18px', borderRadius: 999 }}>Coming soon</span>
+              )}
             </div>
           </div>
         </Reveal>
