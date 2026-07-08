@@ -5,8 +5,8 @@ import { HBtn, BeamDiagram } from './magic';
 import { I, L } from './icons';
 import { Kicker, H2, container, AV } from './shared';
 
-function BentoCard({ icon, name, desc, children, span = 1, minH = 300 }:
-  { icon: React.ReactNode; name: string; desc: string; children?: React.ReactNode; span?: number; minH?: number }) {
+function BentoCard({ icon, name, desc, children, span = 1, minH = 300, soon = false }:
+  { icon: React.ReactNode; name: string; desc: string; children?: React.ReactNode; span?: number; minH?: number; soon?: boolean }) {
   return (
     <Link to="/features" className="bento" style={{
       gridColumn: `span ${span}`, display: 'flex', flexDirection: 'column',
@@ -14,6 +14,7 @@ function BentoCard({ icon, name, desc, children, span = 1, minH = 300 }:
       background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 28,
       boxShadow: '0 20px 50px rgba(45,37,25,0.07)', padding: 28, minHeight: minH, boxSizing: 'border-box',
     }}>
+      {soon && <span style={{ position: 'absolute', top: 16, right: 16, zIndex: 2, background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.06em', padding: '4px 9px', borderRadius: 999 }}>SOON</span>}
       {children}
       <div className="bento-body" style={{ marginTop: 'auto', paddingTop: 18 }}>
         <span style={{ display: 'inline-flex', color: 'var(--gold-600)', marginBottom: 10 }}>{icon}</span>
@@ -52,7 +53,7 @@ export function Features() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="bento-grid">
           <Reveal style={{ gridColumn: 'span 2', display: 'flex' }}>
-            <BentoCard span={1} icon={I.assistant({ size: 24 })} name="Personal AI Assistant" minH={340}
+            <BentoCard span={1} icon={I.assistant({ size: 24 })} name="Personal AI Assistant" minH={340} soon
               desc="A Telegram-integrated agent connected to 900+ apps — calendar, tasks, docs, email, socials — scheduling and automating your ministry's work.">
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: '100%', maxWidth: 520 }}><BeamDiagram /></div></div>
             </BentoCard>

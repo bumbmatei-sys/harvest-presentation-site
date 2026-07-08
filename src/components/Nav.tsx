@@ -17,6 +17,13 @@ import { CATALOG, slugify } from './catalog';
 
 const featureHref = (title: string) => `/features#${slugify(title)}`;
 
+/* Inline SOON pill for mega-menu items — same sky tokens as the /features card
+   badge, sized to sit next to the item title rather than absolutely positioned. */
+const soonPill: React.CSSProperties = {
+  background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 8.5, fontWeight: 700,
+  letterSpacing: '0.06em', padding: '2px 6px', borderRadius: 999, lineHeight: 1.4,
+};
+
 const linkStyle: React.CSSProperties = {
   fontFamily: 'var(--font-sans)', fontSize: 14.5, fontWeight: 500, color: 'var(--navy-800)',
   textDecoration: 'none', transition: 'color 200ms', display: 'inline-flex', alignItems: 'center',
@@ -156,6 +163,7 @@ export function Nav() {
                     >
                       <L name={it.icon} size={15} color={g.tint} />
                       <span>{it.title}</span>
+                      {it.soon && <span style={soonPill}>SOON</span>}
                     </Link>
                   ))}
                 </div>
@@ -202,6 +210,7 @@ export function Nav() {
                         style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 6px', borderRadius: 9, textDecoration: 'none', fontSize: 14, fontWeight: 500, color: 'var(--navy-800)' }}>
                         <L name={it.icon} size={16} color={g.tint} />
                         <span>{it.title}</span>
+                        {it.soon && <span style={soonPill}>SOON</span>}
                       </Link>
                     ))}
                   </div>
