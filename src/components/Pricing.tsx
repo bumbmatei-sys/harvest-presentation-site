@@ -27,7 +27,7 @@ interface Plan {
 const plans: Plan[] = [
   { name: 'Individual', planId: 'plus', monthly: 59, retention: 90, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
   { name: 'Small Team', planId: 'pro', monthly: 119, retention: 95, popular: true, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
-  { name: 'Community', planId: 'max', monthly: 239, retention: 100, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
+  { name: 'Community', planId: 'max', monthly: 299, retention: 100, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
   { name: 'Ministry', planId: 'ultra', monthly: 479, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'Community Groups', 'SMS Automation', 'Accounting + QuickBooks'] },
 ];
 
