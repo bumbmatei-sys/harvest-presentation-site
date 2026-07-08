@@ -14,14 +14,19 @@ const rows: Row[] = [
   { c: 'Notes / Docs', tools: [['Notion', 'notion']], cost: '10–20' },
   { c: 'Church App + Livestream', tools: [['Subsplash', null], ['Pushpay', null]], cost: '300–500' },
   { c: 'Events + Check-in', tools: [['Planning Center', null]], cost: '99–199' },
-  { c: 'Newsletter', tools: [['Mailchimp', 'mailchimp']], cost: '50–100' },
   { c: 'CRM', tools: [['HubSpot', 'hubspot']], cost: '200–800' },
-  { c: 'Accounting', tools: [['QuickBooks', 'quickbooks']], cost: '50–80' },
-  { c: 'SMS', tools: [['Twilio', null]], cost: '50–150' },
   { c: 'Forms', tools: [['Typeform', 'typeform']], cost: '29–59' },
   { c: 'Scheduling', tools: [['Calendly', 'calendly']], cost: '12–20' },
   { c: 'Courses / LMS', tools: [['Teachable', null]], cost: '39–119' },
   { c: 'Online Giving', tools: [['Tithe.ly', null], ['Donorbox', null]], cost: '49–99' },
+];
+
+// Third-party services Harvest connects to (does NOT replace). Add future
+// newsletter/email backends (Wix, etc.) here as they ship.
+const integrations: [string, string | null][] = [
+  ['QuickBooks', 'quickbooks'],
+  ['Twilio', null],
+  ['Mailchimp', 'mailchimp'],
 ];
 
 const logoUrl = (slug: string | null, name: string) =>
@@ -59,8 +64,8 @@ export function Replaces() {
             ))}
             <div className="replaces-row" style={{ background: 'rgba(45,37,25,0.04)', borderTop: '1px solid rgba(45,37,25,0.1)' }}>
               <div className="replaces-cat" style={{ color: 'var(--navy-900)', fontWeight: 700 }}>Total, billed separately</div>
-              <div className="replaces-tools" style={{ color: 'var(--text-muted)', fontSize: 13 }}>13 subscriptions to manage</div>
-              <div className="replaces-cost" style={{ color: 'var(--navy-900)', fontWeight: 700 }}>$1,026–2,344/mo</div>
+              <div className="replaces-tools" style={{ color: 'var(--text-muted)', fontSize: 13 }}>10 subscriptions to manage</div>
+              <div className="replaces-cost" style={{ color: 'var(--navy-900)', fontWeight: 700 }}>$876–2,014/mo</div>
             </div>
             <div className="replaces-row" style={{ background: 'var(--navy-900)' }}>
               <div className="replaces-cat"><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mark h={24} /><span style={{ color: '#fff', fontWeight: 700 }}>Harvest</span></span></div>
@@ -70,6 +75,15 @@ export function Replaces() {
                 <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 10.5, marginTop: 2 }}>billed annually</div>
               </div>
             </div>
+          </div>
+          <div style={{ marginTop: 18, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13.5, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '4px 4px' }}>
+            <span style={{ marginRight: 6 }}>Plus integrates with your newsletter &amp; tools —</span>
+            {integrations.map(([n, s]) => (
+              <span key={n} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, margin: '0 8px', color: 'var(--text-body)' }}>
+                <img src={logoUrl(s, n)} width={16} height={16} alt="" loading="lazy" style={{ objectFit: 'contain', borderRadius: 4 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                {n}
+              </span>
+            ))}
           </div>
         </Reveal>
       </div>
