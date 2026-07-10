@@ -19,7 +19,14 @@ export function getStoredRef(): string {
 export function appSignupUrl(planId?: string): string {
   const ref = getStoredRef();
   const params = new URLSearchParams();
-  if (planId) params.set('signup', planId);
+  // Signup intent decides the app's landing funnel. A specific plan deep-links
+  // that plan's church signup. Otherwise, when the visitor arrived via an
+  // affiliate ref, still route them into the CHURCH signup funnel (which is what
+  // consumes the ref at checkout and pays the commission) instead of the generic
+  // member onboarding that silently drops it. Organic (no-ref) generic CTAs keep
+  // their existing destination.
+  const signup = planId || (ref ? 'church' : '');
+  if (signup) params.set('signup', signup);
   if (ref) params.set('ref', ref);
   const qs = params.toString();
   return `https://theharvest.app/${qs ? `?${qs}` : ''}`;
