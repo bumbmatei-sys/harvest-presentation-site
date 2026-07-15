@@ -1,6 +1,7 @@
 import React from 'react';
 import { Reveal } from './effects';
 import { Kicker, H2, container, softCard, Mark } from './shared';
+import { plans } from './Pricing';
 
 /* What Harvest replaces — same competitor set + monthly costs as the existing
    site. Rendered on a light card, so logos use full-colour Simple Icons (or a
@@ -33,6 +34,12 @@ const logoUrl = (slug: string | null, name: string) =>
   slug
     ? `https://cdn.simpleicons.org/${slug}`
     : `https://www.google.com/s2/favicons?domain=${name.toLowerCase().replace(/[^a-z]/g, '')}.com&sz=64`;
+
+// This row compares against the Community plan (the tier that matches the
+// competitor stack below) at its annual price — derived from the same plan
+// data as Pricing.tsx (monthly × 10 ÷ 12) so the two can't drift apart.
+const communityMonthly = plans.find((p) => p.name === 'Community')!.monthly;
+const communityAnnual = Math.round(communityMonthly * 10 / 12);
 
 export function Replaces() {
   return (
@@ -69,9 +76,9 @@ export function Replaces() {
             </div>
             <div className="replaces-row" style={{ background: 'var(--navy-900)' }}>
               <div className="replaces-cat"><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mark h={24} /><span style={{ color: '#fff', fontWeight: 700 }}>Harvest</span></span></div>
-              <div className="replaces-tools" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>Everything above — in one platform</div>
+              <div className="replaces-tools" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>Everything above — in one platform (Community plan)</div>
               <div className="replaces-cost">
-                <span style={{ color: 'var(--gold-400)', fontWeight: 800, fontSize: 18 }}>$383</span><span style={{ color: 'rgba(201,150,58,0.6)', fontSize: 13 }}>/mo</span>
+                <span style={{ color: 'var(--gold-400)', fontWeight: 800, fontSize: 18 }}>${communityAnnual}</span><span style={{ color: 'rgba(201,150,58,0.6)', fontSize: 13 }}>/mo</span>
                 <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 10.5, marginTop: 2 }}>billed annually</div>
               </div>
             </div>
