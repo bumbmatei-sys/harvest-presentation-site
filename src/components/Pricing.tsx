@@ -24,7 +24,7 @@ interface Plan {
   features: string[];
 }
 
-const plans: Plan[] = [
+export const plans: Plan[] = [
   { name: 'Individual', planId: 'plus', monthly: 59, retention: 90, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
   { name: 'Small Team', planId: 'pro', monthly: 119, retention: 95, popular: true, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
   { name: 'Community', planId: 'max', monthly: 299, retention: 100, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
@@ -125,7 +125,9 @@ function ComparisonTable() {
 export function Pricing() {
   const [annual, setAnnual] = React.useState(true);
   const [showTable, setShowTable] = React.useState(false);
-  const price = (m: number) => (annual ? Math.round(m * 0.8) : m);
+  // Stripe charges monthly × 10 for annual (pay 10 months, get 12) — a 16.7%
+  // discount, not a round 20%. Do not "simplify" this back to m * 0.8.
+  const price = (m: number) => (annual ? Math.round(m * 10 / 12) : m);
   return (
     <section id="pricing" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
       <div style={container}>
@@ -137,7 +139,7 @@ export function Pricing() {
           <div style={{ display: 'inline-flex', background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: 999, padding: 4, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>
             {([['Annual', true], ['Monthly', false]] as [string, boolean][]).map(([l, v]) => (
               <button key={l} onClick={() => setAnnual(v)} style={{ border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 600, padding: '9px 22px', borderRadius: 999, background: annual === v ? 'var(--navy-900)' : 'transparent', color: annual === v ? '#fff' : 'var(--text-body)', transition: 'all 200ms' }}>
-                {l}{v ? <span style={{ color: annual === v ? 'var(--gold-400)' : 'var(--brand)', marginLeft: 6, fontSize: 11 }}>-20%</span> : null}
+                {l}{v ? <span style={{ color: annual === v ? 'var(--gold-400)' : 'var(--brand)', marginLeft: 6, fontSize: 11 }}>-17%</span> : null}
               </button>
             ))}
           </div>
