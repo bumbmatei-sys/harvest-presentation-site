@@ -197,7 +197,7 @@ const VIGNETTES: Record<string, Vignette> = {
   ),
   affiliate: (tint, bg) => (
     <div style={{ ...white, display: 'flex', alignItems: 'center', gap: 10 }}>
-      <L name="link" size={16} color={tint} /><span style={{ flex: 1, fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>theharvest.app/?ref=you</span>{chip(bg, tint, 'earns 20%/mo')}
+      <L name="link" size={16} color={tint} /><span style={{ flex: 1, fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>theharvest.app/?ref=you</span>{chip(bg, tint, 'earns 15%/mo')}
     </div>
   ),
   browser: () => (

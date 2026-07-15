@@ -68,7 +68,7 @@ export const CATALOG: CatalogGroup[] = [
       item('contact', 'CRM (Donors & Members)', 'A full relationship manager for donors and members.', 'contacts'),
       item('calculator', 'Accounting + QuickBooks', 'Accounting tools with QuickBooks sync to keep the books clean.', 'ledger'),
       item('receipt-text', 'Tax Receipts & Statements', 'Automatic tax receipts and annual giving statements.', 'receipt'),
-      item('share-2', 'Lifetime Affiliate', 'Earn 10–20% recurring commission for every ministry you refer.', 'affiliate'),
+      item('share-2', 'Lifetime Affiliate', 'Earn 15% recurring commission for every ministry you refer.', 'affiliate'),
     ],
   },
   {

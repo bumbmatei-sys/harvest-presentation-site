@@ -77,7 +77,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Accounting + QuickBooks Sync', [false, false, false, T]],
     ['Tax Receipts & Giving Statements', [false, false, T, T]],
     ['Donation Retention', ['90%', '95%', '100%', '100%']],
-    ['Lifetime Affiliate', ['10%', '10%', '15%', '20%']],
+    ['Lifetime Affiliate', ['15%', '15%', '15%', '15%']],
   ] },
 ];
 const planNames = ['Individual', 'Small Team', 'Community', 'Ministry'];
