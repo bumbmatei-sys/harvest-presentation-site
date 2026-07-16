@@ -1,5 +1,6 @@
 import React from 'react';
 import { Reveal } from './effects';
+import { HBtn } from './magic';
 import { L } from './icons';
 import { Kicker, H2, container, softCard } from './shared';
 
@@ -34,6 +35,7 @@ export function Affiliate() {
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: 17, fontWeight: 600, color: 'var(--brand)' }}>15% / month</div>
           </div>
           <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginTop: 14 }}>Recurring for as long as they stay subscribed. If they cancel, commission stops.</p>
+          <div style={{ textAlign: 'center', marginTop: 26 }}><HBtn href="https://affiliate.theharvest.app/auth" variant="dark">Become an affiliate</HBtn></div>
         </Reveal>
       </div>
     </section>
