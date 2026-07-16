@@ -7,14 +7,14 @@ import { plans } from './Pricing';
    site. Rendered on a light card, so logos use full-colour Simple Icons (or a
    Google favicon fallback) rather than the dark-bg white variants. */
 
-interface Row { c: string; tools: [string, string | null][]; cost: string; }
+interface Row { c: string; tools: [string, string | null, string?][]; cost: string; }
 
 const rows: Row[] = [
   { c: 'Website / Blog', tools: [['WordPress', 'wordpress'], ['The Church Co', null]], cost: '39–99' },
   { c: 'Community', tools: [['Skool', null]], cost: '99' },
   { c: 'Notes / Docs', tools: [['Notion', 'notion']], cost: '10–20' },
   { c: 'Church App + Livestream', tools: [['Subsplash', null], ['Pushpay', null]], cost: '300–500' },
-  { c: 'Events + Check-in', tools: [['Planning Center', null]], cost: '99–199' },
+  { c: 'Events + Check-in', tools: [['Planning Center Check-Ins', null, 'planningcenter']], cost: '99–199' },
   { c: 'CRM', tools: [['HubSpot', 'hubspot']], cost: '200–800' },
   { c: 'Forms', tools: [['Typeform', 'typeform']], cost: '29–59' },
   { c: 'Scheduling', tools: [['Calendly', 'calendly']], cost: '12–20' },
@@ -30,10 +30,10 @@ const integrations: [string, string | null][] = [
   ['Mailchimp', 'mailchimp'],
 ];
 
-const logoUrl = (slug: string | null, name: string) =>
+const logoUrl = (slug: string | null, name: string, domain?: string) =>
   slug
     ? `https://cdn.simpleicons.org/${slug}`
-    : `https://www.google.com/s2/favicons?domain=${name.toLowerCase().replace(/[^a-z]/g, '')}.com&sz=64`;
+    : `https://www.google.com/s2/favicons?domain=${domain ?? name.toLowerCase().replace(/[^a-z]/g, '')}.com&sz=64`;
 
 // This row compares against the Community plan (the tier that matches the
 // competitor stack below) at its annual price — derived from the same plan
@@ -58,9 +58,9 @@ export function Replaces() {
                 <div className="replaces-cat" style={{ color: 'var(--navy-900)', fontWeight: 600 }}>{r.c}</div>
                 <div className="replaces-tools">
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 18px' }}>
-                    {r.tools.map(([n, s]) => (
+                    {r.tools.map(([n, s, d]) => (
                       <span key={n} style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-                        <img src={logoUrl(s, n)} width={18} height={18} alt="" loading="lazy" style={{ objectFit: 'contain', borderRadius: 4 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                        <img src={logoUrl(s, n, d)} width={18} height={18} alt="" loading="lazy" style={{ objectFit: 'contain', borderRadius: 4 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                         <span style={{ color: 'var(--text-body)' }}>{n}</span>
                       </span>
                     ))}
