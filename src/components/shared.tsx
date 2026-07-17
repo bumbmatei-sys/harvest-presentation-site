@@ -13,7 +13,7 @@ export const AV = (n: number | string) => `/logos/avatar-${n}.jpg`;
 export const container: React.CSSProperties = {
   width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 28px', boxSizing: 'border-box',
 };
-export const SKY = 'linear-gradient(180deg, #bcdaf1 0%, #d3e6f5 34%, #eaf2f8 68%, var(--cream) 100%)';
+export const SKY = 'linear-gradient(180deg, #bcdaf1 0%, #cee3f3 50%, #eef4f5 78%, var(--cream) 100%)';
 export const softCard: React.CSSProperties = {
   background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 28,
   boxShadow: '0 20px 50px rgba(45,37,25,0.07)',
