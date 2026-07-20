@@ -221,6 +221,53 @@ a:hover { color: var(--brand-active); }
 .replaces-row + .replaces-row { border-top: 1px solid rgba(45,37,25,0.06); }
 .replaces-cost { text-align: right; white-space: nowrap; }
 
+/* Savings calculator sliders — native range inputs styled for big, thumb-
+   friendly touch targets (the audience is phone-first). Track is thin; the
+   thumb is a generous 26px gold disc that's easy to drag. */
+.fee-calc input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 26px;               /* tall hit area even though the track is thin */
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+  touch-action: pan-y;        /* let horizontal drags move the thumb, not scroll */
+}
+.fee-calc input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+}
+.fee-calc input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+}
+.fee-calc input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -10px;          /* centre the 26px thumb on the 6px track */
+  border-radius: 50%;
+  background: var(--gold-400);
+  border: 3px solid var(--navy-900);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  transition: transform .15s var(--ease-out);
+}
+.fee-calc input[type="range"]::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--gold-400);
+  border: 3px solid var(--navy-900);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+.fee-calc input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.12); }
+.fee-calc input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid #fff; outline-offset: 2px; }
+.fee-calc input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid #fff; outline-offset: 2px; }
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
