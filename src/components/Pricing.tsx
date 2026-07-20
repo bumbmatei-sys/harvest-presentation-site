@@ -4,6 +4,7 @@ import { Reveal } from './effects';
 import { HBtn } from './magic';
 import { I } from './icons';
 import { Kicker, H2, container, softCard, SKY } from './shared';
+import { FeeCalculator } from './FeeCalculator';
 
 /* Standalone AI Assistant add-on checkout — links straight to the active Stripe
    Payment Link ($200/mo) so checkout is self-contained. Preserved verbatim from
@@ -14,10 +15,15 @@ const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/dRm6oAbK09Gc0HAdWc0Ba00';
 /** Flip to true to relaunch the AI Assistant add-on (price + Stripe CTA). */
 const AI_ASSISTANT_LIVE = false;
 
-interface Plan {
+export interface Plan {
   name: string;
   planId: string; // load-bearing: forwarded to the app via appSignupUrl(planId)
   monthly: number;
+  // Platform fee as a DECIMAL fraction, mirroring the app's PLATFORM_FEE_MAP
+  // (src/lib/stripe-config.ts). Single source of truth for the marketing site:
+  // the pricing cards, the comparison table, and the savings calculator all read
+  // from here so the numbers can never drift. retention = 100 − fee × 100.
+  fee: number;
   retention: number;
   popular?: boolean;
   blurb: string;
@@ -25,10 +31,10 @@ interface Plan {
 }
 
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', monthly: 59, retention: 90, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
-  { name: 'Small Team', planId: 'pro', monthly: 119, retention: 95, popular: true, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
-  { name: 'Community', planId: 'max', monthly: 299, retention: 100, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
-  { name: 'Ministry', planId: 'ultra', monthly: 479, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'Community Groups', 'SMS Automation', 'Accounting + QuickBooks'] },
+  { name: 'Individual', planId: 'plus', monthly: 59, fee: 0.05, retention: 95, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
+  { name: 'Small Team', planId: 'pro', monthly: 119, fee: 0.05, retention: 95, popular: true, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
+  { name: 'Community', planId: 'max', monthly: 299, fee: 0.025, retention: 97.5, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
+  { name: 'Ministry', planId: 'ultra', monthly: 479, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'Community Groups', 'SMS Automation', 'Accounting + QuickBooks'] },
 ];
 
 const T = true;
@@ -76,7 +82,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['CRM (Donors & Members)', [false, false, T, T]],
     ['Accounting + QuickBooks Sync', [false, false, false, T]],
     ['Tax Receipts & Giving Statements', [false, false, T, T]],
-    ['Donation Retention', ['90%', '95%', '100%', '100%']],
+    ['Donation Retention', plans.map((p) => `${p.retention}%`)],
     ['Lifetime Affiliate', ['15%', '15%', '15%', '15%']],
   ] },
 ];
@@ -181,6 +187,8 @@ export function Pricing() {
             );
           })}
         </div>
+        {/* Savings calculator — reads fees from the shared `plans` constant */}
+        <FeeCalculator plans={plans} />
         {/* AI add-on — dedicated Stripe checkout */}
         <Reveal delay={80}>
           <div style={{ marginTop: 20, borderRadius: 24, background: SKY, border: '1px solid rgba(255,255,255,0.7)', padding: 28, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', overflow: 'hidden', position: 'relative' }}>
