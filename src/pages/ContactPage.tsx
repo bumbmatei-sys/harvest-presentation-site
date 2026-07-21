@@ -108,7 +108,7 @@ export function ContactPage() {
   return (
     <main>
       {/* Header band — mirrors the /features header treatment. */}
-      <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 132, overflow: 'hidden' }}>
+      <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 90, overflow: 'hidden' }}>
         <Clouds dense />
         <Particles quantity={40} />
         <div style={{ ...container, position: 'relative', zIndex: 2, textAlign: 'center' }}>
@@ -133,7 +133,7 @@ export function ContactPage() {
 
       {/* Form card — pulled up to straddle the SKY → cream seam. */}
       <section style={{ background: 'var(--cream)', padding: '0 20px var(--section-y-tight)', position: 'relative', zIndex: 2 }}>
-        <Reveal y={24} style={{ maxWidth: 600, margin: '-84px auto 0' }}>
+        <Reveal y={24} style={{ maxWidth: 600, margin: '-20px auto 0' }}>
           <div style={{ ...softCard, padding: 'clamp(26px, 5vw, 44px)' }}>
             {status === 'success' ? (
               <div style={{ textAlign: 'center', padding: '10px 0' }}>

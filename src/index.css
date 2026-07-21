@@ -114,8 +114,8 @@
   --space-12: 48px; --space-16: 64px; --space-20: 80px; --space-24: 96px;
   --space-32: 128px; --space-40: 160px;
 
-  --section-y:       clamp(80px, 12vw, 176px);
-  --section-y-tight: clamp(64px, 8vw, 128px);
+  --section-y:       clamp(56px, 8vw, 112px);
+  --section-y-tight: clamp(44px, 6vw, 84px);
 
   --container:      1140px;
   --container-wide: 1280px;
