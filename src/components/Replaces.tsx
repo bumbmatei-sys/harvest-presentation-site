@@ -17,7 +17,6 @@ const rows: Row[] = [
   { c: 'Events + Check-in', tools: [['Planning Center Check-Ins', null, 'planningcenter']], cost: '99–199' },
   { c: 'CRM', tools: [['HubSpot', 'hubspot']], cost: '200–800' },
   { c: 'Forms', tools: [['Typeform', 'typeform']], cost: '29–59' },
-  { c: 'Scheduling', tools: [['Calendly', 'calendly']], cost: '12–20' },
   { c: 'Courses / LMS', tools: [['Teachable', null]], cost: '39–119' },
   { c: 'Online Giving', tools: [['Tithe.ly', null], ['Donorbox', null]], cost: '49–99' },
 ];
@@ -71,8 +70,8 @@ export function Replaces() {
             ))}
             <div className="replaces-row" style={{ background: 'rgba(45,37,25,0.04)', borderTop: '1px solid rgba(45,37,25,0.1)' }}>
               <div className="replaces-cat" style={{ color: 'var(--navy-900)', fontWeight: 700 }}>Total, billed separately</div>
-              <div className="replaces-tools" style={{ color: 'var(--text-muted)', fontSize: 13 }}>10 subscriptions to manage</div>
-              <div className="replaces-cost" style={{ color: 'var(--navy-900)', fontWeight: 700 }}>$876–2,014/mo</div>
+              <div className="replaces-tools" style={{ color: 'var(--text-muted)', fontSize: 13 }}>9 subscriptions to manage</div>
+              <div className="replaces-cost" style={{ color: 'var(--navy-900)', fontWeight: 700 }}>$864–1,994/mo</div>
             </div>
             <div className="replaces-row" style={{ background: 'var(--navy-900)' }}>
               <div className="replaces-cat"><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mark h={24} /><span style={{ color: '#fff', fontWeight: 700 }}>Harvest</span></span></div>

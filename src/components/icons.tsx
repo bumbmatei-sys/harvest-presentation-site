@@ -98,7 +98,6 @@ export const I = {
   tech: fn('blocks'),
   bible: fn('book-open'),
   ai: fn('brain-circuit'),
-  assistant: fn('bot'),
   feed: fn('rss'),
   blog: fn('pen-line'),
   courses: fn('graduation-cap'),

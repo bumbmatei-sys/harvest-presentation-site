@@ -3,17 +3,8 @@ import { appSignupUrl } from '../lib/ref';
 import { Reveal } from './effects';
 import { HBtn } from './magic';
 import { I } from './icons';
-import { Kicker, H2, container, softCard, SKY } from './shared';
+import { Kicker, H2, container, softCard } from './shared';
 import { FeeCalculator } from './FeeCalculator';
-
-/* Standalone AI Assistant add-on checkout — links straight to the active Stripe
-   Payment Link ($200/mo) so checkout is self-contained. Preserved verbatim from
-   the pre-redesign site; the design pointed this at the app, which would drop the
-   dedicated Stripe flow. */
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/dRm6oAbK09Gc0HAdWc0Ba00';
-
-/** Flip to true to relaunch the AI Assistant add-on (price + Stripe CTA). */
-const AI_ASSISTANT_LIVE = false;
 
 export interface Plan {
   name: string;
@@ -70,7 +61,6 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'AI & Automation', rows: [
     ['AI Chat', [false, T, T, T]],
     ['AI Knowledge Base', [false, T, T, T]],
-    ['Personal AI Assistant (Telegram)', [false, false, false, 'soon']],
     ['Newsletter', [false, T, T, T]],
     ['Automated Newsletter', [false, false, T, T]],
     ['SMS Automation (Twilio)', [false, false, false, T]],
@@ -189,29 +179,6 @@ export function Pricing() {
         </div>
         {/* Savings calculator — reads fees from the shared `plans` constant */}
         <FeeCalculator plans={plans} />
-        {/* AI add-on — dedicated Stripe checkout */}
-        <Reveal delay={80}>
-          <div style={{ marginTop: 20, borderRadius: 24, background: SKY, border: '1px solid rgba(255,255,255,0.7)', padding: 28, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', overflow: 'hidden', position: 'relative' }}>
-            <div style={{ flex: 1, minWidth: 260, position: 'relative', zIndex: 2 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <span style={{ background: 'var(--navy-900)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>ADD-ON</span>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, color: 'var(--navy-900)', margin: 0 }}>AI Assistant</h3>
-              </div>
-              <p style={{ color: 'var(--navy-700)', fontSize: 14.5, lineHeight: 1.55, margin: 0, maxWidth: 520, opacity: 0.85 }}>Connect 900+ apps to schedule, automate and superboost your ministry. <b style={{ color: 'var(--brand)' }}>Included free on Ministry.</b></p>
-            </div>
-            <div style={{ textAlign: 'right', position: 'relative', zIndex: 2 }}>
-              {AI_ASSISTANT_LIVE ? (
-                <>
-                  <div style={{ marginBottom: 12 }}><span style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 500, color: 'var(--navy-900)' }}>$200</span><span style={{ color: 'var(--navy-700)', fontSize: 14 }}>/mo</span></div>
-                  <HBtn href={STRIPE_PAYMENT_LINK} variant="dark">Add the Assistant</HBtn>
-                  <p style={{ marginTop: 8, fontSize: 11, color: 'var(--navy-700)', opacity: 0.7 }}>Secure checkout via Stripe · cancel anytime</p>
-                </>
-              ) : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', padding: '10px 18px', borderRadius: 999 }}>Coming soon</span>
-              )}
-            </div>
-          </div>
-        </Reveal>
         {/* Full comparison */}
         <Reveal delay={80} style={{ textAlign: 'center', marginTop: 44 }}>
           <button onClick={() => setShowTable((s) => !s)} style={{ cursor: 'pointer', border: '1px solid rgba(45,37,25,0.12)', background: '#fff', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: 'var(--navy-900)', padding: '11px 24px', borderRadius: 999, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>

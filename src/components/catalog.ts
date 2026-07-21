@@ -54,7 +54,6 @@ export const CATALOG: CatalogGroup[] = [
     items: [
       item('brain-circuit', 'AI Knowledge Base', "Train AI on your teachings so members get answers rooted in your ministry's theology.", 'chat'),
       item('message-square', 'AI Chat', "A contextual assistant for members — your ministry's voice, not a generic bot.", 'chatinput'),
-      item('bot', 'Personal AI Assistant', 'A Telegram-integrated assistant connected to 900+ apps to schedule and automate work.', 'botmini', true),
       item('mail', 'Automated Newsletter', 'AI-composed newsletters from your recent content, sent automatically.', 'email'),
       item('message-square-text', 'SMS Automation', 'Twilio-powered SMS flows for follow-up, reminders and care.', 'sms'),
       item('clipboard-list', 'Custom Forms → CRM', 'Build forms that feed straight into your CRM pipeline.', 'form'),

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
-import { HBtn, BeamDiagram } from './magic';
+import { HBtn } from './magic';
 import { I, L } from './icons';
 import { Kicker, H2, container, AV } from './shared';
 
@@ -53,12 +53,6 @@ export function Features() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="bento-grid">
           <Reveal style={{ gridColumn: 'span 2', display: 'flex' }}>
-            <BentoCard span={1} icon={I.assistant({ size: 24 })} name="Personal AI Assistant" minH={340} soon
-              desc="A Telegram-integrated agent connected to 900+ apps — calendar, tasks, docs, email, socials — scheduling and automating your ministry's work.">
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: '100%', maxWidth: 520 }}><BeamDiagram /></div></div>
-            </BentoCard>
-          </Reveal>
-          <Reveal delay={90} style={{ display: 'flex' }}>
             <BentoCard icon={I.ai({ size: 24 })} name="AI Knowledge Base" minH={340}
               desc="Trained on your teachings — members get answers in your ministry's voice.">
               <div style={{ flex: 1, paddingTop: 6 }}>{chip('var(--gold-100)', 'var(--gold-600)', I.ai)}<div style={{ marginTop: 16 }}><MiniChat /></div></div>
@@ -93,7 +87,7 @@ export function Features() {
         </div>
         <Reveal delay={120} style={{ textAlign: 'center', marginTop: 40 }}>
           <HBtn to="/features" variant="dark" size="lg">See all features</HBtn>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>30+ tools across community, discipleship, giving and AI</p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>30 tools across community, discipleship, giving and AI</p>
         </Reveal>
       </div>
     </section>

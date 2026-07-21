@@ -180,7 +180,7 @@ export function Nav() {
             ))}
           </div>
           <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>30+ tools in one platform — from $59/mo</span>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>30 tools in one platform — from $59/mo</span>
             <Link to="/features" onClick={() => setMega(false)} style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>See all features →</Link>
           </div>
         </div>
