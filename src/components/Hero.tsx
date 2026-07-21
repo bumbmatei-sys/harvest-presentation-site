@@ -1,5 +1,4 @@
 import React from 'react';
-import { appSignupUrl } from '../lib/ref';
 import { Clouds, Reveal } from './effects';
 import { Particles, AnimatedText, HBtn, TiltIn, SafariFrame } from './magic';
 import { I } from './icons';
@@ -88,8 +87,7 @@ export function Hero() {
         </Reveal>
         <Reveal delay={680} y={18}>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
-            <HBtn href={appSignupUrl()} size="lg" variant="gold">Access Harvest</HBtn>
-            <HBtn href="#pricing" size="lg" variant="light">See pricing</HBtn>
+            <HBtn href="#pricing" size="lg" variant="gold">Start your FREE 7-day trial</HBtn>
           </div>
         </Reveal>
       </div>

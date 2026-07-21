@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { appSignupUrl } from '../lib/ref';
 import { HBtn } from './magic';
 import { L } from './icons';
 import { Mark } from './shared';
@@ -126,7 +125,7 @@ export function Nav() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {/* Hidden on mobile (see .nav-cta in index.css) — the CTA lives in the
               hamburger menu there, so the sticky header shows it only once. */}
-          <span className="nav-cta"><HBtn href={appSignupUrl()} size="sm" variant="dark">Access Harvest</HBtn></span>
+          <span className="nav-cta"><HBtn to="/#pricing" size="sm" variant="dark">Start free trial</HBtn></span>
           <button
             type="button"
             className="nav-hamburger"
@@ -246,7 +245,7 @@ export function Nav() {
           </a>
 
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(45,37,25,0.06)' }}>
-            <HBtn href={appSignupUrl()} variant="gold" block>Access Harvest</HBtn>
+            <HBtn to="/#pricing" variant="gold" block onClick={closeMobile}>Start your FREE 7-day trial</HBtn>
           </div>
         </div>
       )}
