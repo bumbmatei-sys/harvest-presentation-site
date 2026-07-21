@@ -9,7 +9,7 @@ function BentoCard({ icon, name, desc, children, span = 1, minH = 300, soon = fa
   { icon: React.ReactNode; name: string; desc: string; children?: React.ReactNode; span?: number; minH?: number; soon?: boolean }) {
   return (
     <Link to="/features" className="bento" style={{
-      gridColumn: `span ${span}`, display: 'flex', flexDirection: 'column',
+      gridColumn: `span ${span}`, width: '100%', display: 'flex', flexDirection: 'column',
       textDecoration: 'none', position: 'relative', overflow: 'hidden',
       background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 28,
       boxShadow: '0 20px 50px rgba(45,37,25,0.07)', padding: 28, minHeight: minH, boxSizing: 'border-box',
