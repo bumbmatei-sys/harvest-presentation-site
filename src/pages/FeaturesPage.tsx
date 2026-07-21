@@ -129,7 +129,7 @@ export function FeaturesPage() {
           />
           <Reveal delay={420} y={16}>
             <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 580, margin: '20px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
-              30+ tools across community, discipleship, giving and AI — branded, in one place, from $59/mo.
+              30 tools across community, discipleship, giving and AI — branded, in one place, from $59/mo.
             </p>
           </Reveal>
           <Reveal delay={560} y={16}>
@@ -142,7 +142,7 @@ export function FeaturesPage() {
       </section>
 
       {/* First four catalog groups, then the CRM/analytics globe band, then the last group.
-          Every group still renders — all 31 card anchor ids are preserved. */}
+          Every group still renders — all 30 card anchor ids are preserved. */}
       {CATALOG.slice(0, 4).map((group, gi) => (
         <Group key={group.name} group={group} gi={gi} />
       ))}

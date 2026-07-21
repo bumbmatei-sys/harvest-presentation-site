@@ -134,13 +134,6 @@ const VIGNETTES: Record<string, Vignette> = {
       <div style={{ ...white, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}><div style={{ flex: 1 }}>{ln('60%', 'var(--stone-100)')}</div><L name="send" size={14} color={tint} /></div>
     </div>
   ),
-  botmini: () => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '10px 0' }}>
-      <div style={{ height: 2, flex: 1, background: 'linear-gradient(90deg, transparent, var(--gold-300))' }} />
-      <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(145deg, var(--gold-glow), var(--gold-600))', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 26px rgba(229,182,92,0.5)', border: '2px solid rgba(255,255,255,0.9)' }}><L name="bot" size={24} color="#fff" /></div>
-      <div style={{ height: 2, flex: 1, background: 'linear-gradient(90deg, var(--gold-300), transparent)' }} />
-    </div>
-  ),
   email: (tint) => (
     <div style={{ ...white, display: 'flex', alignItems: 'center', gap: 10 }}>
       <L name="mail" size={20} color={tint} /><div style={{ flex: 1 }}><div style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--navy-800)' }}>This week at Harvest</div>{ln('55%', 'var(--stone-200)', 6, 4)}</div>{chip('var(--green-100)', 'var(--green-600)', 'Sent ✓')}
