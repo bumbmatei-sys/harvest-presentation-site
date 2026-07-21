@@ -181,7 +181,7 @@ export function Pricing() {
                       </div>
                     ))}
                   </div>
-                  <HBtn href={appSignupUrl(p.planId)} variant={pop ? 'gold' : 'light'} block>Get started</HBtn>
+                  <HBtn href={appSignupUrl(p.planId)} variant={pop ? 'gold' : 'light'} block>Start free trial</HBtn>
                 </div>
               </Reveal>
             );
