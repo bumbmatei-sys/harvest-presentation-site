@@ -94,24 +94,42 @@ export function FeeCalculator({ plans }: { plans: Plan[] }) {
               aria-label="Plan tier"
               aria-valuetext={`${tier.name}, ${feePct}% platform fee`}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, gap: 4 }}>
-              {plans.map((p, i) => (
-                <button
-                  key={p.planId}
-                  type="button"
-                  onClick={() => setTierIdx(i)}
-                  style={{
-                    flex: 1, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0',
-                    textAlign: i === 0 ? 'left' : i === plans.length - 1 ? 'right' : 'center',
-                    fontFamily: 'var(--font-sans)', fontSize: 10.5, lineHeight: 1.3,
-                    fontWeight: i === tierIdx ? 700 : 500,
-                    color: i === tierIdx ? 'var(--gold-400)' : 'rgba(255,255,255,0.45)',
-                    transition: 'color 200ms',
-                  }}
-                >
-                  {p.name}
-                </button>
-              ))}
+            {/* Tier labels track the range thumb. The 26px thumb's centre travels
+                from 13px to (100% − 13px), so each label is positioned over its stop
+                in that same coordinate system: the two ends are anchored inward by
+                the 13px thumb inset (first left-aligned, last right-aligned so they
+                don't overflow the container edge) and the middle stops are centred.
+                Thumb + label stay aligned at every stop, desktop and mobile. */}
+            <div style={{ position: 'relative', height: 22, marginTop: 8 }}>
+              {plans.map((p, i) => {
+                const last = plans.length - 1;
+                const frac = last > 0 ? i / last : 0; // 0, ⅓, ⅔, 1 for four tiers
+                const isFirst = i === 0;
+                const isLast = i === last;
+                // Thumb centre at this stop: 13px + frac·(100% − 26px), written in
+                // distributed form to avoid nested calc() for broad browser support.
+                const left = `calc(${(13 - frac * 26).toFixed(3)}px + ${(frac * 100).toFixed(3)}%)`;
+                return (
+                  <button
+                    key={p.planId}
+                    type="button"
+                    onClick={() => setTierIdx(i)}
+                    style={{
+                      position: 'absolute', top: 0, left,
+                      transform: isFirst ? 'none' : isLast ? 'translateX(-100%)' : 'translateX(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0',
+                      whiteSpace: 'nowrap',
+                      textAlign: isFirst ? 'left' : isLast ? 'right' : 'center',
+                      fontFamily: 'var(--font-sans)', fontSize: 10.5, lineHeight: 1.3,
+                      fontWeight: i === tierIdx ? 700 : 500,
+                      color: i === tierIdx ? 'var(--gold-400)' : 'rgba(255,255,255,0.45)',
+                      transition: 'color 200ms',
+                    }}
+                  >
+                    {p.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -120,9 +138,6 @@ export function FeeCalculator({ plans }: { plans: Plan[] }) {
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Your church keeps</div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.6rem, 8vw, 3.6rem)', fontWeight: 500, color: '#fff', lineHeight: 1.05, margin: '6px 0' }}>
               {money(kept)}<span style={{ fontSize: '0.4em', color: 'rgba(255,255,255,0.5)' }}>/mo</span>
-            </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
-              Platform fee: {money(feeAmount)}/mo ({feePct}%)
             </div>
             {extraKept > 0 && (
               <div style={{ marginTop: 14, display: 'inline-block', background: 'rgba(201,150,58,0.16)', color: 'var(--gold-400)', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 999 }}>
