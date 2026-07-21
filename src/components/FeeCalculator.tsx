@@ -25,11 +25,11 @@ export function FeeCalculator({ plans }: { plans: Plan[] }) {
   const feeAmount = volume * tier.fee;
   const kept = volume - feeAmount;
 
-  // Upsell delta: moving UP the ladder lowers the fee, so compare against the
-  // tier immediately below (higher fee). Only meaningful when the fee actually
-  // drops (Individual→Small Team is flat at 5%, so no delta there).
-  const prev = tierIdx > 0 ? plans[tierIdx - 1] : null;
-  const extraKept = prev && prev.fee > tier.fee ? volume * (prev.fee - tier.fee) : 0;
+  // Upsell delta: compare against the highest-fee (baseline) tier, so the saving
+  // GROWS as you climb — Community shows the 2.5-pt saving, Ministry shows the full
+  // 5-pt saving. Derived from the data so a future fee change can't desync it.
+  const baselineFee = Math.max(...plans.map(p => p.fee));
+  const extraKept = tier.fee < baselineFee ? volume * (baselineFee - tier.fee) : 0;
 
   const feePct = (tier.fee * 100).toLocaleString('en-US', { maximumFractionDigits: 2 });
 
