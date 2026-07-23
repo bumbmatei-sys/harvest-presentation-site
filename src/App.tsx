@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { ScrollProgress, ProgressiveBlur } from './components/magic';
 import { Nav } from './components/Nav';
 import { Footer } from './components/Footer';
@@ -23,6 +24,7 @@ function Layout() {
 
 const App: React.FC = () => (
   <BrowserRouter>
+    <Analytics />
     <ScrollManager />
     <Routes>
       <Route element={<Layout />}>
