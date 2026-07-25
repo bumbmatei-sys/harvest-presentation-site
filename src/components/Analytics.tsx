@@ -1,5 +1,4 @@
 import React from 'react';
-import { appSignupUrl } from '../lib/ref';
 import { ParallaxLayer, Reveal } from './effects';
 import { HBtn } from './magic';
 import { Kicker, H2, Checklist, container, softCard } from './shared';
@@ -35,7 +34,7 @@ export function Analytics() {
                 Giving, courses and engagement in one place. Track growth, measure discipleship, and keep more of every gift — the more you grow, the less you pay, up to 100% retention.
               </p>
               <Checklist size="md" items={['Donations, fundraising & tax receipts', 'Course progress & engagement analytics', 'CRM for donors and members']} />
-              <div style={{ marginTop: 26 }}><HBtn href={appSignupUrl()} variant="dark">See the dashboard</HBtn></div>
+              <div style={{ marginTop: 26 }}><HBtn to="/features#evangelism-analytics" variant="dark">See the dashboard</HBtn></div>
             </Reveal>
           </div>
           <ParallaxLayer speed={0.06} style={{ order: 2 }}><Reveal delay={100}><AnalyticsCard /></Reveal></ParallaxLayer>

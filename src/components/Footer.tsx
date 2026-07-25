@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { appSignupUrl } from '../lib/ref';
 import { Mark } from './shared';
 
 /* Footer links resolve to real destinations only. Contact points at the real
    /contact route; the design's legal.html#privacy/terms placeholders stay omitted
    (there is no legal.html in this repo) rather than shipping as dead links. The
-   app link (appSignupUrl) is preserved from the pre-redesign footer. Internal
-   targets use react-router <Link> (path-qualified so they scroll from any route);
-   external links (the app) stay plain <a>. */
+   former direct-to-app link now routes to the pricing/trial funnel instead (see
+   #27), like every other marketing CTA — no footer link points off-site anymore.
+   All targets use react-router <Link>, path-qualified (e.g. /#pricing) so they
+   scroll correctly from any route; col() still branches on an http prefix so a
+   future external link can drop in as a plain <a> without touching this file. */
 
 const linkCss: React.CSSProperties = { fontSize: 14, color: 'var(--text-body)', textDecoration: 'none' };
 const onEnter = (e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'var(--brand)');
@@ -41,7 +42,7 @@ export function Footer() {
             <p style={{ color: 'var(--text-body)', fontSize: 14.5, lineHeight: 1.6, maxWidth: 300, margin: '0 0 8px' }}>The digital foundation for ministries. From a moment of decision to a lifetime of devotion.</p>
           </div>
           {col('PAGES', [['Home', '/#hero'], ['Features', '/features'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
-          {col('MINISTRY', [['Believers', '/#believers'], ['Affiliate', '/#affiliate'], ['Access Harvest', appSignupUrl()]])}
+          {col('MINISTRY', [['Believers', '/#believers'], ['Affiliate', '/#affiliate'], ['Start free trial', '/#pricing']])}
         </div>
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Harvest. Built for ministries, by ministries.</span>
