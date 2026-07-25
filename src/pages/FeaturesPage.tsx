@@ -1,5 +1,4 @@
 import React from 'react';
-import { appSignupUrl } from '../lib/ref';
 import { useMeta } from '../lib/meta';
 import { Clouds, Reveal } from '../components/effects';
 import { Particles, AnimatedText, HBtn } from '../components/magic';
@@ -134,7 +133,7 @@ export function FeaturesPage() {
           </Reveal>
           <Reveal delay={560} y={16}>
             <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 30, flexWrap: 'wrap' }}>
-              <HBtn href={appSignupUrl()} size="lg" variant="gold">Access Harvest</HBtn>
+              <HBtn to="/#pricing" size="lg" variant="gold">Start free trial</HBtn>
               <HBtn to="/#pricing" size="lg" variant="light">See pricing</HBtn>
             </div>
           </Reveal>
@@ -157,7 +156,7 @@ export function FeaturesPage() {
           <Reveal delay={140}>
             <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', margin: '16px auto 30px', maxWidth: 460, opacity: 0.85 }}>Every tool above is included — start today.</p>
             <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <HBtn href={appSignupUrl()} size="lg" variant="gold">Access Harvest</HBtn>
+              <HBtn to="/#pricing" size="lg" variant="gold">Start free trial</HBtn>
               <HBtn to="/#pricing" size="lg" variant="light">See pricing</HBtn>
             </div>
           </Reveal>
