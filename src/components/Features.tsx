@@ -126,7 +126,7 @@ export function Features() {
         </div>
         <Reveal delay={120} style={{ textAlign: 'center', marginTop: 40 }}>
           <HBtn to="/features" variant="dark" size="lg">See all features</HBtn>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>30 tools across community, discipleship, giving and AI</p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>29 tools across community, discipleship, giving and AI</p>
         </Reveal>
       </div>
     </section>

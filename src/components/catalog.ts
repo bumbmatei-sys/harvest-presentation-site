@@ -46,7 +46,6 @@ export const CATALOG: CatalogGroup[] = [
       item('pen-line', 'Blog & Publishing', 'Share teaching and devotionals with a built-in rich-text editor.', 'article'),
       item('sparkles', 'Automated SEO Blog', 'AI drafts SEO articles from your knowledge base to grow your reach.', 'aidoc'),
       item('file-text', 'Docs & Notes', 'Keep ministry docs, sermon notes and resources organised and shareable.', 'files'),
-      item('sun', 'Automated Devotional', 'Daily devotionals generated and delivered to your community automatically.', 'sunrise', true),
     ],
   },
   {

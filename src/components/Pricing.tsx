@@ -56,7 +56,6 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Automated SEO Blog Articles', [false, false, T, T]],
     ['Docs & Notes', [false, false, T, T]],
     ['Sermon Notes → Livestream', [false, false, T, T]],
-    ['Automated Devotional', [false, false, 'soon', 'soon']],
   ] },
   { grp: 'AI & Automation', rows: [
     ['AI Chat', [false, T, T, T]],

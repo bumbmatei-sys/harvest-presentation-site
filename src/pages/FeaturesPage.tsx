@@ -128,7 +128,7 @@ export function FeaturesPage() {
           />
           <Reveal delay={420} y={16}>
             <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 580, margin: '20px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
-              30 tools across community, discipleship, giving and AI — branded, in one place, from $59/mo.
+              29 tools across community, discipleship, giving and AI — branded, in one place, from $59/mo.
             </p>
           </Reveal>
           <Reveal delay={560} y={16}>
