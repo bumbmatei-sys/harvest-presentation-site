@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mark } from './shared';
+import { CATEGORIES } from '../content/categories';
 
 /* Footer links resolve to real destinations only. Contact points at the real
    /contact route; the design's legal.html#privacy/terms placeholders stay omitted
@@ -34,7 +35,7 @@ export function Footer() {
   return (
     <footer style={{ background: 'var(--cream)', padding: '0 20px 28px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 32, padding: 'clamp(32px, 5vw, 56px)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: 40 }} className="footer-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr', gap: 40 }} className="footer-grid">
           <div className="footer-brand">
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 16 }}>
               <Mark h={30} /><span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 21, color: 'var(--navy-900)' }}>Harvest<span style={{ color: 'var(--brand)' }}>.</span></span>
@@ -43,6 +44,7 @@ export function Footer() {
           </div>
           {col('PAGES', [['Home', '/#hero'], ['Features', '/features'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
           {col('MINISTRY', [['Believers', '/#believers'], ['Affiliate', '/#affiliate'], ['Start free trial', '/#pricing']])}
+          {col('RESOURCES', [['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
         </div>
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Harvest. Built for ministries, by ministries.</span>

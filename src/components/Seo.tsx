@@ -13,16 +13,20 @@ export interface SeoProps {
   canonical: string;
   /** Absolute URL. Falls back to the site-wide social image. */
   image?: string;
+  /** Optional schema.org payload, emitted as JSON-LD (blog posts use Article). */
+  jsonLd?: Record<string, unknown>;
+  /** `article` for blog posts; anything else stays a plain page. */
+  ogType?: 'website' | 'article';
 }
 
-export function Seo({ title, description, canonical, image = IMAGE_DEFAULT }: SeoProps) {
+export function Seo({ title, description, canonical, image = IMAGE_DEFAULT, jsonLd, ogType = 'website' }: SeoProps) {
   return (
     <Head>
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonical} />
 
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content={ogType} />
       <meta property="og:url" content={canonical} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
@@ -32,6 +36,8 @@ export function Seo({ title, description, canonical, image = IMAGE_DEFAULT }: Se
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+
+      {jsonLd && <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>}
     </Head>
   );
 }
