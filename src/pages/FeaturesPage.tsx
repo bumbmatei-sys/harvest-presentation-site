@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMeta } from '../lib/meta';
+import { Seo } from '../components/Seo';
 import { Clouds, Reveal } from '../components/effects';
 import { Particles, AnimatedText, HBtn } from '../components/magic';
 import { L } from '../components/icons';
@@ -103,13 +103,13 @@ function GlobeSection() {
 }
 
 export function FeaturesPage() {
-  useMeta({
-    title: 'Features — Harvest',
-    description: 'Everything your ministry needs to thrive. From AI-powered knowledge to evangelism analytics.',
-    url: 'https://theharvest.site/features',
-  });
   return (
     <main>
+      <Seo
+        title="Features — Harvest"
+        description="Everything your ministry needs to thrive. From AI-powered knowledge to evangelism analytics."
+        canonical="https://theharvest.site/features"
+      />
       {/* Header band */}
       <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 88, overflow: 'hidden' }}>
         <Clouds dense />

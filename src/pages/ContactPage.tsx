@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMeta } from '../lib/meta';
+import { Seo } from '../components/Seo';
 import { Clouds, Reveal } from '../components/effects';
 import { Particles, AnimatedText, HBtn } from '../components/magic';
 import { Kicker, container, softCard, SKY } from '../components/shared';
@@ -53,12 +53,6 @@ function Banner({ tone, icon, title, children }:
 }
 
 export function ContactPage() {
-  useMeta({
-    title: 'Contact — Harvest',
-    description: 'Questions, feedback, or a partnership idea? Send the Harvest team a message and we’ll get back to you.',
-    url: 'https://theharvest.site/contact',
-  });
-
   const [form, setForm] = React.useState({ name: '', email: '', message: '' });
   const [status, setStatus] = React.useState<Status>('idle');
   const [focused, setFocused] = React.useState<string | null>(null);
@@ -107,6 +101,11 @@ export function ContactPage() {
 
   return (
     <main>
+      <Seo
+        title="Contact — Harvest"
+        description="Questions, feedback, or a partnership idea? Send the Harvest team a message and we’ll get back to you."
+        canonical="https://theharvest.site/contact"
+      />
       {/* Header band — mirrors the /features header treatment. */}
       <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 90, overflow: 'hidden' }}>
         <Clouds dense />

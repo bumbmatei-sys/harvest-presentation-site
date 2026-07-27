@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import type { RouteRecord } from 'vite-react-ssg';
 import { Analytics } from '@vercel/analytics/react';
 import { ScrollProgress, ProgressiveBlur } from './components/magic';
 import { Nav } from './components/Nav';
@@ -10,9 +11,13 @@ import { FeaturesPage } from './pages/FeaturesPage';
 import { ContactPage } from './pages/ContactPage';
 
 // Shared app shell — fixed nav + footer + global scroll/blur chrome wrap every route.
+// Analytics and ScrollManager both render null; they live here so they stay mounted
+// on every route now that the router is supplied by vite-react-ssg.
 function Layout() {
   return (
     <>
+      <Analytics />
+      <ScrollManager />
       <ScrollProgress />
       <Nav />
       <Outlet />
@@ -22,21 +27,16 @@ function Layout() {
   );
 }
 
-const App: React.FC = () => (
-  <BrowserRouter>
-    <Analytics />
-    <ScrollManager />
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Landing />} />
-        {/* Affiliate deep-link path (Vercel rewrites /pricing → index.html); ScrollManager scrolls to #pricing. */}
-        <Route path="/pricing" element={<Landing />} />
-        <Route path="/features" element={<FeaturesPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="*" element={<Landing />} />
-      </Route>
-    </Routes>
-  </BrowserRouter>
-);
-
-export default App;
+export const routes: RouteRecord[] = [
+  {
+    element: <Layout />,
+    children: [
+      { path: '/', element: <Landing /> },
+      // Affiliate deep-link path; ScrollManager scrolls to #pricing.
+      { path: '/pricing', element: <Landing /> },
+      { path: '/features', element: <FeaturesPage /> },
+      { path: '/contact', element: <ContactPage /> },
+      { path: '*', element: <Landing /> },
+    ],
+  },
+];
