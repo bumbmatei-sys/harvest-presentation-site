@@ -1,5 +1,5 @@
 import React from 'react';
-import { appSignupUrl } from '../lib/ref';
+import { useAppSignupUrl } from '../lib/ref';
 import { Reveal } from './effects';
 import { HBtn } from './magic';
 import { I } from './icons';
@@ -117,6 +117,13 @@ function ComparisonTable() {
   );
 }
 
+/* The plan CTA is the affiliate hand-off. Its own component so the signup URL —
+   which depends on sessionStorage and therefore cannot be resolved at build
+   time — can be read through a hook rather than inline in the plan map. */
+function PlanCta({ planId, variant }: { planId: string; variant: 'gold' | 'light' }) {
+  return <HBtn href={useAppSignupUrl(planId)} variant={variant} block>Start free trial</HBtn>;
+}
+
 export function Pricing() {
   const [annual, setAnnual] = React.useState(true);
   const [showTable, setShowTable] = React.useState(false);
@@ -170,7 +177,7 @@ export function Pricing() {
                       </div>
                     ))}
                   </div>
-                  <HBtn href={appSignupUrl(p.planId)} variant={pop ? 'gold' : 'light'} block>Start free trial</HBtn>
+                  <PlanCta planId={p.planId} variant={pop ? 'gold' : 'light'} />
                 </div>
               </Reveal>
             );

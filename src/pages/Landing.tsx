@@ -8,16 +8,18 @@ import { Replaces } from '../components/Replaces';
 import { Pricing } from '../components/Pricing';
 import { Affiliate } from '../components/Affiliate';
 import { FinalCTA } from '../components/FinalCTA';
-import { useMeta } from '../lib/meta';
+import { Seo } from '../components/Seo';
 
 export function Landing() {
-  useMeta({
-    title: 'Harvest — From Conversion to Devotion',
-    description: 'Ministry platform for churches — AI, CRM, SMS, Livestream, Check-In, and more. From $59/mo.',
-    url: 'https://theharvest.site/',
-  });
   return (
     <main>
+      {/* /pricing renders this same page, so it self-canonicals to / rather than
+          competing with the homepage for the same content. */}
+      <Seo
+        title="Harvest — From Conversion to Devotion"
+        description="Ministry platform for churches — AI, CRM, SMS, Livestream, Check-In, and more. From $59/mo."
+        canonical="https://theharvest.site/"
+      />
       <Hero />
       <Sync />
       <Community />

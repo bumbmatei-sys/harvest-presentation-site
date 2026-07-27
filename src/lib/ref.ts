@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 const KEY = 'harvest_ref';
 
 /** Capture ?ref= from the URL on load and persist it for this browsing session. */
@@ -15,9 +17,7 @@ export function getStoredRef(): string {
   try { return sessionStorage.getItem(KEY) || ''; } catch { return ''; }
 }
 
-/** Build the app signup URL, carrying the plan id and ref across the domain hop. */
-export function appSignupUrl(planId?: string): string {
-  const ref = getStoredRef();
+function buildSignupUrl(planId: string | undefined, ref: string): string {
   const params = new URLSearchParams();
   // Signup intent decides the app's landing funnel. A specific plan deep-links
   // that plan's church signup. Otherwise, when the visitor arrived via an
@@ -30,4 +30,24 @@ export function appSignupUrl(planId?: string): string {
   if (ref) params.set('ref', ref);
   const qs = params.toString();
   return `https://theharvest.app/${qs ? `?${qs}` : ''}`;
+}
+
+/** Build the app signup URL, carrying the plan id and ref across the domain hop. */
+export function appSignupUrl(planId?: string): string {
+  return buildSignupUrl(planId, getStoredRef());
+}
+
+/** `appSignupUrl` for use during the render of a prerendered page.
+ *
+ * The build-time HTML can only ever contain the ref-less URL, and React 18 does
+ * not patch mismatched attributes while hydrating — so a component that reads
+ * the ref during its first client render produces markup React silently
+ * discards, leaving the ref-less href in the DOM and dropping the commission.
+ * Holding the ref at '' for the first render keeps hydration in agreement with
+ * the server, and the effect then re-renders the link with the stored ref, which
+ * React does apply. */
+export function useAppSignupUrl(planId?: string): string {
+  const [ref, setRef] = useState('');
+  useEffect(() => { setRef(getStoredRef()); }, []);
+  return buildSignupUrl(planId, ref);
 }
