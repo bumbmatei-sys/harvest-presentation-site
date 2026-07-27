@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { HBtn } from './magic';
 import { L } from './icons';
 import { Mark } from './shared';
@@ -36,6 +36,9 @@ const PAGE_LINKS: [string, string][] = [
 ];
 
 export function Nav() {
+  const { pathname } = useLocation();
+  // The only nav item with an active state — every blog route lives under /blog.
+  const onBlog = pathname === '/blog' || pathname.startsWith('/blog/');
   const [scrolled, setScrolled] = React.useState(false);
   const [mega, setMega] = React.useState(false);
   const [mobile, setMobile] = React.useState(false);
@@ -110,6 +113,14 @@ export function Nav() {
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-800)')}>{label}</Link>
           ))}
+          <Link
+            to="/blog"
+            style={{ ...linkStyle, color: onBlog ? 'var(--brand)' : 'var(--navy-800)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = onBlog ? 'var(--brand)' : 'var(--navy-800)')}
+          >
+            Resources
+          </Link>
           <a
             href="https://trello.com/b/1Uz9u1Lb/harvest-roadmap"
             target="_blank"
@@ -234,6 +245,13 @@ export function Nav() {
             <Link key={label} to={href} onClick={closeMobile}
               style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
           ))}
+          <Link
+            to="/blog"
+            onClick={closeMobile}
+            style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: onBlog ? 'var(--brand)' : 'var(--navy-900)' }}
+          >
+            Resources
+          </Link>
           <a
             href="https://trello.com/b/1Uz9u1Lb/harvest-roadmap"
             target="_blank"

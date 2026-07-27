@@ -3,3 +3,6 @@ dist
 .vercel
 tsconfig.tsbuildinfo
 .vite-react-ssg-temp
+
+# Generated at build time by build/blog-plugin.ts
+public/sitemap.xml
