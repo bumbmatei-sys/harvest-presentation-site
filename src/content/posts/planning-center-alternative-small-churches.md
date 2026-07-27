@@ -1,7 +1,7 @@
 ---
 title: Planning Center Alternative for Small Churches
 category: harvest-vs
-status: draft
+status: published
 publish_date: 2026-07-27
 updated: 2026-07-27
 description: An honest look at Harvest, Planning Center and Tithely as a Planning Center alternative for small churches — real prices, real fees, and when to stay put.
