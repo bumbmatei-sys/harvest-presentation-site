@@ -24,6 +24,9 @@ export interface Feature {
   moment: string;
   admin: string[];
   member: string[];
+  /** Qualifier under the plan chips, when a feature is on every plan but part
+   *  of it is gated (e.g. the app installs everywhere, your branding does not). */
+  tiersNote?: string;
   adminLabel?: string;
   memberLabel?: string;
   crosslinks?: Crosslink[];
@@ -371,6 +374,7 @@ export const CATEGORIES: Category[] = [
       {
         id: 'pwa', name: 'Mobile App', n: '2',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1, 1],
+        tiersNote: 'Your own name, icon and colour on Community & Ministry only — on Individual & Small Team the app installs with Harvest branding.',
         eyebrow: 'It\'s your app, right down to the icon',
         title: 'Your name and icon, on the home screen.',
         oneliner: 'Members install your app to their home screen on every plan. On Community & Ministry it carries your name, icon and colour; on Individual & Small Team it installs with Harvest branding.',

@@ -32,7 +32,7 @@ function CapList({ label, items, accent }: { label: string; items: string[]; acc
   );
 }
 
-function PlanChips({ tiers }: { tiers: number[] }) {
+function PlanChips({ tiers, note, accent }: { tiers: number[]; note?: string; accent: string }) {
   return (
     <div style={{ marginTop: 26 }}>
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 10 }}>Available on</div>
@@ -56,6 +56,14 @@ function PlanChips({ tiers }: { tiers: number[] }) {
           );
         })}
       </div>
+      {/* All four chips lit can overstate a feature whose branding or limits are
+          tier-gated — the qualifier says which part is. */}
+      {note && (
+        <p style={{ display: 'flex', gap: 8, alignItems: 'flex-start', margin: '12px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-body)', maxWidth: '46ch' }}>
+          <span aria-hidden="true" style={{ color: accent, fontWeight: 700, flexShrink: 0 }}>*</span>
+          {note}
+        </p>
+      )}
     </div>
   );
 }
@@ -88,7 +96,7 @@ export function FeatureBlock({ feature }: { feature: Feature }) {
                 <p style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontStyle: 'italic', fontSize: 'clamp(1.3rem, 2vw, 1.65rem)', lineHeight: 1.32, letterSpacing: '-0.01em', color: 'var(--navy-900)', margin: 0 }}>{feature.moment}</p>
               </div>
 
-              <PlanChips tiers={feature.tiers} />
+              <PlanChips tiers={feature.tiers} note={feature.tiersNote} accent={accent} />
             </div>
 
             {/* ---- Vignette ---- */}
