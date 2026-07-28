@@ -35,10 +35,11 @@ const linkStyle: React.CSSProperties = {
   gap: 5, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
 };
 
+// Landing sections the nav links to. Pillars and Believers are reachable by
+// scrolling the landing (and Believers from the footer), so they are out of the
+// header on both desktop and mobile.
 const PAGE_LINKS: [string, string][] = [
-  ['Pillars', '/#pillars'],
   ['Pricing', '/#pricing'],
-  ['Believers', '/#believers'],
 ];
 
 export function Nav() {
@@ -258,8 +259,7 @@ export function Nav() {
             </div>
           )}
 
-          {/* Page links — Pillars is intentionally omitted from the mobile menu. */}
-          {PAGE_LINKS.filter(([label]) => label !== 'Pillars').map(([label, href]) => (
+          {PAGE_LINKS.map(([label, href]) => (
             <Link key={label} to={href} onClick={closeMobile}
               style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
           ))}
