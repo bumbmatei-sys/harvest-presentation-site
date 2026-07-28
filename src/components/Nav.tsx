@@ -4,6 +4,7 @@ import { HBtn } from './magic';
 import { L } from './icons';
 import { Mark } from './shared';
 import { CATALOG, slugify } from './catalog';
+import { CATEGORIES, CATEGORY_BY_NAME, categoryHref, featureHref as featurePath } from '../content/features';
 
 /* Fixed glass nav with a Features mega-menu.
    Deliberately click-to-toggle (not hover) + keyboard accessible, with a mobile
@@ -12,9 +13,14 @@ import { CATALOG, slugify } from './catalog';
 
    Internal targets use react-router <Link> so they work from any route; section
    links are path-qualified (/#pricing) so they scroll on the landing even when
-   clicked from /features. Mega-menu items deep-link to the /features route. */
+   clicked from a feature page. Each mega-menu item deep-links to its section on
+   the category page it belongs to, and each column header opens that page. */
 
-const featureHref = (title: string) => `/features#${slugify(title)}`;
+const featureHref = (title: string) => featurePath(slugify(title));
+// Menu group names match the category names in content/features.ts. The fallback
+// only matters if one is renamed on one side — a wrong link beats a nav that
+// throws on every route.
+const groupHref = (name: string) => categoryHref((CATEGORY_BY_NAME[name] || CATEGORIES[0]).slug);
 
 /* Inline SOON pill for mega-menu items — same sky tokens as the /features card
    badge, sized to sit next to the item title rather than absolutely positioned. */
@@ -169,7 +175,15 @@ export function Nav() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 24 }}>
             {CATALOG.map((g) => (
               <div key={g.name}>
-                <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, marginBottom: 12 }}>{g.name}</div>
+                <Link
+                  to={groupHref(g.name)}
+                  onClick={() => setMega(false)}
+                  style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, marginBottom: 12, textDecoration: 'none' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                >
+                  {g.name}
+                </Link>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {g.items.map((it) => (
                     <Link
@@ -190,9 +204,8 @@ export function Nav() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>29 tools in one platform — from $59/mo</span>
-            <Link to="/features" onClick={() => setMega(false)} style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>See all features →</Link>
           </div>
         </div>
       )}
@@ -223,7 +236,13 @@ export function Nav() {
             <div style={{ padding: '4px 8px 12px' }}>
               {CATALOG.map((g) => (
                 <div key={g.name} style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, margin: '6px 0 8px' }}>{g.name}</div>
+                  <Link
+                    to={groupHref(g.name)}
+                    onClick={closeMobile}
+                    style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, margin: '6px 0 8px', textDecoration: 'none' }}
+                  >
+                    {g.name}
+                  </Link>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {g.items.map((it) => (
                       <Link key={it.title} to={featureHref(it.title)} onClick={closeMobile}
@@ -236,7 +255,6 @@ export function Nav() {
                   </div>
                 </div>
               ))}
-              <Link to="/features" onClick={closeMobile} style={{ display: 'inline-block', padding: '6px 8px', fontSize: 14, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>See all features →</Link>
             </div>
           )}
 
