@@ -7,8 +7,10 @@ import { Nav } from './components/Nav';
 import { Footer } from './components/Footer';
 import { ScrollManager } from './components/ScrollManager';
 import { Landing } from './pages/Landing';
-import { FeaturesPage } from './pages/FeaturesPage';
+import { CategoryPage } from './pages/CategoryPage';
+import { FeaturesRedirect } from './pages/FeaturesRedirect';
 import { ContactPage } from './pages/ContactPage';
+import { CATEGORIES, categoryHref } from './content/features';
 import { BlogIndex } from './pages/BlogIndex';
 import { BlogCategory } from './pages/BlogCategory';
 import { BlogPost } from './pages/BlogPost';
@@ -37,7 +39,13 @@ export const routes: RouteRecord[] = [
       { path: '/', element: <Landing /> },
       // Affiliate deep-link path; ScrollManager scrolls to #pricing.
       { path: '/pricing', element: <Landing /> },
-      { path: '/features', element: <FeaturesPage /> },
+      // One page per feature category. /features itself is now only a forwarder
+      // for the retired single page and its anchors (see FeaturesRedirect).
+      { path: '/features', element: <FeaturesRedirect /> },
+      ...CATEGORIES.map((c) => ({
+        path: categoryHref(c.slug),
+        element: <CategoryPage slug={c.slug} />,
+      })),
       { path: '/contact', element: <ContactPage /> },
       { path: '/blog', element: <BlogIndex /> },
       // Ahead of /blog/:slug for readability — react-router already ranks the

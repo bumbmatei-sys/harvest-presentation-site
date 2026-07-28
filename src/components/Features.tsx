@@ -1,14 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
-import { HBtn } from './magic';
 import { I, L } from './icons';
 import { Kicker, H2, container, AV } from './shared';
 
-function BentoCard({ icon, name, desc, children, span = 1, minH = 300, soon = false }:
-  { icon: React.ReactNode; name: string; desc: string; children?: React.ReactNode; span?: number; minH?: number; soon?: boolean }) {
+function BentoCard({ icon, name, desc, to, children, span = 1, minH = 300, soon = false }:
+  { icon: React.ReactNode; name: string; desc: string; to: string; children?: React.ReactNode; span?: number; minH?: number; soon?: boolean }) {
   return (
-    <Link to="/features" className="bento" style={{
+    <Link to={to} className="bento" style={{
       gridColumn: `span ${span}`, width: '100%', display: 'flex', flexDirection: 'column',
       textDecoration: 'none', position: 'relative', overflow: 'hidden',
       background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 28,
@@ -79,13 +78,13 @@ export function Features() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }} className="bento-grid">
           <Reveal style={{ display: 'flex' }}>
-            <BentoCard icon={I.ai({ size: 24 })} name="AI Knowledge Base" minH={320}
+            <BentoCard icon={I.ai({ size: 24 })} name="AI Knowledge Base" to="/features/ai-automation#knowledge" minH={320}
               desc="Trained on your teachings — members get answers in your ministry's voice.">
               <div style={{ flex: 1, paddingTop: 6 }}>{chip('var(--gold-100)', 'var(--gold-600)', I.ai)}<div style={{ marginTop: 16 }}><MiniChat /></div></div>
             </BentoCard>
           </Reveal>
           <Reveal style={{ display: 'flex' }}>
-            <BentoCard icon={I.feed({ size: 24 })} name="Community in realtime" minH={320}
+            <BentoCard icon={I.feed({ size: 24 })} name="Community in realtime" to="/features/community-engagement#feed" minH={320}
               desc="Feeds, prayer, events and groups — a private space that belongs to you.">
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <MiniFeed />
@@ -97,7 +96,7 @@ export function Features() {
             </BentoCard>
           </Reveal>
           <Reveal delay={80} style={{ display: 'flex' }}>
-            <BentoCard icon={I.bible({ size: 24 })} name="Bible & Courses" minH={320}
+            <BentoCard icon={I.bible({ size: 24 })} name="Bible & Courses" to="/features/discipleship-content#bible" minH={320}
               desc="Reading plans and structured discipleship paths with progress tracking.">
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <VerseCard />
@@ -109,7 +108,7 @@ export function Features() {
             </BentoCard>
           </Reveal>
           <Reveal delay={160} style={{ display: 'flex' }}>
-            <BentoCard icon={I.giving({ size: 24 })} name="Giving & Analytics" minH={320}
+            <BentoCard icon={I.giving({ size: 24 })} name="Giving & Analytics" to="/features/giving-finance#donation" minH={320}
               desc="Branded giving, fundraising, receipts — and up to 100% retention.">
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -125,8 +124,7 @@ export function Features() {
           </Reveal>
         </div>
         <Reveal delay={120} style={{ textAlign: 'center', marginTop: 40 }}>
-          <HBtn to="/features" variant="dark" size="lg">See all features</HBtn>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>29 tools across community, discipleship, giving and AI</p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>29 tools across community, discipleship, giving and AI</p>
         </Reveal>
       </div>
     </section>

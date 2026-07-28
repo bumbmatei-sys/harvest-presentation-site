@@ -42,7 +42,7 @@ export function Footer() {
             </div>
             <p style={{ color: 'var(--text-body)', fontSize: 14.5, lineHeight: 1.6, maxWidth: 300, margin: '0 0 8px' }}>The digital foundation for ministries. From a moment of decision to a lifetime of devotion.</p>
           </div>
-          {col('PAGES', [['Home', '/#hero'], ['Features', '/features'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
+          {col('PAGES', [['Home', '/#hero'], ['Features', '/features/community-engagement'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
           {col('MINISTRY', [['Believers', '/#believers'], ['Affiliate', '/#affiliate'], ['Start free trial', '/#pricing']])}
           {col('RESOURCES', [['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
         </div>

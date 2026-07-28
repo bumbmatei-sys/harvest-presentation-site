@@ -3,6 +3,7 @@ import path from 'node:path';
 import { imageSize } from 'image-size';
 import type { Plugin } from 'vite';
 import { CATEGORIES } from '../src/content/categories';
+import { CATEGORIES as FEATURE_CATEGORIES, categoryHref } from '../src/content/features';
 import { byNewest, SITE_ORIGIN, type ImageSizes, type Post } from '../src/content/post-core';
 import { parsePost } from './parse-post';
 
@@ -34,8 +35,10 @@ const IMAGE_EXT = new Set(['.webp', '.png', '.jpg', '.jpeg', '.avif', '.gif']);
 const SIZE_WARN_BYTES = 400 * 1024;
 
 /** Static routes that belong in the sitemap. `/pricing` is deliberately absent —
- *  it renders the homepage and canonicals to `/`, so listing it would compete. */
-const STATIC_ROUTES = ['/', '/features', '/contact'];
+ *  it renders the homepage and canonicals to `/`, so listing it would compete.
+ *  `/features` is absent for the same reason: it only forwards to the category
+ *  pages below and is marked noindex. */
+const STATIC_ROUTES = ['/', ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)), '/contact'];
 
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -92,6 +95,7 @@ export function blogRoutes(): string[] {
     '/',
     '/pricing',
     '/features',
+    ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
     '/contact',
     '/blog',
     ...CATEGORIES.map((c) => `/blog/category/${c.key}`),

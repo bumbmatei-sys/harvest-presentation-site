@@ -305,14 +305,26 @@ a:hover { color: var(--brand-active); }
 .blog-img-frame img { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; object-fit: cover; border: none; border-radius: 0; }
 .blog-figure .blog-img-frame { margin: 0; }
 
+/* Feature category pages — the jump-to index above the cards. The column count
+   is set inline from the number of features in the category; these rules only
+   take over once that many columns stop fitting. */
+.feat-index-card { transition: border-color 250ms var(--ease-out), transform 250ms var(--ease-out); }
+.feat-index-card:hover { border-color: var(--brand) !important; transform: translateY(-3px); }
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
+@media (max-width: 1080px) {
+  .feat-index { grid-template-columns: repeat(4, 1fr) !important; }
+}
 @media (max-width: 900px) {
   .nav-links { display: none !important; }
   .nav-hamburger { display: inline-flex !important; }
   .nav-cta { display: none !important; }
-  .split-grid, .pricing-grid, .feat-three, .bento-grid { grid-template-columns: 1fr !important; }
+  .split-grid, .pricing-grid, .feat-three, .bento-grid, .fb-grid { grid-template-columns: 1fr !important; }
+  /* Story first, then the vignette, on every feature card. */
+  .fb-caps { grid-template-columns: 1fr !important; gap: 26px !important; }
+  .feat-index { grid-template-columns: repeat(3, 1fr) !important; }
   .split-grid > *[style*="order: 2"] { order: 0 !important; }
   .bento-grid > * { grid-column: span 1 !important; }
   .dash-sidebar { display: none !important; }
@@ -326,6 +338,7 @@ a:hover { color: var(--brand-active); }
 /* Replaces table stacks to cards: category + price on the first line, the tool
    logos wrap onto a second full-width line. */
 @media (max-width: 560px) {
+  .feat-index { grid-template-columns: repeat(2, 1fr) !important; }
   .blog-row { gap: 14px !important; }
   .blog-thumb { width: 96px; }
   .blog-body { font-size: 17px; }

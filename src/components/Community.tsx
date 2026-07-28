@@ -45,7 +45,7 @@ export function Community() {
                 Feeds, events, prayer requests and groups in a private space that belongs to your ministry — not a Facebook group, not a forum.
               </p>
               <Checklist size="md" items={['Private community feed & prayer wall', 'Groups, events & livestream', 'Real connection that belongs to you']} />
-              <div style={{ marginTop: 26 }}><HBtn to="/features#community-feed" variant="dark">Explore community</HBtn></div>
+              <div style={{ marginTop: 26 }}><HBtn to="/features/community-engagement#feed" variant="dark">Explore community</HBtn></div>
             </Reveal>
           </div>
         </div>
