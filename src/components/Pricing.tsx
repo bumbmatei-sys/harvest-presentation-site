@@ -23,10 +23,17 @@ export interface Plan {
 
 export const plans: Plan[] = [
   { name: 'Individual', planId: 'plus', monthly: 59, fee: 0.05, retention: 95, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
-  { name: 'Small Team', planId: 'pro', monthly: 119, fee: 0.05, retention: 95, popular: true, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
-  { name: 'Community', planId: 'max', monthly: 299, fee: 0.025, retention: 97.5, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
-  { name: 'Ministry', planId: 'ultra', monthly: 479, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'Community Groups', 'SMS Automation', 'Accounting + QuickBooks'] },
+  { name: 'Small Team', planId: 'pro', monthly: 119, fee: 0.05, retention: 95, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
+  { name: 'Community', planId: 'max', monthly: 299, fee: 0.025, retention: 97.5, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Community Groups', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
+  { name: 'Ministry', planId: 'ultra', monthly: 479, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'SMS Automation', 'Accounting + QuickBooks'] },
 ];
+
+// Index of the featured plan. The pricing cards read `p.popular` directly, but
+// the comparison table used to hard-code column 1 for its gold header and tinted
+// column — so moving `popular` between plans silently left the table featuring
+// the old one. Derive both from the same flag. -1 (no popular plan) simply means
+// no column is highlighted, since no index matches.
+const popularIdx = plans.findIndex((p) => p.popular);
 
 const T = true;
 type Cell = boolean | string;
@@ -43,7 +50,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['News Feed', [T, T, T, T]],
     ['Community Feed', [T, T, T, T]],
     ['Prayer Requests', [T, T, T, T]],
-    ['Community Groups', [false, false, false, T]],
+    ['Community Groups', [false, false, T, T]],
     ['Event Registration', [false, false, T, T]],
     ['Church Map', [false, T, T, T]],
     ['Check-In System (QR)', [false, false, T, T]],
@@ -75,7 +82,9 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Lifetime Affiliate', ['15%', '15%', '15%', '15%']],
   ] },
 ];
-const planNames = ['Individual', 'Small Team', 'Community', 'Ministry'];
+// Derived, so a rename or reorder in `plans` can't desync the table header from
+// the cards — the matrix rows above are positional and assume this exact order.
+const planNames = plans.map((p) => p.name);
 
 function ComparisonTable() {
   const cell = (v: Cell) => {
@@ -92,7 +101,7 @@ function ComparisonTable() {
             <tr style={{ background: 'var(--navy-900)' }}>
               <th style={{ textAlign: 'left', padding: '16px 22px', color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Feature</th>
               {planNames.map((n, i) => (
-                <th key={n} style={{ textAlign: 'center', padding: '16px 12px', color: i === 1 ? 'var(--gold-400)' : '#fff', fontFamily: 'var(--font-serif)', fontSize: 15, fontWeight: 500, minWidth: 92 }}>{n}</th>
+                <th key={n} style={{ textAlign: 'center', padding: '16px 12px', color: i === popularIdx ? 'var(--gold-400)' : '#fff', fontFamily: 'var(--font-serif)', fontSize: 15, fontWeight: 500, minWidth: 92 }}>{n}</th>
               ))}
             </tr>
           </thead>
@@ -105,7 +114,7 @@ function ComparisonTable() {
                 {sec.rows.map(([label, vals], ri) => (
                   <tr key={label} style={{ borderTop: '1px solid rgba(45,37,25,0.06)', background: ri % 2 ? 'rgba(45,37,25,0.015)' : 'transparent' }}>
                     <td style={{ padding: '13px 22px', color: 'var(--text-body)', fontSize: 13.5 }}>{label}</td>
-                    {vals.map((v, ci) => <td key={ci} style={{ textAlign: 'center', padding: '13px 12px', background: ci === 1 ? 'rgba(201,150,58,0.05)' : 'transparent' }}>{cell(v)}</td>)}
+                    {vals.map((v, ci) => <td key={ci} style={{ textAlign: 'center', padding: '13px 12px', background: ci === popularIdx ? 'rgba(201,150,58,0.05)' : 'transparent' }}>{cell(v)}</td>)}
                   </tr>
                 ))}
               </React.Fragment>
