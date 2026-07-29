@@ -5,7 +5,7 @@ status: published
 publish_date: 2026-07-27
 updated: 2026-07-29
 description: Most churches searching for a Planning Center alternative are not paying for one tool. They are paying for nine. Here is what that actually costs, and what one platform replaces.
-reading_time: 6 min
+reading_time: 7 min
 ---
 
 Most churches that start looking for a Planning Center alternative are not annoyed about one invoice. They are annoyed about five.
@@ -33,7 +33,9 @@ These are the categories a church of any size ends up buying, with the tools mos
 
 Harvest's Community plan is **$249/month billed annually**, and every row above is in it.
 
-That is the entire argument. Not that any single piece is cheaper than the best-in-class tool for that one job — Teachable is a better courses platform than anyone's bundled LMS, and it should be, it is all they do. The argument is that nine invoices, nine logins, nine support queues and nine incompatible ideas of who your people are is a real cost that never appears on any pricing page, and one subscription removes it.
+Nine subscriptions is what the bill looks like. What you are actually replacing is larger than that: the [features page](/features) counts twenty-nine, across community and engagement, discipleship and content, AI and automation, giving and finance, and platform and brand. Community feed, groups, prayer wall, church map, event registration, QR check-in, livestream with live giving, the full Bible, courses, blog, docs, an AI knowledge base trained on your own material, AI chat, automated newsletter, SMS automation, custom forms feeding the CRM, donation pages, fundraising, donor and member CRM, QuickBooks accounting, tax receipts and statements, web app, mobile app, admin dashboard, custom branding and domain, unlimited churches, evangelism analytics.
+
+That is the entire argument, and it is not about any single line item. It is that nine invoices, nine logins, nine support queues and nine incompatible ideas of who your people are is a real cost that appears on no pricing page anywhere — and one subscription removes all of it.
 
 ## One member record is the part that matters
 
@@ -45,13 +47,23 @@ On one platform: the gift appears against that person in the CRM, their receipt 
 
 No integration gives you that. Integrations sync fields between databases that were designed separately, which is why they break, and why the person who set them up is the only one who understands them.
 
+## Your church's name on it, not ours
+
+When a member installs your church's app, they should see your church.
+
+On the Community and Ministry plans, Harvest is white-labelled: your ministry name, logo, square icon and brand colour — with the colour applied before first paint, so there is no flash of somebody else's branding on the way in. It goes further than most platforms take it. The install manifest is generated per church, so when a member taps Add to Home Screen, the icon sitting on their phone is yours, not a generic screenshot. The same branding carries onto receipts, course certificates and forms.
+
+Every church gets `your-church.theharvest.app` from the first day. On Ministry you point your own domain at it, with guided DNS and live status while it propagates.
+
+It is worth asking any platform you evaluate: when a member installs the app, whose name is on the icon — and what does it cost to make it yours?
+
 ## Where each platform actually fits
 
 **Planning Center** is a genuinely good ChMS with real free tiers on individual products — People and Church Center are free, and Check-Ins and Giving are free at low volume, as published on [planningcenter.com/pricing](https://www.planningcenter.com/pricing) (read 2026-07-27). If what your church needs is people, services and Sunday check-in, and you have no ambitions beyond organising a Sunday morning, it does that job well. Its Services product covers volunteer scheduling in more depth than Harvest does — that is a real gap and worth naming.
 
 **Tithe.ly** bundles giving, church management and Sites at $119/month for All Access, at a 2.9% + $0.30 card rate ([source](https://get.tithe.ly/pricing), read 2026-07-27). If giving is your first problem and a website is your second, it is a coherent answer to those two things.
 
-**Harvest** is for the church that has outgrown assembling. You want a website, a private community, courses, a livestream, check-in, a CRM, forms, giving and an AI knowledge base trained on your own material — behind one member record, on one bill, from one place. That is not a cheaper ChMS. It is a different category of thing, and no per-product platform gets there by adding products.
+**Harvest** is for the church that has outgrown assembling. You want a website, a private community, courses, a livestream, check-in, a CRM, forms, giving and an AI knowledge base trained on your own material — behind one member record, under your own branding, on one bill, from one place. That is not a cheaper ChMS. It is a different category of thing, and no per-product platform gets there by adding products.
 
 ## On giving costs
 
@@ -65,6 +77,6 @@ Harvest is new, and that is not a footnote — it is why the platform works the 
 
 Every established church platform on this list grew by acquisition and integration. Products were bought, bolted on, and made to talk to each other afterwards. That history is visible the moment you use them: separate logins, separate member records, separate design languages, features that almost line up.
 
-Harvest was built as one system from the first line of code, which is the only way you get one member record behind thirty-odd features rather than nine databases in a trenchcoat. It also means when something is wrong you are not filing a ticket into a queue — you are talking to the person who wrote it, and it gets fixed that week rather than being triaged into a roadmap.
+Harvest was built as one system from the first line of code, which is the only way you get twenty-nine features behind a single member record rather than nine databases in a trenchcoat. It also means when something is wrong you are not filing a ticket into a queue — you are talking to the person who wrote it, and it gets fixed that week rather than being triaged into a roadmap.
 
 The [pricing section](/#pricing) has the plan comparison, and every plan starts with a 7-day trial that does not ask for a card.
