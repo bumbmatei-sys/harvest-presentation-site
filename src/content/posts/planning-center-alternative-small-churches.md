@@ -3,80 +3,68 @@ title: Planning Center Alternative for Small Churches
 category: harvest-vs
 status: published
 publish_date: 2026-07-27
-updated: 2026-07-29
-description: Most churches searching for a Planning Center alternative are not paying for one tool. They are paying for nine. Here is what that actually costs, and what one platform replaces.
-reading_time: 7 min
+updated: 2026-07-27
+description: Looking for a Planning Center alternative for small churches? Here is what your full church software stack really costs, and what one platform costs instead.
+reading_time: 6 min
 ---
 
-Most churches that start looking for a Planning Center alternative are not annoyed about one invoice. They are annoyed about five.
+No church runs on one tool.
 
-There is the ChMS. Then someone built the website on Squarespace. The youth group moved to a private Facebook group, then to Skool. The discipleship course lives in Teachable. Giving runs through Tithe.ly. Livestream is its own thing. Nobody planned this — it accumulated, one reasonable decision at a time, and now a volunteer treasurer reconciles five subscriptions and no two systems agree on who is actually a member.
+It runs on a website, a member database, online giving, kids' check-in, a community space, courses, a newsletter and tax receipts at the end of the year. That is the real list. And the reason most churches end up searching for a Planning Center alternative is not that Planning Center is bad at what it does — it is that it covers part of that list, and the rest arrives as three more subscriptions, three more logins, and three more member lists that quietly stop matching each other.
 
-That is the problem worth solving, and it is not a problem you solve by finding a cheaper ChMS.
+This post is about what the whole list actually costs, assembled versus bundled. Every price below was read from the vendor's own pricing page on July 27, 2026.
 
-## What the assembled stack costs
+## What Planning Center covers
 
-These are the categories a church of any size ends up buying, with the tools most churches land on and their published rates:
+Credit where it is due: Planning Center is a serious church management system with real free tiers, and it is not a trial. Read from [planningcenter.com/pricing](https://www.planningcenter.com/pricing): People is free with an unlimited member database and reporting. Church Center, the member app, is free. Registrations is free for 5 attendees, Groups free for 15 members, Calendar free unless you need room bookings. [Check-Ins](https://www.planningcenter.com/check-ins) is free to 10 daily check-ins, then $15/month for 30. [Giving](https://www.planningcenter.com/giving) is free to 10 donations a month, then $15/month for 75 and $32 for 200, processing at 2.15% + $0.30 on cards.
 
-| What you need | What churches buy | Monthly |
-| --- | --- | --- |
-| Website / blog | WordPress, The Church Co | $39–99 |
-| Community space | Skool | $99 |
-| Notes / docs | Notion | $10–20 |
-| Church app + livestream | Subsplash, Pushpay | $300–500 |
-| Events + check-in | Planning Center Check-Ins | $99–199 |
-| CRM | HubSpot | $200–800 |
-| Forms | Typeform | $29–59 |
-| Courses / LMS | Teachable | $39–119 |
-| Online giving | Tithe.ly, Donorbox | $49–99 |
-| **Total** | **9 separate subscriptions** | **$864–1,994** |
+A small church doing Sunday check-in and taking forty online gifts a month lands around $30/month. That is a good price for a member database, giving and check-in.
 
-Harvest's Community plan is **$249/month billed annually**, and every row above is in it.
+It is also the end of the list. Planning Center's pricing page sells church management. It does not sell a course platform, a private community space, or a website — those are not products they offer, and a church that wants them buys them somewhere else.
 
-Nine subscriptions is what the bill looks like. What you are actually replacing is larger than that: the [features page](/features) counts twenty-nine, across community and engagement, discipleship and content, AI and automation, giving and finance, and platform and brand. Community feed, groups, prayer wall, church map, event registration, QR check-in, livestream with live giving, the full Bible, courses, blog, docs, an AI knowledge base trained on your own material, AI chat, automated newsletter, SMS automation, custom forms feeding the CRM, donation pages, fundraising, donor and member CRM, QuickBooks accounting, tax receipts and statements, web app, mobile app, admin dashboard, custom branding and domain, unlimited churches, evangelism analytics.
+## So here is what a church actually ends up paying
 
-That is the entire argument, and it is not about any single line item. It is that nine invoices, nine logins, nine support queues and nine incompatible ideas of who your people are is a real cost that appears on no pricing page anywhere — and one subscription removes all of it.
+Say that same church wants what most growing churches want within a year or two: the ChMS, plus a private community space instead of a Facebook group, plus somewhere to run a discipleship course.
 
-## One member record is the part that matters
+| What a church needs | Harvest | Planning Center | What you'd add |
+| --- | --- | --- | --- |
+| Member database | Included, all plans | Free, unlimited | — |
+| Online giving | Included, all plans | $15/mo at 75 gifts | — |
+| Kids' check-in (QR) | Community plan, $299/mo | $15/mo at 30 daily | — |
+| Private community space | Included from $119/mo | Not a product they offer | Skool Pro, **$99/mo** |
+| Courses / LMS | 5 courses from $119/mo, unlimited from $299 | Not a product they offer | Teachable Builder, **$89/mo** |
+| Church website + blog | Included, all plans | Not a product they offer | A website builder, ~$29–49/mo |
+| Newsletter | From $119/mo | Not on their pricing page | An email tool |
+| Tax receipts & statements | Community plan, $299/mo | Included with Giving | — |
 
-Consolidating the bill is the visible benefit. The one that changes how a church actually runs is that all of it sits on one member record.
+Sources: [Skool](https://www.skool.com/pricing), [Teachable](https://teachable.com/pricing), read July 27, 2026.
 
-Someone gives online for the first time. On the assembled stack, that fact lives in your giving platform, and it stays there. Nobody on the discipleship side knows. There is no follow-up unless a human notices and does it by hand.
+Add it up. Planning Center at roughly $30, [Skool](https://www.skool.com/pricing) Pro at $99, [Teachable](https://teachable.com/pricing) Builder at $89 — **$218 a month, across three vendors, and you still do not have a website.**
 
-On one platform: the gift appears against that person in the CRM, their receipt is generated, they can be enrolled in a course, added to a group, and included in a newsletter segment of first-time givers — without anyone exporting a CSV. The prayer request they submitted last month is on the same record. So is the event they checked into.
+Harvest's Community plan is $249/month billed annually, and it covers every row in that table. Including the website. Including tax receipts, event registration, livestream, the CRM and unlimited courses.
 
-No integration gives you that. Integrations sync fields between databases that were designed separately, which is why they break, and why the person who set them up is the only one who understands them.
+If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $99/month billed annually and carries both, plus giving, the blog, the church map, the newsletter and the mobile app.
 
-## Your church's name on it, not ours
+## The cheap tiers are not the escape hatch
 
-When a member installs your church's app, they should see your church.
+It is tempting to look at Skool's $9 Hobby plan or Teachable's $39 Starter and conclude the stack is affordable after all. Read the fee line. Skool Hobby carries a **10% transaction fee**. Teachable Starter carries **7.5%**. For a church running a $2,000 course cohort, that is $200 and $150 gone respectively — on top of card processing — which is more than the price difference you were trying to save.
 
-On the Community and Ministry plans, Harvest is white-labelled: your ministry name, logo, square icon and brand colour — with the colour applied before first paint, so there is no flash of somebody else's branding on the way in. It goes further than most platforms take it. The install manifest is generated per church, so when a member taps Add to Home Screen, the icon sitting on their phone is yours, not a generic screenshot. The same branding carries onto receipts, course certificates and forms.
+## The part that does not show up on any invoice
 
-Every church gets `your-church.theharvest.app` from the first day. On Ministry you point your own domain at it, with guided DNS and live status while it propagates.
+Three subscriptions is three bills, but the real cost is that it is also three member databases.
 
-It is worth asking any platform you evaluate: when a member installs the app, whose name is on the icon — and what does it cost to make it yours?
+Someone joins the church. You add them to Planning Center. Do they get added to Skool? Only if a volunteer remembers. Do they get added to Teachable when they start the course? Only if someone does it manually. Six months later the giving history lives in one system, the small-group membership in another and the course progress in a third, and no one can answer "who in our community group has never given?" without exporting three CSVs.
 
-## Where each platform actually fits
+One platform means one member record. Their giving, their check-in history, their group, their course progress and their prayer requests are attributes of the same person, because there is only one person to be an attribute of. That is not a feature. It is the thing features hang off.
 
-**Planning Center** is a genuinely good ChMS with real free tiers on individual products — People and Church Center are free, and Check-Ins and Giving are free at low volume, as published on [planningcenter.com/pricing](https://www.planningcenter.com/pricing) (read 2026-07-27). If what your church needs is people, services and Sunday check-in, and you have no ambitions beyond organising a Sunday morning, it does that job well. Its Services product covers volunteer scheduling in more depth than Harvest does — that is a real gap and worth naming.
+## One honest note
 
-**Tithe.ly** bundles giving, church management and Sites at $119/month for All Access, at a 2.9% + $0.30 card rate ([source](https://get.tithe.ly/pricing), read 2026-07-27). If giving is your first problem and a website is your second, it is a coherent answer to those two things.
+Planning Center Services does volunteer scheduling and service planning, and Harvest has no product in that category — if rostering the Sunday team is the specific problem you are solving this month, Services does it well. It is also, on the list above, one row. The other seven still have to come from somewhere, and Services does not bring them.
 
-**Harvest** is for the church that has outgrown assembling. You want a website, a private community, courses, a livestream, check-in, a CRM, forms, giving and an AI knowledge base trained on your own material — behind one member record, under your own branding, on one bill, from one place. That is not a cheaper ChMS. It is a different category of thing, and no per-product platform gets there by adding products.
+## What we would actually say
 
-## On giving costs
+If you want the cheapest possible member database and nothing else, Planning Center's free tier is hard to argue with, and we will not pretend otherwise.
 
-Harvest's platform fee falls as you grow: 5% on the entry plans, **2.5% on Community, and 0% on Ministry** — where the church keeps the entire gift and Harvest takes nothing.
+But almost no church stops there. The website comes, then the community space, then the courses, then the newsletter — and each one arrives as a separate decision, a separate invoice and a separate list of people. Harvest is the bet that you would rather make that decision once.
 
-That figure is a platform fee, not a processing rate. Giving runs on Stripe, and card processing sits underneath it, exactly as it does for every platform on this page. Anyone quoting you a single all-in number is folding the two together, so compare carefully: ask any vendor, this one included, for the effective total on a $100 card gift. The [fee calculator](/#pricing) on the pricing section runs the real numbers for your own giving volume.
-
-## Being new
-
-Harvest is new, and that is not a footnote — it is why the platform works the way it does.
-
-Every established church platform on this list grew by acquisition and integration. Products were bought, bolted on, and made to talk to each other afterwards. That history is visible the moment you use them: separate logins, separate member records, separate design languages, features that almost line up.
-
-Harvest was built as one system from the first line of code, which is the only way you get twenty-nine features behind a single member record rather than nine databases in a trenchcoat. It also means when something is wrong you are not filing a ticket into a queue — you are talking to the person who wrote it, and it gets fixed that week rather than being triaged into a roadmap.
-
-The [pricing section](/#pricing) has the plan comparison, and every plan starts with a 7-day trial that does not ask for a card.
+One subscription. One member record. One login. See what sits in each plan on the [pricing page](/#pricing), or browse the [full feature list](/features).
