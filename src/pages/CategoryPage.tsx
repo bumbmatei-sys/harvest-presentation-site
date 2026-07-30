@@ -97,68 +97,6 @@ function FeatureIndex({ cat }: { cat: Category }) {
   );
 }
 
-// ---------- Giving & Finance: what a percentage platform costs ----------
-const fmt = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
-const MINISTRY_YEAR = 479 * 12;
-
-function KeepCalculator() {
-  const [giving, setGiving] = React.useState(200000);
-  const save5 = giving * 0.05;
-  const netVs5 = save5 - MINISTRY_YEAR;
-  const netLabel = netVs5 >= 0
-    ? `After your ${fmt(MINISTRY_YEAR)}/yr Ministry plan, you're still ${fmt(netVs5)} ahead of a 5% platform.`
-    : `That saving offsets most of your ${fmt(MINISTRY_YEAR)}/yr Ministry plan.`;
-
-  const row = (label: string, value: string) => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '14px 16px' }}>
-      <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.78)' }}>{label}</span>
-      <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: '#E8A0A0' }}>{value}</span>
-    </div>
-  );
-
-  return (
-    <section id="calculator" style={{ background: 'var(--cream)', padding: 'clamp(24px, 3vw, 40px) 20px 4px', scrollMarginTop: 104 }}>
-      <div className="fee-calc" style={{ maxWidth: 1140, margin: '0 auto', position: 'relative', background: 'var(--navy-900)', borderRadius: 24, padding: 'clamp(28px, 4vw, 48px)', overflow: 'hidden' }}>
-        <div style={grainOverlay} />
-        <div className="split-grid" style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px, 4vw, 52px)', alignItems: 'center' }}>
-          <div>
-            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--gold-400)' }}>What you keep</span>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(1.7rem, 2.8vw, 2.3rem)', lineHeight: 1.1, letterSpacing: '-0.02em', color: '#fff', margin: '12px 0 0' }}>Every other platform takes a cut. Forever.</h2>
-            <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'rgba(255,255,255,0.62)', margin: '14px 0 26px' }}>Drag to your church&rsquo;s annual online giving and see what a percentage platform quietly costs you.</p>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
-              <label htmlFor="keep-giving" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>Annual online giving</label>
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: 28, color: 'var(--gold-400)' }}>{fmt(giving)}</span>
-            </div>
-            <input
-              id="keep-giving"
-              type="range"
-              min={0}
-              max={1000000}
-              step={10000}
-              value={giving}
-              onChange={(e) => setGiving(Number(e.target.value))}
-              aria-label="Annual online giving"
-              aria-valuetext={`${fmt(giving)} per year`}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>
-              <span>$0</span><span>$1M</span>
-            </div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {row('A 2.5% platform keeps', fmt(giving * 0.025))}
-            {row('A 5% platform keeps', fmt(save5))}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--gold-500)', borderRadius: 12, padding: 16 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy-900)' }}>Harvest on Ministry keeps</span>
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--navy-900)' }}>$0</span>
-            </div>
-            <p style={{ fontSize: 12, lineHeight: 1.5, color: 'rgba(255,255,255,0.5)', margin: '4px 0 0' }}>{netLabel} Community keeps 97.5%. Standard Stripe processing fees apply on any platform — those are Stripe&rsquo;s, not ours.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ---------- Navy bands ----------
 function PositioningBand({ kicker, kickerColor, heading, body }:
   { kicker: string; kickerColor: string; heading: string; body: string }) {
@@ -247,7 +185,6 @@ export function CategoryPage({ slug }: { slug: string }) {
       />
       <Hero cat={cat} />
       <FeatureIndex cat={cat} />
-      {cat.slug === 'giving-finance' && <KeepCalculator />}
       <div style={{ background: 'var(--cream)', padding: 'clamp(28px, 4vw, 48px) 0 clamp(20px, 3vw, 36px)', display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 30px)' }}>
         {cat.features.map((f) => <FeatureBlock key={f.id} feature={f} />)}
       </div>

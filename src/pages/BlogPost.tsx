@@ -78,7 +78,7 @@ function CtaBand() {
         Run your whole ministry in one place
       </p>
       <p style={{ fontSize: 15, color: 'var(--text-body)', margin: '12px auto 22px', maxWidth: 420, lineHeight: 1.6 }}>
-        Every tool your church needs — branded, in one place, from $59/mo.
+        Every tool your church needs — branded, in one place, from $49/mo.
       </p>
       <HBtn to="/#pricing" variant="gold">Start free trial</HBtn>
     </aside>

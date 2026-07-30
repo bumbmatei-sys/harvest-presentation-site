@@ -4,7 +4,6 @@ import { Reveal } from './effects';
 import { HBtn } from './magic';
 import { I } from './icons';
 import { Kicker, H2, container, softCard } from './shared';
-import { FeeCalculator } from './FeeCalculator';
 
 export interface Plan {
   name: string;
@@ -12,8 +11,8 @@ export interface Plan {
   monthly: number;
   // Platform fee as a DECIMAL fraction, mirroring the app's PLATFORM_FEE_MAP
   // (src/lib/stripe-config.ts). Single source of truth for the marketing site:
-  // the pricing cards, the comparison table, and the savings calculator all read
-  // from here so the numbers can never drift. retention = 100 − fee × 100.
+  // both the pricing cards and the comparison table read from here so the
+  // numbers can never drift. retention = 100 − fee × 100.
   fee: number;
   retention: number;
   popular?: boolean;
@@ -22,10 +21,10 @@ export interface Plan {
 }
 
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', monthly: 59, fee: 0.05, retention: 95, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
-  { name: 'Small Team', planId: 'pro', monthly: 119, fee: 0.05, retention: 95, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'Newsletter', 'Church Map', 'Community Feed'] },
-  { name: 'Community', planId: 'max', monthly: 299, fee: 0.025, retention: 97.5, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'CRM (Donors & Members)', 'Community Groups', 'Livestream + Check-in', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
-  { name: 'Ministry', planId: 'ultra', monthly: 479, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'SMS Automation', 'Accounting + QuickBooks'] },
+  { name: 'Individual', planId: 'plus', monthly: 49, fee: 0.015, retention: 98.5, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
+  { name: 'Small Team', planId: 'pro', monthly: 99, fee: 0.015, retention: 98.5, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Docs & Sermon Notes', 'Newsletter', 'Church Map', 'Community Feed'] },
+  { name: 'Community', planId: 'max', monthly: 199, fee: 0.01, retention: 99, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'Custom Branding', 'Community Groups', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
+  { name: 'Ministry', planId: 'ultra', monthly: 349, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'SMS Automation', 'Accounting + QuickBooks'] },
 ];
 
 // Index of the featured plan. The pricing cards read `p.popular` directly, but
@@ -53,16 +52,16 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Community Groups', [false, false, T, T]],
     ['Event Registration', [false, false, T, T]],
     ['Church Map', [false, T, T, T]],
-    ['Check-In System (QR)', [false, false, T, T]],
-    ['Livestream + Live Giving', [false, false, T, T]],
+    ['Check-In System (QR)', [false, T, T, T]],
+    ['Livestream + Live Giving', [false, T, T, T]],
   ] },
   { grp: 'Discipleship & Content', rows: [
     ['Bible', [T, T, T, T]],
     ['Courses', ['2', '5', '∞', '∞']],
     ['Blog', [T, T, T, T]],
     ['Automated SEO Blog Articles', [false, false, T, T]],
-    ['Docs & Notes', [false, false, T, T]],
-    ['Sermon Notes → Livestream', [false, false, T, T]],
+    ['Docs & Notes', [false, T, T, T]],
+    ['Sermon Notes → Livestream', [false, T, T, T]],
   ] },
   { grp: 'AI & Automation', rows: [
     ['AI Chat', [false, T, T, T]],
@@ -75,11 +74,11 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Giving & Finance', rows: [
     ['Donation Page', [T, T, T, T]],
     ['Fundraising', [T, T, T, T]],
-    ['CRM (Donors & Members)', [false, false, T, T]],
+    ['CRM (Donors & Members)', [false, T, T, T]],
     ['Accounting + QuickBooks Sync', [false, false, false, T]],
     ['Tax Receipts & Giving Statements', [false, false, T, T]],
     ['Donation Retention', plans.map((p) => `${p.retention}%`)],
-    ['Lifetime Affiliate', ['15%', '15%', '15%', '15%']],
+    ['Affiliate Commission (first 12 months)', ['15%', '15%', '15%', '15%']],
   ] },
 ];
 // Derived, so a rename or reorder in `plans` can't desync the table header from
@@ -167,7 +166,7 @@ export function Pricing() {
                   borderRadius: 24, padding: 24, boxShadow: pop ? '0 30px 60px rgba(12,21,38,0.28)' : '0 12px 30px rgba(45,37,25,0.05)',
                   position: 'relative',
                 }}>
-                  {pop && <span style={{ position: 'absolute', top: 18, right: 18, background: 'var(--brand)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>POPULAR</span>}
+                  {pop && <span style={{ position: 'absolute', top: 18, right: 18, background: 'var(--brand)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>RECOMMENDED</span>}
                   <div style={{ fontSize: 13, fontWeight: 600, color: pop ? 'var(--gold-400)' : 'var(--brand)' }}>{p.name}</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '12px 0 4px' }}>
                     <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>${price(p.monthly)}</span>
@@ -192,8 +191,6 @@ export function Pricing() {
             );
           })}
         </div>
-        {/* Savings calculator — reads fees from the shared `plans` constant */}
-        <FeeCalculator plans={plans} />
         {/* Full comparison */}
         <Reveal delay={80} style={{ textAlign: 'center', marginTop: 44 }}>
           <button onClick={() => setShowTable((s) => !s)} style={{ cursor: 'pointer', border: '1px solid rgba(45,37,25,0.12)', background: '#fff', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: 'var(--navy-900)', padding: '11px 24px', borderRadius: 999, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>

@@ -3,7 +3,7 @@ title: Planning Center Alternative for Small Churches
 category: harvest-vs
 status: published
 publish_date: 2026-07-27
-updated: 2026-07-27
+updated: 2026-07-30
 description: Looking for a Planning Center alternative for small churches? Here is what your full church software stack really costs, and what one platform costs instead.
 reading_time: 6 min
 ---
@@ -30,20 +30,20 @@ Say that same church wants what most growing churches want within a year or two:
 | --- | --- | --- | --- |
 | Member database | Included, all plans | Free, unlimited | — |
 | Online giving | Included, all plans | $15/mo at 75 gifts | — |
-| Kids' check-in (QR) | Community plan, $299/mo | $15/mo at 30 daily | — |
-| Private community space | Included from $119/mo | Not a product they offer | Skool Pro, **$99/mo** |
-| Courses / LMS | 5 courses from $119/mo, unlimited from $299 | Not a product they offer | Teachable Builder, **$89/mo** |
+| Kids' check-in (QR) | Small Team plan, $99/mo | $15/mo at 30 daily | — |
+| Private community space | Included from $99/mo | Not a product they offer | Skool Pro, **$99/mo** |
+| Courses / LMS | 5 courses from $99/mo, unlimited from $199 | Not a product they offer | Teachable Builder, **$89/mo** |
 | Church website + blog | Included, all plans | Not a product they offer | A website builder, ~$29–49/mo |
-| Newsletter | From $119/mo | Not on their pricing page | An email tool |
-| Tax receipts & statements | Community plan, $299/mo | Included with Giving | — |
+| Newsletter | From $99/mo | Not on their pricing page | An email tool |
+| Tax receipts & statements | Community plan, $199/mo | Included with Giving | — |
 
 Sources: [Skool](https://www.skool.com/pricing), [Teachable](https://teachable.com/pricing), read July 27, 2026.
 
 Add it up. Planning Center at roughly $30, [Skool](https://www.skool.com/pricing) Pro at $99, [Teachable](https://teachable.com/pricing) Builder at $89 — **$218 a month, across three vendors, and you still do not have a website.**
 
-Harvest's Community plan is $249/month billed annually, and it covers every row in that table. Including the website. Including tax receipts, event registration, livestream, the CRM and unlimited courses.
+Harvest's Community plan is $166/month billed annually, and it covers every row in that table. Including the website. Including tax receipts, event registration, the community groups and unlimited courses.
 
-If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $99/month billed annually and carries both, plus giving, the blog, the church map, the newsletter and the mobile app.
+If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $83/month billed annually and carries both, plus giving, kids' check-in, the CRM, livestream, the blog, the church map, the newsletter and the mobile app.
 
 ## The cheap tiers are not the escape hatch
 
