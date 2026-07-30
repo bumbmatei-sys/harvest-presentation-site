@@ -413,7 +413,7 @@ export const CATEGORIES: Category[] = [
         eyebrow: '$10 a campus — the whole pricing page',
         title: 'Every campus on one platform.',
         oneliner: 'Add unlimited locations on Ministry, each with its own address, service times and pastor — billed at a flat $10/month per campus, confirmed before you’re ever charged.',
-        moment: 'A planting network with 12 campuses knows their bill is $349 + $110 before they talk to anyone. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
+        moment: 'A planting network with 12 campuses knows their bill is $299 + $110 before they talk to anyone. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
         admin: ['Add locations with Google address autocomplete', 'Flat $10/mo each, added to your existing subscription', 'An explicit confirm dialog names the price first', 'Filter the roster by city, pastor or country'],
         member: ['Every campus on the member map, sorted by distance', 'Its own service times, pastor & contact', 'One-tap directions to the nearest one', 'One tenant, one member list & CRM across campuses'],
         adminLabel: 'For admins', memberLabel: 'For members',
