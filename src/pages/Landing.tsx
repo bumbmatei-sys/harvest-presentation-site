@@ -17,7 +17,7 @@ export function Landing() {
           competing with the homepage for the same content. */}
       <Seo
         title="Harvest — From Conversion to Devotion"
-        description="Ministry platform for churches — AI, CRM, SMS, Livestream, Check-In, and more. From $59/mo."
+        description="Ministry platform for churches — AI, CRM, SMS, Livestream, Check-In, and more. From $49/mo."
         canonical="https://theharvest.site/"
       />
       <Hero />

@@ -7,7 +7,7 @@ import { Kicker, H2, container, softCard } from './shared';
 const steps = [
   { icon: 'share-2', title: 'Share your link', desc: 'Get a unique referral link when you join. Share it with ministries in your network.' },
   { icon: 'user-check', title: 'They subscribe', desc: 'When someone signs up through your link, the connection is tracked automatically.' },
-  { icon: 'trending-up', title: 'You earn monthly', desc: 'Earn 15% recurring commission for as long as they stay — ongoing income.' },
+  { icon: 'trending-up', title: 'You earn monthly', desc: 'Earn 15% recurring commission on every invoice for their first 12 months.' },
 ];
 
 export function Affiliate() {
@@ -32,9 +32,9 @@ export function Affiliate() {
         <Reveal delay={120} style={{ maxWidth: 460, margin: '32px auto 0' }}>
           <div style={{ ...softCard, padding: '24px', textAlign: 'center' }}>
             <div style={{ fontSize: 14.5, color: 'var(--navy-900)', fontWeight: 500, marginBottom: 6 }}>Flat rate, every plan</div>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 17, fontWeight: 600, color: 'var(--brand)' }}>15% / month</div>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 17, fontWeight: 600, color: 'var(--brand)' }}>15% / month, for 12 months</div>
           </div>
-          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginTop: 14 }}>Recurring for as long as they stay subscribed. If they cancel, commission stops.</p>
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginTop: 14 }}>Recurring on every invoice for 12 months from signup. If they cancel sooner, commission stops.</p>
           <div style={{ textAlign: 'center', marginTop: 26 }}><HBtn href="https://affiliate.theharvest.app/auth" variant="dark">Become an affiliate</HBtn></div>
         </Reveal>
       </div>
