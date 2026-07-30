@@ -24,7 +24,7 @@ export const plans: Plan[] = [
   { name: 'Individual', planId: 'plus', monthly: 49, fee: 0.015, retention: 98.5, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
   { name: 'Small Team', planId: 'pro', monthly: 99, fee: 0.015, retention: 98.5, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Docs & Sermon Notes', 'Newsletter', 'Church Map', 'Community Feed'] },
   { name: 'Community', planId: 'max', monthly: 199, fee: 0.01, retention: 99, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'Custom Branding', 'Community Groups', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
-  { name: 'Ministry', planId: 'ultra', monthly: 349, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'SMS Automation', 'Accounting + QuickBooks'] },
+  { name: 'Ministry', planId: 'ultra', monthly: 299, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'SMS Automation', 'Accounting + QuickBooks'] },
 ];
 
 // Index of the featured plan. The pricing cards read `p.popular` directly, but
