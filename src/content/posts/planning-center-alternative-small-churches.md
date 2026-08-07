@@ -3,7 +3,7 @@ title: Planning Center Alternative for Small Churches
 category: harvest-vs
 status: published
 publish_date: 2026-07-27
-updated: 2026-07-30
+updated: 2026-08-07
 description: Looking for a Planning Center alternative for small churches? Here is what your full church software stack really costs, and what one platform costs instead.
 reading_time: 6 min
 ---
@@ -29,25 +29,29 @@ Say that same church wants what most growing churches want within a year or two:
 | What a church needs | Harvest | Planning Center | What you'd add |
 | --- | --- | --- | --- |
 | Member database | Included, all plans | Free, unlimited | — |
-| Online giving | Included, all plans | $15/mo at 75 gifts | — |
+| Online giving | Included, all plans — 0% platform fee | $15/mo at 75 gifts | — |
 | Kids' check-in (QR) | Small Team plan, $99/mo | $15/mo at 30 daily | — |
-| Private community space | Included from $99/mo | Not a product they offer | Skool Pro, **$99/mo** |
-| Courses / LMS | 5 courses from $99/mo, unlimited from $199 | Not a product they offer | Teachable Builder, **$89/mo** |
+| Private community space | Community feed all plans; private groups on Ministry, $199/mo | Not a product they offer | Skool Pro, **$99/mo** |
+| Courses / LMS | 5 courses from $99/mo, 15 from $199 | Not a product they offer | Teachable Builder, **$89/mo** |
 | Church website + blog | Included, all plans | Not a product they offer | A website builder, ~$29–49/mo |
 | Newsletter | From $99/mo | Not on their pricing page | An email tool |
-| Tax receipts & statements | Community plan, $199/mo | Included with Giving | — |
+| Tax receipts & statements | Ministry plan, $199/mo | Included with Giving | — |
 
 Sources: [Skool](https://www.skool.com/pricing), [Teachable](https://teachable.com/pricing), read July 27, 2026.
 
 Add it up. Planning Center at roughly $30, [Skool](https://www.skool.com/pricing) Pro at $99, [Teachable](https://teachable.com/pricing) Builder at $89 — **$218 a month, across three vendors, and you still do not have a website.**
 
-Harvest's Community plan is $166/month billed annually, and it covers every row in that table. Including the website. Including tax receipts, event registration, the community groups and unlimited courses.
+Harvest's Ministry plan is $165.83/month billed annually — $1,990 a year — and it covers every row in that table. Including the website. Including tax receipts, event registration, the community groups and fifteen courses.
 
-If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $83/month billed annually and carries both, plus giving, kids' check-in, the CRM, livestream, the blog, the church map, the newsletter and the mobile app.
+If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $82.50/month billed annually and carries both — the community feed and five courses — plus giving, kids' check-in, the CRM, livestream, the blog, the church map, the newsletter and the mobile app.
 
 ## The cheap tiers are not the escape hatch
 
 It is tempting to look at Skool's $9 Hobby plan or Teachable's $39 Starter and conclude the stack is affordable after all. Read the fee line. Skool Hobby carries a **10% transaction fee**. Teachable Starter carries **7.5%**. For a church running a $2,000 course cohort, that is $200 and $150 gone respectively — on top of card processing — which is more than the price difference you were trying to save.
+
+That is the line worth reading on every platform you are compared against, including ours. Harvest's is **0%, on every plan** — not 0% on the expensive one and a percentage on the cheap one. Gifts are destination charges straight into your church's own Stripe account; Harvest never takes a cut of a gift and never holds the money. The only percentage in the transaction is your card processor's, and that would be true wherever you took the gift.
+
+The subscription is the whole price, and it is the same price whether your people give $20,000 a year or $200,000. That is the part worth checking on any platform you are weighing, because a percentage is a charge that grows every time your church does, and a flat plan is not.
 
 ## The part that does not show up on any invoice
 
