@@ -4,7 +4,9 @@ import { useLocation } from 'react-router-dom';
 /* Single scroll mechanism for the whole app, driven by the router location:
    - #hash present            → scroll that section into view (mega-menu deep links,
                                  cross-route section links like /#pricing)
-   - /pricing (affiliate path) → scroll to the pricing section (preserved behavior)
+   - /pricing (affiliate path) → scroll to the pricing section (preserved behavior;
+                                 affiliate links in the wild point here, so this
+                                 stays even while the programme is unadvertised)
    - otherwise                → scroll to top on route change
 
    The retry loop covers the case where the target route's DOM has not finished

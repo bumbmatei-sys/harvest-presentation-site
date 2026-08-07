@@ -7,10 +7,10 @@ function AnalyticsCard() {
   return (
     <div style={{ ...softCard, padding: 22 }}>
       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 17, color: 'var(--navy-900)', fontWeight: 500, marginBottom: 4 }}>Growth</div>
-      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 18 }}>Keep up to 100% of every gift</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 18 }}>Keep 100% of every gift</div>
       <div style={{ display: 'flex', gap: 12, marginBottom: 18 }}>
         <div style={{ flex: 1, background: 'var(--gold-100)', borderRadius: 14, padding: '14px 16px' }}><div style={{ fontSize: 11, color: 'var(--gold-700)', fontWeight: 600 }}>This year</div><div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, color: 'var(--navy-900)' }}>$182k</div></div>
-        <div style={{ flex: 1, background: 'var(--sky-100)', borderRadius: 14, padding: '14px 16px' }}><div style={{ fontSize: 11, color: 'var(--sky-700)', fontWeight: 600 }}>Retention</div><div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, color: 'var(--navy-900)' }}>100%</div></div>
+        <div style={{ flex: 1, background: 'var(--sky-100)', borderRadius: 14, padding: '14px 16px' }}><div style={{ fontSize: 11, color: 'var(--sky-700)', fontWeight: 600 }}>Platform fee</div><div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, color: 'var(--navy-900)' }}>0%</div></div>
       </div>
       <svg viewBox="0 0 300 90" style={{ width: '100%', height: 90, display: 'block' }} preserveAspectRatio="none">
         <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="rgba(110,142,82,0.28)" /><stop offset="1" stopColor="rgba(110,142,82,0)" /></linearGradient></defs>
@@ -31,7 +31,7 @@ export function Analytics() {
             <H2 align="left" style={{ marginTop: 14 }}>See real discipleship happen</H2>
             <Reveal delay={140}>
               <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-body)', lineHeight: 1.6, margin: '18px 0 26px', maxWidth: 480 }}>
-                Giving, courses and engagement in one place. Track growth, measure discipleship, and keep more of every gift — the more you grow, the less you pay, up to 100% retention.
+                Giving, courses and engagement in one place. Track growth, measure discipleship, and keep every gift — Harvest takes 0% of every donation, on every plan.
               </p>
               <Checklist size="md" items={['Donations, fundraising & tax receipts', 'Course progress & engagement analytics', 'CRM for donors and members']} />
               <div style={{ marginTop: 26 }}><HBtn to="/features/platform-brand#analytics" variant="dark">See the dashboard</HBtn></div>

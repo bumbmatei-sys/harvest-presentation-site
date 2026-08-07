@@ -3,6 +3,8 @@
    Each item links to its section on the category page it belongs to; that mapping
    lives in content/features.ts, keyed by `slugify(title)`. */
 
+import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED } from '../lib/flags';
+
 export const slugify = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -59,12 +61,12 @@ export const CATALOG: CatalogGroup[] = [
   {
     name: 'Giving & Finance', kicker: 'Steward', tint: 'var(--gold-700)', bg: 'var(--gold-100)',
     items: [
-      item('hand-heart', 'Donation Page', 'Beautiful branded giving with up to 100% donation retention.'),
+      item('hand-heart', 'Donation Page', 'Beautiful branded giving with a 0% platform fee — you keep every dollar.'),
       item('trending-up', 'Fundraising', 'Run campaigns with goals, progress and updates for your community.'),
       item('contact', 'CRM (Donors & Members)', 'A full relationship manager for donors and members.'),
       item('calculator', 'Accounting + QuickBooks', 'Accounting tools with QuickBooks sync to keep the books clean.'),
       item('receipt-text', 'Tax Receipts & Statements', 'Automatic tax receipts and annual giving statements.'),
-      item('share-2', 'Affiliate Program', 'Earn 15% recurring commission for 12 months on every ministry you refer.'),
+      ...(AFFILIATE_PROGRAM_ENABLED ? [item('share-2', 'Affiliate Program', 'Earn 15% recurring commission for 12 months on every ministry you refer.')] : []),
     ],
   },
   {
@@ -74,7 +76,7 @@ export const CATALOG: CatalogGroup[] = [
       item('smartphone', 'Mobile App (PWA)', 'Installable on iOS & Android — no app store required.'),
       item('layout-dashboard', 'Admin Dashboard', 'Full control over members, content, branding and analytics.'),
       item('palette', 'Custom Branding & Domain', 'White-label everything — your brand, your domain, your platform.'),
-      item('building-2', 'Unlimited Churches', 'Run multiple churches from one Ministry plan — $10/mo each, first free.'),
+      ...(MULTI_CAMPUS_ENABLED ? [item('building-2', 'Unlimited Churches', 'Run multiple churches from one Ministry plan — $10/mo each, first free.')] : []),
       item('chart-column', 'Evangelism Analytics', 'Track engagement, growth and impact with real data.'),
     ],
   },

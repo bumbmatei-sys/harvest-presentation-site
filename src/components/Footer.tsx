@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mark } from './shared';
 import { CATEGORIES } from '../content/categories';
+import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
 
 /* Footer links resolve to real destinations only. Contact points at the real
    /contact route; the design's legal.html#privacy/terms placeholders stay omitted
@@ -43,7 +44,7 @@ export function Footer() {
             <p style={{ color: 'var(--text-body)', fontSize: 14.5, lineHeight: 1.6, maxWidth: 300, margin: '0 0 8px' }}>The digital foundation for ministries. From a moment of decision to a lifetime of devotion.</p>
           </div>
           {col('PAGES', [['Home', '/#hero'], ['Features', '/features/community-engagement'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
-          {col('MINISTRY', [['Believers', '/#believers'], ['Affiliate', '/#affiliate'], ['Start free trial', '/#pricing']])}
+          {col('MINISTRY', [['Believers', '/#believers'], ...(AFFILIATE_PROGRAM_ENABLED ? [['Affiliate', '/#affiliate'] as [string, string]] : []), ['Start free trial', '/#pricing']])}
           {col('RESOURCES', [['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
         </div>
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>

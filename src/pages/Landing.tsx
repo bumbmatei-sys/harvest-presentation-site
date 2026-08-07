@@ -7,6 +7,7 @@ import { Features } from '../components/Features';
 import { Replaces } from '../components/Replaces';
 import { Pricing } from '../components/Pricing';
 import { Affiliate } from '../components/Affiliate';
+import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
 import { FinalCTA } from '../components/FinalCTA';
 import { Seo } from '../components/Seo';
 
@@ -27,7 +28,7 @@ export function Landing() {
       <Features />
       <Replaces />
       <Pricing />
-      <Affiliate />
+      {AFFILIATE_PROGRAM_ENABLED && <Affiliate />}
       <FinalCTA />
     </main>
   );

@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 
 const KEY = 'harvest_ref';
 
+/* Capture and hand-off are deliberately NOT behind AFFILIATE_PROGRAM_ENABLED.
+   The site no longer advertises the programme, but every ?ref= link already
+   shared has to keep attributing — so the ref is still stored on arrival and
+   still forwarded to signup. Gating this would silently void live referrals. */
+
 /** Capture ?ref= from the URL on load and persist it for this browsing session. */
 export function captureRefFromUrl(): void {
   if (typeof window === 'undefined') return;

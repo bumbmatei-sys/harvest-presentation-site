@@ -728,7 +728,7 @@ const MOCKS: Record<string, React.ReactElement> = {
               </svg>
             </div>
             <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>From Instagram</div>
-            <div style={{ fontSize: '9.5px', color: 'var(--text-muted)', marginTop: '1px' }}>Community+</div>
+            <div style={{ fontSize: '9.5px', color: 'var(--text-muted)', marginTop: '1px' }}>Ministry</div>
           </div>
           <div style={{ border: '1px solid rgba(45,37,25,0.1)', borderRadius: '11px', padding: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', marginBottom: '5px' }}>

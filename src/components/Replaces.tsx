@@ -34,11 +34,19 @@ const logoUrl = (slug: string | null, name: string, domain?: string) =>
     ? `https://cdn.simpleicons.org/${slug}`
     : `https://www.google.com/s2/favicons?domain=${domain ?? name.toLowerCase().replace(/[^a-z]/g, '')}.com&sz=64`;
 
-// This row compares against the Community plan (the tier that matches the
-// competitor stack below) at its annual price — derived from the same plan
-// data as Pricing.tsx (monthly × 10 ÷ 12) so the two can't drift apart.
-const communityMonthly = plans.find((p) => p.name === 'Community')!.monthly;
-const communityAnnual = Math.round(communityMonthly * 10 / 12);
+// This row compares against the top plan (the tier that matches the competitor
+// stack below) at its annual price — derived from the same plan data as
+// Pricing.tsx (monthly × 10 ÷ 12) so the two can't drift apart.
+//
+// Keyed on planId, not on the display name: the name is marketing copy and has
+// already been reassigned once ("Community" was retired and "Ministry" moved
+// down onto this same planId), whereas planId is the app's TenantPlan union.
+// Throwing beats the `!` this used to carry, which turned a renamed tier into a
+// runtime crash during the prerender instead of a build-time error.
+const foundTopPlan = plans.find((p) => p.planId === 'max');
+if (!foundTopPlan) throw new Error("Replaces: no plan with planId 'max' to price against.");
+const topPlan = foundTopPlan;
+const topPlanAnnual = Math.round(topPlan.monthly * 10 / 12);
 
 export function Replaces() {
   return (
@@ -75,9 +83,9 @@ export function Replaces() {
             </div>
             <div className="replaces-row" style={{ background: 'var(--navy-900)' }}>
               <div className="replaces-cat"><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mark h={24} /><span style={{ color: '#fff', fontWeight: 700 }}>Harvest</span></span></div>
-              <div className="replaces-tools" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>Everything above — in one platform (Community plan)</div>
+              <div className="replaces-tools" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>Everything above — in one platform ({topPlan.name} plan)</div>
               <div className="replaces-cost">
-                <span style={{ color: 'var(--gold-400)', fontWeight: 800, fontSize: 18 }}>${communityAnnual}</span><span style={{ color: 'rgba(201,150,58,0.6)', fontSize: 13 }}>/mo</span>
+                <span style={{ color: 'var(--gold-400)', fontWeight: 800, fontSize: 18 }}>${topPlanAnnual}</span><span style={{ color: 'rgba(201,150,58,0.6)', fontSize: 13 }}>/mo</span>
                 <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 10.5, marginTop: 2 }}>billed annually</div>
               </div>
             </div>

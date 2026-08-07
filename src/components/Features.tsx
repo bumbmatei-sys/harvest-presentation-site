@@ -109,7 +109,7 @@ export function Features() {
           </Reveal>
           <Reveal delay={160} style={{ display: 'flex' }}>
             <BentoCard icon={I.giving({ size: 24 })} name="Giving & Analytics" to="/features/giving-finance#donation" minH={320}
-              desc="Branded giving, fundraising, receipts — and up to 100% retention.">
+              desc="Branded giving, fundraising, receipts — and a 0% platform fee.">
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                   <span style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--navy-900)', fontWeight: 500 }}>$12,480</span>
