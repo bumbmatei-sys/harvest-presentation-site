@@ -285,9 +285,9 @@ a:hover { color: var(--brand-active); }
   .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 28px !important; }
   .footer-brand { grid-column: 1 / -1; }
 }
-@media (max-width: 1180px) and (min-width: 901px) {
-  .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
-}
+/* Pricing is three cards, so there is no intermediate 2-up step: two columns
+   would strand the third card alone on a half-width row. It stays 3-up until
+   the 900px rule below stacks it to a single column. */
 /* Replaces table stacks to cards: category + price on the first line, the tool
    logos wrap onto a second full-width line. */
 @media (max-width: 560px) {

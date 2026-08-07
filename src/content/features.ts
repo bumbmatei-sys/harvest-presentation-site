@@ -6,6 +6,9 @@
    LEGACY_ANCHORS maps the retired /features#<slug> anchors onto their new home
    so old deep links, the Nav mega-menu and indexed URLs all keep working. */
 
+import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED } from '../lib/flags';
+import { plans } from '../components/Pricing';
+
 export interface Crosslink { label: string; href: string }
 
 export interface Feature {
@@ -16,7 +19,8 @@ export interface Feature {
   n: string;
   accent: string;
   accentBg: string;
-  /** Plan availability: [Individual, Small Team, Community, Ministry]. */
+  /** Plan availability, positional against `plans` in components/Pricing.tsx:
+   *  [Individual, Small Team, Ministry]. Length is asserted at module load. */
   tiers: number[];
   eyebrow: string;
   title: string;
@@ -51,7 +55,9 @@ export interface Category {
   features: Feature[];
 }
 
-export const CATEGORIES: Category[] = [
+/* The full catalog, including entries that are currently hidden. Consumers must
+   read the filtered `CATEGORIES` below, never this — see HIDDEN_FEATURE_IDS. */
+const ALL_CATEGORIES: Category[] = [
   {
     slug: 'community-engagement', name: 'Community & Engagement', kicker: 'Belong',
     eyebrowColor: 'var(--sky-700)',
@@ -65,7 +71,7 @@ export const CATEGORIES: Category[] = [
     features: [
       {
         id: 'feed', name: 'Community Feed', n: '1',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
         eyebrow: 'Owned audience',
         title: 'Your ministry\'s own feed — no algorithm.',
         oneliner: 'Announcements, polls, photos and comments in a space that belongs to you, not to a platform deciding who sees Sunday\'s post.',
@@ -76,7 +82,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'groups', name: 'Groups', n: '2',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1, 1],
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
         eyebrow: 'Private by design',
         title: 'Get your leadership out of the group text.',
         oneliner: 'Private channels and direct messages inside your app — coordination and pastoral care in the same place as everything else.',
@@ -87,7 +93,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'prayer', name: 'Prayer Requests', n: '3',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
         eyebrow: 'Dignity, not a graveyard',
         title: 'A prayer wall that never becomes a graveyard.',
         oneliner: 'Post in one line, pray with one tap — and requests clear themselves after 30 days, by design.',
@@ -98,18 +104,18 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'map', name: 'Church Map', n: '4',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
         eyebrow: 'Where do I go Sunday?',
         title: 'Every campus on a map, sorted by distance.',
         oneliner: 'A member-facing locator and a multi-campus roster admins manage — the “where do I go on Sunday” question, solved.',
         moment: 'The list reorders itself by how far each visitor is standing from every campus. One tap opens directions. That is the whole Sunday-morning question, answered.',
-        admin: ['Add campuses with Google address autocomplete', 'Automatic geocoding fallback + manual lat/lng', 'Full record: schedule, pastor, contact, socials', 'One location on lower tiers; unlimited on Ministry'],
+        admin: ['Add campuses with Google address autocomplete', 'Automatic geocoding fallback + manual lat/lng', 'Full record: schedule, pastor, contact, socials', 'One campus location on every plan'],
         member: ['Interactive map with a marker per location', '“Locate me” plus distance sorting', 'Set a home church; get directions in one tap', 'Service times, pastor and tap-to-copy contact'],
         crosslinks: [{ label: 'Event Registration', href: '/features/community-engagement#events' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }],
       },
       {
         id: 'events', name: 'Event Registration', n: '5',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1],
         eyebrow: 'The money never touches us',
         title: 'Ticketing where the money never touches us.',
         oneliner: 'Ticket types, waitlists, discount codes and QR check-in — with payment going straight to your own Stripe account.',
@@ -120,7 +126,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'checkin', name: 'Check-In System', n: '6',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
         eyebrow: 'Attendance becomes data',
         title: 'Print a QR, tape it to the door.',
         oneliner: 'People check themselves in — no app, no account — and the attendance lands in your CRM.',
@@ -131,7 +137,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'livestream', name: 'Livestream + Live Giving', n: '7',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1, 1],
         eyebrow: 'The prayer that reaches the pastor',
         title: 'Go live — and reach the person watching alone.',
         oneliner: 'Stream on YouTube, keep the congregation inside your app: prayer, chat, sermon notes and giving one tap away.',
@@ -155,7 +161,7 @@ export const CATEGORIES: Category[] = [
     features: [
       {
         id: 'bible', name: 'Full Bible', n: '1',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: 'On every plan',
         title: 'The whole Bible, inside your app.',
         oneliner: 'Eight translations, highlighting and one-tap sharing — so nobody ever has to leave your app to read scripture.',
@@ -166,7 +172,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'courses', name: 'Courses', n: '2',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
         eyebrow: 'AI lesson builder',
         title: 'Turn last year\'s sermon series into a course this afternoon.',
         oneliner: 'Paste a YouTube link and AI drafts the lesson, outline and quiz — you edit and publish. Finishers earn a verified certificate.',
@@ -177,7 +183,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'blog', name: 'Blog & Publishing', n: '3',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
         eyebrow: 'Found on search',
         title: 'The family moving to town finds you.',
         oneliner: 'A real publishing platform with the full SEO stack built in — so people searching for a church in your town actually land on your page.',
@@ -188,7 +194,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'aiblog', name: 'Automated SEO Blog', n: '4',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1],
         eyebrow: 'Grounded in your teaching',
         title: 'Your own sermons, rewritten for search.',
         oneliner: 'Draw on your uploaded teaching to generate a search-optimised article grounded in what your ministry actually believes — not a generic model\'s guess.',
@@ -199,7 +205,8 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'docs', name: 'Docs & Notes', n: '5',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1, 1],
+        tiersNote: 'Docs and sermon notes are on every plan. Pushing notes to a live stream needs Small Team or above, because that is where livestream itself starts.',
         eyebrow: 'Write once, use everywhere',
         title: 'Write it Tuesday. Preach it Sunday. Push it to every screen.',
         oneliner: 'Sermon prep and team docs — nested, autosaved, exportable — and one tap from your congregation\'s screen the moment you\'re preaching.',
@@ -223,7 +230,7 @@ export const CATEGORIES: Category[] = [
     features: [
       {
         id: 'knowledge', name: 'AI Knowledge Base', n: '1',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1, 1],
         eyebrow: 'The foundation',
         title: 'Teach it once. Everything downstream speaks in your voice.',
         oneliner: 'Feed in your sermons and teaching notes, and AI Chat, the SEO blog and course drafting all start answering from your ministry — not a generic model.',
@@ -234,7 +241,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'aichat', name: 'AI Chat', n: '2',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 1, 1],
         eyebrow: 'AI that knows when to stop',
         title: 'The assistant that tells members to go pray instead.',
         oneliner: 'It answers from your church\'s own teaching — and after about ten questions, gently hands the conversation back to God with Scripture and steps to pray.',
@@ -245,18 +252,18 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'newsletter', name: 'Automated Newsletter', n: '3',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
         eyebrow: 'You already made the content',
         title: 'A month of Instagram, turned into a newsletter.',
         oneliner: 'Pull a date range of your own posts and AI drafts the subject line and body — or write it yourself. Either way it lands in an editor, and sends through your Mailchimp.',
         moment: 'Most churches post to Instagram all month and email no one. This turns work you already did into a newsletter your congregation will actually read — and nothing sends until you\'ve read it.',
-        admin: ['Generate from Instagram (Community+) or write your own (Small Team+)', 'Always a draft in an editor — never auto-sent', 'Sends through your own Mailchimp audience', 'HTML sanitised; send now or schedule in Mailchimp'],
+        admin: ['Generate from Instagram (Ministry) or write your own (Small Team+)', 'Always a draft in an editor — never auto-sent', 'Sends through your own Mailchimp audience', 'HTML sanitised; send now or schedule in Mailchimp'],
         member: ['A newsletter built from the month they already followed', 'Clean, on-brand email in their inbox', 'Delivered from your list, not held hostage'],
         crosslinks: [{ label: 'Community Feed', href: '/features/community-engagement#feed' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
       },
       {
         id: 'sms', name: 'SMS & Text-to-Give', n: '4',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 0, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
         eyebrow: 'Your Twilio, your rates',
         title: 'Text the whole church — and let them give with a word.',
         oneliner: 'Send a broadcast to members, donors or any tag with a live cost counter — and let anyone give by texting one keyword to your number.',
@@ -267,7 +274,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'forms', name: 'Custom Forms → CRM', n: '5',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1, 1],
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
         eyebrow: 'Forms that become people',
         title: 'Forms that don\'t die in a spreadsheet.',
         oneliner: 'Build any form from nine field types, share a link or QR, and every response matches or creates a contact in your CRM — with a history, not just a row.',
@@ -284,36 +291,36 @@ export const CATEGORIES: Category[] = [
     heroBg: 'linear-gradient(180deg,#ecd6a4 0%,#f2e3c4 44%,#f7efe0 72%,var(--cream) 100%)',
     headline: 'Keep 100% of every gift.',
     headWidth: 960, introWidth: 660,
-    intro: 'Giving, fundraising, a CRM that builds itself, and books that reconcile themselves — with a platform fee that falls to zero. The money lands in your account, not ours.',
+    intro: 'Giving, fundraising, a CRM that builds itself, and books that reconcile themselves — with no platform fee at all, on any plan. The money lands in your account, not ours.',
     ctaHeading: 'Keep more of every gift.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: 'Branded giving, fundraising campaigns, a donor and member CRM, QuickBooks-synced receipts and a 15% affiliate program — with up to 100% donation retention.',
+    seo: `Branded giving, fundraising campaigns, a donor and member CRM and QuickBooks-synced receipts${AFFILIATE_PROGRAM_ENABLED ? ', plus a 15% affiliate program' : ''} — with 0% platform fee on every donation.`,
     features: [
       {
         id: 'donation', name: 'Donation Page', n: '1',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: 'You keep more',
-        title: 'Keep 100% of every gift on Ministry.',
-        oneliner: 'Give in three taps. Every dollar lands in your church\'s own Stripe account — Harvest takes 1.5% on Individual and Small Team, 1% on Community, 0% on Ministry, and never holds your money.',
-        moment: 'Most platforms take 2–5% of every gift, forever, with no way down. Harvest starts below that floor and falls as you grow — 1.5%, then 1% on Community, then zero on Ministry. On a church doing $200k a year online, a 5% platform quietly takes $10,000; Harvest takes $3,000, $2,000, or nothing at all.',
+        title: 'Keep 100% of every gift, on every plan.',
+        oneliner: 'Give in three taps. Every dollar lands in your church\'s own Stripe account — Harvest takes 0% of every donation on every plan, and never holds your money.',
+        moment: 'Most platforms take 2–5% of every gift, forever, with no way down. Harvest takes zero — on the $49 plan and every plan above it. On a church doing $200k a year online, a 5% platform quietly takes $10,000. Harvest takes none of it; you pay us a flat subscription and nothing else.',
         admin: ['Gifts are destination charges to your own Stripe', 'Fail-closed — no Stripe connected, no gift routed elsewhere', 'A gift writes a receipt, a CRM record & campaign credit', 'Stripe\'s own processing fees are Stripe\'s, not ours'],
         member: ['Preset amounts or your own, in three taps', 'No login — give to any church, even as a visitor', 'An emailed PDF receipt, instantly', 'Your full giving history, receipts included'],
         crosslinks: [{ label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Fundraising', href: '/features/giving-finance#fundraising' }, { label: 'Text-to-Give', href: '/features/ai-automation#sms' }],
       },
       {
         id: 'fundraising', name: 'Fundraising', n: '2',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
         eyebrow: 'A building fund isn\'t a GoFundMe',
         title: 'A live progress bar — or pledges to track.',
         oneliner: 'Run a campaign with a real-time progress bar, or a pledge campaign for "commit now, give later" — with a ledger that tracks pledged against paid.',
         moment: 'Churches don\'t just need a progress bar — they need 300 families committing $1,000 over two years. Pledge campaigns track exactly that, with a status derived from the numbers, never a stale manual field.',
-        admin: ['Campaign or pledge type, chosen at creation', 'Progress bar credited automatically as gifts land', 'Pledge ledger: pledged vs. paid, status derived', 'Pledge campaigns on Community & up'],
+        admin: ['Campaign or pledge type, chosen at creation', 'Progress bar credited automatically as gifts land', 'Pledge ledger: pledged vs. paid, status derived', 'Pledge campaigns on Ministry'],
         member: ['Public campaign & pledge pages — no login', 'Pledge from the pulpit, a QR, or a text', 'A confirmation the moment you commit', 'Watch the total move in real time'],
         crosslinks: [{ label: 'Community Feed', href: '/features/community-engagement#feed' }, { label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
       },
       {
         id: 'crm', name: 'CRM', n: '3',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
         eyebrow: 'You never type a contact in',
         title: 'One record per person — built automatically.',
         oneliner: 'Give, register, check in or fill a form and a contact appears with the history attached. One person, one row — deduplicated by email, typed Donor & Member as they give. Connect Gmail and email them without leaving the dashboard.',
@@ -324,7 +331,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'accounting', name: 'Accounting + QuickBooks', n: '4',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 0, 1],
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
         eyebrow: 'Your treasurer stops asking',
         title: 'Every receipt, pushed into QuickBooks.',
         oneliner: 'A ledger of every donation receipt and event ticket Harvest issues — synced to QuickBooks as sales receipts, with per-item retry when one fails.',
@@ -336,7 +343,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'affiliate', name: 'Affiliate Program', n: '5',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: '15% for their first 12 months',
         title: 'Refer a ministry. Earn 15% for a year.',
         oneliner: 'A flat 15% of what every church you refer pays — recurring on every invoice for their first 12 months, paid out automatically through Stripe.',
@@ -357,63 +364,63 @@ export const CATEGORIES: Category[] = [
     intro: 'An installable app with your name and icon, an admin dashboard where every volunteer sees only their part, your own domain — and the number that matters most: how many said yes to Jesus.',
     ctaHeading: 'Your ministry, on your own foundation.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: 'A branded web app, an installable mobile PWA, a permissioned admin dashboard, your own domain, unlimited churches and evangelism analytics.',
+    seo: `A branded web app, an installable mobile PWA, a permissioned admin dashboard, your own domain${MULTI_CAMPUS_ENABLED ? ', unlimited churches' : ''} and evangelism analytics.`,
     dark: true,
     features: [
       {
         id: 'webapp', name: 'Web App', n: '1',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
         eyebrow: 'Nothing to install, nothing to approve',
         title: 'Your church app opens in any browser.',
         oneliner: 'One app, web and mobile, on any device — no App Store review, no update cycle. You ship it and everyone has it.',
         moment: 'Every shareable link — a post, a sermon article, an event, a campaign — opens for anyone with no account. That\'s how a member\'s share reaches someone who\'s never heard of your church.',
-        admin: ['Your own subdomain, or your domain on higher plans', 'Tabs appear only when there’s something behind them', 'A real desktop layout, not a stretched phone view', 'Every request scoped to your tenant, in security rules'],
+        admin: ['Your own subdomain, or your own domain on Ministry', 'Tabs appear only when there’s something behind them', 'A real desktop layout, not a stretched phone view', 'Every request scoped to your tenant, in security rules'],
         member: ['Opens in any browser, any device', 'Public post, event, giving & form pages need no login', 'A logged-out visitor never touches member data', 'No install, no store, no waiting'],
         crosslinks: [{ label: 'Mobile App', href: '/features/platform-brand#pwa' }, { label: 'Community Feed', href: '/features/community-engagement#feed' }],
       },
       {
         id: 'pwa', name: 'Mobile App', n: '2',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1, 1],
-        tiersNote: 'Your own name, icon and colour on Community & Ministry only — on Individual & Small Team the app installs with Harvest branding.',
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
+        tiersNote: 'Your own name, icon and colour on Ministry only — on Individual & Small Team the app installs with Harvest branding.',
         eyebrow: 'It\'s your app, right down to the icon',
         title: 'Your name and icon, on the home screen.',
-        oneliner: 'Members install your app to their home screen on every plan. On Community & Ministry it carries your name, icon and colour; on Individual & Small Team it installs with Harvest branding.',
-        moment: 'Most “white-label” apps stop at the logo inside the app. On Community & up, Harvest carries your brand into the operating system itself — the install manifest is built per tenant, and even Apple\'s Add to Home Screen shows your icon, not a generic screenshot.',
-        admin: ['Installable PWA & push notifications on every plan, via FCM', 'Your name, colour & icon in the install manifest on Community & up', 'A separate square app icon for the home-screen slot', 'iOS handled correctly via apple-touch-icon'],
-        member: ['Installs like any app — no store, no account', 'Everyone gets your-church.theharvest.app; higher plans add a custom domain', 'Your branding on Community & Ministry; Harvest’s on lower plans', 'Launches standalone; cached content reads on a weak signal'],
+        oneliner: 'Members install your app to their home screen on every plan. On Ministry it carries your name, icon and colour; on Individual & Small Team it installs with Harvest branding.',
+        moment: 'Most “white-label” apps stop at the logo inside the app. On Ministry, Harvest carries your brand into the operating system itself — the install manifest is built per tenant, and even Apple\'s Add to Home Screen shows your icon, not a generic screenshot.',
+        admin: ['Installable PWA & push notifications on every plan, via FCM', 'Your name, colour & icon in the install manifest on Ministry', 'A separate square app icon for the home-screen slot', 'iOS handled correctly via apple-touch-icon'],
+        member: ['Installs like any app — no store, no account', 'Everyone gets your-church.theharvest.app; Ministry adds a custom domain', 'Your branding on Ministry; Harvest’s on Individual & Small Team', 'Launches standalone; cached content reads on a weak signal'],
         crosslinks: [{ label: 'Custom Branding', href: '/features/platform-brand#branding' }, { label: 'Web App', href: '/features/platform-brand#webapp' }],
       },
       {
         id: 'dashboard', name: 'Admin Dashboard', n: '3',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1, 1],
         eyebrow: 'Your volunteers see only their part',
         title: 'One dashboard. Everyone sees only their piece.',
         oneliner: 'Twenty-three granular permissions per admin, plus location- and region-scoped access — so the check-in lead never sees donation records, and the treasurer never sees prayer requests.',
         moment: 'Churches run on volunteers, and trust boundaries between them are a pastoral concern, not just an IT one. The person running check-in doesn’t see giving; the campus pastor sees their campus and posts to their city, and nothing else.',
         admin: ['23 permissions across content, money, broadcasting & admin', 'Location-scoped analytics & region-scoped posting', 'Gated features are absent, not teased with a padlock', 'Drag-reorder nav — bottom bar & drawer, saved separately'],
-        member: ['Admin seats scale by plan: 1 → 5 → 10 → unlimited', 'A purposeful upgrade screen, never a dead end', 'Roles assigned to a person, right inside the CRM', 'A first-run wizard for Stripe, branding & integrations'],
+        member: ['Admin seats scale by plan: 2 → 5 → 15', 'A purposeful upgrade screen, never a dead end', 'Roles assigned to a person, right inside the CRM', 'A first-run wizard for Stripe, branding & integrations'],
         adminLabel: 'Delegation', memberLabel: 'Setup',
         crosslinks: [{ label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Evangelism Analytics', href: '/features/platform-brand#analytics' }],
       },
       {
         id: 'branding', name: 'Branding & Domain', n: '4',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1],
         eyebrow: 'Nobody knows it\'s Harvest',
         title: 'Your name, logo, colour — and your own domain.',
-        oneliner: 'Set your ministry name, logo, square icon and brand colour once, and on higher plans point your own domain at it. The platform goes invisible.',
+        oneliner: 'Set your ministry name, logo, square icon and brand colour once, and point your own domain at it. The platform goes invisible.',
         moment: 'Your colour is injected server-side, before first paint — no flash of Harvest gold before yours loads. And it reaches the artifacts people keep: PDF certificates, donation receipts, public forms and check-in pages all carry your identity.',
-        admin: ['Ministry name, logo, square icon & one brand colour', 'Colour applied before first paint — no branding flash', 'Custom domain on higher plans: guided DNS + live status', 'Branding carries onto receipts, certificates & forms'],
-        member: ['An app that looks like yours, not ours', 'Your domain in the address bar', 'Receipts & certificates on your letterhead', 'Branding starts on Community; your own domain on higher plans'],
+        admin: ['Ministry name, logo, square icon & one brand colour', 'Colour applied before first paint — no branding flash', 'Custom domain on Ministry: guided DNS + live status', 'Branding carries onto receipts, certificates & forms'],
+        member: ['An app that looks like yours, not ours', 'Your domain in the address bar', 'Receipts & certificates on your letterhead', 'Branding and your own domain on Ministry'],
         adminLabel: 'Make it yours', memberLabel: 'What people see',
         crosslinks: [{ label: 'Mobile App', href: '/features/platform-brand#pwa' }, { label: 'Unlimited Churches', href: '/features/platform-brand#churches' }],
       },
       {
         id: 'churches', name: 'Unlimited Churches', n: '5',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 0, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 0],
         eyebrow: '$10 a campus — the whole pricing page',
         title: 'Every campus on one platform.',
         oneliner: 'Add unlimited locations on Ministry, each with its own address, service times and pastor — billed at a flat $10/month per campus, confirmed before you’re ever charged.',
-        moment: 'A planting network with 12 campuses knows their bill is $299 + $110 before they talk to anyone. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
+        moment: 'A planting network with 12 campuses knows their bill is $199 + $110 before they talk to anyone. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
         admin: ['Add locations with Google address autocomplete', 'Flat $10/mo each, added to your existing subscription', 'An explicit confirm dialog names the price first', 'Filter the roster by city, pastor or country'],
         member: ['Every campus on the member map, sorted by distance', 'Its own service times, pastor & contact', 'One-tap directions to the nearest one', 'One tenant, one member list & CRM across campuses'],
         adminLabel: 'For admins', memberLabel: 'For members',
@@ -421,7 +428,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'analytics', name: 'Evangelism Analytics', n: '6',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: 'The reason it’s called Harvest',
         title: 'How many said yes to Jesus — and where the rest are.',
         oneliner: 'Every other analytics page counts attendance and giving. This one counts people who accepted Jesus, and shows you which cities the ones who haven\'t are in.',
@@ -435,8 +442,53 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-/** Retired /features#<slug> anchor → the category page + section it now lives on. */
-export const LEGACY_ANCHORS: Record<string, string> = {
+/* Feature ids whose marketing surfaces are hidden. Hiding one removes its
+   section from its category page, which also removes the #<id> anchor — so
+   every link that pointed at it has to be resolved, not just left to 404 into a
+   page that silently doesn't scroll. `pointsAtHiddenFeature` is how. */
+const HIDDEN_FEATURE_IDS: ReadonlySet<string> = new Set([
+  ...(AFFILIATE_PROGRAM_ENABLED ? [] : ['affiliate']),
+  ...(MULTI_CAMPUS_ENABLED ? [] : ['churches']),
+]);
+
+/** True when a href's #fragment names a feature that is currently hidden. */
+const pointsAtHiddenFeature = (href: string) => {
+  const i = href.indexOf('#');
+  return i >= 0 && HIDDEN_FEATURE_IDS.has(href.slice(i + 1));
+};
+
+/** Drop a fragment whose section no longer renders, so the link lands at the
+ *  top of the category page rather than on a dead anchor. */
+const resolveHref = (href: string) =>
+  (pointsAtHiddenFeature(href) ? href.slice(0, href.indexOf('#')) : href);
+
+export const CATEGORIES: Category[] = ALL_CATEGORIES.map((c) => ({
+  ...c,
+  features: c.features
+    .filter((f) => !HIDDEN_FEATURE_IDS.has(f.id))
+    // `n` is the ordinal in each page's feature index, so it has to be
+    // renumbered after a filter — otherwise hiding #5 leaves 1,2,3,4,6.
+    .map((f, i) => ({
+      ...f,
+      n: String(i + 1),
+      crosslinks: f.crosslinks?.filter((cl) => !pointsAtHiddenFeature(cl.href)),
+    })),
+}));
+
+/* `tiers` is positional against the pricing plans and TypeScript can't express
+   "exactly this long". A stale array renders a plan chip against the wrong tier
+   — or drops one — so fail the build instead. */
+for (const c of ALL_CATEGORIES) {
+  for (const f of c.features) {
+    if (f.tiers.length !== plans.length) {
+      throw new Error(`Feature "${f.id}" has ${f.tiers.length} tiers, expected ${plans.length}.`);
+    }
+  }
+}
+
+/** Retired /features#<slug> anchor → the category page + section it now lives on.
+ *  Read through `LEGACY_ANCHORS`, which resolves hidden targets. */
+const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   'community-feed': '/features/community-engagement#feed',
   'groups': '/features/community-engagement#groups',
   'prayer-requests': '/features/community-engagement#prayer',
@@ -462,9 +514,12 @@ export const LEGACY_ANCHORS: Record<string, string> = {
   'crm': '/features/giving-finance#crm',
   'accounting-quickbooks': '/features/giving-finance#accounting',
   'tax-receipts-statements': '/features/giving-finance#accounting',
+  // Both affiliate slugs stay mapped while the programme is hidden: they are
+  // indexed and still have to land somewhere. With the section not rendering,
+  // `resolveHref` drops the fragment and they arrive at the category page.
   'affiliate-program': '/features/giving-finance#affiliate',
-  // Retired label — the mega-menu now says "Affiliate Program", but the old slug
-  // is still indexed and still has to land somewhere.
+  // Retired label — the mega-menu said "Affiliate Program", but the old slug is
+  // still indexed and still has to land somewhere.
   'lifetime-affiliate': '/features/giving-finance#affiliate',
   'web-app': '/features/platform-brand#webapp',
   'mobile-app-pwa': '/features/platform-brand#pwa',
@@ -473,6 +528,12 @@ export const LEGACY_ANCHORS: Record<string, string> = {
   'unlimited-churches': '/features/platform-brand#churches',
   'evangelism-analytics': '/features/platform-brand#analytics',
 };
+
+/** Legacy slug → live destination, with fragments for hidden sections stripped
+ *  so no indexed URL lands on an anchor that isn't on the page. */
+export const LEGACY_ANCHORS: Record<string, string> = Object.fromEntries(
+  Object.entries(LEGACY_ANCHOR_TARGETS).map(([slug, href]) => [slug, resolveHref(href)]),
+);
 
 export const CATEGORY_BY_SLUG: Record<string, Category> =
   Object.fromEntries(CATEGORIES.map((c) => [c.slug, c]));

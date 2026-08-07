@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
 import { FeatureMock, FEATURE_ICONS } from './FeatureMock';
 import type { Feature } from '../content/features';
+import { plans } from './Pricing';
 
 /* One feature per card: story on the left, a vignette of the real UI on the
    right, then what admins and members each get. Ported from the Claude Design
    handoff (FeatureBlock.dc.html, `card` layout — the one the category pages use). */
 
-const PLANS = ['Individual', 'Small Team', 'Community', 'Ministry'];
+/* Derived from the pricing plans rather than restated, so a renamed or removed
+   tier can't leave these chips advertising a plan nobody can buy. Every
+   `Feature.tiers` array is positional against this list and must match its
+   length — `assertTierWidths` in content/features.ts enforces that. */
+const PLANS = plans.map((p) => p.name);
 
 const check = (
   <svg width="17" height="17" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: 2, color: 'var(--brand)' }} aria-hidden="true">
@@ -56,7 +61,7 @@ function PlanChips({ tiers, note, accent }: { tiers: number[]; note?: string; ac
           );
         })}
       </div>
-      {/* All four chips lit can overstate a feature whose branding or limits are
+      {/* Every chip lit can overstate a feature whose branding or limits are
           tier-gated — the qualifier says which part is. */}
       {note && (
         <p style={{ display: 'flex', gap: 8, alignItems: 'flex-start', margin: '12px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-body)', maxWidth: '46ch' }}>

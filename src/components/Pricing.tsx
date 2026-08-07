@@ -11,20 +11,24 @@ export interface Plan {
   monthly: number;
   // Platform fee as a DECIMAL fraction, mirroring the app's PLATFORM_FEE_MAP
   // (src/lib/stripe-config.ts). Single source of truth for the marketing site:
-  // both the pricing cards and the comparison table read from here so the
-  // numbers can never drift. retention = 100 − fee × 100.
+  // the pricing cards read from here so the number can never drift. It is flat
+  // zero on every plan today — Harvest takes no cut of a donation — which is
+  // why there is no per-tier fee row in the comparison table: three identical
+  // cells in a differentiation grid earn nothing. Do NOT reintroduce a
+  // "retention" field; it was a derived complement of this one, and carrying
+  // two numbers for one fact is what let "keeps 100%" outlive a nonzero fee.
   fee: number;
-  retention: number;
   popular?: boolean;
   blurb: string;
   features: string[];
 }
 
+// planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
+// Anything else here deep-links signup to a plan the app cannot resolve.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', monthly: 49, fee: 0.015, retention: 98.5, blurb: 'For solo evangelists and missionaries.', features: ['Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', '1 admin', 'Donation page'] },
-  { name: 'Small Team', planId: 'pro', monthly: 99, fee: 0.015, retention: 98.5, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '5 courses · 5 admins', 'AI Chat & Knowledge Base', 'CRM (Donors & Members)', 'Livestream + Check-in', 'Docs & Sermon Notes', 'Newsletter', 'Church Map', 'Community Feed'] },
-  { name: 'Community', planId: 'max', monthly: 199, fee: 0.01, retention: 99, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', 'Custom Branding', 'Community Groups', 'Tax Receipts & Statements', 'Custom Forms → CRM', 'Unlimited courses · 10 admins'] },
-  { name: 'Ministry', planId: 'ultra', monthly: 299, fee: 0, retention: 100, blurb: 'The complete platform for large teams.', features: ['Everything in Community', 'Unlimited Churches', 'Unlimited admins · Custom domain', 'SMS Automation', 'Accounting + QuickBooks'] },
+  { name: 'Individual', planId: 'plus', monthly: 49, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', 'CRM (Donors & Members)', 'Docs & Notes', 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
+  { name: 'Small Team', planId: 'pro', monthly: 99, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
+  { name: 'Ministry', planId: 'max', monthly: 199, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
 
 // Index of the featured plan. The pricing cards read `p.popular` directly, but
@@ -36,51 +40,62 @@ const popularIdx = plans.findIndex((p) => p.popular);
 
 const T = true;
 type Cell = boolean | string;
+// Every row is positional against `plans` — one cell per plan, in plan order.
+// A row with the wrong length renders a dropped or misaligned cell silently,
+// so the width check below fails the build instead.
 const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Platform', rows: [
-    ['Web App', [T, T, T, T]],
-    ['Mobile App (PWA)', [T, T, T, T]],
-    ['Admin accounts', ['1', '5', '10', '∞']],
-    ['Custom Branding', [false, false, T, T]],
-    ['Custom Domain', [false, false, false, T]],
-    ['Unlimited Churches ($10/mo each — first free)', [false, false, false, T]],
+    ['Web App', [T, T, T]],
+    ['Mobile App (PWA)', [T, T, T]],
+    ['Contacts', ['150', '500', '2,000']],
+    ['Admin accounts', ['2', '5', '15']],
+    ['Custom Branding', [false, false, T]],
+    ['Custom Domain', [false, false, T]],
   ] },
   { grp: 'Community', rows: [
-    ['News Feed', [T, T, T, T]],
-    ['Community Feed', [T, T, T, T]],
-    ['Prayer Requests', [T, T, T, T]],
-    ['Community Groups', [false, false, T, T]],
-    ['Event Registration', [false, false, T, T]],
-    ['Church Map', [false, T, T, T]],
-    ['Check-In System (QR)', [false, T, T, T]],
-    ['Livestream + Live Giving', [false, T, T, T]],
+    ['News Feed', [T, T, T]],
+    ['Community Feed', [T, T, T]],
+    ['Prayer Requests', [T, T, T]],
+    ['Community Groups', [false, false, T]],
+    ['Event Registration', [false, false, T]],
+    ['Church Map', [false, T, T]],
+    ['Check-In System (QR)', [false, T, T]],
+    ['Livestream + Live Giving', [false, T, T]],
   ] },
   { grp: 'Discipleship & Content', rows: [
-    ['Bible', [T, T, T, T]],
-    ['Courses', ['2', '5', '∞', '∞']],
-    ['Blog', [T, T, T, T]],
-    ['Automated SEO Blog Articles', [false, false, T, T]],
-    ['Docs & Notes', [false, T, T, T]],
-    ['Sermon Notes → Livestream', [false, T, T, T]],
+    ['Bible', [T, T, T]],
+    ['Courses', ['2', '5', '15']],
+    ['Blog', [T, T, T]],
+    ['Automated SEO Blog Articles', [false, false, T]],
+    ['Docs & Notes', [T, T, T]],
+    ['Sermon Notes → Livestream', [false, T, T]],
   ] },
-  { grp: 'AI & Automation', rows: [
-    ['AI Chat', [false, T, T, T]],
-    ['AI Knowledge Base', [false, T, T, T]],
-    ['Newsletter', [false, T, T, T]],
-    ['Automated Newsletter', [false, false, T, T]],
-    ['SMS Automation (Twilio)', [false, false, false, T]],
-    ['Custom Forms → CRM', [false, false, T, T]],
+  { grp: 'Automation', rows: [
+    ['Newsletter', [false, T, T]],
+    ['Automated Newsletter', [false, false, T]],
+    ['SMS (bring your own Twilio)', [T, T, T]],
+    ['Custom Forms → CRM', [false, false, T]],
   ] },
   { grp: 'Giving & Finance', rows: [
-    ['Donation Page', [T, T, T, T]],
-    ['Fundraising', [T, T, T, T]],
-    ['CRM (Donors & Members)', [false, T, T, T]],
-    ['Accounting + QuickBooks Sync', [false, false, false, T]],
-    ['Tax Receipts & Giving Statements', [false, false, T, T]],
-    ['Donation Retention', plans.map((p) => `${p.retention}%`)],
-    ['Affiliate Commission (first 12 months)', ['15%', '15%', '15%', '15%']],
+    ['Donation Page', [T, T, T]],
+    ['Fundraising', [T, T, T]],
+    ['CRM (Donors & Members)', [T, T, T]],
+    ['Accounting + QuickBooks Sync', [false, false, T]],
+    ['Tax Receipts & Giving Statements', [false, false, T]],
   ] },
 ];
+
+/* Widths are only checkable at runtime — `Cell[]` cannot express "exactly as
+   long as `plans`". Throwing here surfaces during the prerender, which is a
+   build failure, rather than shipping a table whose cells have quietly slid
+   one column left. */
+for (const sec of featureMatrix) {
+  for (const [label, vals] of sec.rows) {
+    if (vals.length !== plans.length) {
+      throw new Error(`Pricing comparison row "${label}" has ${vals.length} cells, expected ${plans.length}.`);
+    }
+  }
+}
 // Derived, so a rename or reorder in `plans` can't desync the table header from
 // the cards — the matrix rows above are positional and assume this exact order.
 const planNames = plans.map((p) => p.name);
@@ -108,7 +123,7 @@ function ComparisonTable() {
             {featureMatrix.map((sec) => (
               <React.Fragment key={sec.grp}>
                 <tr>
-                  <td colSpan={5} style={{ padding: '18px 22px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--brand)' }}>{sec.grp}</td>
+                  <td colSpan={plans.length + 1} style={{ padding: '18px 22px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--brand)' }}>{sec.grp}</td>
                 </tr>
                 {sec.rows.map(([label, vals], ri) => (
                   <tr key={label} style={{ borderTop: '1px solid rgba(45,37,25,0.06)', background: ri % 2 ? 'rgba(45,37,25,0.015)' : 'transparent' }}>
@@ -127,7 +142,12 @@ function ComparisonTable() {
 
 /* The plan CTA is the affiliate hand-off. Its own component so the signup URL —
    which depends on sessionStorage and therefore cannot be resolved at build
-   time — can be read through a hook rather than inline in the plan map. */
+   time — can be read through a hook rather than inline in the plan map.
+
+   Load-bearing while the affiliate programme is unadvertised: a ?ref= link
+   already in circulation still lands here, and this is what carries the stored
+   ref across to signup so the referral is still attributed. Hiding the
+   programme's marketing surfaces must not touch this path. */
 function PlanCta({ planId, variant }: { planId: string; variant: 'gold' | 'light' }) {
   return <HBtn href={useAppSignupUrl(planId)} variant={variant} block>Start free trial</HBtn>;
 }
@@ -154,7 +174,7 @@ export function Pricing() {
             ))}
           </div>
         </Reveal>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18, alignItems: 'stretch' }} className="pricing-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${plans.length}, 1fr)`, gap: 18, alignItems: 'stretch' }} className="pricing-grid">
           {plans.map((p, i) => {
             const pop = p.popular;
             return (
@@ -174,8 +194,8 @@ export function Pricing() {
                   </div>
                   <div style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{p.blurb}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0', padding: '10px 12px', borderRadius: 12, background: pop ? 'rgba(255,255,255,0.06)' : 'var(--gold-100)' }}>
-                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{p.retention}%</span>
-                    <span style={{ fontSize: 11, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)', lineHeight: 1.2 }}>Donation<br />retention</span>
+                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{p.fee * 100}%</span>
+                    <span style={{ fontSize: 11, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)', lineHeight: 1.2 }}>Platform fee — Harvest<br />takes nothing from a gift</span>
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 20 }}>
                     {p.features.map((f) => (

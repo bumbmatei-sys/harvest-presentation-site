@@ -38,7 +38,7 @@ function DashboardMock() {
         </div>
         <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
           {stat(I.community, 'Members', '2,480', 'var(--sky-600)')}
-          {stat(I.analytics, 'Retention', '100%', 'var(--brand)')}
+          {stat(I.analytics, 'Given', '$12.4k', 'var(--brand)')}
           {stat(I.courses, 'Active', '640', 'var(--green-600)')}
         </div>
         <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.06)', borderRadius: 14, padding: 16 }}>
