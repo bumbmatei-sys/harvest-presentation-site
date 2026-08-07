@@ -53,7 +53,8 @@ export const CATALOG: CatalogGroup[] = [
     items: [
       item('brain-circuit', 'AI Knowledge Base', "Train AI on your teachings so members get answers rooted in your ministry's theology."),
       item('message-square', 'AI Chat', "A contextual assistant for members — your ministry's voice, not a generic bot."),
-      item('mail', 'Automated Newsletter', 'AI-composed newsletters from your recent content, sent automatically.'),
+      item('mail', 'Newsletter', 'Write a newsletter and send it through your own Mailchimp audience.'),
+      item('sparkles', 'Automated Newsletter', 'AI drafts a newsletter from a month of your own Instagram posts.'),
       item('message-square-text', 'SMS Automation', 'Twilio-powered SMS flows for follow-up, reminders and care.'),
       item('clipboard-list', 'Custom Forms → CRM', 'Build forms that feed straight into your CRM pipeline.'),
     ],
@@ -76,7 +77,9 @@ export const CATALOG: CatalogGroup[] = [
       item('smartphone', 'Mobile App (PWA)', 'Installable on iOS & Android — no app store required.'),
       item('layout-dashboard', 'Admin Dashboard', 'Full control over members, content, branding and analytics.'),
       item('palette', 'Custom Branding & Domain', 'White-label everything — your brand, your domain, your platform.'),
-      ...(MULTI_CAMPUS_ENABLED ? [item('building-2', 'Unlimited Churches', 'Run multiple churches from one Ministry plan — $10/mo each, first free.')] : []),
+      // Hidden add-on — see the ⚠️ note on the `churches` feature entry. Every
+      // plan includes one campus; extras are $20/mo each and are not built yet.
+      ...(MULTI_CAMPUS_ENABLED ? [item('building-2', 'Multi-Campus', 'Run every campus from one plan — one included, $20/mo for each one after.')] : []),
       item('chart-column', 'Evangelism Analytics', 'Track engagement, growth and impact with real data.'),
     ],
   },

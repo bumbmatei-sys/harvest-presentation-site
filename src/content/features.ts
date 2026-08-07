@@ -250,19 +250,35 @@ const ALL_CATEGORIES: Category[] = [
         member: ['Named, switchable conversation history', 'Honest answers grounded in your teaching', 'A written invitation to pray after a few questions', 'A gentle rest before asking again'],
         crosslinks: [{ label: 'AI Knowledge Base', href: '/features/ai-automation#knowledge' }, { label: 'Full Bible', href: '/features/discipleship-content#bible' }],
       },
+      /* Two entries, because the app has two flags: `newsletterAutomation`
+         (Small Team+) writes and sends a newsletter, `automatedNewsletter`
+         (Ministry) is the Instagram → draft generator on top of it. They are
+         separate rows on the pricing page, and collapsing them into one entry
+         is what advertised Instagram generation to Small Team. */
       {
-        id: 'newsletter', name: 'Automated Newsletter', n: '3',
+        id: 'newsletter', name: 'Newsletter', n: '3',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
-        eyebrow: 'You already made the content',
-        title: 'A month of Instagram, turned into a newsletter.',
-        oneliner: 'Pull a date range of your own posts and AI drafts the subject line and body — or write it yourself. Either way it lands in an editor, and sends through your Mailchimp.',
-        moment: 'Most churches post to Instagram all month and email no one. This turns work you already did into a newsletter your congregation will actually read — and nothing sends until you\'ve read it.',
-        admin: ['Generate from Instagram (Ministry) or write your own (Small Team+)', 'Always a draft in an editor — never auto-sent', 'Sends through your own Mailchimp audience', 'HTML sanitised; send now or schedule in Mailchimp'],
-        member: ['A newsletter built from the month they already followed', 'Clean, on-brand email in their inbox', 'Delivered from your list, not held hostage'],
-        crosslinks: [{ label: 'Community Feed', href: '/features/community-engagement#feed' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
+        eyebrow: 'Your list, not ours',
+        title: 'Write the email. Send it from your own list.',
+        oneliner: 'Compose a newsletter in a real editor and send it through your own Mailchimp audience — your list, your sender, your subscribers.',
+        moment: 'Harvest never becomes the thing standing between you and your congregation\'s inboxes. The audience is yours, in your own Mailchimp account — leave tomorrow and the list leaves with you.',
+        admin: ['Compose the subject line and body in an editor', 'Always a draft you approve — never auto-sent', 'Sends through your own Mailchimp audience', 'HTML sanitised; send now or schedule in Mailchimp'],
+        member: ['Clean, on-brand email in their inbox', 'Delivered from your list, not held hostage', 'One place to unsubscribe — your own audience'],
+        crosslinks: [{ label: 'Automated Newsletter', href: '/features/ai-automation#autonewsletter' }, { label: 'Community Feed', href: '/features/community-engagement#feed' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
       },
       {
-        id: 'sms', name: 'SMS & Text-to-Give', n: '4',
+        id: 'autonewsletter', name: 'Automated Newsletter', n: '4',
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1],
+        eyebrow: 'You already made the content',
+        title: 'A month of Instagram, turned into a newsletter.',
+        oneliner: 'Pull a date range of your own Instagram posts and AI drafts the subject line and body. It lands in the same editor you\'d write in, and sends through your own Mailchimp.',
+        moment: 'Most churches post to Instagram all month and email no one. This turns work you already did into a newsletter your congregation will actually read — and nothing sends until you\'ve read it.',
+        admin: ['Pick a date range; AI drafts subject line and body from those posts', 'Drafted from your own posts — nothing invented', 'Always a draft in an editor — never auto-sent', 'Lands in the Newsletter editor and sends through your Mailchimp'],
+        member: ['A newsletter built from the month they already followed', 'Clean, on-brand email in their inbox', 'Delivered from your list, not held hostage'],
+        crosslinks: [{ label: 'Newsletter', href: '/features/ai-automation#newsletter' }, { label: 'Community Feed', href: '/features/community-engagement#feed' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
+      },
+      {
+        id: 'sms', name: 'SMS & Text-to-Give', n: '5',
         accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
         eyebrow: 'Your Twilio, your rates',
         title: 'Text the whole church — and let them give with a word.',
@@ -273,7 +289,7 @@ const ALL_CATEGORIES: Category[] = [
         crosslinks: [{ label: 'Text-to-Give', href: '/features/giving-finance#donation' }, { label: 'CRM tags', href: '/features/giving-finance#crm' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }],
       },
       {
-        id: 'forms', name: 'Custom Forms → CRM', n: '5',
+        id: 'forms', name: 'Custom Forms → CRM', n: '6',
         accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
         eyebrow: 'Forms that become people',
         title: 'Forms that don\'t die in a spreadsheet.',
@@ -321,11 +337,16 @@ const ALL_CATEGORIES: Category[] = [
       {
         id: 'crm', name: 'CRM', n: '3',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
+        // The contact ceiling is the primary ladder between the three plans and
+        // the pricing table was the only surface carrying it. The CRM is where
+        // a contact lives, so it is where the limit belongs — a cap nobody can
+        // find until checkout is the surprise this audience punishes hardest.
+        tiersNote: 'The CRM itself is on every plan; how many people it holds is what scales — 150 contacts on Individual, 500 on Small Team, 2,000 on Ministry.',
         eyebrow: 'You never type a contact in',
         title: 'One record per person — built automatically.',
         oneliner: 'Give, register, check in or fill a form and a contact appears with the history attached. One person, one row — deduplicated by email, typed Donor & Member as they give. Connect Gmail and email them without leaving the dashboard.',
         moment: 'Anyone who\'s used church software has a database full of duplicate Bob Smiths. Harvest merges app members and manual contacts into one row on a stable link — so a person\'s giving history never scatters across three records.',
-        admin: ['Members & manual contacts merged into one list', 'Connect Gmail and email a contact from their record', 'Auto-typed member / donor / both as they give', 'Five-stage discipleship pipeline: New → Champion', 'Tags that drive SMS broadcast targeting'],
+        admin: ['Members & manual contacts merged into one list', 'Contacts scale by plan: 150 → 500 → 2,000', 'Connect Gmail and email a contact from their record', 'Auto-typed member / donor / both as they give', 'Five-stage discipleship pipeline: New → Champion', 'Tags that drive SMS broadcast targeting'],
         member: ['A single profile that follows them everywhere', 'Giving, events, check-ins & forms on one timeline', 'Emails you send land from your own address', 'Total given & last gift always current'],
         crosslinks: [{ label: 'Custom Forms', href: '/features/ai-automation#forms' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }, { label: 'SMS', href: '/features/ai-automation#sms' }],
       },
@@ -341,15 +362,20 @@ const ALL_CATEGORIES: Category[] = [
         adminLabel: 'For admins', memberLabel: 'For givers',
         crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
       },
+      /* Hidden behind AFFILIATE_PROGRAM_ENABLED. The terms (flat 15%, 12 months
+         from signup, converted customers only) are settled; the payout rail is
+         not — subscription billing is moving off Stripe to Dodo Payments, so
+         this copy names no processor. Do not put one back in, and do not
+         un-hide the entry, until that migration ships. */
       {
         id: 'affiliate', name: 'Affiliate Program', n: '5',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: '15% for their first 12 months',
         title: 'Refer a ministry. Earn 15% for a year.',
-        oneliner: 'A flat 15% of what every church you refer pays — recurring on every invoice for their first 12 months, paid out automatically through Stripe.',
-        moment: 'Most SaaS affiliate programs pay once, on the first invoice. Harvest pays on all twelve — refer five churches on the $199 plan and that’s about $149 a month for a year, roughly $1,790 in total.',
-        admin: ['Flat 15% — every plan, no tiers, no ladder', 'Recurring on every invoice for 12 months from signup', 'Trial starts don\'t count — only converted customers', 'Paid to the Stripe account you already use'],
-        member: ['A referral link, generated automatically', 'This-month pending & total earnings at a glance', 'Get paid even if you finish payout setup later'],
+        oneliner: 'A flat 15% of what every church you refer pays, for their first 12 months — tracked automatically and paid out to you, not held as credit.',
+        moment: 'Most SaaS affiliate programs pay once, on the first payment. Harvest pays for a full year — refer five churches on the $199 plan and that’s about $149 a month for twelve months, roughly $1,790 in total.',
+        admin: ['Flat 15% — every plan, no tiers, no ladder', 'On everything they pay in their first 12 months', 'Trial starts don\'t count — only converted customers', 'Real money paid out to you, never platform credit'],
+        member: ['A referral link, generated automatically', 'This-month pending & total earnings at a glance', 'Add your payout details whenever — earnings accrue either way'],
         adminLabel: 'For referrers', memberLabel: 'Your dashboard',
         crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'Pricing', href: '/#pricing' }],
       },
@@ -364,7 +390,7 @@ const ALL_CATEGORIES: Category[] = [
     intro: 'An installable app with your name and icon, an admin dashboard where every volunteer sees only their part, your own domain — and the number that matters most: how many said yes to Jesus.',
     ctaHeading: 'Your ministry, on your own foundation.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: `A branded web app, an installable mobile PWA, a permissioned admin dashboard, your own domain${MULTI_CAMPUS_ENABLED ? ', unlimited churches' : ''} and evangelism analytics.`,
+    seo: `A branded web app, an installable mobile PWA, a permissioned admin dashboard, your own domain${MULTI_CAMPUS_ENABLED ? ', additional campuses' : ''} and evangelism analytics.`,
     dark: true,
     features: [
       {
@@ -412,16 +438,28 @@ const ALL_CATEGORIES: Category[] = [
         admin: ['Ministry name, logo, square icon & one brand colour', 'Colour applied before first paint — no branding flash', 'Custom domain on Ministry: guided DNS + live status', 'Branding carries onto receipts, certificates & forms'],
         member: ['An app that looks like yours, not ours', 'Your domain in the address bar', 'Receipts & certificates on your letterhead', 'Branding and your own domain on Ministry'],
         adminLabel: 'Make it yours', memberLabel: 'What people see',
-        crosslinks: [{ label: 'Mobile App', href: '/features/platform-brand#pwa' }, { label: 'Unlimited Churches', href: '/features/platform-brand#churches' }],
+        crosslinks: [{ label: 'Mobile App', href: '/features/platform-brand#pwa' }, { label: 'Multi-Campus', href: '/features/platform-brand#churches' }],
       },
+      /* ⚠️ Hidden behind MULTI_CAMPUS_ENABLED, and it must stay hidden.
+         Additional campuses are a DECIDED but UNBUILT paid add-on ($20/campus/mo
+         on top of any plan; every plan already includes one). The copy below is
+         corrected so it is accurate the day the add-on exists — it is not
+         permission to render it. Do not flip the flag until the add-on billing
+         actually ships; Harvest has shipped four claims about features that did
+         not exist and this must not be the fifth.
+
+         `tiers` is [0,0,0] deliberately: this is an add-on, not an entitlement
+         of any plan, so no plan chip is truthful. Whoever un-hides this has to
+         decide how an add-on should be presented in a plan-chip row — do not
+         quietly relabel it as a Ministry feature. */
       {
-        id: 'churches', name: 'Unlimited Churches', n: '5',
+        id: 'churches', name: 'Multi-Campus', n: '5',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 0],
-        eyebrow: '$10 a campus — the whole pricing page',
+        eyebrow: '$20 a campus — the whole pricing page',
         title: 'Every campus on one platform.',
-        oneliner: 'Add unlimited locations on Ministry, each with its own address, service times and pastor — billed at a flat $10/month per campus, confirmed before you’re ever charged.',
-        moment: 'A planting network with 12 campuses knows their bill is $199 + $110 before they talk to anyone. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
-        admin: ['Add locations with Google address autocomplete', 'Flat $10/mo each, added to your existing subscription', 'An explicit confirm dialog names the price first', 'Filter the roster by city, pastor or country'],
+        oneliner: 'Every plan includes one campus. Add more — each with its own address, service times and pastor — at a flat $20/month per campus, confirmed before you’re ever charged.',
+        moment: 'A planting network with 12 campuses knows their bill is $199 + $220 before they talk to anyone: one campus is in the plan, the other eleven are $20 each. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
+        admin: ['One campus on every plan; add more whenever you need them', 'Add locations with Google address autocomplete', 'Flat $20/mo each, added to your existing subscription', 'An explicit confirm dialog names the price first', 'Filter the roster by city, pastor or country'],
         member: ['Every campus on the member map, sorted by distance', 'Its own service times, pastor & contact', 'One-tap directions to the nearest one', 'One tenant, one member list & CRM across campuses'],
         adminLabel: 'For admins', memberLabel: 'For members',
         crosslinks: [{ label: 'Church Map', href: '/features/community-engagement#map' }, { label: 'Admin Dashboard', href: '/features/platform-brand#dashboard' }],
@@ -503,7 +541,10 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   'docs-notes': '/features/discipleship-content#docs',
   'ai-knowledge-base': '/features/ai-automation#knowledge',
   'ai-chat': '/features/ai-automation#aichat',
-  'automated-newsletter': '/features/ai-automation#newsletter',
+  // Split in two: the indexed slug names the Instagram generator, so it keeps
+  // landing on that section rather than on the plain newsletter above it.
+  'automated-newsletter': '/features/ai-automation#autonewsletter',
+  'newsletter': '/features/ai-automation#newsletter',
   'sms-automation': '/features/ai-automation#sms',
   'sms-text-to-give': '/features/ai-automation#sms',
   'custom-forms-crm': '/features/ai-automation#forms',
@@ -525,7 +566,11 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   'mobile-app-pwa': '/features/platform-brand#pwa',
   'admin-dashboard': '/features/platform-brand#dashboard',
   'custom-branding-domain': '/features/platform-brand#branding',
+  // Retired label — the section is now "Multi-Campus", because every plan
+  // includes one campus and extras are a paid add-on, not an unlimited
+  // entitlement. The old slug is indexed and still has to land somewhere.
   'unlimited-churches': '/features/platform-brand#churches',
+  'multi-campus': '/features/platform-brand#churches',
   'evangelism-analytics': '/features/platform-brand#analytics',
 };
 

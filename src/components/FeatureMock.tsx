@@ -104,6 +104,13 @@ export const FEATURE_ICONS: Record<string, React.ReactElement> = {
       <path d="m3 7 9 6 9-6" />
     </svg>
   ),
+  autonewsletter: (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 11V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7" />
+      <path d="m3 7 9 6 9-6" />
+      <path d="M18.5 14.5l.85 2.15 2.15.85-2.15.85-.85 2.15-.85-2.15L15.5 17.5l2.15-.85.85-2.15Z" />
+    </svg>
+  ),
   sms: (
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12Z" />
@@ -718,38 +725,63 @@ const MOCKS: Record<string, React.ReactElement> = {
     <>
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)', fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>New newsletter</div>
-        <div style={{ padding: '11px 13px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          <div style={{ border: '1px solid var(--sky-200)', background: 'var(--sky-100)', borderRadius: '11px', padding: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--sky-700)', marginBottom: '5px' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <rect x="3" y="3" width="18" height="18" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
-              </svg>
-            </div>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>From Instagram</div>
-            <div style={{ fontSize: '9.5px', color: 'var(--text-muted)', marginTop: '1px' }}>Ministry</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '11px 13px 0' }}>
+          <span style={{ fontSize: '9.5px', fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>To</span>
+          <span style={{ flex: '1', display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid rgba(45,37,25,0.1)', borderRadius: '999px', padding: '6px 11px', fontSize: '10.5px', fontWeight: '600', color: 'var(--navy-900)' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--sky-700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            </svg>
+            Your Mailchimp audience
+            <span style={{ marginLeft: 'auto', fontSize: '9.5px', fontWeight: '600', color: 'var(--text-muted)' }}>412 subscribers</span>
+          </span>
+        </div>
+        <div style={{ margin: '11px 13px 0', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '12px', padding: '11px' }}>
+          <div style={{ fontSize: '9.5px', fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--gold-700)', marginBottom: '4px' }}>Draft · review before sending</div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '14px', fontWeight: '500', color: 'var(--navy-900)', lineHeight: '1.2' }}>This month at Grace: baptisms, youth camp & more</div>
+          <div style={{ height: '5px', width: '92%', borderRadius: '3px', background: 'var(--stone-100)', marginTop: '8px' }} />
+          <div style={{ height: '5px', width: '78%', borderRadius: '3px', background: 'var(--stone-100)', marginTop: '6px' }} />
+          <div style={{ height: '5px', width: '86%', borderRadius: '3px', background: 'var(--stone-100)', marginTop: '6px' }} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '11px 13px 13px' }}>
+          <span style={{ flex: '1', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10.5px', color: 'var(--text-muted)' }}><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--text-muted)"><circle cx="12" cy="12" r="10" /></svg>via your Mailchimp</span>
+          <span style={{ fontSize: '11px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', padding: '8px 15px', borderRadius: '8px' }}>Send</span>
+        </div>
+      </div>
+    </>
+  ),
+  /* The Ministry-only Instagram generator. Its own vignette, because the one
+     above it is the newsletter every Small Team plan already has. */
+  autonewsletter: (
+    <>
+      <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)', fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Generate from Instagram</div>
+        <div style={{ margin: '11px 13px 0', border: '1px solid var(--sky-200)', background: 'var(--sky-100)', borderRadius: '12px', padding: '11px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--sky-700)" strokeWidth="1.8">
+              <rect x="3" y="3" width="18" height="18" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="var(--sky-700)" />
+            </svg>
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>Sept 1 – Sept 30</span>
+            <span style={{ marginLeft: 'auto', fontSize: '9.5px', fontWeight: '600', color: 'var(--sky-700)' }}>14 posts</span>
           </div>
-          <div style={{ border: '1px solid rgba(45,37,25,0.1)', borderRadius: '11px', padding: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', marginBottom: '5px' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-              </svg>
-            </div>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>Write it yourself</div>
-            <div style={{ fontSize: '9.5px', color: 'var(--text-muted)', marginTop: '1px' }}>Small Team+</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '8px' }}>
+            {['Baptism Sunday', 'Youth camp', 'Serve day'].map((t) => (
+              <span key={t} style={{ fontSize: '9.5px', fontWeight: '600', color: 'var(--navy-900)', background: '#fff', border: '1px solid var(--sky-200)', borderRadius: '999px', padding: '4px 8px' }}>{t}</span>
+            ))}
           </div>
         </div>
-        <div style={{ margin: '2px 13px 0', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '12px', padding: '11px' }}>
-          <div style={{ fontSize: '9.5px', fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--gold-700)', marginBottom: '4px' }}>Draft · review before sending</div>
+        <div style={{ margin: '9px 13px 0', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '12px', padding: '11px' }}>
+          <div style={{ fontSize: '9.5px', fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--gold-700)', marginBottom: '4px' }}>AI draft · review before sending</div>
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: '14px', fontWeight: '500', color: 'var(--navy-900)', lineHeight: '1.2' }}>This month at Grace: baptisms, youth camp & more</div>
           <div style={{ height: '5px', width: '92%', borderRadius: '3px', background: 'var(--stone-100)', marginTop: '8px' }} />
           <div style={{ height: '5px', width: '78%', borderRadius: '3px', background: 'var(--stone-100)', marginTop: '6px' }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '11px 13px 13px' }}>
-          <span style={{ flex: '1', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10.5px', color: 'var(--text-muted)' }}><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--text-muted)"><circle cx="12" cy="12" r="10" /></svg>via your Mailchimp</span>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', padding: '8px 15px', borderRadius: '8px' }}>Send</span>
+          <span style={{ flex: '1', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10.5px', color: 'var(--text-muted)' }}><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--text-muted)"><circle cx="12" cy="12" r="10" /></svg>edit, then send via Mailchimp</span>
+          <span style={{ fontSize: '11px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', padding: '8px 15px', borderRadius: '8px' }}>Open draft</span>
         </div>
       </div>
     </>
@@ -1125,7 +1157,8 @@ const MOCKS: Record<string, React.ReactElement> = {
             <path d="M12 5v14M5 12h14" />
           </svg>
           <span style={{ fontSize: '11px', color: 'var(--navy-800)', fontWeight: '600', flex: '1' }}>Add a campus</span>
-          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--gold-700)' }}>+$10/mo · you confirm first</span>
+          {/* Hidden add-on — see the ⚠️ note on the `churches` feature entry. */}
+          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--gold-700)' }}>+$20/mo · you confirm first</span>
         </div>
       </div>
     </>
