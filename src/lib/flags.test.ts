@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { CatalogGroup } from '../components/catalog';
-import type { Category } from '../content/features';
+import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED } from './flags';
+import { CATALOG, type CatalogGroup } from '../components/catalog';
+import { CATEGORIES, type Category } from '../content/features';
 
 /* Reversibility is the whole point of a flag. Both of these hide a surface for
  * something the product does not currently sell, and both are meant to be a
@@ -98,6 +99,34 @@ describe('MULTI_CAMPUS_ENABLED', () => {
   it('false leaves no crosslink pointing at the hidden section', async () => {
     const s = await surfacesWith(OFF);
     expect(s.crosslinkHrefs.filter((h) => h.endsWith('#churches'))).toEqual([]);
+  });
+});
+
+/* Everything above mocks the flags, so it verifies both settings work and is
+   silent about which one ships. That silence is the gap: flipping a flag is a
+   one-line edit with no diff anywhere near the surfaces it reveals.
+   MULTI_CAMPUS in particular gates something flags.ts records as "decided as a
+   paid add-on, not built" — advertising it is a claim about a product that does
+   not exist, which is the same class of error as a wrong price.
+
+   So the shipped values are pinned. This is a tripwire, not a change-detector:
+   these literals are the same idiom as EXPECTED_ANNUAL_MONTHLY in Pricing.tsx —
+   deliberately duplicated so a one-sided change stops here and has to be stated
+   out loud. Turning a programme on is a real decision; make it in this file too,
+   in the same commit, and the assertions below tell you what it just published. */
+describe('the values this site actually ships', () => {
+  it('leaves the affiliate programme unadvertised', () => {
+    expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
+    expect((CATALOG as CatalogGroup[]).flatMap((g) => g.items.map((i) => i.title)))
+      .not.toContain('Affiliate Program');
+  });
+
+  it('leaves multi-campus unadvertised, because it is not built', () => {
+    expect(MULTI_CAMPUS_ENABLED).toBe(false);
+    expect((CATALOG as CatalogGroup[]).flatMap((g) => g.items.map((i) => i.title)))
+      .not.toContain('Multi-Campus');
+    expect((CATEGORIES as Category[]).flatMap((c) => c.features.map((f) => f.id)))
+      .not.toContain('churches');
   });
 });
 
