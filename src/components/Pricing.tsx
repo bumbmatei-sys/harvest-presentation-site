@@ -23,6 +23,40 @@ export interface Plan {
   features: string[];
 }
 
+/**
+ * Months charged for a year of service. Annual = monthly × this.
+ *
+ * This is a PRICING DECISION, not a rounding convention — do NOT "simplify" it
+ * back to a literal or to `m * 0.75`. Churches budget annually and prefer a
+ * single invoice, and a year paid up front is worth materially more to Harvest
+ * than twelve monthly payments, so the discount is deliberately generous:
+ * 9 of 12 months = 25% off.
+ *
+ * EVERY annual figure on this site derives from it — the pricing-card prices,
+ * the toggle's discount badge, and the Replaces table's headline number.
+ * Nothing computes an annual price or a discount percentage from a literal.
+ *
+ * ⚠️ CROSS-REPO: the app (Harvest-agent) carries its own copy of this constant
+ * as `ANNUAL_BILLED_MONTHS` in src/utils/plan-features.ts, where it also backs
+ * PLAN_PRICING.yearlyUsd. The two repos cannot share code, so they are kept in
+ * sync by hand. Changing this value here means changing it there IN THE SAME
+ * BREATH, or the public pricing page and the in-app plan comparison will quote
+ * different prices for the same plan.
+ */
+export const ANNUAL_BILLED_MONTHS = 9;
+
+/** Annual discount against twelve monthly payments, as a whole percent (25). */
+export const ANNUAL_DISCOUNT_PCT = Math.round((1 - ANNUAL_BILLED_MONTHS / 12) * 100);
+
+/**
+ * Monthly-equivalent price on annual billing, e.g. 199 -> 149. The one place
+ * this rounding lives; Replaces.tsx imports it rather than repeating the math.
+ * Math.round(199 * 9 / 12) is exactly 149 — a consequence of the multiplier,
+ * not a special case.
+ */
+export const annualMonthly = (monthly: number) =>
+  Math.round((monthly * ANNUAL_BILLED_MONTHS) / 12);
+
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
 export const plans: Plan[] = [
@@ -155,9 +189,10 @@ function PlanCta({ planId, variant }: { planId: string; variant: 'gold' | 'light
 export function Pricing() {
   const [annual, setAnnual] = React.useState(true);
   const [showTable, setShowTable] = React.useState(false);
-  // Stripe charges monthly × 10 for annual (pay 10 months, get 12) — a 16.7%
-  // discount, not a round 20%. Do not "simplify" this back to m * 0.8.
-  const price = (m: number) => (annual ? Math.round(m * 10 / 12) : m);
+  // Annual bills monthly × ANNUAL_BILLED_MONTHS (pay 9 months, get 12) — a 25%
+  // discount. The multiplier and the rounding both live in one place; see the
+  // constant's comment before changing anything here.
+  const price = (m: number) => (annual ? annualMonthly(m) : m);
   return (
     <section id="pricing" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
       <div style={container}>
@@ -169,7 +204,7 @@ export function Pricing() {
           <div style={{ display: 'inline-flex', background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: 999, padding: 4, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>
             {([['Annual', true], ['Monthly', false]] as [string, boolean][]).map(([l, v]) => (
               <button key={l} onClick={() => setAnnual(v)} style={{ border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 600, padding: '9px 22px', borderRadius: 999, background: annual === v ? 'var(--navy-900)' : 'transparent', color: annual === v ? '#fff' : 'var(--text-body)', transition: 'all 200ms' }}>
-                {l}{v ? <span style={{ color: annual === v ? 'var(--gold-400)' : 'var(--brand)', marginLeft: 6, fontSize: 11 }}>-17%</span> : null}
+                {l}{v ? <span style={{ color: annual === v ? 'var(--gold-400)' : 'var(--brand)', marginLeft: 6, fontSize: 11 }}>-{ANNUAL_DISCOUNT_PCT}%</span> : null}
               </button>
             ))}
           </div>
