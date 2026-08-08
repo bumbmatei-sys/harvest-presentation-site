@@ -23,6 +23,40 @@ export interface Plan {
   features: string[];
 }
 
+/**
+ * Months charged for a year of service. Annual = monthly × this.
+ *
+ * This is a PRICING DECISION, not a rounding convention — do NOT "simplify" it
+ * back to a literal or to `m * 0.75`. Churches budget annually and prefer a
+ * single invoice, and a year paid up front is worth materially more to Harvest
+ * than twelve monthly payments, so the discount is deliberately generous:
+ * 9 of 12 months = 25% off.
+ *
+ * EVERY annual figure on this site derives from it — the pricing-card prices,
+ * the toggle's discount badge, and the Replaces table's headline number.
+ * Nothing computes an annual price or a discount percentage from a literal.
+ *
+ * ⚠️ CROSS-REPO: the app (Harvest-agent) carries its own copy of this constant
+ * as `ANNUAL_BILLED_MONTHS` in src/utils/plan-features.ts, where it also backs
+ * PLAN_PRICING.yearlyUsd. The two repos cannot share code, so they are kept in
+ * sync by hand. Changing this value here means changing it there IN THE SAME
+ * BREATH, or the public pricing page and the in-app plan comparison will quote
+ * different prices for the same plan.
+ */
+export const ANNUAL_BILLED_MONTHS = 9;
+
+/** Annual discount against twelve monthly payments, as a whole percent (25). */
+export const ANNUAL_DISCOUNT_PCT = Math.round((1 - ANNUAL_BILLED_MONTHS / 12) * 100);
+
+/**
+ * Monthly-equivalent price on annual billing, e.g. 199 -> 149. The one place
+ * this rounding lives; Replaces.tsx imports it rather than repeating the math.
+ * Math.round(199 * 9 / 12) is exactly 149 — a consequence of the multiplier,
+ * not a special case.
+ */
+export const annualMonthly = (monthly: number) =>
+  Math.round((monthly * ANNUAL_BILLED_MONTHS) / 12);
+
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
 export const plans: Plan[] = [
@@ -30,6 +64,42 @@ export const plans: Plan[] = [
   { name: 'Small Team', planId: 'pro', monthly: 99, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
   { name: 'Ministry', planId: 'max', monthly: 199, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
+
+/* CROSS-REPO PRICE CONTRACT — the numbers this site must show, and the numbers
+   the app's PLAN_PRICING publishes for the same tiers. This repo has no test
+   runner, so the check runs at module scope and throws during the prerender,
+   the same idiom as the comparison-row width check below: a build failure
+   beats shipping a pricing page that disagrees with the app.
+
+   These are deliberately written as literals. They are NOT a second source of
+   truth for the multiplier — nothing renders them — they are the expected
+   OUTPUT of ANNUAL_BILLED_MONTHS, which is what makes them able to catch a
+   one-sided change. Move the multiplier on this side only and the build stops
+   here and names the tier. Update these together with the app's yearlyUsd
+   (441 / 891 / 1791) and its ANNUAL_BILLED_MONTHS, in the same change. */
+const EXPECTED_ANNUAL_MONTHLY: Record<string, number> = { plus: 37, pro: 74, max: 149 };
+const EXPECTED_ANNUAL_DISCOUNT_PCT = 25;
+
+for (const p of plans) {
+  const expected = EXPECTED_ANNUAL_MONTHLY[p.planId];
+  if (expected === undefined) {
+    throw new Error(`Pricing: plan "${p.planId}" has no expected annual price in the cross-repo contract.`);
+  }
+  if (annualMonthly(p.monthly) !== expected) {
+    throw new Error(
+      `Pricing: ${p.name} (${p.planId}) renders $${annualMonthly(p.monthly)}/mo billed annually, ` +
+      `expected $${expected}. ANNUAL_BILLED_MONTHS is ${ANNUAL_BILLED_MONTHS} here — the app ` +
+      `(Harvest-agent src/utils/plan-features.ts) must carry the same value and matching yearlyUsd.`
+    );
+  }
+}
+if (ANNUAL_DISCOUNT_PCT !== EXPECTED_ANNUAL_DISCOUNT_PCT) {
+  throw new Error(
+    `Pricing: the Annual toggle badge would read -${ANNUAL_DISCOUNT_PCT}%, expected ` +
+    `-${EXPECTED_ANNUAL_DISCOUNT_PCT}%. A discount percentage that disagrees with the prices ` +
+    `beside it is a false claim — fix ANNUAL_BILLED_MONTHS, not this number.`
+  );
+}
 
 // Index of the featured plan. The pricing cards read `p.popular` directly, but
 // the comparison table used to hard-code column 1 for its gold header and tinted
@@ -155,9 +225,10 @@ function PlanCta({ planId, variant }: { planId: string; variant: 'gold' | 'light
 export function Pricing() {
   const [annual, setAnnual] = React.useState(true);
   const [showTable, setShowTable] = React.useState(false);
-  // Stripe charges monthly × 10 for annual (pay 10 months, get 12) — a 16.7%
-  // discount, not a round 20%. Do not "simplify" this back to m * 0.8.
-  const price = (m: number) => (annual ? Math.round(m * 10 / 12) : m);
+  // Annual bills monthly × ANNUAL_BILLED_MONTHS (pay 9 months, get 12) — a 25%
+  // discount. The multiplier and the rounding both live in one place; see the
+  // constant's comment before changing anything here.
+  const price = (m: number) => (annual ? annualMonthly(m) : m);
   return (
     <section id="pricing" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
       <div style={container}>
@@ -169,7 +240,7 @@ export function Pricing() {
           <div style={{ display: 'inline-flex', background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: 999, padding: 4, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>
             {([['Annual', true], ['Monthly', false]] as [string, boolean][]).map(([l, v]) => (
               <button key={l} onClick={() => setAnnual(v)} style={{ border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 600, padding: '9px 22px', borderRadius: 999, background: annual === v ? 'var(--navy-900)' : 'transparent', color: annual === v ? '#fff' : 'var(--text-body)', transition: 'all 200ms' }}>
-                {l}{v ? <span style={{ color: annual === v ? 'var(--gold-400)' : 'var(--brand)', marginLeft: 6, fontSize: 11 }}>-17%</span> : null}
+                {l}{v ? <span style={{ color: annual === v ? 'var(--gold-400)' : 'var(--brand)', marginLeft: 6, fontSize: 11 }}>-{ANNUAL_DISCOUNT_PCT}%</span> : null}
               </button>
             ))}
           </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Reveal } from './effects';
 import { Kicker, H2, container, softCard, Mark } from './shared';
-import { plans } from './Pricing';
+import { plans, annualMonthly } from './Pricing';
 
 /* What Harvest replaces — same competitor set + monthly costs as the existing
    site. Rendered on a light card, so logos use full-colour Simple Icons (or a
@@ -35,8 +35,9 @@ const logoUrl = (slug: string | null, name: string, domain?: string) =>
     : `https://www.google.com/s2/favicons?domain=${domain ?? name.toLowerCase().replace(/[^a-z]/g, '')}.com&sz=64`;
 
 // This row compares against the top plan (the tier that matches the competitor
-// stack below) at its annual price — derived from the same plan data as
-// Pricing.tsx (monthly × 10 ÷ 12) so the two can't drift apart.
+// stack below) at its annual price — derived from the same plan data and the
+// same ANNUAL_BILLED_MONTHS constant as Pricing.tsx (monthly × 9 ÷ 12), via the
+// shared annualMonthly() helper, so the two can't drift apart.
 //
 // Keyed on planId, not on the display name: the name is marketing copy and has
 // already been reassigned once ("Community" was retired and "Ministry" moved
@@ -46,7 +47,7 @@ const logoUrl = (slug: string | null, name: string, domain?: string) =>
 const foundTopPlan = plans.find((p) => p.planId === 'max');
 if (!foundTopPlan) throw new Error("Replaces: no plan with planId 'max' to price against.");
 const topPlan = foundTopPlan;
-const topPlanAnnual = Math.round(topPlan.monthly * 10 / 12);
+const topPlanAnnual = annualMonthly(topPlan.monthly);
 
 export function Replaces() {
   return (
