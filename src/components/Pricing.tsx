@@ -65,6 +65,42 @@ export const plans: Plan[] = [
   { name: 'Ministry', planId: 'max', monthly: 199, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
 
+/* CROSS-REPO PRICE CONTRACT — the numbers this site must show, and the numbers
+   the app's PLAN_PRICING publishes for the same tiers. This repo has no test
+   runner, so the check runs at module scope and throws during the prerender,
+   the same idiom as the comparison-row width check below: a build failure
+   beats shipping a pricing page that disagrees with the app.
+
+   These are deliberately written as literals. They are NOT a second source of
+   truth for the multiplier — nothing renders them — they are the expected
+   OUTPUT of ANNUAL_BILLED_MONTHS, which is what makes them able to catch a
+   one-sided change. Move the multiplier on this side only and the build stops
+   here and names the tier. Update these together with the app's yearlyUsd
+   (441 / 891 / 1791) and its ANNUAL_BILLED_MONTHS, in the same change. */
+const EXPECTED_ANNUAL_MONTHLY: Record<string, number> = { plus: 37, pro: 74, max: 149 };
+const EXPECTED_ANNUAL_DISCOUNT_PCT = 25;
+
+for (const p of plans) {
+  const expected = EXPECTED_ANNUAL_MONTHLY[p.planId];
+  if (expected === undefined) {
+    throw new Error(`Pricing: plan "${p.planId}" has no expected annual price in the cross-repo contract.`);
+  }
+  if (annualMonthly(p.monthly) !== expected) {
+    throw new Error(
+      `Pricing: ${p.name} (${p.planId}) renders $${annualMonthly(p.monthly)}/mo billed annually, ` +
+      `expected $${expected}. ANNUAL_BILLED_MONTHS is ${ANNUAL_BILLED_MONTHS} here — the app ` +
+      `(Harvest-agent src/utils/plan-features.ts) must carry the same value and matching yearlyUsd.`
+    );
+  }
+}
+if (ANNUAL_DISCOUNT_PCT !== EXPECTED_ANNUAL_DISCOUNT_PCT) {
+  throw new Error(
+    `Pricing: the Annual toggle badge would read -${ANNUAL_DISCOUNT_PCT}%, expected ` +
+    `-${EXPECTED_ANNUAL_DISCOUNT_PCT}%. A discount percentage that disagrees with the prices ` +
+    `beside it is a false claim — fix ANNUAL_BILLED_MONTHS, not this number.`
+  );
+}
+
 // Index of the featured plan. The pricing cards read `p.popular` directly, but
 // the comparison table used to hard-code column 1 for its gold header and tinted
 // column — so moving `popular` between plans silently left the table featuring
