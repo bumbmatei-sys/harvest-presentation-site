@@ -4,6 +4,7 @@ import { imageSize } from 'image-size';
 import type { Plugin } from 'vite';
 import { CATEGORIES } from '../src/content/categories';
 import { CATEGORIES as FEATURE_CATEGORIES, categoryHref } from '../src/content/features';
+import { LEGAL_DOCS, legalHref } from '../src/content/legal';
 import { byNewest, SITE_ORIGIN, type ImageSizes, type Post } from '../src/content/post-core';
 import { parsePost } from './parse-post';
 
@@ -38,7 +39,12 @@ const SIZE_WARN_BYTES = 400 * 1024;
  *  it renders the homepage and canonicals to `/`, so listing it would compete.
  *  `/features` is absent for the same reason: it only forwards to the category
  *  pages below and is marked noindex. */
-const STATIC_ROUTES = ['/', ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)), '/contact'];
+const STATIC_ROUTES = [
+  '/',
+  ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
+  '/contact',
+  ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
+];
 
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -88,8 +94,9 @@ export function readPublishedPosts(sizes: ImageSizes = {}): Post[] {
   return readAllPosts(sizes).filter((p) => p.status === 'published');
 }
 
-/** Routes to prerender: the four original pages plus every blog route, derived
- *  from the content directory so a new .md file needs no config change. */
+/** Routes to prerender: the fixed marketing and policy pages plus every blog
+ *  route, derived from the content directory so a new .md file — or a new legal
+ *  document — needs no config change. */
 export function blogRoutes(): string[] {
   return [
     '/',
@@ -97,6 +104,7 @@ export function blogRoutes(): string[] {
     '/features',
     ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
     '/contact',
+    ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
     '/blog',
     ...CATEGORIES.map((c) => `/blog/category/${c.key}`),
     ...readPublishedPosts().map((p) => `/blog/${p.slug}`),

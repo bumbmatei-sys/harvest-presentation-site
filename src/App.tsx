@@ -10,7 +10,9 @@ import { Landing } from './pages/Landing';
 import { CategoryPage } from './pages/CategoryPage';
 import { FeaturesRedirect } from './pages/FeaturesRedirect';
 import { ContactPage } from './pages/ContactPage';
+import { LegalPage } from './pages/LegalPage';
 import { CATEGORIES, categoryHref } from './content/features';
+import { LEGAL_DOCS, legalHref } from './content/legal';
 import { BlogIndex } from './pages/BlogIndex';
 import { BlogCategory } from './pages/BlogCategory';
 import { BlogPost } from './pages/BlogPost';
@@ -47,6 +49,14 @@ export const routes: RouteRecord[] = [
         element: <CategoryPage slug={c.slug} />,
       })),
       { path: '/contact', element: <ContactPage /> },
+      // /terms, /privacy and /refunds. Derived from the document list for the
+      // same reason the category pages are: the footer column, the prerender
+      // list and the sitemap all read that list too, so a route cannot exist
+      // without a page or ship without being prerendered.
+      ...LEGAL_DOCS.map((d) => ({
+        path: legalHref(d.slug),
+        element: <LegalPage slug={d.slug} />,
+      })),
       { path: '/blog', element: <BlogIndex /> },
       // Ahead of /blog/:slug for readability — react-router already ranks the
       // static "category" segment above the dynamic one.

@@ -2,11 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mark } from './shared';
 import { CATEGORIES } from '../content/categories';
+import { legalLinks } from '../content/legal';
 import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
 
 /* Footer links resolve to real destinations only. Contact points at the real
-   /contact route; the design's legal.html#privacy/terms placeholders stay omitted
-   (there is no legal.html in this repo) rather than shipping as dead links. The
+   /contact route; the design's legal.html#privacy/terms placeholders are now
+   served by the real /terms, /privacy and /refunds routes, and the LEGAL column
+   reads its labels and hrefs from content/legal.ts so it cannot list a policy
+   that has no page (it used to be omitted entirely rather than ship dead links). The
    former direct-to-app link now routes to the pricing/trial funnel instead (see
    #27), like every other marketing CTA — no footer link points off-site anymore.
    All targets use react-router <Link>, path-qualified (e.g. /#pricing) so they
@@ -36,7 +39,7 @@ export function Footer() {
   return (
     <footer style={{ background: 'var(--cream)', padding: '0 20px 28px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 32, padding: 'clamp(32px, 5vw, 56px)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr', gap: 40 }} className="footer-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr', gap: 40 }} className="footer-grid">
           <div className="footer-brand">
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 16 }}>
               <Mark h={30} /><span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 21, color: 'var(--navy-900)' }}>Harvest<span style={{ color: 'var(--brand)' }}>.</span></span>
@@ -46,6 +49,7 @@ export function Footer() {
           {col('PAGES', [['Home', '/#hero'], ['Features', '/features/community-engagement'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
           {col('MINISTRY', [['Believers', '/#believers'], ...(AFFILIATE_PROGRAM_ENABLED ? [['Affiliate', '/#affiliate'] as [string, string]] : []), ['Start free trial', '/#pricing']])}
           {col('RESOURCES', [['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
+          {col('LEGAL', legalLinks())}
         </div>
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Harvest. Built for ministries, by ministries.</span>
