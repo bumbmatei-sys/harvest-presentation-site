@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 /* Test-runner config, deliberately SEPARATE from vite.config.ts.
@@ -12,6 +13,16 @@ import { defineConfig } from 'vitest/config';
  * data and pure functions — and esbuild reads `jsx: react-jsx` straight out of
  * tsconfig.json, so the .tsx modules that export plan data still compile. */
 export default defineConfig({
+  resolve: {
+    // `virtual:blog-content` only exists inside a Vite build, where the blog
+    // plugin serves it. Aliasing it to an empty stub is what lets a test import
+    // App.tsx and read the real route table — without it the import fails on
+    // content/posts.ts, and the routes could only be asserted by re-declaring
+    // them in the test, which would assert nothing.
+    alias: {
+      'virtual:blog-content': fileURLToPath(new URL('./src/test/blog-content-stub.ts', import.meta.url)),
+    },
+  },
   test: {
     // No jsdom / happy-dom. `lib/ref.ts` touches `window` and `sessionStorage`,
     // but it reads two properties off each, which a stub covers — see
