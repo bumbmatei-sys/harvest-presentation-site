@@ -9,8 +9,15 @@ import { SITE_ORIGIN } from './post-core';
  * — this repo's runner is node-only and deliberately renders nothing).
  *
  * ⚠️ EVERYTHING HERE MUST BE TRUE OF HARVEST AS IT SHIPS TODAY. A policy is
- * read as a commitment, not as marketing copy. Two rules follow from that:
+ * read as a commitment, not as marketing copy. Three rules follow from that:
  *
+ *   - No capability Harvest does not have. Every product noun below is checked
+ *     against content/features.ts, which is this repo's catalogue of what the
+ *     app actually does. Harvest has shipped four claims about features that
+ *     did not exist; one of them — a website builder — reached the first draft
+ *     of these Terms, where a customer would have been entitled to rely on it.
+ *     There is no page builder: a ministry's public presence is the app itself,
+ *     branded per tenant on the Ministry plan. Say what the catalogue says.
  *   - No product that is decided but unbuilt. Paid add-ons in particular are
  *     priced and agreed but not sold, so naming one here would promise a
  *     product nobody can buy. legal.test.ts fails the build if one appears.
@@ -199,7 +206,8 @@ const TERMS: LegalDoc = {
       id: 'what-harvest-is',
       heading: '1. What Harvest is',
       blocks: [
-        p('Harvest is software for churches and ministries, delivered over the web and as an installable mobile web app. One subscription gives your ministry its own workspace, and that workspace includes a contact and donor CRM, a course and discipleship library, events and registrations, QR check-in, a website builder and a content editor.'),
+        p('Harvest is software for churches and ministries, delivered over the web and as an installable mobile web app. One subscription gives your ministry its own workspace, and that workspace includes a contact and donor CRM, courses and the full Bible, events and registrations, QR check-in, and an editor for your blog, documents and sermon notes.'),
+        p('Your ministry\'s public presence is the Harvest app itself rather than a separate site you assemble in it. Every workspace gets its own address on theharvest.app, and the Ministry plan adds your own domain, your logo and your brand colour.'),
         p('These terms cover your use of that software and of this website. By creating a workspace, or by using one someone has invited you into, you agree to them.'),
         p('Harvest is a young product built by a small team, and we would rather say what is true than what sounds impressive. Where these terms do not promise something, it is because we are not yet in a position to promise it.'),
       ],
@@ -240,7 +248,7 @@ const TERMS: LegalDoc = {
       blocks: [
         p(THIRD_PARTY_PROCESSING),
         p('In practice: your ministry connects its own Stripe account through Stripe Connect. Gifts given through your donation page, your fundraising campaigns or your livestream settle into that account, on Stripe\'s schedule, under your ministry\'s name. The money never passes through an account Harvest controls, and Harvest cannot move it, hold it back, or take a cut of it.'),
-        p('What that means for you: your ministry is the one receiving the gift. You set your own giving pages and receipting, you are responsible for acknowledging gifts and for any tax treatment that applies to them, and Stripe\'s own processing fees are a matter between your ministry and Stripe under your agreement with them. If a donor asks for a gift to be refunded, that refund is yours to make from your own Stripe account — Harvest has no ability to make it for you.'),
+        p('What that means for you: your ministry is the one receiving the gift. You set up your own donation page, your campaigns and your receipting, you are responsible for acknowledging gifts and for any tax treatment that applies to them, and Stripe\'s own processing fees are a matter between your ministry and Stripe under your agreement with them. If a donor asks for a gift to be refunded, that refund is yours to make from your own Stripe account — Harvest has no ability to make it for you.'),
         p('The 0% platform fee applies to every plan. It is not an introductory rate, and there is no tier of Harvest that takes a percentage of giving.'),
       ],
     },
@@ -262,7 +270,7 @@ const TERMS: LegalDoc = {
       id: 'your-content',
       heading: '7. Your content and your data',
       blocks: [
-        p('Your ministry\'s data is yours: your member and donor records, your courses and sermons, your pages and posts, your files. Subscribing to Harvest does not transfer any of it to us and does not give us a claim over it.'),
+        p('Your ministry\'s data is yours: your member and donor records, your courses, posts and sermon notes, your documents and files. Subscribing to Harvest does not transfer any of it to us and does not give us a claim over it.'),
         p('You give us permission to store, process and display that content for one purpose only: running the service for you. That includes the ordinary mechanics of a hosted product — backups, moving data between our infrastructure providers, and showing your content to the people you have given access to.'),
         p('You keep your right to take your data out. Export is never gated behind a payment, on any plan, at any point, including after you cancel.'),
         p('How member data is handled, and the split of responsibility between your ministry and Harvest for it, is set out in the Privacy Policy.'),
@@ -336,7 +344,7 @@ const PRIVACY: LegalDoc = {
       heading: '1. Who is responsible for what',
       blocks: [
         p('This is the most important thing in this document, so it comes first. There are two different relationships here, and they carry different responsibilities.'),
-        p('For the data your ministry holds about its members — contacts, donors, families, attendance, course progress, giving history — your ministry is the data controller. It decides what to collect, why, who may see it, and when it should go. Harvest is the data processor: we store and process that data on your instructions, in order to run the service you are paying for, and for nothing else. We do not sell it, we do not rent it, we do not use it to build advertising profiles, and we do not use one ministry\'s member data to serve another.'),
+        p('For the data your ministry holds about its members — contacts, donors, attendance, course progress, giving history — your ministry is the data controller. It decides what to collect, why, who may see it, and when it should go. Harvest is the data processor: we store and process that data on your instructions, in order to run the service you are paying for, and for nothing else. We do not sell it, we do not rent it, we do not use it to build advertising profiles, and we do not use one ministry\'s member data to serve another.'),
         p('For the data about your ministry\'s own relationship with Harvest — the administrator who signed up, billing records, support conversations, and the analytics of this marketing site — Harvest is the controller, because those are our decisions rather than yours.'),
         p('That split is why a member who wants their record corrected or removed should ask their church, and why a church that wants us to delete a workspace can simply tell us to.'),
       ],
@@ -360,14 +368,14 @@ const PRIVACY: LegalDoc = {
       blocks: [
         p('Everything your ministry puts into its workspace, we hold as processor. Depending on which parts of Harvest you use, that can include:'),
         list(
-          'Contact and member records, including families and the details of children recorded for check-in.',
+          'Contact and member records, including the names of children checked in where your ministry uses check-in that way.',
           'Donor records and giving history.',
           'Attendance and check-in records.',
           'Course enrolments and progress.',
-          'Content your ministry creates — pages, posts, sermons, courses, notes, documents and uploaded files.',
+          'Content your ministry creates — posts, sermon notes, courses, documents and uploaded files.',
           'Messages your ministry sends through Harvest, and the records of them.',
         ),
-        p('We process it to provide the service, to keep it secure, to back it up, and to support you when you ask. If your ministry records details about children for check-in, those records are treated exactly like any other data you control: held on your instructions, visible to the people you give access to, and deleted when you tell us to delete them.'),
+        p('We process it to provide the service, to keep it secure, to back it up, and to support you when you ask. If your ministry checks children in, the records that creates are treated exactly like any other data you control: held on your instructions, visible to the people you give access to, and deleted when you tell us to delete them.'),
       ],
     },
     {

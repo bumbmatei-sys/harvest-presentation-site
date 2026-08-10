@@ -154,6 +154,23 @@ describe('what the policies must not claim', () => {
     ['a blanket compliance claim', /\b(fully )?compl(y|ies|iant) with\b/i],
   ];
 
+  /* Capabilities Harvest does not have. A false capability claim in marketing
+     copy is a mistake; in a policy it is a term a customer is entitled to rely
+     on. "a website builder" shipped in the first draft of these Terms and had
+     to be corrected — Harvest has no page builder. What exists is per-tenant
+     branding (custom domain, logo, brand colour, on the Ministry plan) and an
+     editor for the blog, documents and sermon notes. Harvest has shipped four
+     features that did not exist; this list is here so a fifth cannot arrive by
+     way of a policy document. */
+  const ABSENT_CAPABILITY_PATTERNS: [string, RegExp][] = [
+    ['a website builder', /website\s+builder/i],
+    ['a site builder', /\bsite\s+builder\b/i],
+    ['a page builder', /\bpage\s+builder\b/i],
+    ['drag-and-drop page editing', /drag[- ]and[- ]drop/i],
+    ['a landing page product', /landing\s+pages?\b/i],
+    ['a theme or template gallery', /\b(themes?|templates?)\s+(gallery|library|store)\b/i],
+  ];
+
   const scan = (patterns: [string, RegExp][]) =>
     it.each(LEGAL_DOCS.map((d) => [d.slug, d] as const))('%s mentions none of them', (_slug, doc) => {
       const body = text(doc);
@@ -162,6 +179,7 @@ describe('what the policies must not claim', () => {
       }
     });
 
+  describe('no capability Harvest does not have', () => scan(ABSENT_CAPABILITY_PATTERNS));
   describe('no unbuilt add-on', () => scan(ADD_ON_PATTERNS));
   describe('no company name or legal entity', () => scan(ENTITY_PATTERNS));
   describe('no jurisdiction, legal advice or compliance assertion', () => scan(OVERREACH_PATTERNS));
@@ -219,6 +237,17 @@ describe('product facts stated in the policies', () => {
     // claim, so the Terms describe today's behaviour.
     expect(text(terms)).toMatch(/7-day free trial/i);
     expect(text(terms)).not.toMatch(/\b(14|30)-day/i);
+  });
+
+  it('describes the branded app, which exists, rather than a builder, which does not', () => {
+    const body = text(terms);
+    expect(body).toMatch(/public presence is the harvest app itself/i);
+    // Branding and a custom domain are the top tier only — Pricing.tsx's
+    // comparison rows read [false, false, true]. Naming the plan from `plans`
+    // rather than as a literal means renaming the tier cannot leave the Terms
+    // promising branding to a plan that does not include it.
+    const topTier = plans[plans.length - 1].name;
+    expect(body).toContain(`the ${topTier} plan adds your own domain`);
   });
 
   it('describes SMS and bulk email as the customer’s own accounts', () => {
