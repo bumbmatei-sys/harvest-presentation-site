@@ -11,8 +11,10 @@ import { CategoryPage } from './pages/CategoryPage';
 import { FeaturesRedirect } from './pages/FeaturesRedirect';
 import { ContactPage } from './pages/ContactPage';
 import { LegalPage } from './pages/LegalPage';
+import { FaqPage } from './pages/FaqPage';
 import { CATEGORIES, categoryHref } from './content/features';
 import { LEGAL_DOCS, legalHref } from './content/legal';
+import { FAQ_HREF } from './content/faq';
 import { BlogIndex } from './pages/BlogIndex';
 import { BlogCategory } from './pages/BlogCategory';
 import { BlogPost } from './pages/BlogPost';
@@ -49,6 +51,9 @@ export const routes: RouteRecord[] = [
         element: <CategoryPage slug={c.slug} />,
       })),
       { path: '/contact', element: <ContactPage /> },
+      // The buyer's FAQ. Its own route rather than a landing anchor: the value
+      // is the indexed page and its FAQPage markup, which needs a URL.
+      { path: FAQ_HREF, element: <FaqPage /> },
       // /terms, /privacy and /refunds. Derived from the document list for the
       // same reason the category pages are: the footer column, the prerender
       // list and the sitemap all read that list too, so a route cannot exist

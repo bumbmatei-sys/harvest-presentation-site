@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Mark } from './shared';
 import { CATEGORIES } from '../content/categories';
 import { legalLinks } from '../content/legal';
+import { FAQ_HREF } from '../content/faq';
 import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
 
 /* Footer links resolve to real destinations only. Contact points at the real
@@ -48,7 +49,7 @@ export function Footer() {
           </div>
           {col('PAGES', [['Home', '/#hero'], ['Features', '/features/community-engagement'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
           {col('MINISTRY', [['Believers', '/#believers'], ...(AFFILIATE_PROGRAM_ENABLED ? [['Affiliate', '/#affiliate'] as [string, string]] : []), ['Start free trial', '/#pricing']])}
-          {col('RESOURCES', [['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
+          {col('RESOURCES', [['FAQ', FAQ_HREF], ['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
           {col('LEGAL', legalLinks())}
         </div>
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>

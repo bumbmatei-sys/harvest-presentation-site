@@ -5,6 +5,7 @@ import type { Plugin } from 'vite';
 import { CATEGORIES } from '../src/content/categories';
 import { CATEGORIES as FEATURE_CATEGORIES, categoryHref } from '../src/content/features';
 import { LEGAL_DOCS, legalHref } from '../src/content/legal';
+import { FAQ_HREF } from '../src/content/faq';
 import { byNewest, SITE_ORIGIN, type ImageSizes, type Post } from '../src/content/post-core';
 import { parsePost } from './parse-post';
 
@@ -43,6 +44,7 @@ const STATIC_ROUTES = [
   '/',
   ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
   '/contact',
+  FAQ_HREF,
   ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
 ];
 
@@ -104,6 +106,7 @@ export function blogRoutes(): string[] {
     '/features',
     ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
     '/contact',
+    FAQ_HREF,
     ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
     '/blog',
     ...CATEGORIES.map((c) => `/blog/category/${c.key}`),
