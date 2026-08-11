@@ -70,11 +70,11 @@ describe('the prerender list', () => {
     expect(prerendered, `/${slug} would ship as an empty shell`).toContain(legalHref(slug));
   });
 
-  it('prerenders 18 pages', () => {
-    // 15 before the policies, 18 with them. The number is asserted rather than
-    // derived so that a route silently dropping out of the list is a failure
-    // here rather than a page that quietly stops being crawlable.
-    expect(prerendered).toHaveLength(18);
+  it('prerenders 19 pages', () => {
+    // 15 before the policies, 18 with them, 19 with /faq. The number is asserted
+    // rather than derived so that a route silently dropping out of the list is a
+    // failure here rather than a page that quietly stops being crawlable.
+    expect(prerendered).toHaveLength(19);
     expect(new Set(prerendered).size).toBe(prerendered.length);
   });
 

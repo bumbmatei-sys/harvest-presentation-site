@@ -183,7 +183,12 @@ const SUB_PROCESSORS = [
   'Upstash — queues, caching and rate limiting.',
 ];
 
-const TRIAL_LENGTH_DAYS = 7;
+/** The trial the product runs today. Exported because content/faq.ts quotes it
+ *  too, and a trial length stated in two places is a trial length that ends up
+ *  stated two different ways. A longer trial is decided but ships with the
+ *  billing work, not before — moving this number early publishes a term Harvest
+ *  does not honour, in the Terms and on the FAQ at once. */
+export const TRIAL_LENGTH_DAYS = 7;
 
 const CONTACT_LINE =
   'The quickest way to reach us is the contact form at theharvest.site/contact. It goes straight to ' +
