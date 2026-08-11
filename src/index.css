@@ -258,6 +258,27 @@ a:hover { color: var(--brand-active); }
 .blog-img-frame img { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; object-fit: cover; border: none; border-radius: 0; }
 .blog-figure .blog-img-frame { margin: 0; }
 
+/* /faq — the buyer's FAQ, as a native <details> accordion (see FaqPage.tsx).
+   Every answer is in the prerendered HTML and the browser does the collapsing,
+   so these rules are only the look. They are here rather than inline because
+   none of them can be an inline style: the default disclosure triangle is
+   reachable only through ::marker and ::-webkit-details-marker, the chevron
+   turns on the [open] state, and the question shifts colour on :hover, on
+   :target and while open. The h2 keeps its inline typography, which is why the
+   two colour rules have to outrank it. Tokens are the site's own. */
+.faq-summary {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  padding: 20px 0; cursor: pointer; list-style: none;
+}
+.faq-summary::-webkit-details-marker { display: none; }
+.faq-summary h2 { transition: color 200ms var(--ease-out); }
+.faq-summary:hover h2,
+.faq-item[open] > .faq-summary h2,
+.faq-item:target > .faq-summary h2 { color: var(--brand) !important; }
+.faq-summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 12px; }
+.faq-chevron { flex: none; margin-top: 5px; color: var(--brand); transition: transform 280ms var(--ease-out); }
+.faq-item[open] > .faq-summary .faq-chevron { transform: rotate(180deg); }
+
 /* Feature category pages — the jump-to index above the cards. The column count
    is set inline from the number of features in the category; these rules only
    take over once that many columns stop fitting. */
