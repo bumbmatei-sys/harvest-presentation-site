@@ -29,3 +29,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Again, this time with dist/ on disk. The /faq suite reads the answers
+      # out of dist/faq/index.html when the build has run and renders them
+      # itself when it has not (see src/pages/FaqPage.test.ts) — the answers
+      # being in the file a crawler fetches is the reason that page is
+      # prerendered, so it is worth checking the file rather than a stand-in.
+      - name: Re-run tests against the built output
+        run: npm test

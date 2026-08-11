@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { Link } from 'react-router-dom';
 import type { RouteRecord } from 'vite-react-ssg';
 import { describe, expect, it } from 'vitest';
@@ -9,7 +10,7 @@ import { blogRoutes } from '../../build/blog-plugin';
 import { routes } from '../App';
 import { Footer } from '../components/Footer';
 import { FAQS, FAQ_HREF } from '../content/faq';
-import { FaqPage } from './FaqPage';
+import { Answer, FaqPage } from './FaqPage';
 
 /* Wiring: /faq exists, points at the FAQ page, gets prerendered, and is
  * reachable from the footer of every page.
@@ -99,6 +100,109 @@ describe('the footer link', () => {
   it('resolves to a route this router serves', () => {
     // The footer's standing rule: real destinations only, no placeholder hrefs.
     expect(routePaths).toContain(FAQ_HREF);
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * The accordion, in the static output.
+ * ---------------------------------------------------------------- */
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const DIST_FAQ = path.join(here, '..', '..', 'dist', 'faq', 'index.html');
+const built = fs.existsSync(DIST_FAQ);
+
+/** The copy comes back out of the HTML escaped, and not identically by both
+ *  routes — React writes `ministry&#x27;s`, the built file has `ministry's` —
+ *  so the markup is decoded before the answers are looked for in it rather than
+ *  the answers being escaped to match. `&amp;` last, or `&amp;lt;` would decode
+ *  twice. */
+const decodeEntities = (s: string) =>
+  s.replace(/&#x27;|&#39;|&apos;/g, "'").replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+/**
+ * The FAQ markup a crawler is served.
+ *
+ * ⚠️ THIS IS THE POINT OF THE PAGE. /faq is prerendered so that the answers are
+ * in the file, and they are behind a `details` rather than a React-held open
+ * flag so that collapsing them does not take them back out again. Reading them
+ * out of the finished HTML is the only check that actually says so — a source
+ * regex would still pass the day somebody swaps in a mount-time accordion.
+ *
+ * Post-build this is the real artifact, dist/faq/index.html. On a clean
+ * checkout `npm test` runs before `npm run build`, so when the file is not
+ * there yet the same component is put through the same server renderer
+ * vite-react-ssg uses, which is where that file comes from. The assertions and
+ * the test count are identical either way, and CI runs the suite a second time
+ * after the build so the artifact itself is read at least once per commit.
+ */
+const faqMarkup = built
+  // The FAQPage JSON-LD carries every answer too, and it is emitted into this
+  // same file. Left in, it would satisfy every assertion below on its own and
+  // the tests would pass with the whole visible accordion deleted.
+  ? fs.readFileSync(DIST_FAQ, 'utf8').replace(/<script[^>]*application\/ld\+json[^>]*>[\s\S]*?<\/script>/g, '')
+  : FAQS.map((faq, i) => renderToStaticMarkup(React.createElement(Answer, { faq, first: i === 0 }))).join('');
+
+const faqText = decodeEntities(faqMarkup);
+
+describe(`the answers in the prerendered HTML (${built ? 'dist/faq/index.html' : 'rendered from FaqPage.tsx'})`, () => {
+  it.each(FAQS.map((f) => [f.id, f] as const))(
+    '%s is in the static output, question and every paragraph of it',
+    (id, faq) => {
+      expect(faqText, `"${faq.question}" is not in the prerendered HTML`)
+        .toContain(faq.question);
+      for (const para of faq.answer) {
+        expect(faqText, `an answer paragraph of "${id}" is not in the prerendered HTML`)
+          .toContain(para);
+      }
+    },
+  );
+
+  it('collapses all 12 on load, and ships none of them open', () => {
+    // `open` is the whole difference between "collapsed" and "expanded", and it
+    // is one keystroke to add. Every answer arrives shut; the reader opens one.
+    const tags = [...faqMarkup.matchAll(/<details\b[^>]*>/g)].map((m) => m[0]);
+    expect(tags, 'the answers are not in <details> elements').toHaveLength(FAQS.length);
+    expect(FAQS).toHaveLength(12);
+    for (const tag of tags) {
+      expect(/(?:^|\s)open(?:=|\s|\/|>)/.test(tag), `${tag} ships expanded`).toBe(false);
+    }
+  });
+
+  it('gives every question its own summary to click', () => {
+    expect([...faqMarkup.matchAll(/<summary\b/g)]).toHaveLength(FAQS.length);
+  });
+
+  it('keeps the anchor a support reply can link to', () => {
+    for (const faq of FAQS) {
+      expect(faqMarkup, `/faq#${faq.id} no longer resolves to anything`)
+        .toMatch(new RegExp(`<details\\b[^>]*\\bid="${faq.id}"`));
+    }
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * The disclosure is the browser's, not React's.
+ * ---------------------------------------------------------------- */
+
+describe('the FAQ accordion', () => {
+  const source = fs.readFileSync(path.join(here, 'FaqPage.tsx'), 'utf8');
+
+  it('holds no open/closed state and binds no handler', () => {
+    // A useState accordion would render the answers only after hydration, which
+    // is exactly the output the prerender exists to avoid — and it would have to
+    // rebuild the keyboard operation, the expanded announcement and find-in-page
+    // that `details` gives for nothing. If this ever needs to change, the test
+    // above is the one that has to keep passing.
+    expect(source, 'the disclosure state moved into React').not.toMatch(/useState|useReducer/);
+    expect(source, 'the summary took a click handler').not.toMatch(/onClick|onToggle/);
+    expect(source, 'aria-expanded is the element\'s job, not this file\'s').not.toMatch(/aria-expanded/);
+  });
+
+  it('hides the browser default marker instead of leaving two', () => {
+    const css = fs.readFileSync(path.join(here, '..', 'index.css'), 'utf8');
+    expect(css).toMatch(/\.faq-summary\s*\{[^}]*list-style:\s*none/);
+    expect(css).toMatch(/\.faq-summary::-webkit-details-marker\s*\{\s*display:\s*none/);
   });
 });
 
