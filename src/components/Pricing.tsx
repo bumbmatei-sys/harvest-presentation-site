@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppSignupUrl } from '../lib/ref';
+import { useAppSignupUrl, type BillingPeriod } from '../lib/ref';
 import { Reveal } from './effects';
 import { HBtn } from './magic';
 import { I } from './icons';
@@ -211,6 +211,27 @@ function ComparisonTable() {
   );
 }
 
+/**
+ * What one pricing card SHOWS and what its button BUYS, derived together from a
+ * single toggle state.
+ *
+ * These two facts used to be computed apart, and they disagreed. The card priced
+ * itself off `annual`, while the signup link carried no term at all — so the
+ * app's onboarding, which fails closed to monthly when `?billing=` is absent,
+ * put every visitor on monthly. The toggle defaults to Annual, so the DEFAULT
+ * pricing page advertised $37 and charged $49.
+ *
+ * Returning both from one call is what makes that drift unrepresentable: a card
+ * cannot render the annual price without holding the annual term in the same
+ * hand. This is also the one place the site's "Annual" is translated into the
+ * app's `yearly` — see `BillingPeriod` in lib/ref.ts for why the words differ.
+ */
+export function cardTerms(monthly: number, annual: boolean): { price: number; billing: BillingPeriod } {
+  return annual
+    ? { price: annualMonthly(monthly), billing: 'yearly' }
+    : { price: monthly, billing: 'monthly' };
+}
+
 /* The plan CTA is the affiliate hand-off. Its own component so the signup URL —
    which depends on sessionStorage and therefore cannot be resolved at build
    time — can be read through a hook rather than inline in the plan map.
@@ -218,9 +239,12 @@ function ComparisonTable() {
    Load-bearing while the affiliate programme is unadvertised: a ?ref= link
    already in circulation still lands here, and this is what carries the stored
    ref across to signup so the referral is still attributed. Hiding the
-   programme's marketing surfaces must not touch this path. */
-function PlanCta({ planId, variant }: { planId: string; variant: 'gold' | 'light' }) {
-  return <HBtn href={useAppSignupUrl(planId)} variant={variant} block>Start free trial</HBtn>;
+   programme's marketing surfaces must not touch this path.
+
+   `billing` comes from the same `cardTerms` call that produced the price above
+   the button, and is never defaulted here — the term is the card's to state. */
+function PlanCta({ planId, billing, variant }: { planId: string; billing: BillingPeriod; variant: 'gold' | 'light' }) {
+  return <HBtn href={useAppSignupUrl(planId, billing)} variant={variant} block>Start free trial</HBtn>;
 }
 
 export function Pricing() {
@@ -228,8 +252,8 @@ export function Pricing() {
   const [showTable, setShowTable] = React.useState(false);
   // Annual bills monthly × ANNUAL_BILLED_MONTHS (pay 9 months, get 12) — a 25%
   // discount. The multiplier and the rounding both live in one place; see the
-  // constant's comment before changing anything here.
-  const price = (m: number) => (annual ? annualMonthly(m) : m);
+  // constant's comment before changing anything here. The price and the term
+  // the card's button buys come from the same `cardTerms` call, per card.
   return (
     <section id="pricing" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
       <div style={container}>
@@ -249,6 +273,7 @@ export function Pricing() {
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${plans.length}, 1fr)`, gap: 18, alignItems: 'stretch' }} className="pricing-grid">
           {plans.map((p, i) => {
             const pop = p.popular;
+            const { price, billing } = cardTerms(p.monthly, annual);
             return (
               <Reveal key={p.name} delay={i * 70} style={{ display: 'flex' }}>
                 <div style={{
@@ -261,7 +286,7 @@ export function Pricing() {
                   {pop && <span style={{ position: 'absolute', top: 18, right: 18, background: 'var(--brand)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>RECOMMENDED</span>}
                   <div style={{ fontSize: 13, fontWeight: 600, color: pop ? 'var(--gold-400)' : 'var(--brand)' }}>{p.name}</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '12px 0 4px' }}>
-                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>${price(p.monthly)}</span>
+                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>${price}</span>
                     <span style={{ fontSize: 13, color: pop ? 'rgba(255,255,255,0.55)' : 'var(--text-muted)' }}>/mo</span>
                   </div>
                   <div style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{p.blurb}</div>
@@ -277,7 +302,7 @@ export function Pricing() {
                       </div>
                     ))}
                   </div>
-                  <PlanCta planId={p.planId} variant={pop ? 'gold' : 'light'} />
+                  <PlanCta planId={p.planId} billing={billing} variant={pop ? 'gold' : 'light'} />
                 </div>
               </Reveal>
             );
