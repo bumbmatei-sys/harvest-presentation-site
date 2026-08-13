@@ -257,6 +257,12 @@ a:hover { color: var(--brand-active); }
 .blog-img-frame { display: block; position: relative; width: 100%; aspect-ratio: 16 / 9; margin: 1.9em 0; overflow: hidden; border-radius: 18px; border: 1px solid rgba(45, 37, 25, 0.09); }
 .blog-img-frame img { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; object-fit: cover; border: none; border-radius: 0; }
 .blog-figure .blog-img-frame { margin: 0; }
+/* Logos and other remote images whose own proportions must not be cropped
+   (marked `title="logo"` in the markdown — see parse-post.ts). Still reserves
+   the same 16:9 box as .blog-img-frame so the page does not reflow on load;
+   only the fit changes, from cropping to letterboxing at the image's own
+   aspect ratio. Never used to recolour, crop or overlay a logo. */
+.blog-img-frame--contain img { object-fit: contain; }
 
 /* /faq — the buyer's FAQ, as a native <details> accordion (see FaqPage.tsx).
    Every answer is in the prerendered HTML and the browser does the collapsing,

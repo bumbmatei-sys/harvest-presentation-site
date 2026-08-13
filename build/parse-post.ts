@@ -27,11 +27,29 @@ function requireString(value: unknown, field: string, file: string): string {
 
 const baseRenderer = new Renderer();
 
+/* Third-party logos in post bodies (e.g. `cdn.simpleicons.org/<slug>`, with a
+ * Google-favicon fallback for anything not on Simple Icons) — the convention
+ * used elsewhere in this codebase, see src/components/Replaces.tsx. Rules for
+ * any post that embeds one, enforced by review, not by this file:
+ *   - Never alter a logo: no recolouring, no cropping, no overlay. This is why
+ *     `title="logo"` switches the frame to letterbox (object-fit: contain)
+ *     instead of cropping — see .blog-img-frame--contain in src/index.css.
+ *   - Never use a competitor's logo as a post `cover` — the cover becomes the
+ *     og:image, so a rival's mark would be the social preview for a Harvest post.
+ *   - Simple Icons' CC0 licence covers the icon file, not the trademark. Those
+ *     are separate permissions and only one is granted. */
+
 /** A renderer bound to this build's measured image sizes. */
 function rendererFor(sizes: ImageSizes) {
   return {
     image({ href, title, text }: { href: string; title?: string | null; text: string }): string {
       const meta = isRemote(href) ? undefined : sizes[href];
+      // Markdown has no attribute syntax, so the "keep my own proportions"
+      // signal rides on the title attribute this renderer already reads — the
+      // literal value "logo" (case-insensitive), which is never sensible
+      // caption text. That reuse means it must NOT also caption itself (see
+      // below), so a marked image can't silently change what renders.
+      const isLogo = title?.trim().toLowerCase() === 'logo';
       const attrs = [
         `src="${escapeHtml(href)}"`,
         `alt="${escapeHtml(text || '')}"`,
@@ -43,10 +61,14 @@ function rendererFor(sizes: ImageSizes) {
       if (meta) attrs.push(`width="${meta.width}"`, `height="${meta.height}"`);
       const img = `<img ${attrs.join(' ')}>`;
       // Unmeasurable (remote, or a local file that isn't on disk) — reserve the
-      // space with an aspect-ratio box so the page doesn't reflow on load.
-      const body = meta ? img : `<span class="blog-img-frame">${img}</span>`;
-      return title
-        ? `<figure class="blog-figure">${body}<figcaption>${escapeHtml(title)}</figcaption></figure>`
+      // same 16:9 box as an ordinary remote image so the page doesn't reflow
+      // on load. A logo gets the extra --contain class so it letterboxes at
+      // its own aspect ratio instead of being cropped to fill the box.
+      const frameClass = isLogo ? 'blog-img-frame blog-img-frame--contain' : 'blog-img-frame';
+      const body = meta ? img : `<span class="${frameClass}">${img}</span>`;
+      const caption = isLogo ? undefined : title;
+      return caption
+        ? `<figure class="blog-figure">${body}<figcaption>${escapeHtml(caption)}</figcaption></figure>`
         : body;
     },
 
