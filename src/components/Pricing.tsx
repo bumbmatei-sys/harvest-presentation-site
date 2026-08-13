@@ -247,6 +247,45 @@ function PlanCta({ planId, billing, variant }: { planId: string; billing: Billin
   return <HBtn href={useAppSignupUrl(planId, billing)} variant={variant} block>Start free trial</HBtn>;
 }
 
+/* One pricing card. Takes the toggle state as a prop rather than reading it,
+   which is what lets the price it prints and the term its button sells be
+   checked against each other on a rendered card — the pair that disagreed. The
+   card holds no state of its own; `Pricing` owns the toggle. */
+export function PlanCard({ plan, annual }: { plan: Plan; annual: boolean }) {
+  const pop = plan.popular;
+  const { price, billing } = cardTerms(plan.monthly, annual);
+  return (
+    <div style={{
+      width: '100%', display: 'flex', flexDirection: 'column',
+      background: pop ? 'var(--navy-900)' : '#fff',
+      border: pop ? '1px solid var(--navy-900)' : '1px solid rgba(45,37,25,0.08)',
+      borderRadius: 24, padding: 24, boxShadow: pop ? '0 30px 60px rgba(12,21,38,0.28)' : '0 12px 30px rgba(45,37,25,0.05)',
+      position: 'relative',
+    }}>
+      {pop && <span style={{ position: 'absolute', top: 18, right: 18, background: 'var(--brand)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>RECOMMENDED</span>}
+      <div style={{ fontSize: 13, fontWeight: 600, color: pop ? 'var(--gold-400)' : 'var(--brand)' }}>{plan.name}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '12px 0 4px' }}>
+        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>${price}</span>
+        <span style={{ fontSize: 13, color: pop ? 'rgba(255,255,255,0.55)' : 'var(--text-muted)' }}>/mo</span>
+      </div>
+      <div style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{plan.blurb}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0', padding: '10px 12px', borderRadius: 12, background: pop ? 'rgba(255,255,255,0.06)' : 'var(--gold-100)' }}>
+        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{plan.fee * 100}%</span>
+        <span style={{ fontSize: 11, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)', lineHeight: 1.2 }}>Platform fee — Harvest<br />takes nothing from a gift</span>
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 20 }}>
+        {plan.features.map((f) => (
+          <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <span style={{ display: 'inline-flex', color: pop ? 'var(--gold-400)' : 'var(--brand)', flexShrink: 0, marginTop: 1 }}>{I.check({ size: 15 })}</span>
+            <span style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.82)' : 'var(--text-body)', lineHeight: 1.4 }}>{f}</span>
+          </div>
+        ))}
+      </div>
+      <PlanCta planId={plan.planId} billing={billing} variant={pop ? 'gold' : 'light'} />
+    </div>
+  );
+}
+
 export function Pricing() {
   const [annual, setAnnual] = React.useState(true);
   const [showTable, setShowTable] = React.useState(false);
@@ -271,42 +310,11 @@ export function Pricing() {
           </div>
         </Reveal>
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${plans.length}, 1fr)`, gap: 18, alignItems: 'stretch' }} className="pricing-grid">
-          {plans.map((p, i) => {
-            const pop = p.popular;
-            const { price, billing } = cardTerms(p.monthly, annual);
-            return (
-              <Reveal key={p.name} delay={i * 70} style={{ display: 'flex' }}>
-                <div style={{
-                  width: '100%', display: 'flex', flexDirection: 'column',
-                  background: pop ? 'var(--navy-900)' : '#fff',
-                  border: pop ? '1px solid var(--navy-900)' : '1px solid rgba(45,37,25,0.08)',
-                  borderRadius: 24, padding: 24, boxShadow: pop ? '0 30px 60px rgba(12,21,38,0.28)' : '0 12px 30px rgba(45,37,25,0.05)',
-                  position: 'relative',
-                }}>
-                  {pop && <span style={{ position: 'absolute', top: 18, right: 18, background: 'var(--brand)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>RECOMMENDED</span>}
-                  <div style={{ fontSize: 13, fontWeight: 600, color: pop ? 'var(--gold-400)' : 'var(--brand)' }}>{p.name}</div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '12px 0 4px' }}>
-                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>${price}</span>
-                    <span style={{ fontSize: 13, color: pop ? 'rgba(255,255,255,0.55)' : 'var(--text-muted)' }}>/mo</span>
-                  </div>
-                  <div style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{p.blurb}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0', padding: '10px 12px', borderRadius: 12, background: pop ? 'rgba(255,255,255,0.06)' : 'var(--gold-100)' }}>
-                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{p.fee * 100}%</span>
-                    <span style={{ fontSize: 11, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)', lineHeight: 1.2 }}>Platform fee — Harvest<br />takes nothing from a gift</span>
-                  </div>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 20 }}>
-                    {p.features.map((f) => (
-                      <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                        <span style={{ display: 'inline-flex', color: pop ? 'var(--gold-400)' : 'var(--brand)', flexShrink: 0, marginTop: 1 }}>{I.check({ size: 15 })}</span>
-                        <span style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.82)' : 'var(--text-body)', lineHeight: 1.4 }}>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <PlanCta planId={p.planId} billing={billing} variant={pop ? 'gold' : 'light'} />
-                </div>
-              </Reveal>
-            );
-          })}
+          {plans.map((p, i) => (
+            <Reveal key={p.name} delay={i * 70} style={{ display: 'flex' }}>
+              <PlanCard plan={p} annual={annual} />
+            </Reveal>
+          ))}
         </div>
         {/* Merchant of record. Directly under the plan buttons because that is
             where the money commitment is made, and because the fact only
