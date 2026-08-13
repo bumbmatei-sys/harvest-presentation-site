@@ -5,6 +5,7 @@ import { L } from './icons';
 import { Mark } from './shared';
 import { CATALOG, slugify } from './catalog';
 import { CATEGORIES, CATEGORY_BY_NAME, categoryHref, featureHref as featurePath } from '../content/features';
+import { TRIAL_CTA_LABEL } from '../content/legal';
 
 /* Fixed glass nav with a Features mega-menu.
    Deliberately click-to-toggle (not hover) + keyboard accessible, with a mobile
@@ -281,7 +282,7 @@ export function Nav() {
           </a>
 
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(45,37,25,0.06)' }}>
-            <HBtn to="/#pricing" variant="gold" block onClick={closeMobile}>Start your FREE 7-day trial</HBtn>
+            <HBtn to="/#pricing" variant="gold" block onClick={closeMobile}>{TRIAL_CTA_LABEL}</HBtn>
           </div>
         </div>
       )}

@@ -183,12 +183,44 @@ const SUB_PROCESSORS = [
   'Upstash — queues, caching and rate limiting.',
 ];
 
-/** The trial the product runs today. Exported because content/faq.ts quotes it
- *  too, and a trial length stated in two places is a trial length that ends up
- *  stated two different ways. A longer trial is decided but ships with the
- *  billing work, not before — moving this number early publishes a term Harvest
- *  does not honour, in the Terms and on the FAQ at once. */
-export const TRIAL_LENGTH_DAYS = 7;
+/** The trial the product runs today.
+ *
+ *  ⚠️ CROSS-REPO: this number is not ours to pick. It is set on the six live
+ *  Dodo products as `DODO_TRIAL_DAYS` in the app's src/lib/dodo/catalogue.ts,
+ *  and nothing in the app's checkout path overrides it — so whatever Dodo is
+ *  configured with is what a church actually gets. Dodo went live for
+ *  subscriptions on 2026-08-12 carrying 14 days while this constant still read
+ *  7, and for that window the site under-quoted its own trial by half: a worse
+ *  offer than Harvest ships, and a Terms clause stating a length the product
+ *  does not run. Read the app's catalogue before moving this, and change it
+ *  here only to match what Dodo is already doing.
+ *
+ *  Every trial length on this site derives from it — the four CTAs, the FAQ
+ *  answer and its SEO description, the Terms and the Refund policy. Nothing
+ *  writes the number as a literal; legal.test.ts scans the source to keep it
+ *  that way, because a literal is how the number went stale in five places at
+ *  once. */
+export const TRIAL_LENGTH_DAYS = 14;
+
+/** The one CTA sentence on this site that quotes the trial. Hero, FinalCTA,
+ *  Nav and SiteCTA all render this string rather than their own copy of it —
+ *  four hand-written copies of one fact is precisely what left four buttons
+ *  advertising a trial the product had stopped running. */
+export const TRIAL_CTA_LABEL = `Start your FREE ${TRIAL_LENGTH_DAYS}-day trial`;
+
+/** Dodo Payments is the merchant of record for Harvest subscriptions, which
+ *  means the charge is Dodo's to make and the descriptor on the statement is
+ *  Dodo's name, not Harvest's. A treasurer reconciling a card statement against
+ *  a budget line has no way to work that out — the line item simply will not
+ *  say Harvest — so it is disclosed where the money commitment is read: the
+ *  pricing section and the Terms' billing clause.
+ *
+ *  Stated once, rendered once per surface. Two surfaces quoting one constant
+ *  cannot drift; two surfaces each carrying their own sentence is the shape
+ *  behind every stale claim this suite exists to catch. */
+export const MERCHANT_OF_RECORD_NOTE =
+  'Subscriptions are billed by Dodo Payments, Harvest’s merchant of record — so your card ' +
+  'statement will read Dodo Payments, not Harvest.';
 
 const CONTACT_LINE =
   'The quickest way to reach us is the contact form at theharvest.site/contact. It goes straight to ' +
@@ -243,6 +275,7 @@ const TERMS: LegalDoc = {
         list(...tierRows),
         p('A year paid up front costs nine months of the monthly rate. The plan you are on sets your workspace limits — contacts, administrator accounts and courses — and the features available to you; the current limits for each plan are published on the pricing page and are part of what you are buying.'),
         p('Subscriptions are recurring. A monthly plan renews every month and an annual plan renews every year, charged to the card on file, until you cancel. We will always tell you before a price change takes effect on your subscription.'),
+        p(MERCHANT_OF_RECORD_NOTE),
         p('Card details are entered with our payment providers and are held by them, not by Harvest. We never see or store a full card number.'),
         p('Cancellation, what happens to your workspace afterwards, and our position on refunds are set out in the Refund & Cancellation Policy.'),
       ],

@@ -158,12 +158,17 @@ describe('what the FAQ must not claim', () => {
     ['the extra-seat price', /\$10(?![\d,])/],
   ];
 
-  /* The trial is 7 days and the site says so in four other places. A longer one
-     is decided but ships with the billing work — quoting it early publishes a
-     term Harvest does not honour. */
+  /* The trial is whatever the live Dodo products run, which is 14 days — set as
+     DODO_TRIAL_DAYS in the app's src/lib/dodo/catalogue.ts, with nothing in the
+     checkout path overriding it. These guards used to defend 7 and forbid 14,
+     which was right until Dodo went live on 2026-08-12 and made 7 the false
+     number. They are inverted, not relaxed: the job has never been to defend a
+     particular figure, it is to stop this page quoting a trial the product does
+     not run. 30 is forbidden alongside 7 because Dodo also offers a 30-day
+     card-up-front trial that Harvest deliberately did not choose. */
   const TRIAL_PATTERNS: [string, RegExp][] = [
-    ['a 14- or 30-day trial', /\b(14|30)[- ]day/i],
-    ['a trial length other than the one the product runs', /\b(?!7\b)\d+-day free trial/i],
+    ['a 7- or 30-day trial', /\b(7|30)[- ]day/i],
+    ['a trial length other than the one the product runs', /\b(?!14\b)\d+-day free trial/i],
   ];
 
   /* SMS is bring-your-own Twilio and bulk email is the customer's own Mailchimp.
@@ -228,8 +233,18 @@ describe('what the FAQ must not claim', () => {
 
 describe('product facts stated in the FAQ', () => {
   it('quotes the trial the site actually advertises, from one constant', () => {
-    expect(TRIAL_LENGTH_DAYS).toBe(7);
+    expect(TRIAL_LENGTH_DAYS).toBe(14);
     expect(body).toContain(`${TRIAL_LENGTH_DAYS} days, on whichever plan you choose`);
+  });
+
+  it('carries the trial length into the SEO description too', () => {
+    // The description is metadata, so faqPlainText() never sees it and the scan
+    // above cannot reach it. It held the number as a literal and was the last
+    // place on this page still saying 7 after the answer itself was fixed —
+    // a search result advertising the wrong trial is read by more prospects
+    // than the page it links to.
+    expect(FAQ_SEO_DESCRIPTION).toContain(`a ${TRIAL_LENGTH_DAYS}-day trial`);
+    expect(FAQ_SEO_DESCRIPTION).not.toMatch(/\b(7|30)-day/);
   });
 
   it('answers how contacts arrive without implying a tool that does not exist', () => {

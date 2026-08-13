@@ -4,6 +4,7 @@ import { Reveal } from './effects';
 import { HBtn } from './magic';
 import { I } from './icons';
 import { Kicker, H2, container, softCard } from './shared';
+import { MERCHANT_OF_RECORD_NOTE } from '../content/legal';
 
 export interface Plan {
   name: string;
@@ -282,6 +283,16 @@ export function Pricing() {
             );
           })}
         </div>
+        {/* Merchant of record. Directly under the plan buttons because that is
+            where the money commitment is made, and because the fact only
+            matters to the person who later reconciles the statement: the line
+            item will read Dodo Payments, and nothing else on this page would
+            tell a treasurer that. The sentence is imported, not written here —
+            the Terms' billing clause renders the same constant, and one fact
+            written out twice is one fact that ends up said two ways. */}
+        <Reveal delay={80}>
+          <p style={{ textAlign: 'center', marginTop: 26, fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-muted)' }}>{MERCHANT_OF_RECORD_NOTE}</p>
+        </Reveal>
         {/* Full comparison */}
         <Reveal delay={80} style={{ textAlign: 'center', marginTop: 44 }}>
           <button onClick={() => setShowTable((s) => !s)} style={{ cursor: 'pointer', border: '1px solid rgba(45,37,25,0.12)', background: '#fff', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: 'var(--navy-900)', padding: '11px 24px', borderRadius: 999, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Clouds, Reveal } from './effects';
 import { HBtn } from './magic';
 import { Mark, H2, container, SKY } from './shared';
+import { TRIAL_CTA_LABEL } from '../content/legal';
 
 export function FinalCTA() {
   return (
@@ -14,7 +15,7 @@ export function FinalCTA() {
         <H2 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)' }}>Ready to get started?</H2>
         <Reveal delay={160}>
           <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', margin: '18px auto 32px', maxWidth: 460, opacity: 0.85 }}>Start your ministry platform today — your community is waiting.</p>
-          <HBtn href="#pricing" size="lg" variant="gold">Start your FREE 7-day trial</HBtn>
+          <HBtn href="#pricing" size="lg" variant="gold">{TRIAL_CTA_LABEL}</HBtn>
         </Reveal>
       </div>
     </section>

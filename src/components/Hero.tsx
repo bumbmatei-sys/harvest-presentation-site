@@ -3,6 +3,7 @@ import { Clouds, Reveal } from './effects';
 import { Particles, AnimatedText, HBtn, TiltIn, SafariFrame } from './magic';
 import { I } from './icons';
 import { Mark, container, SKY } from './shared';
+import { TRIAL_CTA_LABEL } from '../content/legal';
 
 function DashboardMock() {
   const stat = (icon: (p?: { size?: number }) => React.ReactElement, label: string, val: string, tint: string) => (
@@ -87,7 +88,7 @@ export function Hero() {
         </Reveal>
         <Reveal delay={680} y={18}>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
-            <HBtn href="#pricing" size="lg" variant="gold">Start your FREE 7-day trial</HBtn>
+            <HBtn href="#pricing" size="lg" variant="gold">{TRIAL_CTA_LABEL}</HBtn>
           </div>
         </Reveal>
       </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Clouds, Reveal } from './effects';
 import { HBtn } from './magic';
 import { Mark, H2, container, SKY } from './shared';
+import { TRIAL_CTA_LABEL } from '../content/legal';
 
 /* Closing CTA for the category pages — the design handoff's SiteCTA component.
    Same sky band and buttons as the landing's FinalCTA, with a per-page heading. */
@@ -9,7 +10,7 @@ import { Mark, H2, container, SKY } from './shared';
 export function SiteCTA({
   heading,
   tagline = 'From conversion to devotion.',
-  primaryLabel = 'Start your FREE 7-day trial',
+  primaryLabel = TRIAL_CTA_LABEL,
 }: { heading: string; tagline?: string; primaryLabel?: string }) {
   return (
     <section style={{ position: 'relative', background: SKY, padding: 'clamp(64px, 9vw, 116px) 0', textAlign: 'center', overflow: 'hidden' }}>
