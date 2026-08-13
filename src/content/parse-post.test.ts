@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { renderMarkdown } from '../../build/parse-post';
 import type { ImageSizes } from './post-core';
@@ -15,10 +18,21 @@ const REMOTE = 'https://cdn.simpleicons.org/notion';
 const LOCAL = '/blog/some-post/diagram.webp';
 const SIZES: ImageSizes = { [LOCAL]: { width: 800, height: 450, bytes: 12345 } };
 
+const CSS = fs.readFileSync(
+  path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'index.css'),
+  'utf8',
+);
+
 describe('renderMarkdown — remote logo vs. ordinary remote image', () => {
   it('keeps a marked image at its own proportions', () => {
     const html = renderMarkdown(`![Notion](${REMOTE} "logo")`, {});
     expect(html).toContain('class="blog-img-frame blog-img-frame--contain"');
+
+    // The class alone reserves nothing without the CSS rule that makes it
+    // letterbox instead of crop.
+    const rule = /\.blog-img-frame--contain\s+img\s*\{[^}]*\}/.exec(CSS);
+    expect(rule, '.blog-img-frame--contain img rule is missing from index.css').not.toBeNull();
+    expect(rule![0]).toMatch(/object-fit:\s*contain/);
   });
 
   it('still centre-crops an ordinary remote body image', () => {
