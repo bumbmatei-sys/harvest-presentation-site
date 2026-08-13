@@ -22,7 +22,22 @@ export function getStoredRef(): string {
   try { return sessionStorage.getItem(KEY) || ''; } catch { return ''; }
 }
 
-function buildSignupUrl(planId: string | undefined, ref: string): string {
+/**
+ * A billing term in the APP's vocabulary — its `BillingPeriod` union.
+ *
+ * ⚠️ CROSS-REPO VOCABULARY, and the whole reason this type exists rather than a
+ * bare string. This site's toggle is labelled "Annual" and Dodo's own word for
+ * the term is `annual`, but the app's church onboarding validates `?billing=`
+ * against 'monthly' | 'yearly' and FAILS CLOSED to monthly on anything it does
+ * not recognise. Sending 'annual' would therefore start a monthly subscription
+ * under a card that quoted the annual price — silently, no error anywhere, which
+ * is precisely the defect this parameter was added to close. The two
+ * vocabularies are kept apart deliberately: translate at the boundary (see
+ * `cardTerms` in components/Pricing.tsx), never leak one into the other.
+ */
+export type BillingPeriod = 'monthly' | 'yearly';
+
+function buildSignupUrl(planId: string | undefined, ref: string, billing?: BillingPeriod): string {
   const params = new URLSearchParams();
   // Signup intent decides the app's landing funnel. A specific plan deep-links
   // that plan's church signup. Otherwise, when the visitor arrived via an
@@ -32,14 +47,25 @@ function buildSignupUrl(planId: string | undefined, ref: string): string {
   // their existing destination.
   const signup = planId || (ref ? 'church' : '');
   if (signup) params.set('signup', signup);
+  // The billing term the visitor was SHOWN, sent explicitly for both terms —
+  // including 'monthly', which the app would also reach by falling back. A link
+  // that states what it buys keeps meaning what it says after either side
+  // changes its default, and only a caller that actually quoted a term passes
+  // one: the CTAs that advertise no price (Hero, Nav, FinalCTA, SiteCTA) send
+  // nothing here, so the app's monthly default stays an honest outcome for them.
+  if (billing) params.set('billing', billing);
+  // `ref` stays last, where it has always been. It is set unconditionally on
+  // every URL that has one — no parameter added here may gate, drop or displace
+  // it, because a lost ref is an unpaid commission that nothing reports.
   if (ref) params.set('ref', ref);
   const qs = params.toString();
   return `https://theharvest.app/${qs ? `?${qs}` : ''}`;
 }
 
-/** Build the app signup URL, carrying the plan id and ref across the domain hop. */
-export function appSignupUrl(planId?: string): string {
-  return buildSignupUrl(planId, getStoredRef());
+/** Build the app signup URL, carrying the plan id, billing term and ref across
+ *  the domain hop. `billing` is omitted for surfaces that quote no term. */
+export function appSignupUrl(planId?: string, billing?: BillingPeriod): string {
+  return buildSignupUrl(planId, getStoredRef(), billing);
 }
 
 /** `appSignupUrl` for use during the render of a prerendered page.
@@ -51,8 +77,8 @@ export function appSignupUrl(planId?: string): string {
  * Holding the ref at '' for the first render keeps hydration in agreement with
  * the server, and the effect then re-renders the link with the stored ref, which
  * React does apply. */
-export function useAppSignupUrl(planId?: string): string {
+export function useAppSignupUrl(planId?: string, billing?: BillingPeriod): string {
   const [ref, setRef] = useState('');
   useEffect(() => { setRef(getStoredRef()); }, []);
-  return buildSignupUrl(planId, ref);
+  return buildSignupUrl(planId, ref, billing);
 }

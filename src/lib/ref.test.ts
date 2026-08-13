@@ -126,3 +126,55 @@ describe('appSignupUrl — the four plan × ref combinations', () => {
     expect(appSignupUrl('max')).toBe('https://theharvest.app/?signup=max');
   });
 });
+
+/* The billing term. A signup link that names no term lands on an app that fails
+   closed to monthly, which is how a card quoting the annual price came to sell a
+   monthly subscription. These assertions are the same kind as the ones above —
+   money — and the ref ones are repeated here against the new parameter, because
+   the way an added parameter breaks attribution is by displacing the old one. */
+describe('appSignupUrl — the billing term', () => {
+  const withRef = () => { browserAt('?ref=partner7'); captureRefFromUrl(); };
+
+  it('names the term explicitly for both periods, never leaving it to a default', () => {
+    browserAt('');
+    expect(appSignupUrl('max', 'yearly')).toBe('https://theharvest.app/?signup=max&billing=yearly');
+    expect(appSignupUrl('max', 'monthly')).toBe('https://theharvest.app/?signup=max&billing=monthly');
+  });
+
+  it('omits the term entirely for a CTA that quoted no term', () => {
+    // Hero, Nav, FinalCTA and SiteCTA advertise no price and no period, so the
+    // app's monthly fallback is an honest outcome for them — sending a term
+    // those buttons never showed would be the same lie in the other direction.
+    browserAt('');
+    expect(appSignupUrl('max')).toBe('https://theharvest.app/?signup=max');
+    expect(appSignupUrl()).toBe('https://theharvest.app/');
+  });
+
+  it('the referral parameter still survives on the signup link', () => {
+    withRef();
+    const url = appSignupUrl('max', 'yearly');
+    expect(url).toBe('https://theharvest.app/?signup=max&billing=yearly&ref=partner7');
+    // Asserted by name as well as by whole-string equality: the exact-match
+    // above is what pins the order, this is what fails loudly if a future
+    // parameter swallows or renames the one that pays the commission.
+    expect(new URL(url).searchParams.get('ref')).toBe('partner7');
+  });
+
+  it('carries the ref on every plan and every term the cards can offer', () => {
+    withRef();
+    for (const planId of ['plus', 'pro', 'max']) {
+      for (const billing of ['monthly', 'yearly'] as const) {
+        const params = new URL(appSignupUrl(planId, billing)).searchParams;
+        expect(params.get('signup')).toBe(planId);
+        expect(params.get('billing')).toBe(billing);
+        expect(params.get('ref')).toBe('partner7');
+      }
+    }
+  });
+
+  it('carries the term into the church funnel a ref-only visitor takes', () => {
+    withRef();
+    expect(appSignupUrl(undefined, 'yearly'))
+      .toBe('https://theharvest.app/?signup=church&billing=yearly&ref=partner7');
+  });
+});
