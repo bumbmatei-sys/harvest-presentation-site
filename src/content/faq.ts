@@ -27,9 +27,13 @@ import { TRIAL_LENGTH_DAYS } from './legal';
  *     bulk — every CSV path in the app is an export — and there is no page
  *     builder. See the `contacts-in` answer, which says so in as many words.
  *   - No product that is decided but unbuilt. Paid add-ons are priced and agreed
- *     but not sold; the longer trial is decided but ships with the billing work,
- *     not before. The trial length is imported from legal.ts rather than typed,
- *     and faq.test.ts fails the build if an add-on or a longer trial appears.
+ *     but not sold. The trial length is a different case: it is whatever the
+ *     live Dodo products are configured with, so it is imported from legal.ts
+ *     rather than typed — including in the SEO description below, which was the
+ *     one place on this page that held it as a literal and the one place that
+ *     went stale when Dodo shipped a longer trial. faq.test.ts fails the build
+ *     if an add-on appears, or if this page quotes a trial the product does not
+ *     run.
  *   - No surface that is deliberately hidden. The affiliate programme and
  *     additional campuses are behind flags in lib/flags.ts for a reason, so no
  *     question here answers anything about either.
@@ -41,7 +45,7 @@ export const FAQ_CANONICAL = `${SITE_ORIGIN}${FAQ_HREF}`;
 
 export const FAQ_SEO_TITLE = 'Frequently Asked Questions — Harvest';
 export const FAQ_SEO_DESCRIPTION =
-  'What Harvest costs, what each plan includes, and the answers churches ask before buying: a 0% platform fee on every gift, a 7-day trial, who owns member data, and what happens to it if you cancel.';
+  `What Harvest costs, what each plan includes, and the answers churches ask before buying: a 0% platform fee on every gift, a ${TRIAL_LENGTH_DAYS}-day trial, who owns member data, and what happens to it if you cancel.`;
 
 export const FAQ_TITLE = 'Questions churches ask before they buy';
 export const FAQ_STANDFIRST =

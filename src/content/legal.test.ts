@@ -1,10 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { ANNUAL_BILLED_MONTHS, plans } from '../components/Pricing';
 import {
   LEGAL_DOCS,
   LEGAL_UPDATED,
+  MERCHANT_OF_RECORD_NOTE,
   TIER_PRICE_CLAIMS,
   THIRD_PARTY_PROCESSING,
+  TRIAL_CTA_LABEL,
+  TRIAL_LENGTH_DAYS,
   formatLegalDate,
   legalCanonical,
   legalHref,
@@ -232,11 +238,15 @@ describe('the tier prices quoted in the Terms', () => {
 
 describe('product facts stated in the policies', () => {
   it('quotes the trial the site actually advertises', () => {
-    // Every CTA on this site says "Start your FREE 7-day trial". A longer trial
-    // is planned and not shipped; quoting it here would be a false commercial
-    // claim, so the Terms describe today's behaviour.
-    expect(text(terms)).toMatch(/7-day free trial/i);
-    expect(text(terms)).not.toMatch(/\b(14|30)-day/i);
+    // Every CTA on this site renders TRIAL_CTA_LABEL, and the Terms clause and
+    // the Refund policy both interpolate the same constant, so all six surfaces
+    // move together. This guard used to require 7 and forbid 14 — correct until
+    // the live Dodo products started running 14, at which point defending 7 was
+    // defending the false number. Inverted, never loosened: a Terms clause
+    // stating a trial length the product does not run is the failure mode, in
+    // whichever direction it points.
+    expect(text(terms)).toMatch(/14-day free trial/i);
+    expect(text(terms)).not.toMatch(/\b(7|30)-day/i);
   });
 
   it('describes the branded app, which exists, rather than a builder, which does not', () => {
@@ -294,6 +304,158 @@ describe('product facts stated in the policies', () => {
   it('gives a way to reach a human on every page', () => {
     for (const doc of LEGAL_DOCS) {
       expect(text(doc), `${doc.slug} gives no contact route`).toMatch(/theharvest\.site\/contact/);
+    }
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * The trial length, as a single source.
+ * ---------------------------------------------------------------- */
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const SRC = path.join(here, '..');
+
+/** Every source file the site renders copy from — components, content and
+ *  pages. Tests are excluded on purpose: writing the number out as a literal is
+ *  exactly what a guard is for, and the suite below is one of them. */
+const renderedSources = (): [string, string][] => {
+  const out: [string, string][] = [];
+  const walk = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) { walk(full); continue; }
+      if (!/\.tsx?$/.test(entry.name) || /\.test\.tsx?$/.test(entry.name)) continue;
+      out.push([path.relative(SRC, full), fs.readFileSync(full, 'utf8')]);
+    }
+  };
+  for (const d of ['components', 'content', 'pages']) walk(path.join(SRC, d));
+  return out;
+};
+
+/** Source with comments removed and every `${TRIAL_LENGTH_DAYS}` interpolation
+ *  replaced by a non-numeric marker. What is left is the prose the site ships
+ *  with the number written by hand. The `[^:]` guard on line comments keeps a
+ *  `https://` inside a string literal from swallowing the rest of its line. */
+const renderedProse = (source: string) =>
+  source
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ')
+    .replace(/\$\{\s*TRIAL_LENGTH_DAYS\s*\}/g, '<from-the-constant>');
+
+describe('the trial length', () => {
+  it('states the trial length the product actually runs', () => {
+    // 14 is not this repo's choice. It is DODO_TRIAL_DAYS on the six live Dodo
+    // products (the app's src/lib/dodo/catalogue.ts), and the app's checkout
+    // path sets no override — so this is what a church signing up today gets.
+    // The site said 7 from the moment Dodo went live for subscriptions, which
+    // under-advertised Harvest's own trial by half.
+    expect(TRIAL_LENGTH_DAYS).toBe(14);
+
+    // Every surface that quotes a length derives it from that one constant.
+    expect(TRIAL_CTA_LABEL).toBe(`Start your FREE ${TRIAL_LENGTH_DAYS}-day trial`);
+    expect(text(terms)).toContain(`${TRIAL_LENGTH_DAYS}-day free trial`);
+    expect(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!))
+      .toContain(`${TRIAL_LENGTH_DAYS}-day free trial`);
+  });
+
+  it('never writes the trial length as a literal', () => {
+    /* The test that would have caught the original bug, and the only one here
+       that keeps catching the next one. Five surfaces said 7 because five
+       surfaces each held their own copy of the number; correcting them to 14 by
+       hand would leave the same five copies, ready to go stale again the next
+       time Dodo is reconfigured. So this does not check which number appears —
+       it checks that no rendered string states one at all. A trial length in
+       this repo has to come through TRIAL_LENGTH_DAYS.
+
+       Deliberately not a search for `7`: the 30-day prayer-request expiry in
+       content/features.ts and the 30-day badge in FeatureMock.tsx are real,
+       correct and nothing to do with billing, which is why the match is scoped
+       to a day-count sitting beside the word "trial". */
+    const LITERAL_BEFORE = /\b\d+[-\s]?days?\b(?=[^.\n]{0,40}?\btrial\b)/i;
+    const LITERAL_AFTER = /\btrial\b[^.\n]{0,40}?\b\d+[-\s]?days?\b/i;
+
+    const files = renderedSources();
+    // A scan that silently walked nothing would pass forever. Name the files
+    // that actually held the stale number, so a rename cannot quietly drop one
+    // out of coverage.
+    for (const expected of [
+      path.join('components', 'Hero.tsx'),
+      path.join('components', 'FinalCTA.tsx'),
+      path.join('components', 'Nav.tsx'),
+      path.join('components', 'SiteCTA.tsx'),
+      path.join('content', 'faq.ts'),
+      path.join('content', 'legal.ts'),
+    ]) {
+      expect(files.map(([f]) => f), `${expected} is no longer covered by the scan`).toContain(expected);
+    }
+
+    for (const [file, source] of files) {
+      const prose = renderedProse(source);
+      for (const pattern of [LITERAL_BEFORE, LITERAL_AFTER]) {
+        const hit = prose.match(pattern);
+        expect(
+          hit,
+          `${file} writes the trial length as a literal (${JSON.stringify(hit?.[0])}) ` +
+          `instead of interpolating TRIAL_LENGTH_DAYS`,
+        ).toBe(null);
+      }
+    }
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * Who the church is actually paying.
+ * ---------------------------------------------------------------- */
+
+const PRICING_SOURCE = fs.readFileSync(path.join(SRC, 'components', 'Pricing.tsx'), 'utf8');
+
+/** The two places a church reads a money commitment, and the text each shows.
+ *  Named by surface rather than matched by pattern — a bare search for a number
+ *  or for "Dodo" would hit the sub-processor list in the Privacy policy, which
+ *  is a data-protection disclosure and a different fact. */
+const MOR_SURFACES: [string, string][] = [
+  ['the Terms', plainText(terms)],
+  ['the pricing section', PRICING_SOURCE],
+];
+
+const countOf = (haystack: string, pattern: RegExp) => (haystack.match(pattern) ?? []).length;
+
+describe('the merchant-of-record disclosure', () => {
+  it('discloses that the card statement reads Dodo Payments', () => {
+    /* Dodo Payments is the merchant of record, so Dodo is the party that makes
+       the charge and Dodo's name is the descriptor on the statement. A treasurer
+       reconciling a card statement against a budget line will not find "Harvest"
+       on it anywhere, and nothing else on either surface would tell them why. */
+    expect(MERCHANT_OF_RECORD_NOTE).toMatch(/merchant of record/i);
+    expect(MERCHANT_OF_RECORD_NOTE).toMatch(/card statement will read Dodo Payments, not Harvest/i);
+
+    // The Terms carry the sentence itself; the pricing section renders the same
+    // constant rather than a second copy of the words.
+    expect(plainText(terms)).toContain(MERCHANT_OF_RECORD_NOTE);
+    expect(PRICING_SOURCE).toContain('{MERCHANT_OF_RECORD_NOTE}');
+  });
+
+  it('discloses the merchant of record exactly once per surface', () => {
+    /* One statement per surface, from one constant. Four copies of the minimum
+       plan is how that claim ended up over-selling in four places at once, and
+       a disclosure repeated under every plan card reads as boilerplate and gets
+       skipped — which for this fact is the same as not making it. */
+    for (const [surface, content] of MOR_SURFACES) {
+      expect(countOf(content, /merchant of record/gi), `${surface} states it more than once, or not at all`).toBe(1);
+    }
+
+    // The other two policies must not grow their own copy of it. They are read
+    // by the same treasurer, and a second wording is a second thing to keep true.
+    for (const slug of ['privacy', 'refunds']) {
+      const doc = LEGAL_DOCS.find((d) => d.slug === slug)!;
+      expect(countOf(plainText(doc), /merchant of record/gi), `${slug} carries a second copy of the disclosure`).toBe(0);
+    }
+
+    // Nor may any component hand-write the phrase. Pricing.tsx is the one
+    // surface that shows it, and it shows it by importing the constant.
+    for (const [file, source] of renderedSources()) {
+      if (file === path.join('content', 'legal.ts')) continue; // where it is defined
+      expect(countOf(renderedProse(source), /merchant of record/gi), `${file} writes the disclosure out by hand`).toBe(0);
     }
   });
 });
