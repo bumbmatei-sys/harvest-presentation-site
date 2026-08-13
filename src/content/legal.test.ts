@@ -409,13 +409,20 @@ describe('the trial length', () => {
 
 const PRICING_SOURCE = fs.readFileSync(path.join(SRC, 'components', 'Pricing.tsx'), 'utf8');
 
-/** The two places a church reads a money commitment, and the text each shows.
- *  Named by surface rather than matched by pattern — a bare search for a number
- *  or for "Dodo" would hit the sub-processor list in the Privacy policy, which
- *  is a data-protection disclosure and a different fact. */
-const MOR_SURFACES: [string, string][] = [
-  ['the Terms', plainText(terms)],
-  ['the pricing section', PRICING_SOURCE],
+/** The two places a church reads a money commitment, each with what counting it
+ *  means there. Named by surface rather than matched by value — a bare search
+ *  for "Dodo" would hit the sub-processor list in the Privacy policy, which is a
+ *  data-protection disclosure and a different fact.
+ *
+ *  The Terms carry the sentence in their prose, so the disclosure is counted in
+ *  the text a reader sees. The pricing section renders the imported constant, so
+ *  the words never appear in Pricing.tsx at all and what is counted there is the
+ *  render site itself. Counting the phrase in that file instead would count the
+ *  comment above the paragraph and go on passing after the paragraph was
+ *  deleted — which is exactly what it did until a mutation caught it. */
+const MOR_SURFACES: [string, string, RegExp][] = [
+  ['the Terms', plainText(terms), /merchant of record/gi],
+  ['the pricing section', PRICING_SOURCE, /\{MERCHANT_OF_RECORD_NOTE\}/g],
 ];
 
 const countOf = (haystack: string, pattern: RegExp) => (haystack.match(pattern) ?? []).length;
@@ -440,8 +447,8 @@ describe('the merchant-of-record disclosure', () => {
        plan is how that claim ended up over-selling in four places at once, and
        a disclosure repeated under every plan card reads as boilerplate and gets
        skipped — which for this fact is the same as not making it. */
-    for (const [surface, content] of MOR_SURFACES) {
-      expect(countOf(content, /merchant of record/gi), `${surface} states it more than once, or not at all`).toBe(1);
+    for (const [surface, content, pattern] of MOR_SURFACES) {
+      expect(countOf(content, pattern), `${surface} states it more than once, or not at all`).toBe(1);
     }
 
     // The other two policies must not grow their own copy of it. They are read
