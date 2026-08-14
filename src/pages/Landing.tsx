@@ -5,7 +5,7 @@ import { Community } from '../components/Community';
 import { Analytics } from '../components/Analytics';
 import { Features } from '../components/Features';
 import { Replaces } from '../components/Replaces';
-import { Pricing } from '../components/Pricing';
+import { CHEAPEST_MONTHLY, Pricing } from '../components/Pricing';
 import { Affiliate } from '../components/Affiliate';
 import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
 import { FinalCTA } from '../components/FinalCTA';
@@ -18,7 +18,7 @@ export function Landing() {
           competing with the homepage for the same content. */}
       <Seo
         title="Harvest — From Conversion to Devotion"
-        description="Ministry platform for churches — AI, CRM, SMS, Livestream, Check-In, and more. From $49/mo."
+        description={`Ministry platform for churches — AI, CRM, SMS, Livestream, Check-In, and more. From $${CHEAPEST_MONTHLY}/mo.`}
         canonical="https://theharvest.site/"
       />
       <Hero />

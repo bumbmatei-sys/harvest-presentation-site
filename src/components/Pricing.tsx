@@ -102,6 +102,19 @@ if (ANNUAL_DISCOUNT_PCT !== EXPECTED_ANNUAL_DISCOUNT_PCT) {
   );
 }
 
+/**
+ * The lowest monthly sticker price across all plans — what "from $X/mo" means
+ * on the static marketing copy that names no billing term (Nav's mega-menu
+ * footer, the BlogPost CTA band, the Landing SEO description).
+ *
+ * Deliberately the plain monthly figure, not `annualMonthly(...)`: none of
+ * those surfaces is a signup CTA or carries a toggle, so there is no "billed
+ * annually" context to hang the annual-equivalent figure on. Quoting $37
+ * there without that qualifier would be the same mismatch #55 fixed, in
+ * miniature — see cardTerms above.
+ */
+export const CHEAPEST_MONTHLY = Math.min(...plans.map((p) => p.monthly));
+
 // Index of the featured plan. The pricing cards read `p.popular` directly, but
 // the comparison table used to hard-code column 1 for its gold header and tinted
 // column — so moving `popular` between plans silently left the table featuring

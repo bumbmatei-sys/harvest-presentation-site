@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
 import { I, L } from './icons';
 import { Kicker, H2, container, AV } from './shared';
+import { CATALOG_TOOL_COUNT } from './catalog';
 
 function BentoCard({ icon, name, desc, to, children, span = 1, minH = 300, soon = false }:
   { icon: React.ReactNode; name: string; desc: string; to: string; children?: React.ReactNode; span?: number; minH?: number; soon?: boolean }) {
@@ -124,7 +125,7 @@ export function Features() {
           </Reveal>
         </div>
         <Reveal delay={120} style={{ textAlign: 'center', marginTop: 40 }}>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>29 tools across community, discipleship, giving and AI</p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>{`${CATALOG_TOOL_COUNT} tools across community, discipleship, giving and AI`}</p>
         </Reveal>
       </div>
     </section>
