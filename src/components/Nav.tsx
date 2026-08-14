@@ -3,9 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { HBtn } from './magic';
 import { L } from './icons';
 import { Mark } from './shared';
-import { CATALOG, slugify } from './catalog';
+import { CATALOG, CATALOG_TOOL_COUNT, slugify } from './catalog';
 import { CATEGORIES, CATEGORY_BY_NAME, categoryHref, featureHref as featurePath } from '../content/features';
 import { TRIAL_CTA_LABEL } from '../content/legal';
+import { CHEAPEST_MONTHLY } from './Pricing';
 
 /* Fixed glass nav with a Features mega-menu.
    Deliberately click-to-toggle (not hover) + keyboard accessible, with a mobile
@@ -42,6 +43,15 @@ const linkStyle: React.CSSProperties = {
 const PAGE_LINKS: [string, string][] = [
   ['Pricing', '/#pricing'],
 ];
+
+/** The mega-menu footer's price and tool-count claim, split out into its own
+ *  component so a test can render it with `renderToStaticMarkup` directly —
+ *  the footer otherwise only exists once `mega` state is true, which nothing
+ *  outside a real click can set in this repo's DOM-less test runner. Same
+ *  reason `PlanCard` is its own exported component in Pricing.tsx. */
+export function MegaMenuFooterLabel() {
+  return <>{`${CATALOG_TOOL_COUNT} tools in one platform — from $${CHEAPEST_MONTHLY}/mo`}</>;
+}
 
 export function Nav() {
   const { pathname } = useLocation();
@@ -207,7 +217,7 @@ export function Nav() {
             ))}
           </div>
           <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>29 tools in one platform — from $59/mo</span>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}><MegaMenuFooterLabel /></span>
           </div>
         </div>
       )}

@@ -6,6 +6,7 @@ import { CategoryTag, Cover, PostMeta, blogPage, measure, pageTitle, standfirst 
 import { postBySlug, relatedPosts } from '../content/posts';
 import { categoryName } from '../content/categories';
 import { SITE_ORIGIN, absoluteImageUrl, formatDate, type Post } from '../content/post-core';
+import { CHEAPEST_MONTHLY } from '../components/Pricing';
 
 /* A post page is a reading surface: one column, capped measure, nothing
    competing with the text. The site's chrome (nav, footer, type, gold) is
@@ -78,7 +79,7 @@ function CtaBand() {
         Run your whole ministry in one place
       </p>
       <p style={{ fontSize: 15, color: 'var(--text-body)', margin: '12px auto 22px', maxWidth: 420, lineHeight: 1.6 }}>
-        Every tool your church needs — branded, in one place, from $49/mo.
+        {`Every tool your church needs — branded, in one place, from $${CHEAPEST_MONTHLY}/mo.`}
       </p>
       <HBtn to="/#pricing" variant="gold">Start free trial</HBtn>
     </aside>

@@ -84,3 +84,13 @@ export const CATALOG: CatalogGroup[] = [
     ],
   },
 ];
+
+/** Tools the "N tools in one platform" copy (Nav's mega-menu footer) may
+ *  count. `soon` entries are marked that way because they are not built yet —
+ *  advertising one as a tool "in one platform" today would be the same false
+ *  claim as a stale price, so they are excluded from the count rather than
+ *  from the menu itself. */
+export const CATALOG_TOOL_COUNT = CATALOG.reduce(
+  (n, g) => n + g.items.filter((it) => !it.soon).length,
+  0,
+);
