@@ -151,7 +151,19 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Courses', ['2', '5', '15']],
     ['Blog', [T, T, T]],
     ['Automated SEO Blog Articles', [false, false, T]],
-    ['Docs & Notes', [T, T, T]],
+    /* No Docs & Notes row, deliberately (THE-163). Notes is a real feature on
+       Small Team and Ministry and the product did not change — what changed is
+       that no feature table should be carrying the row at all. The in-app plan
+       table that mirrored this grid is being deleted wholesale in the same
+       batch, so removing this row is what leaves no table anywhere making the
+       claim; putting it back re-opens the claim on its own.
+
+       Scope is THIS GRID ONLY. The feature keeps its catalogue entry in
+       components/catalog.ts (which is where CATALOG_TOOL_COUNT comes from — a
+       row and a catalogue entry are different objects, and deleting the entry
+       to "finish the job" silently drops the tool count the Nav advertises),
+       its section on /features/discipleship-content, and its line on the
+       Individual card above. Do not chase the feature out of those. */
     ['Sermon Notes → Livestream', [false, T, T]],
   ] },
   { grp: 'Automation', rows: [
@@ -184,7 +196,14 @@ for (const sec of featureMatrix) {
 // the cards — the matrix rows above are positional and assume this exact order.
 const planNames = plans.map((p) => p.name);
 
-function ComparisonTable() {
+/* Exported for the suite, not for reuse — `Pricing` is still its only caller.
+   The table renders behind `showTable`, which starts closed, so it is absent
+   from the prerendered pricing page and NO amount of grepping dist/ can see
+   what a cell says. Rendering the component directly is the only place a claim
+   in this grid is checkable as markup rather than as data — and #55 is why that
+   distinction is load-bearing: a pure-function test passed while the JSX seam
+   was mutated. */
+export function ComparisonTable() {
   const cell = (v: Cell) => {
     if (v === true) return <span style={{ display: 'inline-flex', color: 'var(--brand)' }}>{I.check({ size: 16 })}</span>;
     if (v === false) return <span style={{ color: 'var(--stone-300)' }}>—</span>;
