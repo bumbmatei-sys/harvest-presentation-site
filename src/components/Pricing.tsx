@@ -245,6 +245,196 @@ export function cardTerms(monthly: number, annual: boolean): { price: number; bi
     : { price: monthly, billing: 'monthly' };
 }
 
+/**
+ * Months charged for a year of an ADD-ON. Twelve — add-ons carry NO annual
+ * discount, and this constant exists so that fact has a name instead of being
+ * an unstated absence.
+ *
+ * ⚠️ THIS IS NOT `ANNUAL_BILLED_MONTHS`, and the two must never be conflated.
+ * The 9-of-12 discount is a pricing decision about PLANS. Dodo bills every
+ * add-on at twelve months a year, so an add-on's annual price is exactly
+ * monthly × 12: $19/mo is $228 a year.
+ *
+ * `annualMonthly` is the trap. It is the right helper for a plan and a false
+ * price for an add-on — annualMonthly(19) is 14, a third under what Dodo
+ * charges. Nothing in the add-on section may call it, and `addOnPricingContract`
+ * below fails the build if an add-on's two figures ever stop agreeing.
+ *
+ * The toggle's −25% badge is the second half of the same hazard: a price sitting
+ * under "save 25%" with no qualifier is read as discounted. That is why the
+ * section says out loud, whenever the annual toggle is on, that add-ons are not
+ * — an unstated exception to a headline discount is a false impression, not a
+ * mere omission.
+ */
+export const ADD_ON_BILLED_MONTHS = 12;
+
+export interface AddOn {
+  name: string;
+  /** Sticker price per month, as Dodo charges it. */
+  monthly: number;
+  /**
+   * Price for a year. Carried rather than derived because it is a figure Dodo
+   * publishes on its own product, so it is a number that can be got wrong —
+   * `addOnPricingContract` checks it against monthly × ADD_ON_BILLED_MONTHS.
+   */
+  annual: number;
+  /** Capacity, in the visitor's words. Never a capability claim — an add-on
+   *  raises a limit; it does not add a feature the catalogue doesn't list. */
+  blurb: string;
+  /**
+   * Which plans can buy it, as `planId`s of `plans`.
+   *
+   * Availability is enforced in Dodo (THE-133) and is not a presentation
+   * choice: Contacts +500 is not sold on Individual, and unlimited contacts is
+   * Ministry only. A visitor on the Individual card who reads "add 500 contacts
+   * for $20" and then cannot has been misled, so the restriction is STATED on
+   * every add-on rather than left to be inferred from silence.
+   *
+   * Held as ids and rendered through `plans`, so this can neither name a tier
+   * that does not exist nor drift from a plan rename — that is what keeps it
+   * from being a second copy of the plan list.
+   */
+  planIds: string[];
+}
+
+/* THE ONE PLACE AN ADD-ON PRICE IS WRITTEN. Both figures for every add-on live
+   here and nothing else on this site may restate one — #56 fixed three
+   disconnected $49 literals and this is the add-on equivalent waiting to happen.
+   The section below renders these fields; no copy quotes a price.
+
+   ⚠️ CAMPUS IS DELIBERATELY ABSENT. A second campus is priced and live in Dodo
+   in principle, but the two LIVE Dodo add-on ids for it were never recorded, so
+   the app refuses a live Campus purchase (pinned by a test in REP-5b).
+   Advertising it — even as a price with a "soon" label — is a claim the product
+   cannot honour, and it is the same surface `MULTI_CAMPUS_ENABLED` (lib/flags.ts)
+   exists to keep hidden. It is omitted entirely rather than listed as coming
+   soon: this section's whole subject is what you can buy, and a row inside it is
+   read as buyable whatever the label says. Add it when the live ids exist and
+   the flag flips, in the same change. */
+export const ADD_ONS: AddOn[] = [
+  { name: 'AI Assistant seat', monthly: 19, annual: 228, blurb: 'An AI assistant seat for one person on your team.', planIds: ['plus', 'pro', 'max'] },
+  { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
+  { name: 'Contacts +500', monthly: 20, annual: 240, blurb: '500 more contacts, on top of your plan’s limit.', planIds: ['pro', 'max'] },
+  { name: 'Unlimited contacts', monthly: 59, annual: 708, blurb: 'No contact limit at all.', planIds: ['max'] },
+];
+
+/**
+ * ADD-ON PRICE CONTRACT — the same idiom as the cross-repo plan contract above,
+ * for the mistake that contract cannot catch: an add-on priced as if the plan
+ * discount applied to it.
+ *
+ * Exported and called at module scope, so it throws during the prerender (a
+ * build failure beats shipping a price a third under what Dodo charges) while
+ * still being callable with a bad list, which is what proves it has teeth.
+ * ⚠️ It deliberately does NOT touch the plan contract, which stands as it is.
+ */
+export function addOnPricingContract(addOns: AddOn[]): void {
+  for (const a of addOns) {
+    const expected = a.monthly * ADD_ON_BILLED_MONTHS;
+    if (a.annual !== expected) {
+      throw new Error(
+        `Pricing: add-on "${a.name}" is listed at ${a.monthly}/mo and ${a.annual}/year, but ` +
+        `${ADD_ON_BILLED_MONTHS} × ${a.monthly} is ${expected}. Add-ons are NOT discounted ` +
+        `annually — if this came from annualMonthly(), that is the plan discount and it ` +
+        `does not apply here.`
+      );
+    }
+    if (a.planIds.length === 0) {
+      throw new Error(`Pricing: add-on "${a.name}" is sold on no plan, so nothing could state where it is available.`);
+    }
+    for (const id of a.planIds) {
+      if (!plans.some((p) => p.planId === id)) {
+        throw new Error(
+          `Pricing: add-on "${a.name}" is marked available on plan "${id}", which is not in \`plans\`. ` +
+          `Availability is rendered through the plan names, so an unknown id would print nothing.`
+        );
+      }
+    }
+  }
+}
+
+addOnPricingContract(ADD_ONS);
+
+/**
+ * Where an add-on can be bought, in words, derived from `plans` — never a
+ * hand-written tier list. "Available on every plan" when it is sold on all of
+ * them, and otherwise the plans that can buy it, named, followed by "only".
+ */
+export function addOnAvailability(planIds: string[]): string {
+  const names = plans.filter((p) => planIds.includes(p.planId)).map((p) => p.name);
+  if (names.length === plans.length) return 'Available on every plan';
+  const listed = names.length > 1
+    ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
+    : names[0];
+  return `${listed} only`;
+}
+
+/* One add-on. Its own component for the same reason `PlanCard` is: the price it
+   prints and the availability it states are the two things a visitor acts on,
+   and both are checkable on a rendered card rather than on the data behind it.
+   No CTA — add-ons are bought inside the app, never from this page. */
+export function AddOnCard({ addOn }: { addOn: AddOn }) {
+  return (
+    <div style={{
+      ...softCard, width: '100%', display: 'flex', flexDirection: 'column',
+      borderRadius: 20, padding: 20, boxShadow: '0 12px 30px rgba(45,37,25,0.05)',
+    }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy-900)' }}>{addOn.name}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '10px 0 2px' }}>
+        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 500, color: 'var(--navy-900)' }}>${addOn.monthly}</span>
+        <span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>/mo</span>
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{`or $${addOn.annual} a year`}</div>
+      <div style={{ flex: 1, fontSize: 12.5, color: 'var(--text-body)', lineHeight: 1.45, margin: '12px 0 14px' }}>{addOn.blurb}</div>
+      <div style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
+        <span style={{ display: 'inline-flex', color: 'var(--brand)', flexShrink: 0, marginTop: 1 }}>{I.check({ size: 14 })}</span>
+        <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--brand)', lineHeight: 1.3 }}>{addOnAvailability(addOn.planIds)}</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The add-on section. Takes the toggle state as a prop rather than reading it —
+ * the same shape as `PlanCard`, and for the same reason: the sentence that has
+ * to appear beside a −25% badge can then be checked on rendered output.
+ *
+ * The prices themselves do NOT move with the toggle, because they do not move
+ * in Dodo. Both figures are shown either way; only the qualifier is conditional,
+ * and it is conditional on exactly the state that makes the discount visible.
+ *
+ * On timing: PR 321 refuses an add-on purchase during the trial, deliberately —
+ * Dodo's proration ends the trial, so a $10 seat bought on day 3 would charge
+ * the full plan price there and then and forfeit the rest of the trial. So this
+ * says "once your plan is active" and never "add anytime": the site must not
+ * promise something the app is built to refuse.
+ */
+export function AddOns({ annual }: { annual: boolean }) {
+  return (
+    <div style={{ marginTop: 48 }}>
+      <div style={{ textAlign: 'center', marginBottom: 22 }}>
+        <Kicker>Add-ons</Kicker>
+        <p style={{ margin: '10px auto 0', maxWidth: 560, fontSize: 13.5, lineHeight: 1.55, color: 'var(--text-muted)' }}>
+          Extra capacity for a plan you already have. Added from inside the app once your plan is active.
+        </p>
+      </div>
+      <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${ADD_ONS.length}, 1fr)`, gap: 14, alignItems: 'stretch' }}>
+        {ADD_ONS.map((a, i) => (
+          <Reveal key={a.name} delay={i * 60} style={{ display: 'flex' }}>
+            <AddOnCard addOn={a} />
+          </Reveal>
+        ))}
+      </div>
+      {annual && (
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 12.5, lineHeight: 1.55, color: 'var(--text-muted)' }}>
+          {`Add-ons are not discounted annually — the −${ANNUAL_DISCOUNT_PCT}% applies to plans only. ` +
+           `A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price, which is the yearly figure shown on each one.`}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /* The plan CTA is the affiliate hand-off. Its own component so the signup URL —
    which depends on sessionStorage and therefore cannot be resolved at build
    time — can be read through a hook rather than inline in the plan map.
@@ -339,6 +529,12 @@ export function Pricing() {
         <Reveal delay={80}>
           <p style={{ textAlign: 'center', marginTop: 26, fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-muted)' }}>{MERCHANT_OF_RECORD_NOTE}</p>
         </Reveal>
+        {/* Add-ons. Below the merchant-of-record line rather than above it: that
+            sentence belongs directly under the plan buttons, where the money
+            commitment is made. Add-ons are the next question a visitor asks
+            after choosing a tier, and they take the same toggle state so the
+            annual qualifier renders in the one state that needs it. */}
+        <AddOns annual={annual} />
         {/* Full comparison */}
         <Reveal delay={80} style={{ textAlign: 'center', marginTop: 44 }}>
           <button onClick={() => setShowTable((s) => !s)} style={{ cursor: 'pointer', border: '1px solid rgba(45,37,25,0.12)', background: '#fff', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: 'var(--navy-900)', padding: '11px 24px', borderRadius: 999, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>
