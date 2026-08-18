@@ -279,7 +279,7 @@ describe('what this change must not have touched', () => {
     // from reading as if it applied to these prices too.
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
-      ['AI Assistant seat', 19, 228],
+      ['AI Assistant', 19, 228],
       ['Admin seat', 10, 120],
       ['Contacts +500', 20, 240],
       ['Unlimited contacts', 59, 708],

@@ -331,7 +331,11 @@ export interface AddOn {
    read as buyable whatever the label says. Add it when the live ids exist and
    the flag flips, in the same change. */
 export const ADD_ONS: AddOn[] = [
-  { name: 'AI Assistant seat', monthly: 19, annual: 228, blurb: 'One more congregation member with access to the AI assistant, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
+  // Unlike every other row below, this is a whole-plan toggle, not a per-unit
+  // capacity raise: one purchase turns the AI assistant on in the app for
+  // every member on the plan. It is not sold per person and no member ever
+  // needs their own seat.
+  { name: 'AI Assistant', monthly: 19, annual: 228, blurb: 'Turns on the AI assistant for every member of your congregation, in the app — one purchase for the whole plan, not billed per person.', planIds: ['plus', 'pro', 'max'] },
   { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
   { name: 'Contacts +500', monthly: 20, annual: 240, blurb: '500 more contacts, on top of your plan’s limit.', planIds: ['pro', 'max'] },
   { name: 'Unlimited contacts', monthly: 59, annual: 708, blurb: 'No contact limit at all.', planIds: ['max'] },
