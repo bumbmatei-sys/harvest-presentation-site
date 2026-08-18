@@ -1,10 +1,28 @@
 name: CI
 
+# Runs on `pull_request` only. The `push: branches: [main]` trigger was removed
+# in THE-170, which ran this whole workflow a second time for the commit each
+# merge produced.
+#
+# Unlike the app repo, this one is PUBLIC, so its Actions minutes are free and
+# it contributed nothing to the exhausted allowance. The change is here for the
+# duplicate runs and the cancellation, not for the budget.
+#
+# The tradeoff is the same and worth stating here too: a `pull_request` run
+# tests the PR merged into `main` as it stood when the run started. Squash-
+# merging after `main` has moved lands a tree that was never tested in that
+# exact form, so an older green check is not a statement about `main`. `main`
+# is unprotected, so a direct push to it now gets no CI at all.
+
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+
+# One live run per pull request; superseded runs are cancelled rather than left
+# to finish alongside the newest commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -27,6 +45,8 @@ jobs:
       - name: Run tests
         run: npm test
 
+      # `build` is `tsc -b && vite-react-ssg build`: it is this repo's only
+      # typecheck as well as the prerender, so it is verification, not packaging.
       - name: Build
         run: npm run build
 
