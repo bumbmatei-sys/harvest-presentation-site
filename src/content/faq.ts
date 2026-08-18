@@ -196,7 +196,7 @@ export const FAQS: Faq[] = [
     answer: [
       `Harvest is sold on three plans, priced in US dollars, each payable monthly or annually. ${priceLines.join(' ')}`,
       `A year paid up front costs nine months of the monthly rate, so annual billing is ${ANNUAL_DISCOUNT_PCT}% cheaper than paying month by month.`,
-      'Every plan includes the web and mobile app, your community and news feed, the full Bible, courses, docs and sermon notes, the donor and member CRM, and your donation page and fundraising. Small Team adds livestream with live giving, QR check-in, the church map and the newsletter. Ministry adds your own branding and domain, community groups and events, custom forms that feed the CRM, tax receipts and giving statements, automated SEO blog articles and the automated newsletter, and QuickBooks accounting sync.',
+      'Every plan includes the web and mobile app, your news feed, the full Bible, courses, the donor and member CRM, and your donation page and fundraising. Small Team adds docs and sermon notes, livestream with live giving, QR check-in, the church map and the newsletter. Ministry adds your own branding and domain, community groups and events, custom forms that feed the CRM, tax receipts and giving statements, automated SEO blog articles and the automated newsletter, and QuickBooks accounting sync.',
       'The full plan-by-plan comparison is on the pricing page. What is on that page is what you are buying — there is nothing else to add at checkout.',
     ],
   },
