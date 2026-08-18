@@ -175,24 +175,30 @@ describe('Notes outside the comparison table', () => {
     expect(CATALOG.flatMap((g) => g.items.map((i) => i.title))).toContain(NOTES_ROW);
 
     // 2. Its section on /features/discipleship-content (content/features.ts),
-    //    still on every plan there, with its tier note intact.
+    //    with its tier note intact. THE-164 corrected the chips from [1,1,1]:
+    //    the app's `docs` is false on `plus`, so the Individual chip is off. The
+    //    section itself stays — a wrong tier is not a reason to cut a feature.
     const discipleship = CATEGORIES.find((c) => c.slug === 'discipleship-content');
     expect(discipleship, 'no discipleship-content category').toBeDefined();
     const docs = discipleship!.features.find((f) => f.id === 'docs');
     expect(docs, 'no docs feature on /features/discipleship-content').toBeDefined();
     expect(docs!.name).toBe(NOTES_ROW);
-    expect(docs!.tiers).toEqual([1, 1, 1]);
+    expect(docs!.tiers).toEqual([0, 1, 1]);
     expect(docs!.tiersNote).toMatch(/sermon notes/i);
 
-    // 3. The plan cards, rendered — Individual still lists Docs & Notes and
-    //    Small Team still lists Sermon Notes → Livestream.
+    // 3. The plan cards, rendered. THE-164 moved Docs & Notes off the
+    //    Individual card and onto Small Team, where it actually starts;
+    //    Ministry inherits it through "Everything in Small Team". Moved, not
+    //    dropped — a card that stopped selling Notes anywhere would be the
+    //    same over-correction in a different structure.
     const card = (planId: string) => words(render(React.createElement(
       PlanCard, { plan: plans.find((p) => p.planId === planId)!, annual: true },
     )));
-    expect(card('plus')).toContain(NOTES_ROW);
+    expect(card('pro')).toContain(NOTES_ROW);
     expect(card('pro')).toContain('Sermon Notes → Livestream');
 
-    // 4. The FAQ's plan answer (content/faq.ts).
+    // 4. The FAQ's plan answer (content/faq.ts) — still names the feature, now
+    //    in the Small Team sentence instead of the every-plan one.
     const pricingFaq = FAQS.find((f) => f.id === 'pricing');
     expect(pricingFaq, 'no pricing FAQ').toBeDefined();
     expect(pricingFaq!.answer.join(' ')).toMatch(/docs and sermon notes/i);

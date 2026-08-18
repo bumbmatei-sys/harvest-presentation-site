@@ -205,8 +205,8 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'docs', name: 'Docs & Notes', n: '5',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1, 1],
-        tiersNote: 'Docs and sermon notes are on every plan. Pushing notes to a live stream needs Small Team or above, because that is where livestream itself starts.',
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 1, 1],
+        tiersNote: 'Docs and sermon notes are on Small Team and above. Pushing notes to a live stream needs Small Team or above, because that is where livestream itself starts.',
         eyebrow: 'Write once, use everywhere',
         title: 'Write it Tuesday. Preach it Sunday. Push it to every screen.',
         oneliner: 'Sermon prep and team docs — nested, autosaved, exportable — and one tap from your congregation\'s screen the moment you\'re preaching.',
