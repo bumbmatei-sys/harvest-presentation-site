@@ -83,6 +83,7 @@ const ALL_CATEGORIES: Category[] = [
       {
         id: 'groups', name: 'Groups', n: '2',
         accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
+        tiersNote: 'Channels and direct messages are on Ministry only — Individual and Small Team don\'t have a Messages tab at all.',
         eyebrow: 'Private by design',
         title: 'Get your leadership out of the group text.',
         oneliner: 'Private channels and direct messages inside your app — coordination and pastoral care in the same place as everything else.',

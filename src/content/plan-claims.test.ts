@@ -4,8 +4,11 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
-import { ComparisonTable, PlanCard, plans } from '../components/Pricing';
+import {
+  annualMonthly, ANNUAL_BILLED_MONTHS, ANNUAL_DISCOUNT_PCT, ComparisonTable, PlanCard, plans,
+} from '../components/Pricing';
 import { FeatureBlock } from '../components/FeatureBlock';
+import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
 import { CATEGORIES } from './features';
 import { FAQS } from './faq';
 import { LEGAL_DOCS } from './legal';
@@ -286,5 +289,125 @@ describe('what the site claims is on every plan', () => {
     for (const kept of ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', 'CRM (Donors & Members)', 'Donation page & Fundraising']) {
       expect(individual, `the Individual card stopped selling ${kept}`).toContain(kept);
     }
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * THE-180 — the Community Groups feature block named no tier at all. Unlike
+ * THE-164, this was never a false "every plan" clause anywhere (the FAQ and
+ * the grid were already correct) — it was silence: the oneliner, and every
+ * admin/member bullet, described creating channels, posting with a role
+ * badge, and DMing "any admin" with no qualifier, so a Individual or Small
+ * Team reader had nothing on the page telling them it doesn't apply to them.
+ * `docs` already carries a `tiersNote` under its plan chips for exactly this
+ * job (THE-164); `groups` gets the same field, minimally — no bullet text,
+ * no `tiers`, no other feature block touched.
+ * ---------------------------------------------------------------- */
+
+describe('THE-180 — Community Groups names its tier floor', () => {
+  const groupsFeature = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'groups')!;
+
+  it('the Community Groups feature block states its tier floor', () => {
+    // 🔴 The change: a tiersNote, the same field and the same job `docs` uses.
+    expect(groupsFeature.tiersNote, 'groups has no tiersNote').toBeDefined();
+    expect(groupsFeature.tiersNote).toMatch(/Ministry/);
+    expect(groupsFeature.tiersNote).not.toMatch(/\bevery\s+plan\b/i);
+
+    // Rendered under the plan chips, not just present on the object.
+    const html = words(render(React.createElement(
+      MemoryRouter, null, React.createElement(FeatureBlock, { feature: groupsFeature }),
+    )));
+    expect(html).toContain('Channels and direct messages are on Ministry only');
+  });
+
+  it('no surface claims Community Groups on every plan', () => {
+    // The whole-site scan already polices this; re-affirm it here including the
+    // new tiersNote text itself — a qualifier that mis-claims "every plan"
+    // would be worse than the silence it replaced.
+    const offenders = everyPlanClauses
+      .filter(([, c]) => /\bcommunit(y|ies)\b|\bgroups?\b/i.test(withoutFeed(c)))
+      .map(([where, c]) => `${where}: "${c}"`);
+    expect(offenders, 'Community Groups is Ministry-only').toEqual([]);
+
+    expect(chipsOf('groups')).toEqual({ Individual: false, 'Small Team': false, Ministry: true });
+    expect(cardText('plus')).not.toMatch(/community groups/i);
+    expect(cardText('pro')).not.toMatch(/community groups/i);
+    expect(cardText('max')).toMatch(/community groups/i);
+  });
+
+  it('Community Groups is not removed from the site', () => {
+    // 🔴 The over-correction guard — naming a floor is not licence to cut the
+    // feature, the same distinction THE-164 drew for Notes.
+    expect(groupsFeature.name).toBe('Groups');
+    expect(groupsFeature.admin.length).toBeGreaterThan(0);
+    expect(groupsFeature.member.length).toBeGreaterThan(0);
+    expect(groupsFeature.oneliner.length).toBeGreaterThan(0);
+
+    // Its section still renders on the category page, under its own anchor.
+    const raw = render(React.createElement(
+      MemoryRouter, null, React.createElement(FeatureBlock, { feature: groupsFeature }),
+    ));
+    expect(raw).toContain('id="groups"');
+    expect(words(raw)).toContain(groupsFeature.title);
+
+    // Still a row in the comparison grid (unlike Docs & Notes, which THE-163
+    // deliberately removed from this same grid).
+    const row = gridRows.find((r) => r.label === 'Community Groups');
+    expect(row, 'Community Groups row was removed from the comparison grid').toBeDefined();
+
+    // Still in the mega-menu catalogue — a tier claim and a catalogue entry
+    // are different objects (PR 59), and this change touched neither CATALOG
+    // nor its entry.
+    expect(CATALOG.flatMap((g) => g.items.map((i) => i.title))).toContain('Groups');
+
+    // Still sold on the plan that actually has it.
+    expect(cardText('max')).toMatch(/community groups/i);
+  });
+
+  it('the comparison grid still marks it Ministry only', () => {
+    expect(gridClaim('Community Groups', 'Individual')).toBe('excluded');
+    expect(gridClaim('Community Groups', 'Small Team')).toBe('excluded');
+    expect(gridClaim('Community Groups', 'Ministry')).toBe('included');
+  });
+
+  it('the news feed is still claimed on every plan', () => {
+    // 🔴 The over-correction guard from the other direction — the feed is
+    // /community_posts, a different product from Community Groups, and is
+    // genuinely on every plan.
+    expect(chipsOf('feed')).toEqual({ Individual: true, 'Small Team': true, Ministry: true });
+    for (const name of plans.map((p) => p.name)) {
+      expect(gridClaim('News Feed', name), `${name} lost the news feed`).toBe('included');
+    }
+    expect(FAQS.find((f) => f.id === 'pricing')!.answer.join(' ')).toMatch(/news feed/i);
+  });
+
+  it('the tool count is unchanged at its derived value', () => {
+    // CATALOG is untouched — this change only added a tiersNote to one entry
+    // in content/features.ts.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(CATALOG_TOOL_COUNT).toBe(
+      CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
+    );
+  });
+
+  it('plan prices and the annual discount are unchanged', () => {
+    expect(plans.map((p) => p.monthly)).toEqual([49, 99, 199]);
+    expect(ANNUAL_BILLED_MONTHS).toBe(9);
+    expect(ANNUAL_DISCOUNT_PCT).toBe(25);
+    expect(plans.map((p) => annualMonthly(p.monthly))).toEqual([37, 74, 149]);
+    for (const p of plans) {
+      expect(words(render(React.createElement(PlanCard, { plan: p, annual: true }))))
+        .toContain(`$${annualMonthly(p.monthly)}`);
+    }
+  });
+
+  it('the cross-repo price contract still throws when a price disagrees', () => {
+    const src = readFileSync(fileURLToPath(new URL('../components/Pricing.tsx', import.meta.url)), 'utf8');
+    expect(src).toMatch(/const EXPECTED_ANNUAL_MONTHLY: Record<string, number> = \{ plus: 37, pro: 74, max: 149 \};/);
+    expect(src).toMatch(/if \(annualMonthly\(p\.monthly\) !== expected\) \{\s*\n\s*throw new Error\(/);
+    // Proof the check has teeth: shifting the multiplier by a month would
+    // desync at least one tier from the figure the app publishes.
+    const shifted = (monthly: number) => Math.round((monthly * (ANNUAL_BILLED_MONTHS + 1)) / 12);
+    expect(plans.some((p) => shifted(p.monthly) !== annualMonthly(p.monthly))).toBe(true);
   });
 });
