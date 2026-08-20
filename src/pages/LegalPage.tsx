@@ -4,7 +4,7 @@ import { Seo } from '../components/Seo';
 import { Clouds, Reveal } from '../components/effects';
 import { Particles, AnimatedText } from '../components/magic';
 import { Kicker, softCard, SKY } from '../components/shared';
-import { ANNUAL_BILLED_MONTHS, plans } from '../components/Pricing';
+import { plans } from '../components/Pricing';
 import {
   LEGAL_DOCS,
   LEGAL_DOC_BY_SLUG,
@@ -33,7 +33,7 @@ import {
    cross-repo contract at the top of components/Pricing.tsx. A published price
    the site does not charge is a false commercial claim, so it must not be
    possible to ship one by editing only one of the two files. */
-const priceProblems = tierPriceMismatches(plans, ANNUAL_BILLED_MONTHS);
+const priceProblems = tierPriceMismatches(plans);
 if (priceProblems.length > 0) {
   throw new Error(
     `Legal: the Terms of Service quote prices the pricing cards do not charge — ${priceProblems.join('; ')}. ` +

@@ -26,16 +26,23 @@ export function getStoredRef(): string {
  * A billing term in the APP's vocabulary — its `BillingPeriod` union.
  *
  * ⚠️ CROSS-REPO VOCABULARY, and the whole reason this type exists rather than a
- * bare string. This site's toggle is labelled "Annual" and Dodo's own word for
+ * bare string. This site's toggle is labelled "Yearly" and Dodo's own word for
  * the term is `annual`, but the app's church onboarding validates `?billing=`
- * against 'monthly' | 'yearly' and FAILS CLOSED to monthly on anything it does
- * not recognise. Sending 'annual' would therefore start a monthly subscription
- * under a card that quoted the annual price — silently, no error anywhere, which
- * is precisely the defect this parameter was added to close. The two
- * vocabularies are kept apart deliberately: translate at the boundary (see
- * `cardTerms` in components/Pricing.tsx), never leak one into the other.
+ * against its own allowlist and FAILS CLOSED to monthly on anything it does not
+ * recognise. Sending 'annual' would therefore start a monthly subscription under
+ * a card that quoted the yearly price — silently, no error anywhere, which is
+ * precisely the defect this parameter was added to close. The two vocabularies
+ * are kept apart deliberately: translate at the boundary (see `cardTerms` in
+ * components/Pricing.tsx), never leak one into the other.
+ *
+ * 🔴 THESE THREE WORDS MUST STAY EXACTLY THE APP'S THREE. `quarterly` was added
+ * here and to the app's `BILLING_TERMS` in the same change, and neither side may
+ * gain a term alone: a term this site can put in a link but the app does not
+ * recognise falls closed to MONTHLY there, which means a church that clicked a
+ * quarterly card is charged the monthly rate on a monthly cycle — the exact
+ * silent mis-sell described above, pointed at the new term.
  */
-export type BillingPeriod = 'monthly' | 'yearly';
+export type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
 
 function buildSignupUrl(planId: string | undefined, ref: string, billing?: BillingPeriod): string {
   const params = new URLSearchParams();
