@@ -5,7 +5,7 @@ import { Clouds, Reveal } from '../components/effects';
 import { Particles, AnimatedText } from '../components/magic';
 import { SiteCTA } from '../components/SiteCTA';
 import { Kicker, softCard, SKY } from '../components/shared';
-import { ANNUAL_BILLED_MONTHS, plans } from '../components/Pricing';
+import { plans } from '../components/Pricing';
 import { legalHref } from '../content/legal';
 import {
   FAQS,
@@ -57,7 +57,7 @@ import {
    the FAQ says. Throwing at module scope surfaces during the prerender, which
    is a build failure — the same idiom as the cross-repo contract at the top of
    components/Pricing.tsx and the Terms' contract in pages/LegalPage.tsx. */
-const priceProblems = faqPlanMismatches(plans, ANNUAL_BILLED_MONTHS);
+const priceProblems = faqPlanMismatches(plans);
 if (priceProblems.length > 0) {
   throw new Error(
     `FAQ: the answers quote prices or limits the pricing cards do not sell — ${priceProblems.join('; ')}. ` +

@@ -1,4 +1,4 @@
-import { ANNUAL_DISCOUNT_PCT } from '../components/Pricing';
+import { ADVERTISED_DISCOUNT_PCT, discountClaim } from '../components/Pricing';
 import { SITE_ORIGIN } from './post-core';
 import { TRIAL_LENGTH_DAYS } from './legal';
 
@@ -60,7 +60,9 @@ export interface FaqPlanClaim {
   planId: string;
   name: string;
   monthly: number;
-  /** Charged once for a year of service — monthly × ANNUAL_BILLED_MONTHS. */
+  /** Charged once every three months. */
+  quarterly: number;
+  /** Charged once for a year of service. */
   annual: number;
   /** Contact ceiling, exactly as the pricing card writes it (grouped). */
   contacts: string;
@@ -87,9 +89,9 @@ export interface FaqPlanClaim {
  * mismatch is a build failure rather than a warning.
  */
 export const FAQ_PLAN_CLAIMS: FaqPlanClaim[] = [
-  { planId: 'plus', name: 'Individual', monthly: 49, annual: 441, contacts: '150', admins: '2', courses: '2' },
-  { planId: 'pro', name: 'Small Team', monthly: 99, annual: 891, contacts: '500', admins: '5', courses: '5' },
-  { planId: 'max', name: 'Ministry', monthly: 199, annual: 1791, contacts: '2,000', admins: '15', courses: '15' },
+  { planId: 'plus', name: 'Individual', monthly: 39, quarterly: 99, annual: 329, contacts: '150', admins: '2', courses: '2' },
+  { planId: 'pro', name: 'Small Team', monthly: 79, quarterly: 199, annual: 659, contacts: '500', admins: '5', courses: '5' },
+  { planId: 'max', name: 'Ministry', monthly: 159, quarterly: 399, annual: 1329, contacts: '2,000', admins: '15', courses: '15' },
 ];
 
 /** Shape of the bits of `Plan` this check needs. Passed in rather than imported
@@ -99,7 +101,7 @@ export const FAQ_PLAN_CLAIMS: FaqPlanClaim[] = [
 export interface FaqPricedPlan {
   planId: string;
   name: string;
-  monthly: number;
+  price: { monthly: number; quarterly: number; yearly: number };
   /** Platform fee as a decimal fraction. The 0% answer is the page's strongest
    *  claim; a nonzero fee on any tier makes it a lie. */
   fee: number;
@@ -110,7 +112,7 @@ export interface FaqPricedPlan {
 
 /** Every way this page and the pricing cards disagree, in plain English.
  *  Empty means the two are in step. */
-export function faqPlanMismatches(plans: readonly FaqPricedPlan[], annualBilledMonths: number): string[] {
+export function faqPlanMismatches(plans: readonly FaqPricedPlan[]): string[] {
   const problems: string[] = [];
 
   for (const plan of plans) {
@@ -122,12 +124,19 @@ export function faqPlanMismatches(plans: readonly FaqPricedPlan[], annualBilledM
     if (claim.name !== plan.name) {
       problems.push(`the FAQ calls ${plan.planId} "${claim.name}", the pricing cards call it "${plan.name}"`);
     }
-    if (claim.monthly !== plan.monthly) {
-      problems.push(`the FAQ quotes $${claim.monthly}/mo for ${plan.name}, the pricing cards charge $${plan.monthly}/mo`);
-    }
-    const annual = plan.monthly * annualBilledMonths;
-    if (claim.annual !== annual) {
-      problems.push(`the FAQ quotes $${claim.annual}/yr for ${plan.name}, the pricing cards bill $${annual}/yr (${annualBilledMonths} months × $${plan.monthly})`);
+    // Every term, compared against the pricing cards' own stored table. This
+    // used to recompute the annual figure as `monthly × annualBilledMonths` and
+    // check that; there is no multiplier now, so the check is table-to-table and
+    // covers the quarterly price it previously had no way to see.
+    for (const [term, claimed] of [
+      ['mo', claim.monthly],
+      ['qtr', claim.quarterly],
+      ['yr', claim.annual],
+    ] as const) {
+      const charged = term === 'mo' ? plan.price.monthly : term === 'qtr' ? plan.price.quarterly : plan.price.yearly;
+      if (claimed !== charged) {
+        problems.push(`the FAQ quotes $${claimed}/${term} for ${plan.name}, the pricing cards charge $${charged}/${term}`);
+      }
     }
     // The ceilings are written on the pricing card as one bullet — "150 contacts
     // · 2 admins" — so that exact string is what the FAQ has to agree with.
@@ -157,7 +166,7 @@ export function faqPlanMismatches(plans: readonly FaqPricedPlan[], annualBilledM
 const usd = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 const priceLines = FAQ_PLAN_CLAIMS.map(
-  (c) => `${c.name} — $${usd(c.monthly)} a month, or $${usd(c.annual)} a year.`,
+  (c) => `${c.name} — $${usd(c.monthly)} a month, $${usd(c.quarterly)} every three months, or $${usd(c.annual)} a year.`,
 );
 
 const limitLines = FAQ_PLAN_CLAIMS.map(
@@ -194,8 +203,12 @@ export const FAQS: Faq[] = [
     id: 'pricing',
     question: 'What does Harvest cost, and what is in each plan?',
     answer: [
-      `Harvest is sold on three plans, priced in US dollars, each payable monthly or annually. ${priceLines.join(' ')}`,
-      `A year paid up front costs nine months of the monthly rate, so annual billing is ${ANNUAL_DISCOUNT_PCT}% cheaper than paying month by month.`,
+      `Harvest is sold on three plans, priced in US dollars, each payable monthly, quarterly or annually. ${priceLines.join(' ')}`,
+      // 🔴 The wording comes from `discountClaim`, which decides from the PRICES
+      // whether a percentage may be claimed flat or has to say "up to". Yearly
+      // reads "up to 30%" because the cheapest tier saves 29.7% and a flat claim
+      // would overstate it. Never restate a percentage here as a literal.
+      `${discountClaim('quarterly')} by paying every three months, and ${discountClaim('yearly').toLowerCase()} by paying for a year up front, against paying month by month. The longer terms are one charge, not a smaller monthly one: a year of Individual is a single payment of $${usd(FAQ_PLAN_CLAIMS[0].annual)}.`,
       'Every plan includes the web and mobile app, your news feed, the full Bible, courses, the donor and member CRM, and your donation page and fundraising. Small Team adds docs and sermon notes, livestream with live giving, QR check-in, the church map and the newsletter. Ministry adds your own branding and domain, community groups and events, custom forms that feed the CRM, tax receipts and giving statements, automated SEO blog articles and the automated newsletter, and QuickBooks accounting sync.',
       'The full plan-by-plan comparison is on the pricing page. What is on that page is what you are buying — there is nothing else to add at checkout.',
     ],

@@ -93,7 +93,9 @@ export interface TierPriceClaim {
   planId: string;
   name: string;
   monthly: number;
-  /** Charged once for a year of service — monthly × ANNUAL_BILLED_MONTHS. */
+  /** Charged once every three months. */
+  quarterly: number;
+  /** Charged once for a year of service. */
   annual: number;
 }
 
@@ -113,9 +115,9 @@ export interface TierPriceClaim {
  * check is a build failure rather than a warning.
  */
 export const TIER_PRICE_CLAIMS: TierPriceClaim[] = [
-  { planId: 'plus', name: 'Individual', monthly: 49, annual: 441 },
-  { planId: 'pro', name: 'Small Team', monthly: 99, annual: 891 },
-  { planId: 'max', name: 'Ministry', monthly: 199, annual: 1791 },
+  { planId: 'plus', name: 'Individual', monthly: 39, quarterly: 99, annual: 329 },
+  { planId: 'pro', name: 'Small Team', monthly: 79, quarterly: 199, annual: 659 },
+  { planId: 'max', name: 'Ministry', monthly: 159, quarterly: 399, annual: 1329 },
 ];
 
 /** Shape of the bits of `Plan` this check needs — passed in rather than
@@ -124,12 +126,12 @@ export const TIER_PRICE_CLAIMS: TierPriceClaim[] = [
 export interface PricedPlan {
   planId: string;
   name: string;
-  monthly: number;
+  price: { monthly: number; quarterly: number; yearly: number };
 }
 
 /** Every way the Terms and the pricing cards disagree, in plain English.
  *  Empty means the two are in step. */
-export function tierPriceMismatches(plans: readonly PricedPlan[], annualBilledMonths: number): string[] {
+export function tierPriceMismatches(plans: readonly PricedPlan[]): string[] {
   const problems: string[] = [];
 
   for (const plan of plans) {
@@ -141,12 +143,18 @@ export function tierPriceMismatches(plans: readonly PricedPlan[], annualBilledMo
     if (claim.name !== plan.name) {
       problems.push(`the Terms call ${plan.planId} "${claim.name}", the pricing cards call it "${plan.name}"`);
     }
-    if (claim.monthly !== plan.monthly) {
-      problems.push(`the Terms quote $${claim.monthly}/mo for ${plan.name}, the pricing cards charge $${plan.monthly}/mo`);
-    }
-    const annual = plan.monthly * annualBilledMonths;
-    if (claim.annual !== annual) {
-      problems.push(`the Terms quote $${claim.annual}/yr for ${plan.name}, the pricing cards bill $${annual}/yr (${annualBilledMonths} months × $${plan.monthly})`);
+    // Every term, table against table. This used to recompute the annual figure
+    // from a billed-months multiplier; there is no multiplier now, and checking
+    // the stored prices directly is what lets it see a wrong quarterly price at
+    // all — the previous shape could not have caught one.
+    for (const [term, claimed, charged] of [
+      ['mo', claim.monthly, plan.price.monthly],
+      ['qtr', claim.quarterly, plan.price.quarterly],
+      ['yr', claim.annual, plan.price.yearly],
+    ] as const) {
+      if (claimed !== charged) {
+        problems.push(`the Terms quote $${claimed}/${term} for ${plan.name}, the pricing cards charge $${charged}/${term}`);
+      }
     }
   }
 
@@ -164,7 +172,7 @@ export function tierPriceMismatches(plans: readonly PricedPlan[], annualBilledMo
 const usd = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 const tierRows = TIER_PRICE_CLAIMS.map(
-  (t) => `${t.name} — $${usd(t.monthly)} per month, or $${usd(t.annual)} per year.`,
+  (t) => `${t.name} — $${usd(t.monthly)} per month, $${usd(t.quarterly)} per three months, or $${usd(t.annual)} per year.`,
 );
 
 /* ------------------------------------------------------------------ *
@@ -271,10 +279,10 @@ const TERMS: LegalDoc = {
       id: 'plans-and-billing',
       heading: '4. Plans, prices and billing',
       blocks: [
-        p('Harvest is sold on three plans. Prices are in US dollars, and each plan can be paid monthly or annually:'),
+        p('Harvest is sold on three plans. Prices are in US dollars, and each plan can be paid monthly, quarterly or annually:'),
         list(...tierRows),
-        p('A year paid up front costs nine months of the monthly rate. The plan you are on sets your workspace limits — contacts, administrator accounts and courses — and the features available to you; the current limits for each plan are published on the pricing page and are part of what you are buying.'),
-        p('Subscriptions are recurring. A monthly plan renews every month and an annual plan renews every year, charged to the card on file, until you cancel. We will always tell you before a price change takes effect on your subscription.'),
+        p('The quarterly and annual terms cost less than the same period paid month by month; each is charged as a single payment for the whole term, not as a reduced monthly payment. The plan you are on sets your workspace limits — contacts, administrator accounts and courses — and the features available to you; the current limits for each plan are published on the pricing page and are part of what you are buying.'),
+        p('Subscriptions are recurring. A monthly plan renews every month, a quarterly plan every three months and an annual plan every year, charged to the card on file, until you cancel. We will always tell you before a price change takes effect on your subscription.'),
         p(MERCHANT_OF_RECORD_NOTE),
         p('Card details are entered with our payment providers and are held by them, not by Harvest. We never see or store a full card number.'),
         p('Cancellation, what happens to your workspace afterwards, and our position on refunds are set out in the Refund & Cancellation Policy.'),

@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
   ADD_ON_BILLED_MONTHS, ADD_ONS, AddOns, addOnAvailability, addOnPricingContract,
-  ANNUAL_BILLED_MONTHS, ANNUAL_DISCOUNT_PCT, annualMonthly, ComparisonTable, PlanCard, plans,
+  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, ComparisonTable, PlanCard, plans,
   type AddOn,
 } from './Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
@@ -126,7 +126,7 @@ describe('CRM on the cheapest plan', () => {
     // dist/pricing/index.html, since the grid renders only after a click.
     const individual = plans.find((p) => p.planId === 'plus');
     expect(individual, 'no plus-tier plan').toBeDefined();
-    expect(words(render(React.createElement(PlanCard, { plan: individual!, annual: true }))))
+    expect(words(render(React.createElement(PlanCard, { plan: individual!, term: 'yearly' as const }))))
       .toContain(CRM_ROW);
   });
 
@@ -192,7 +192,7 @@ describe('Notes outside the comparison table', () => {
     //    dropped — a card that stopped selling Notes anywhere would be the
     //    same over-correction in a different structure.
     const card = (planId: string) => words(render(React.createElement(
-      PlanCard, { plan: plans.find((p) => p.planId === planId)!, annual: true },
+      PlanCard, { plan: plans.find((p) => p.planId === planId)!, term: 'yearly' as const },
     )));
     expect(card('pro')).toContain(NOTES_ROW);
     expect(card('pro')).toContain('Sermon Notes → Livestream');
@@ -240,15 +240,18 @@ describe('what this change must not have touched', () => {
   it('plan prices and the annual discount are unchanged', () => {
     // 49 / 99 / 199, billed at 9 of 12 months, rendering 37 / 74 / 149 under a
     // −25% badge. Data and rendered cards both.
-    expect(plans.map((p) => p.monthly)).toEqual([49, 99, 199]);
-    expect(ANNUAL_BILLED_MONTHS).toBe(9);
-    expect(ANNUAL_DISCOUNT_PCT).toBe(25);
-    expect(plans.map((p) => annualMonthly(p.monthly))).toEqual([37, 74, 149]);
+    // 🔴 Data and rendered cards both. Nine stored prices, three terms; the
+    // badges are 15% and 30% and are NOT computed from the prices.
+    expect(plans.map((p) => p.price.monthly)).toEqual([39, 79, 159]);
+    expect(plans.map((p) => p.price.quarterly)).toEqual([99, 199, 399]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([329, 659, 1329]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
     for (const p of plans) {
-      expect(dollars(render(React.createElement(PlanCard, { plan: p, annual: true })))[0])
-        .toBe(annualMonthly(p.monthly));
-      expect(dollars(render(React.createElement(PlanCard, { plan: p, annual: false })))[0])
-        .toBe(p.monthly);
+      for (const term of BILLING_TERMS) {
+        // The card's headline is the CHARGED figure for the term, never a
+        // per-month equivalent of it.
+        expect(dollars(render(React.createElement(PlanCard, { plan: p, term })))[0]).toBe(p.price[term]);
+      }
     }
     // The grid quotes no price of its own, and did not start to.
     expect(dollars(TABLE_HTML)).toEqual([]);
@@ -260,23 +263,29 @@ describe('what this change must not have touched', () => {
     // still THROWS and still names the tier — downgraded to a warning it would
     // ship the mismatch it exists to stop.
     const src = await readFile(fileURLToPath(new URL('./Pricing.tsx', import.meta.url)), 'utf8');
-    expect(src).toMatch(/const EXPECTED_ANNUAL_MONTHLY: Record<string, number> = \{ plus: 37, pro: 74, max: 149 \};/);
-    expect(src).toMatch(/const EXPECTED_ANNUAL_DISCOUNT_PCT = 25;/);
-    expect(src).toMatch(/if \(annualMonthly\(p\.monthly\) !== expected\) \{\s*\n\s*throw new Error\(/);
-    expect(src).toMatch(/if \(ANNUAL_DISCOUNT_PCT !== EXPECTED_ANNUAL_DISCOUNT_PCT\) \{/);
-    // And it still has teeth: move the multiplier by a month on this side alone
-    // and at least one tier stops matching the figure the app publishes.
-    const shifted = (monthly: number) => Math.round((monthly * (ANNUAL_BILLED_MONTHS + 1)) / 12);
-    expect(plans.some((p) => shifted(p.monthly) !== annualMonthly(p.monthly))).toBe(true);
+    expect(src).toMatch(/const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = \{/);
+    expect(src).toMatch(/^planPriceContract\(plans\);$/m);
+    expect(src).toMatch(/^discountClaimContract\(plans\);$/m);
+    // And it still has teeth, proved by MUTATION rather than by reading source:
+    // hand it a table that disagrees on one cell and it must throw.
+    expect(() =>
+      planPriceContract(plans, {
+        plus: { monthly: 39, quarterly: 99, yearly: 329 },
+        pro: { monthly: 79, quarterly: 200, yearly: 659 },
+        max: { monthly: 159, quarterly: 399, yearly: 1329 },
+      }),
+    ).toThrow(/Small Team.*quarterly/);
 
     // The grid's own width check is the same idiom and stays a build failure.
     expect(src).toMatch(/throw new Error\(`Pricing comparison row/);
   });
 
   it('the add-ons section is unchanged', () => {
-    // Shipped in #58 and untouched here: twelve months a year, the availability
-    // wording derived from `plans`, and the qualifier that keeps a −25% badge
-    // from reading as if it applied to these prices too.
+    // Shipped in #58 and untouched by the three-term change: twelve months a
+    // year, the availability wording derived from `plans`, and the qualifier
+    // that keeps a discount badge from reading as if it applied to these prices
+    // too. 🔴 ADD_ON_BILLED_MONTHS stays 12 — quarterly did not add a column,
+    // because a quarterly product carries the MONTHLY add-on ids.
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
       ['AI Assistant', 19, 228],
@@ -285,12 +294,12 @@ describe('what this change must not have touched', () => {
       ['Unlimited contacts', 59, 708],
     ]);
     expect(() => addOnPricingContract(ADD_ONS)).not.toThrow();
-    const discounted: AddOn = { ...ADD_ONS[0], annual: annualMonthly(ADD_ONS[0].annual) };
+    const discounted: AddOn = { ...ADD_ONS[0], annual: Math.round(ADD_ONS[0].annual * 0.7) };
     expect(() => addOnPricingContract([discounted])).toThrow(/NOT discounted\s+annually/);
 
-    const section = words(render(React.createElement(AddOns, { annual: true })));
-    expect(section).toMatch(/add-ons are not discounted annually/i);
-    expect(section).toContain(`the −${ANNUAL_DISCOUNT_PCT}% applies to plans only`);
+    const section = words(render(React.createElement(AddOns, { term: 'yearly' as const })));
+    expect(section).toMatch(/add-ons are not discounted/i);
+    expect(section).toContain(`the −${ADVERTISED_DISCOUNT_PCT.yearly}% applies to plans only`);
     expect(section).toContain(`A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price`);
     for (const a of ADD_ONS) expect(section).toContain(addOnAvailability(a.planIds));
     expect(addOnAvailability(['pro', 'max'])).toBe('Small Team and Ministry only');
