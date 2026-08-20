@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ADD_ON_BILLED_MONTHS, ADD_ONS, AddOns, addOnAvailability, addOnPricingContract,
   ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, ComparisonTable, PlanCard, plans,
+  TERM_MONTHS, termMonthlyEquivalent,
   type AddOn,
 } from './Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
@@ -51,7 +52,11 @@ const words = (markup: string) => markup
   .replace(/\s+/g, ' ')
   .trim();
 /** Every `$N` figure in a piece of markup, in order. */
-const dollars = (markup: string) => [...markup.matchAll(/\$([0-9][0-9,]*)/g)].map((m) => Number(m[1].replace(/,/g, '')));
+/* ⚠️ THE-196 widened this to admit CENTS. It read /\$([0-9][0-9,]*)/, which
+   matches "$27.42" as 27 — silently truncating at the decimal point and
+   comparing a headline against the wrong number. Any figure on a card may now
+   carry cents, so the fraction is part of the match. */
+const dollars = (markup: string) => [...markup.matchAll(/\$([0-9][0-9,]*(?:\.[0-9]{2})?)/g)].map((m) => Number(m[1].replace(/,/g, '')));
 
 /* ---------------------------------------------------------------- *
  * Reading the rendered grid back as rows and columns.
@@ -238,8 +243,6 @@ describe('the catalogue is a different object from the grid', () => {
 
 describe('what this change must not have touched', () => {
   it('plan prices and the annual discount are unchanged', () => {
-    // 49 / 99 / 199, billed at 9 of 12 months, rendering 37 / 74 / 149 under a
-    // −25% badge. Data and rendered cards both.
     // 🔴 Data and rendered cards both. Nine stored prices, three terms; the
     // badges are 15% and 30% and are NOT computed from the prices.
     expect(plans.map((p) => p.price.monthly)).toEqual([39, 79, 159]);
@@ -248,9 +251,16 @@ describe('what this change must not have touched', () => {
     expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        // The card's headline is the CHARGED figure for the term, never a
-        // per-month equivalent of it.
-        expect(dollars(render(React.createElement(PlanCard, { plan: p, term })))[0]).toBe(p.price[term]);
+        // 🔴 THE-196 flipped the hierarchy: the headline is now the per-month
+        // figure and the CHARGED total is the line beneath. The prices
+        // themselves did not move — that is what this test guards.
+        const cardHtml = render(React.createElement(PlanCard, { plan: p, term }));
+        expect(dollars(cardHtml)[0]).toBe(termMonthlyEquivalent(p.price[term], term));
+        if (term !== 'monthly') {
+          expect(cardHtml).toContain(
+            `billed as $${p.price[term].toLocaleString()} every ${TERM_MONTHS[term]} months`,
+          );
+        }
       }
     }
     // The grid quotes no price of its own, and did not start to.

@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import {
   actualSavingPct, ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, cardTerms, discountClaim,
   discountClaimContract, discountClaimShape, DISCOUNTED_TERMS, PlanCard, planPriceContract, plans,
-  TERM_MONTHS, TERM_SUFFIX, termMonthlyEquivalent, TermToggle, CHEAPEST_MONTHLY,
+  TERM_MONTHS, TERM_SUFFIX, termMonthlyEquivalent, formatMonthlyHeadline, TermToggle, CHEAPEST_MONTHLY,
   type BillingTerm, type Plan,
 } from './Pricing';
 import { appSignupUrl } from '../lib/ref';
@@ -200,14 +200,20 @@ describe('what a card shows and what its button buys', () => {
   /** Render one card and read back the facts that must not disagree. */
   function shown(plan: Plan, term: BillingTerm) {
     const html = renderToStaticMarkup(React.createElement(PlanCard, { plan, term }));
-    // The headline is the first dollar figure in a <span>; the fee beside it is
-    // a percentage and no feature line carries a `$`.
-    const price = html.match(/>\$([0-9,]+)<\/span>/)?.[1];
+    // 🔴 THE-196: the HEADLINE is the per-month figure and may carry cents
+    // ("$27.42"), so the pattern admits a decimal. It is the first dollar
+    // figure in a <span>; the fee beside it is a percentage and no feature
+    // line carries a `$`.
+    const headline = html.match(/>\$([0-9,]+(?:\.[0-9]{2})?)<\/span>/)?.[1];
+    // The charged total, read off the line beneath rather than inferred.
+    const termNote = html.match(/billed as \$([0-9,]+) every ([0-9]+) months/);
     const href = html.match(/href="(https:\/\/theharvest\.app\/[^"]*)"/)?.[1]?.replace(/&amp;/g, '&');
-    expect(price, `${plan.name} rendered no price`).toBeDefined();
+    expect(headline, `${plan.name} rendered no price`).toBeDefined();
     expect(href, `${plan.name} rendered no signup link`).toBeDefined();
     return {
-      price: Number(price!.replace(/,/g, '')),
+      headline: Number(headline!.replace(/,/g, '')),
+      chargedTotal: termNote ? Number(termNote[1].replace(/,/g, '')) : null,
+      noteMonths: termNote ? Number(termNote[2]) : null,
       html,
       href: href!,
       params: new URL(href!).searchParams,
@@ -217,8 +223,8 @@ describe('what a card shows and what its button buys', () => {
   it.each(BILLING_TERMS)('a card shown on %s links to a signup for that same term', (term) => {
     for (const p of plans) {
       const card = shown(p, term);
-      // 🔴 The CHARGED figure, not a per-month equivalent.
-      expect(card.price).toBe(p.price[term]);
+      // 🔴 THE-196: the headline is the PER-MONTH figure on every term.
+      expect(card.headline).toBe(termMonthlyEquivalent(p.price[term], term));
       expect(card.href).toBe(`https://theharvest.app/?signup=${p.planId}&billing=${term}`);
     }
   });
@@ -242,33 +248,58 @@ describe('what a card shows and what its button buys', () => {
       // Every card, not just the featured one: a link pinned to one term serves
       // the other terms' visitors a price they were never shown.
       expect(new Set(seen.map((s) => s.href)).size).toBe(BILLING_TERMS.length);
-      expect(new Set(seen.map((s) => s.price)).size).toBe(BILLING_TERMS.length);
+      expect(new Set(seen.map((s) => s.headline)).size).toBe(BILLING_TERMS.length);
     }
   });
 
-  it('names the charged cycle beside the charged amount, on every term', () => {
-    // ⚠️ What a church is charged must be unambiguous. The headline suffix is
-    // the CYCLE, so "$99" never appears over "/mo" on a quarterly card.
+  it('the headline always names /mo, whatever the term', () => {
+    // ⚠️ THE-196: the headline is a per-month figure on every term, so its
+    // suffix is always "/mo". The CYCLE is named on the line beneath instead,
+    // asserted in the next test — what a church is charged stays unambiguous,
+    // it just moved one line down.
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        expect(shown(p, term).html).toContain(`/${TERM_SUFFIX[term]}`);
+        const { html } = shown(p, term);
+        expect(html).toContain('/mo');
+        if (term !== 'monthly') expect(html).not.toContain(`/${TERM_SUFFIX[term]}`);
       }
     }
   });
 
-  it('never shows a per-month equivalent without the amount and cadence that produce it', () => {
-    // 🔴 $329/12 is $27.42 and no church is ever billed $27. Wherever the
-    // equivalent appears it is labelled, and the charged total is in the same
-    // sentence.
+  it('the term total is rendered beneath the headline on quarterly and yearly', () => {
+    // 🔴 The headline is a figure nobody is billed. The charged total and its
+    // cadence sit directly under it, read back off the rendered card.
     for (const p of plans) {
       for (const term of DISCOUNTED_TERMS) {
-        const { html } = shown(p, term);
-        const perMonth = termMonthlyEquivalent(p.price[term], term);
-        expect(html).toContain(`$${perMonth}/mo equivalent`);
-        expect(html).toContain(`billed as $${p.price[term].toLocaleString()} every ${TERM_MONTHS[term]} months`);
+        const { chargedTotal, noteMonths } = shown(p, term);
+        expect(chargedTotal, `${p.name} ${term}`).toBe(p.price[term]);
+        expect(noteMonths, `${p.name} ${term}`).toBe(TERM_MONTHS[term]);
       }
-      // On monthly there is no equivalent to state — the headline IS per month.
-      expect(shown(p, 'monthly').html).not.toContain('equivalent');
+      // On monthly the headline IS the charged amount on the charged cycle, so
+      // the note is suppressed rather than repeating it.
+      const monthly = shown(p, 'monthly');
+      expect(monthly.chargedTotal).toBeNull();
+      expect(monthly.html).not.toContain('billed as');
+      expect(monthly.headline).toBe(p.price.monthly);
+    }
+  });
+
+  it('the per-month headline never implies less than the charged total', () => {
+    // 🔴 THE HONESTY GUARD, on rendered output — one assertion per tier per
+    // term. Under the old Math.round the Individual yearly card headlined $27,
+    // which implies $324 against a charged $329.
+    for (const p of plans) {
+      for (const term of BILLING_TERMS) {
+        const { headline } = shown(p, term);
+        const implied = headline * TERM_MONTHS[term];
+        expect(
+          implied,
+          `${p.name} ${term}: headline $${headline}/mo implies $${implied.toFixed(2)}, charged $${p.price[term]}`,
+        ).toBeGreaterThanOrEqual(p.price[term]);
+        // …and reconciles, rather than merely exceeding: ceiling to the dollar
+        // would put $28 over a charged $329 and pass the line above.
+        expect(implied - p.price[term]).toBeLessThan(0.05);
+      }
     }
   });
 
@@ -313,7 +344,7 @@ describe('what a card shows and what its button buys', () => {
         expect(cardTerms(p, term)).toEqual({
           price: p.price[term],
           suffix: TERM_SUFFIX[term],
-          perMonth: termMonthlyEquivalent(p.price[term], term),
+          monthlyHeadline: formatMonthlyHeadline(p.price[term], term),
           billing: term,
         });
       }

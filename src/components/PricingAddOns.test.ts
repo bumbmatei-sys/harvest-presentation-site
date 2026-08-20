@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ADD_ON_BILLED_MONTHS, ADD_ONS, AddOnCard, AddOns, addOnAvailability, addOnPricingContract,
   ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, PlanCard, Pricing, plans, type AddOn,
+  TERM_MONTHS, termMonthlyEquivalent,
 } from './Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
 import { MULTI_CAMPUS_ENABLED } from '../lib/flags';
@@ -33,7 +34,11 @@ const pageHtml = () => html(React.createElement(Pricing));
 const cardHtml = (addOn: AddOn) => html(React.createElement(AddOnCard, { addOn }));
 
 /** Every `$N` figure printed in a piece of markup, in order. */
-const dollars = (markup: string) => [...markup.matchAll(/\$([0-9][0-9,]*)/g)].map((m) => Number(m[1].replace(/,/g, '')));
+/* ⚠️ THE-196 widened this to admit CENTS. It read /\$([0-9][0-9,]*)/, which
+   matches "$27.42" as 27 — silently truncating at the decimal point and
+   comparing a headline against the wrong number. Any figure on a card may now
+   carry cents, so the fraction is part of the match. */
+const dollars = (markup: string) => [...markup.matchAll(/\$([0-9][0-9,]*(?:\.[0-9]{2})?)/g)].map((m) => Number(m[1].replace(/,/g, '')));
 /** Markup with tags stripped, entities decoded — what a visitor actually reads. */
 const words = (markup: string) => markup
   .replace(/<[^>]*>/g, ' ')
@@ -255,9 +260,17 @@ describe('what this change must not have touched', () => {
     expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        // The card's headline is the CHARGED figure for the term, never a
-        // per-month equivalent of it.
-        expect(dollars(html(React.createElement(PlanCard, { plan: p, term })))[0]).toBe(p.price[term]);
+        // 🔴 THE-196 flipped the hierarchy: the headline is now the per-month
+        // figure and the CHARGED total is the line beneath. The prices
+        // themselves did not move — that is what this test guards — so the
+        // charged figure is asserted where it now lives.
+        const cardHtml = html(React.createElement(PlanCard, { plan: p, term }));
+        expect(dollars(cardHtml)[0]).toBe(termMonthlyEquivalent(p.price[term], term));
+        if (term !== 'monthly') {
+          expect(cardHtml).toContain(
+            `billed as $${p.price[term].toLocaleString()} every ${TERM_MONTHS[term]} months`,
+          );
+        }
       }
     }
     // And on the page itself, with its toggle in the state it prerenders in.
