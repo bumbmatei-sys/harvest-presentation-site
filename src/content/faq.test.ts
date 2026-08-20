@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ANNUAL_BILLED_MONTHS, ANNUAL_DISCOUNT_PCT, plans } from '../components/Pricing';
+import { ADVERTISED_DISCOUNT_PCT, discountClaim, plans } from '../components/Pricing';
 import { TRIAL_LENGTH_DAYS } from './legal';
 import {
   FAQS,
@@ -68,7 +68,7 @@ describe('the prices and limits quoted in the FAQ', () => {
     // stale price in a blog post three times; on this page it would be a false
     // commercial claim to somebody about to pay it. pages/FaqPage.tsx runs the
     // same check at module scope, so it fails the prerender too — this names it.
-    expect(faqPlanMismatches(plans, ANNUAL_BILLED_MONTHS)).toEqual([]);
+    expect(faqPlanMismatches(plans)).toEqual([]);
   });
 
   it('covers every plan on sale, and no plan that is not', () => {
@@ -91,13 +91,31 @@ describe('the prices and limits quoted in the FAQ', () => {
     },
   );
 
-  it('describes the annual discount the way the site actually bills it', () => {
-    // Nine months for twelve. The sentence in the FAQ is prose; the percentage
-    // beside it is interpolated from the same constant the pricing cards use,
-    // so the two cannot disagree.
-    expect(ANNUAL_BILLED_MONTHS).toBe(9);
-    expect(body).toMatch(/a year paid up front costs nine months of the monthly rate/i);
-    expect(body).toContain(`${ANNUAL_DISCOUNT_PCT}% cheaper`);
+  it('quotes the quarterly price for every tier as well', () => {
+    for (const claim of FAQ_PLAN_CLAIMS) {
+      expect(body, `the FAQ does not quote $${claim.quarterly} every three months for ${claim.name}`)
+        .toContain(`$${grouped(claim.quarterly)} every three months`);
+    }
+  });
+
+  it('describes each discount in the wording the prices permit', () => {
+    // 🔴 The sentence carries `discountClaim`, which decides FROM THE PRICES
+    // whether a percentage may be stated flat or has to say "up to". Quarterly
+    // is flat (worst tier saves 15.4% against 15%); yearly is "up to" (worst
+    // tier saves 29.70% against 30%). Asserting the rendered prose is what
+    // stops a copy edit quietly turning the hedge back into a flat claim.
+    expect(body).toContain(discountClaim('quarterly'));
+    expect(body.toLowerCase()).toContain(discountClaim('yearly').toLowerCase());
+    expect(discountClaim('yearly')).toBe('Save up to 30%');
+    expect(body.toLowerCase()).not.toMatch(/\bsave 30%/);
+    // The old 9-of-12 sentence must not survive: there is no such multiplier.
+    expect(body.toLowerCase()).not.toContain('nine months of the monthly rate');
+  });
+
+  it('says the longer terms are one charge, not a cheaper monthly one', () => {
+    // ⚠️ What a church is actually charged must be unambiguous.
+    expect(body).toContain(`a single payment of $${grouped(FAQ_PLAN_CLAIMS[0].annual)}`);
+    expect(ADVERTISED_DISCOUNT_PCT.quarterly).toBe(15);
   });
 });
 

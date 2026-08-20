@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import {
-  annualMonthly, ANNUAL_BILLED_MONTHS, ANNUAL_DISCOUNT_PCT, ComparisonTable, PlanCard, plans,
+  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, ComparisonTable, PlanCard, plans,
 } from '../components/Pricing';
 import { FeatureBlock } from '../components/FeatureBlock';
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
@@ -105,7 +105,7 @@ function gridClaim(feature: string, planName: string) {
 
 /** The plan cards, rendered — these DO reach dist/pricing/index.html. */
 const cardText = (planId: string) => words(render(React.createElement(
-  PlanCard, { plan: plans.find((p) => p.planId === planId)!, annual: true },
+  PlanCard, { plan: plans.find((p) => p.planId === planId)!, term: 'yearly' as const },
 )));
 
 /* ---------------------------------------------------------------- *
@@ -391,23 +391,39 @@ describe('THE-180 — Community Groups names its tier floor', () => {
   });
 
   it('plan prices and the annual discount are unchanged', () => {
-    expect(plans.map((p) => p.monthly)).toEqual([49, 99, 199]);
-    expect(ANNUAL_BILLED_MONTHS).toBe(9);
-    expect(ANNUAL_DISCOUNT_PCT).toBe(25);
-    expect(plans.map((p) => annualMonthly(p.monthly))).toEqual([37, 74, 149]);
+    // 🔴 Data and rendered cards both. Nine stored prices, three terms; the
+    // badges are 15% and 30% and are NOT computed from the prices.
+    expect(plans.map((p) => p.price.monthly)).toEqual([39, 79, 159]);
+    expect(plans.map((p) => p.price.quarterly)).toEqual([99, 199, 399]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([329, 659, 1329]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
     for (const p of plans) {
-      expect(words(render(React.createElement(PlanCard, { plan: p, annual: true }))))
-        .toContain(`$${annualMonthly(p.monthly)}`);
+      for (const term of BILLING_TERMS) {
+        // The card's headline is the CHARGED figure for the term, never a
+        // per-month equivalent of it.
+        expect(words(render(React.createElement(PlanCard, { plan: p, term })))).toContain(`$${p.price[term].toLocaleString()}`);
+      }
     }
   });
 
   it('the cross-repo price contract still throws when a price disagrees', () => {
-    const src = readFileSync(fileURLToPath(new URL('../components/Pricing.tsx', import.meta.url)), 'utf8');
-    expect(src).toMatch(/const EXPECTED_ANNUAL_MONTHLY: Record<string, number> = \{ plus: 37, pro: 74, max: 149 \};/);
-    expect(src).toMatch(/if \(annualMonthly\(p\.monthly\) !== expected\) \{\s*\n\s*throw new Error\(/);
-    // Proof the check has teeth: shifting the multiplier by a month would
-    // desync at least one tier from the figure the app publishes.
-    const shifted = (monthly: number) => Math.round((monthly * (ANNUAL_BILLED_MONTHS + 1)) / 12);
-    expect(plans.some((p) => shifted(p.monthly) !== annualMonthly(p.monthly))).toBe(true);
+    const PRICING_SRC = readFileSync(fileURLToPath(new URL('../components/Pricing.tsx', import.meta.url)), 'utf8');
+    // Same assertions as Pricing.test.ts, restated here because this change is
+    // the one that could have loosened them. The contract now compares the
+    // TABLE — nine cells against nine — rather than the output of a multiplier,
+    // and it is exercised by MUTATION rather than only by pattern-matching its
+    // source: handing it a wrong table must throw.
+    expect(PRICING_SRC).toMatch(/^planPriceContract\(plans\);$/m);
+    expect(PRICING_SRC).toMatch(/const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = \{/);
+    expect(PRICING_SRC).toMatch(/throw new Error\(/);
+    expect(PRICING_SRC).not.toMatch(/console\.(warn|error)\(/);
+    expect(() =>
+      planPriceContract(plans, {
+        plus: { monthly: 39, quarterly: 99, yearly: 329 },
+        pro: { monthly: 79, quarterly: 199, yearly: 659 },
+        max: { monthly: 159, quarterly: 399, yearly: 1330 },
+      }),
+    ).toThrow(/Ministry.*yearly/);
+    expect(() => planPriceContract(plans)).not.toThrow();
   });
 });

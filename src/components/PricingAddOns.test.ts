@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
   ADD_ON_BILLED_MONTHS, ADD_ONS, AddOnCard, AddOns, addOnAvailability, addOnPricingContract,
-  ANNUAL_BILLED_MONTHS, ANNUAL_DISCOUNT_PCT, annualMonthly, PlanCard, Pricing, plans, type AddOn,
+  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, PlanCard, Pricing, plans, type AddOn,
 } from './Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
 import { MULTI_CAMPUS_ENABLED } from '../lib/flags';
@@ -27,7 +27,8 @@ import { MULTI_CAMPUS_ENABLED } from '../lib/flags';
  * facts that are not rendered at all (the contract's teeth, the tool count). */
 
 const html = (el: React.ReactElement) => renderToStaticMarkup(el);
-const addOnsHtml = (annual: boolean) => html(React.createElement(AddOns, { annual }));
+const addOnsHtml = (discounted: boolean) =>
+  html(React.createElement(AddOns, { term: discounted ? ('yearly' as const) : ('monthly' as const) }));
 const pageHtml = () => html(React.createElement(Pricing));
 const cardHtml = (addOn: AddOn) => html(React.createElement(AddOnCard, { addOn }));
 
@@ -78,14 +79,17 @@ describe('add-on annual pricing', () => {
   });
 
   it('no add-on price passes through annualMonthly', () => {
-    // The plan discount applied to an add-on, in both directions: the monthly
-    // figure discounted (19 -> 14) and the yearly figure discounted (228 -> 171).
-    // Neither may appear anywhere in the rendered section.
+    // A PLAN discount applied to an add-on, on either term and in either
+    // direction: 15% or 30% off the monthly figure, and the same off the yearly
+    // one. None of them may appear anywhere in the rendered section.
     const shown = dollars(addOnsHtml(true)).concat(dollars(addOnsHtml(false)));
     for (const a of ADD_ONS) {
-      for (const wrong of [annualMonthly(a.monthly), annualMonthly(a.annual)]) {
-        expect(shown, `${a.name}: $${wrong} is the plan discount applied to an add-on`)
-          .not.toContain(wrong);
+      for (const pct of Object.values(ADVERTISED_DISCOUNT_PCT)) {
+        for (const base of [a.monthly, a.annual]) {
+          const wrong = Math.round(base * (1 - pct / 100));
+          expect(shown, `${a.name}: $${wrong} is a ${pct}% plan discount applied to an add-on`)
+            .not.toContain(wrong);
+        }
       }
     }
     // And the helper is never CALLED from the add-on code — the section renders
@@ -100,16 +104,16 @@ describe('add-on annual pricing', () => {
     expect(section).not.toContain('ANNUAL_BILLED_MONTHS');
   });
 
-  it('the page states that add-ons are not discounted annually when the annual toggle is on', () => {
-    // The toggle defaults to Annual, so this is the DEFAULT prerendered page: a
-    // −25% badge sits a few hundred pixels above these prices.
+  it('the page states that add-ons are not discounted whenever a discounted term is on', () => {
+    // The toggle defaults to Yearly, so this is the DEFAULT prerendered page: a
+    // −30% badge sits a few hundred pixels above these prices.
     const stated = words(pageHtml());
-    expect(stated).toMatch(/add-ons are not discounted annually/i);
-    expect(stated).toContain(`the −${ANNUAL_DISCOUNT_PCT}% applies to plans only`);
+    expect(stated).toMatch(/add-ons are not discounted/i);
+    expect(stated).toContain(`the −${ADVERTISED_DISCOUNT_PCT.yearly}% applies to plans only`);
     expect(stated).toContain(`A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price`);
     // Stated in the state that makes the discount visible, and derived from the
     // same constant the badge is — the two cannot come to disagree.
-    expect(words(addOnsHtml(true))).toMatch(/not discounted annually/i);
+    expect(words(addOnsHtml(true))).toMatch(/not discounted/i);
     // The prices themselves do not move with the toggle, because they do not
     // move in Dodo. Only the qualifier is conditional.
     expect(dollars(addOnsHtml(true))).toEqual(dollars(addOnsHtml(false)));
@@ -171,7 +175,7 @@ describe('where an add-on can be bought', () => {
   it('the add-on price contract throws when a yearly figure is not twelve monthlies', () => {
     // 🔴 The build failure that stops the wrong price shipping: the plan
     // discount applied to an add-on is exactly what this catches.
-    const discounted: AddOn = { ...ADD_ONS[0], annual: annualMonthly(ADD_ONS[0].annual) };
+    const discounted: AddOn = { ...ADD_ONS[0], annual: Math.round(ADD_ONS[0].annual * 0.7) };
     expect(() => addOnPricingContract([discounted])).toThrow(/NOT discounted\s+annually/);
     expect(() => addOnPricingContract(ADD_ONS)).not.toThrow();
   });
@@ -243,22 +247,25 @@ describe('when an add-on can be bought', () => {
 
 describe('what this change must not have touched', () => {
   it('the plan prices and the annual discount are unchanged', () => {
-    // 🔴 Data and rendered cards both: 49/99/199, billed at 9 of 12 months,
-    // rendering 37/74/149 with a −25% badge.
-    expect(plans.map((p) => p.monthly)).toEqual([49, 99, 199]);
-    expect(ANNUAL_BILLED_MONTHS).toBe(9);
-    expect(ANNUAL_DISCOUNT_PCT).toBe(25);
-    expect(plans.map((p) => annualMonthly(p.monthly))).toEqual([37, 74, 149]);
+    // 🔴 Data and rendered cards both. Nine stored prices, three terms; the
+    // badges are 15% and 30% and are NOT computed from the prices.
+    expect(plans.map((p) => p.price.monthly)).toEqual([39, 79, 159]);
+    expect(plans.map((p) => p.price.quarterly)).toEqual([99, 199, 399]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([329, 659, 1329]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
     for (const p of plans) {
-      expect(dollars(html(React.createElement(PlanCard, { plan: p, annual: true })))[0])
-        .toBe(annualMonthly(p.monthly));
-      expect(dollars(html(React.createElement(PlanCard, { plan: p, annual: false })))[0])
-        .toBe(p.monthly);
+      for (const term of BILLING_TERMS) {
+        // The card's headline is the CHARGED figure for the term, never a
+        // per-month equivalent of it.
+        expect(dollars(html(React.createElement(PlanCard, { plan: p, term })))[0]).toBe(p.price[term]);
+      }
     }
     // And on the page itself, with its toggle in the state it prerenders in.
+    // And on the page itself, with its toggle in the state it prerenders in.
     const page = pageHtml();
-    expect(words(page)).toContain(`-${ANNUAL_DISCOUNT_PCT}%`);
-    for (const p of plans) expect(dollars(page)).toContain(annualMonthly(p.monthly));
+    expect(words(page)).toContain(`-${ADVERTISED_DISCOUNT_PCT.yearly}%`);
+    expect(words(page)).toContain(`-${ADVERTISED_DISCOUNT_PCT.quarterly}%`);
+    for (const p of plans) expect(dollars(page)).toContain(p.price.yearly);
   });
 
   it('the tool count is unchanged at its derived value', () => {
@@ -272,15 +279,21 @@ describe('what this change must not have touched', () => {
 
   it('the cross-repo plan contract still throws when a plan price disagrees', () => {
     // Same assertions as Pricing.test.ts, restated here because this change is
-    // the one that could have loosened them: the add-on contract was added
-    // beside this block and must not have replaced or downgraded it.
-    expect(PRICING_SRC).toMatch(/if \(annualMonthly\(p\.monthly\) !== expected\) \{\s*\n\s*throw new Error\(/);
-    expect(PRICING_SRC).toMatch(/const EXPECTED_ANNUAL_MONTHLY: Record<string, number> = \{ plus: 37, pro: 74, max: 149 \};/);
-    expect(PRICING_SRC).toMatch(/const EXPECTED_ANNUAL_DISCOUNT_PCT = 25;/);
-    expect(PRICING_SRC).toMatch(/if \(ANNUAL_DISCOUNT_PCT !== EXPECTED_ANNUAL_DISCOUNT_PCT\) \{/);
-    // And it still has teeth: move the multiplier by a month on this side alone
-    // and at least one tier stops matching the figure the app publishes.
-    const shifted = (monthly: number) => Math.round((monthly * (ANNUAL_BILLED_MONTHS + 1)) / 12);
-    expect(plans.some((p) => shifted(p.monthly) !== annualMonthly(p.monthly))).toBe(true);
+    // the one that could have loosened them. The contract now compares the
+    // TABLE — nine cells against nine — rather than the output of a multiplier,
+    // and it is exercised by MUTATION rather than only by pattern-matching its
+    // source: handing it a wrong table must throw.
+    expect(PRICING_SRC).toMatch(/^planPriceContract\(plans\);$/m);
+    expect(PRICING_SRC).toMatch(/const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = \{/);
+    expect(PRICING_SRC).toMatch(/throw new Error\(/);
+    expect(PRICING_SRC).not.toMatch(/console\.(warn|error)\(/);
+    expect(() =>
+      planPriceContract(plans, {
+        plus: { monthly: 39, quarterly: 99, yearly: 329 },
+        pro: { monthly: 79, quarterly: 199, yearly: 659 },
+        max: { monthly: 159, quarterly: 399, yearly: 1330 },
+      }),
+    ).toThrow(/Ministry.*yearly/);
+    expect(() => planPriceContract(plans)).not.toThrow();
   });
 });

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { ANNUAL_BILLED_MONTHS, plans } from '../components/Pricing';
+import { plans } from '../components/Pricing';
 import {
   LEGAL_DOCS,
   LEGAL_UPDATED,
@@ -202,7 +202,7 @@ describe('the tier prices quoted in the Terms', () => {
     // in a blog post three times; in the Terms it would be a false commercial
     // claim. pages/LegalPage.tsx runs the same check at module scope, so it
     // fails the prerender too — this names it.
-    expect(tierPriceMismatches(plans, ANNUAL_BILLED_MONTHS)).toEqual([]);
+    expect(tierPriceMismatches(plans)).toEqual([]);
   });
 
   it('covers every plan on sale, and no plan that is not', () => {
@@ -224,11 +224,24 @@ describe('the tier prices quoted in the Terms', () => {
     },
   );
 
-  it('describes the annual discount the way the site actually bills it', () => {
-    // Nine months for twelve. The sentence in the Terms is prose, not a
-    // computed figure, so this is what keeps it honest if the multiplier moves.
-    expect(ANNUAL_BILLED_MONTHS).toBe(9);
-    expect(text(terms)).toMatch(/a year paid up front costs nine months of the monthly rate/i);
+  it('quotes the quarterly price for every tier as well', () => {
+    for (const claim of TIER_PRICE_CLAIMS) {
+      expect(text(terms), `the Terms do not quote $${claim.quarterly} per three months for ${claim.name}`)
+        .toContain(`$${grouped(claim.quarterly)} per three months`);
+    }
+  });
+
+  it('describes the terms without claiming a multiplier that no longer exists', () => {
+    const body = text(terms);
+    // The old clause said "a year paid up front costs nine months of the
+    // monthly rate". That was exactly 25% and it is no longer true of any
+    // tier — in the Terms, a stale rate is a false commercial claim.
+    expect(body.toLowerCase()).not.toContain('nine months of the monthly rate');
+    // What replaced it states the shape of the charge instead of a rate, which
+    // is the fact a treasurer needs and the one that cannot go stale.
+    expect(body).toMatch(/single payment for the whole term, not as a reduced monthly payment/i);
+    expect(body).toMatch(/paid monthly, quarterly or annually/i);
+    expect(body).toMatch(/a quarterly plan every three months/i);
   });
 });
 

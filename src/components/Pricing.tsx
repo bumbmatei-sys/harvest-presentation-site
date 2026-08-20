@@ -112,21 +112,35 @@ const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = {
   max:  { monthly: 159, quarterly: 399, yearly: 1329 },
 };
 
-for (const p of plans) {
-  const expected = EXPECTED_PLAN_PRICES[p.planId];
-  if (expected === undefined) {
-    throw new Error(`Pricing: plan "${p.planId}" has no expected prices in the cross-repo contract.`);
-  }
-  for (const term of BILLING_TERMS) {
-    if (p.price[term] !== expected[term]) {
-      throw new Error(
-        `Pricing: ${p.name} (${p.planId}) renders $${p.price[term]} ${term}, but the app ` +
-        `(Harvest-agent src/utils/plan-features.ts PLAN_PRICING) publishes $${expected[term]}. ` +
-        `The two repos cannot share code — one of them was changed without the other.`
-      );
+/**
+ * The contract itself. Exported and called at module scope, the same shape as
+ * `addOnPricingContract` below: calling it is what fails the prerender, and
+ * exporting it is what lets a test hand it a DELIBERATELY WRONG table and prove
+ * it throws. A contract that has only ever been run against correct data is a
+ * contract nobody has checked has teeth.
+ */
+export function planPriceContract(
+  list: readonly Plan[],
+  expectedPrices: Record<string, Record<BillingTerm, number>> = EXPECTED_PLAN_PRICES,
+): void {
+  for (const p of list) {
+    const expected = expectedPrices[p.planId];
+    if (expected === undefined) {
+      throw new Error(`Pricing: plan "${p.planId}" has no expected prices in the cross-repo contract.`);
+    }
+    for (const term of BILLING_TERMS) {
+      if (p.price[term] !== expected[term]) {
+        throw new Error(
+          `Pricing: ${p.name} (${p.planId}) renders $${p.price[term]} ${term}, but the app ` +
+          `(Harvest-agent src/utils/plan-features.ts PLAN_PRICING) publishes $${expected[term]}. ` +
+          `The two repos cannot share code — one of them was changed without the other.`
+        );
+      }
     }
   }
 }
+
+planPriceContract(plans);
 
 /**
  * The percentages this site ADVERTISES on the term toggle.
@@ -195,16 +209,23 @@ export function discountClaim(term: DiscountedTerm): string {
    a lie — so it stops the prerender. The app carries the identical guard at the
    same place in its own table; a claim it cannot make is one this site must not
    print. */
-for (const term of DISCOUNTED_TERMS) {
-  const best = Math.max(...plans.map((p) => actualSavingPct(p, term)));
-  if (ADVERTISED_DISCOUNT_PCT[term] > best) {
-    throw new Error(
-      `Pricing: ${term} advertises ${ADVERTISED_DISCOUNT_PCT[term]}% off, but the best tier only ` +
-      `saves ${best.toFixed(1)}%. No wording makes that true — lower the advertised percentage ` +
-      `or reprice.`
-    );
+export function discountClaimContract(
+  list: readonly Plan[],
+  advertised: Record<DiscountedTerm, number> = ADVERTISED_DISCOUNT_PCT,
+): void {
+  for (const term of DISCOUNTED_TERMS) {
+    const best = Math.max(...list.map((p) => actualSavingPct(p, term)));
+    if (advertised[term] > best) {
+      throw new Error(
+        `Pricing: ${term} advertises ${advertised[term]}% off, but the best tier only ` +
+        `saves ${best.toFixed(1)}%. No wording makes that true — lower the advertised percentage ` +
+        `or reprice.`
+      );
+    }
   }
 }
+
+discountClaimContract(plans);
 
 /**
  * The lowest monthly sticker price across all plans — what "from $X/mo" means
@@ -685,14 +706,18 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
  *   · Horizontal padding drops from 22px to 10px and the badge moves to its own
  *     line, so the widest label has room at the narrowest width.
  *
- * Measured segment widths (track = min(420, viewport − 2 × 20px gutter), less
+ * Measured segment widths (track = min(420, viewport − 2 × 28px gutter), less
  * 8px of track padding and 2 × 4px of gaps, divided by three):
  *
- *     380px → 106px   ·   768px → 129px   ·   1024px → 129px
- *    1280px → 129px   ·  1440px → 129px
+ *     380px → 103px   ·   768px → 135px   ·   1024px → 135px
+ *    1280px → 135px   ·  1440px → 135px
  *
- * "Quarterly" at 12.5px sets to roughly 62px, so the narrowest segment carries
- * ~44px of slack. Nothing is below 11px: labels 12.5px, badges 11px.
+ * 380px is the only viewport where the track is viewport-bound; from 768px up
+ * it sits at its 420px cap. "Quarterly" at 12.5px sets to roughly 62px against
+ * 83px of usable room at 380px, so the narrowest case has slack rather than
+ * fitting exactly — which is what stops the next font-size change from
+ * clipping it. Nothing is below 11px: labels 12.5px, badges 11px.
+ * `TermToggle.widths.test.ts` pins all of it.
  */
 export function TermToggle({
   value,

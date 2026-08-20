@@ -4,7 +4,10 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
-  ANNUAL_BILLED_MONTHS, ANNUAL_DISCOUNT_PCT, annualMonthly, cardTerms, PlanCard, plans, type Plan,
+  actualSavingPct, ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, cardTerms, discountClaim,
+  discountClaimContract, discountClaimShape, DISCOUNTED_TERMS, PlanCard, planPriceContract, plans,
+  TERM_MONTHS, TERM_SUFFIX, termMonthlyEquivalent, TermToggle, CHEAPEST_MONTHLY,
+  type BillingTerm, type Plan,
 } from './Pricing';
 import { appSignupUrl } from '../lib/ref';
 
@@ -39,69 +42,151 @@ describe('plan ids', () => {
   });
 });
 
-describe('annual pricing', () => {
-  const EXPECTED = { plus: 37, pro: 74, max: 149 } as const;
+/* ─── THE-195 TEST 1 ───────────────────────────────────────────────────────────
+   The nine prices, per tier and per term, against the Dodo catalogue.
 
-  it.each(plans.map((p) => [p.planId, p.monthly]))(
-    '%s bills at the published annual monthly-equivalent',
-    (planId, monthly) => {
-      expect(annualMonthly(monthly as number)).toBe(EXPECTED[planId as keyof typeof EXPECTED]);
-    },
-  );
+   Written out here rather than derived from `plans`, deliberately: a test that
+   reads the same table it is checking asserts only that the table equals
+   itself. These nine are the figures verified against the authenticated live
+   Dodo API on 2026-08-20 (9900 / 19900 / 39900 minor units on the quarterly
+   products, and so on), transcribed independently. */
+const DODO_CATALOGUE_USD: Record<string, Record<BillingTerm, number>> = {
+  plus: { monthly: 39, quarterly: 99, yearly: 329 },
+  pro: { monthly: 79, quarterly: 199, yearly: 659 },
+  max: { monthly: 159, quarterly: 399, yearly: 1329 },
+};
 
-  it('advertises a 25% discount', () => {
-    expect(ANNUAL_DISCOUNT_PCT).toBe(25);
+describe('the nine plan prices match the Dodo catalogue exactly', () => {
+  it.each(
+    plans.flatMap((p) => BILLING_TERMS.map((term) => [p.name, p.planId, term] as const)),
+  )('%s (%s) on %s', (_name, planId, term) => {
+    expect(plans.find((p) => p.planId === planId)!.price[term]).toBe(DODO_CATALOGUE_USD[planId][term]);
   });
 
-  it('derives that discount from the billed-months multiplier', () => {
-    // Not a second copy of the multiplier — the point is that the badge beside
-    // the prices is computed from the same constant the prices are, so the two
-    // cannot disagree.
-    expect(ANNUAL_DISCOUNT_PCT).toBe(Math.round((1 - ANNUAL_BILLED_MONTHS / 12) * 100));
-  });
-
-  it('rounds to whole dollars, never below the true annual rate by more than a rounding step', () => {
+  it('prices every tier on every term — no term is missing', () => {
     for (const p of plans) {
-      const exact = (p.monthly * ANNUAL_BILLED_MONTHS) / 12;
-      expect(Math.abs(annualMonthly(p.monthly) - exact)).toBeLessThanOrEqual(0.5);
-      expect(Number.isInteger(annualMonthly(p.monthly))).toBe(true);
+      for (const term of BILLING_TERMS) {
+        expect(Number.isInteger(p.price[term]), `${p.name} ${term} is not a whole dollar figure`).toBe(true);
+        expect(p.price[term]).toBeGreaterThan(0);
+      }
     }
   });
 
-  it('never prices annual above monthly', () => {
-    for (const p of plans) expect(annualMonthly(p.monthly)).toBeLessThan(p.monthly);
+  it('prices the tiers in ascending order on every term', () => {
+    // The cards render in array order; a cheaper plan to the right of a dearer
+    // one reads as a mistake and undercuts the comparison table beneath it.
+    for (const term of BILLING_TERMS) {
+      const figures = plans.map((p) => p.price[term]);
+      expect(figures, `${term} prices are not ascending`).toEqual([...figures].sort((a, b) => a - b));
+    }
+  });
+
+  it('makes every longer term cheaper than the same span bought monthly', () => {
+    // The whole proposition. A term that cost MORE than paying month by month
+    // would make every "save" badge on the page a lie in the other direction.
+    for (const p of plans) {
+      for (const term of DISCOUNTED_TERMS) {
+        expect(p.price[term], `${p.name} ${term}`).toBeLessThan(p.price.monthly * TERM_MONTHS[term]);
+      }
+    }
   });
 });
 
-describe('plan card claims', () => {
-  it('quotes a whole-dollar monthly price on every plan', () => {
-    for (const p of plans) {
-      expect(Number.isInteger(p.monthly)).toBe(true);
-      expect(p.monthly).toBeGreaterThan(0);
+/* ─── THE-195 TESTS 3 & 4 ─────────────────────────────────────────────────────
+   The badges, and the honesty rule they have to satisfy. */
+describe('the discount badges read 15% and 30% and are not computed from the prices', () => {
+  it('advertises exactly 15% and 30%', () => {
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
+  });
+
+  it('does NOT compute the badge from the prices — a computed badge fails two different ways', () => {
+    // 🔴 This is the point of storing them, and the two discounted terms fail a
+    // computed badge for DIFFERENT reasons — which is why neither one alone
+    // would have justified the decision.
+
+    // 1. QUARTERLY: rounding disagrees across tiers. A per-tier badge would read
+    //    15% beside Individual and 16% beside Ministry, on a toggle that sits
+    //    above all three cards at once.
+    const quarterlyRounded = plans.map((p) => Math.round(actualSavingPct(p, 'quarterly')));
+    expect(new Set(quarterlyRounded).size).toBeGreaterThan(1);
+    expect(Math.round(actualSavingPct(plans[0], 'quarterly'))).toBe(15);
+    expect(Math.round(actualSavingPct(plans[2], 'quarterly'))).toBe(16);
+
+    // 2. YEARLY: rounding happens to AGREE — all three tiers round to 30 — and
+    //    that is precisely the trap. A badge computed by rounding would print a
+    //    flat 30% while the worst tier saves 29.70%, i.e. it would compute
+    //    itself into the false claim the honesty rule exists to stop. Storing
+    //    the number and deriving only the WORDING is what separates the two.
+    const yearlyRounded = plans.map((p) => Math.round(actualSavingPct(p, 'yearly')));
+    expect(new Set(yearlyRounded)).toEqual(new Set([30]));
+    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeLessThan(30);
+    expect(discountClaimShape('yearly')).toBe('upTo');
+  });
+
+  it('renders the stored number on the toggle, per discounted term', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(TermToggle, { value: 'yearly', onChange: () => {} }),
+    );
+    expect(html).toContain('-15%');
+    expect(html).toContain('-30%');
+    // Monthly carries no badge — there is nothing to save against itself.
+    expect(html.match(/-[0-9]+%/g)).toHaveLength(2);
+  });
+});
+
+describe('no copy claims a saving larger than the smallest actual saving', () => {
+  /** The worst and best tier for a term, exactly. */
+  const worst = (term: 'quarterly' | 'yearly') => Math.min(...plans.map((p) => actualSavingPct(p, term)));
+  const best = (term: 'quarterly' | 'yearly') => Math.max(...plans.map((p) => actualSavingPct(p, term)));
+
+  it('states a percentage FLAT only when the worst tier actually reaches it', () => {
+    for (const term of DISCOUNTED_TERMS) {
+      if (discountClaimShape(term) === 'flat') {
+        expect(ADVERTISED_DISCOUNT_PCT[term], `flat "${discountClaim(term)}" overstates ${term}`)
+          .toBeLessThanOrEqual(worst(term));
+      }
     }
   });
 
-  it('carries a zero platform fee, which the copy beside it asserts', () => {
-    // The card renders `{fee * 100}%` next to "Harvest takes nothing from a
-    // gift". A nonzero fee turns that sentence into a false claim about money.
-    for (const p of plans) expect(p.fee).toBe(0);
+  it('quarterly may be claimed flat — the worst tier saves 15.4% against an advertised 15%', () => {
+    expect(worst('quarterly')).toBeGreaterThan(15);
+    expect(discountClaimShape('quarterly')).toBe('flat');
+    expect(discountClaim('quarterly')).toBe('Save 15%');
   });
 
-  it('prices the tiers in ascending order', () => {
-    // The cards render in array order; a cheaper plan to the right of a dearer
-    // one reads as a mistake and undercuts the comparison table beneath it.
-    const monthlies = plans.map((p) => p.monthly);
-    expect(monthlies).toEqual([...monthlies].sort((a, b) => a - b));
+  it('🔴 yearly may NOT be claimed flat — the worst tier saves 29.70% against an advertised 30%', () => {
+    // The brief that set these prices stated 15% and 30% were both safe to
+    // advertise flat. 30 is not: Individual is $329 against $468 at the monthly
+    // rate, which is 29.70% — three tenths of a point short of the claim. "Up
+    // to" is true of every tier and keeps 30 on the badge.
+    expect(worst('yearly')).toBeLessThan(30);
+    expect(worst('yearly')).toBeCloseTo(29.7008, 3);
+    expect(discountClaimShape('yearly')).toBe('upTo');
+    expect(discountClaim('yearly')).toBe('Save up to 30%');
+  });
+
+  it('never advertises more than even the best tier saves, under any wording', () => {
+    for (const term of DISCOUNTED_TERMS) {
+      expect(ADVERTISED_DISCOUNT_PCT[term]).toBeLessThanOrEqual(best(term));
+    }
+  });
+
+  it('the honesty guard throws when an advertised percentage outruns every tier', () => {
+    // By mutation: no wording rescues "up to 40%" when nothing reaches 40%.
+    expect(() => discountClaimContract(plans, { quarterly: 15, yearly: 40 })).toThrow(/best tier only/);
+    expect(() => discountClaimContract(plans, { quarterly: 99, yearly: 30 })).toThrow(/quarterly advertises 99%/);
+    // And it passes for what the site actually advertises.
+    expect(() => discountClaimContract(plans)).not.toThrow();
   });
 });
 
 /* The card and its button must agree about which term is being sold.
  *
- * They did not. The toggle defaults to Annual, the card priced itself from that
- * state, and the signup link named no term at all — so the app's onboarding,
- * which fails closed to monthly on a missing `?billing=`, sold monthly to a
- * church that had been shown the annual price. Default state, not an edge; a
- * ~32% gap between the figure advertised and the figure charged.
+ * They did not. The toggle defaults to the discounted term, the card priced
+ * itself from that state, and the signup link named no term at all — so the
+ * app's onboarding, which fails closed to monthly on a missing `?billing=`,
+ * sold monthly to a church that had been shown a discounted price. Default
+ * state, not an edge.
  *
  * So these assertions are made against a RENDERED card rather than against the
  * helpers behind it: the price and the href are read back out of the same
@@ -109,53 +194,43 @@ describe('plan card claims', () => {
  * that prices itself from the toggle while its button is wired to a literal
  * satisfies every check made one layer down, and fails here.
  *
- * `renderToStaticMarkup` needs no DOM — it is the same server render the site
- * is prerendered with — so this stays inside the suite's node environment and
- * brings in no new dependency.
- *
  * Plans are named by label — `p.planId`, `p.name` — never by matching on a
  * figure: a price matched by pattern is a price matched on the wrong card. */
 describe('what a card shows and what its button buys', () => {
-  const both = [true, false] as const;
-
-  /** Render one card and read back the two facts that must not disagree. */
-  function shown(plan: Plan, annual: boolean) {
-    const html = renderToStaticMarkup(React.createElement(PlanCard, { plan, annual }));
-    // The card prints exactly one dollar figure — the headline price. The fee
-    // beside it is a percentage, and no feature line carries a `$`.
-    const price = html.match(/>\$([0-9]+)<\/span>/)?.[1];
+  /** Render one card and read back the facts that must not disagree. */
+  function shown(plan: Plan, term: BillingTerm) {
+    const html = renderToStaticMarkup(React.createElement(PlanCard, { plan, term }));
+    // The headline is the first dollar figure in a <span>; the fee beside it is
+    // a percentage and no feature line carries a `$`.
+    const price = html.match(/>\$([0-9,]+)<\/span>/)?.[1];
     const href = html.match(/href="(https:\/\/theharvest\.app\/[^"]*)"/)?.[1]?.replace(/&amp;/g, '&');
     expect(price, `${plan.name} rendered no price`).toBeDefined();
     expect(href, `${plan.name} rendered no signup link`).toBeDefined();
-    return { price: Number(price), href: href!, params: new URL(href!).searchParams };
+    return {
+      price: Number(price!.replace(/,/g, '')),
+      html,
+      href: href!,
+      params: new URL(href!).searchParams,
+    };
   }
 
-  it('a card shown at the annual price links to an annual signup', () => {
+  it.each(BILLING_TERMS)('a card shown on %s links to a signup for that same term', (term) => {
     for (const p of plans) {
-      const card = shown(p, true);
-      expect(card.price).toBe(annualMonthly(p.monthly));
-      expect(card.href).toBe(`https://theharvest.app/?signup=${p.planId}&billing=yearly`);
-    }
-  });
-
-  it('a card shown at the monthly price links to a monthly signup', () => {
-    for (const p of plans) {
-      const card = shown(p, false);
-      expect(card.price).toBe(p.monthly);
-      // Stated outright rather than left to the app's fallback: the link means
-      // the same thing after either repo changes what it defaults to.
-      expect(card.href).toBe(`https://theharvest.app/?signup=${p.planId}&billing=monthly`);
+      const card = shown(p, term);
+      // 🔴 The CHARGED figure, not a per-month equivalent.
+      expect(card.price).toBe(p.price[term]);
+      expect(card.href).toBe(`https://theharvest.app/?signup=${p.planId}&billing=${term}`);
     }
   });
 
   it("the link uses the app's vocabulary, not Dodo's", () => {
-    // The site's toggle says "Annual" and Dodo's term is `annual`, but the app's
-    // BillingPeriod is `yearly` and its validator fails closed on anything else
-    // — so 'annual' on the wire would quietly reproduce the original bug.
+    // Dodo's term is `annual` but the app's is `yearly`, and the app's validator
+    // fails closed on anything else — so 'annual' on the wire would quietly
+    // reproduce the original bug.
     for (const p of plans) {
-      for (const annual of both) {
-        const { params } = shown(p, annual);
-        expect(params.get('billing')).toBe(annual ? 'yearly' : 'monthly');
+      for (const term of BILLING_TERMS) {
+        const { params } = shown(p, term);
+        expect(params.get('billing')).toBe(term);
         expect([...params.values()]).not.toContain('annual');
       }
     }
@@ -163,14 +238,37 @@ describe('what a card shows and what its button buys', () => {
 
   it("switching the toggle changes what every card's link buys", () => {
     for (const p of plans) {
-      const yearly = shown(p, true);
-      const monthly = shown(p, false);
-      expect(yearly.price).not.toBe(monthly.price);
+      const seen = BILLING_TERMS.map((t) => shown(p, t));
       // Every card, not just the featured one: a link pinned to one term serves
-      // the other term's visitor a price they were never shown.
-      expect(yearly.href).not.toBe(monthly.href);
-      expect(yearly.params.get('billing')).toBe('yearly');
-      expect(monthly.params.get('billing')).toBe('monthly');
+      // the other terms' visitors a price they were never shown.
+      expect(new Set(seen.map((s) => s.href)).size).toBe(BILLING_TERMS.length);
+      expect(new Set(seen.map((s) => s.price)).size).toBe(BILLING_TERMS.length);
+    }
+  });
+
+  it('names the charged cycle beside the charged amount, on every term', () => {
+    // ⚠️ What a church is charged must be unambiguous. The headline suffix is
+    // the CYCLE, so "$99" never appears over "/mo" on a quarterly card.
+    for (const p of plans) {
+      for (const term of BILLING_TERMS) {
+        expect(shown(p, term).html).toContain(`/${TERM_SUFFIX[term]}`);
+      }
+    }
+  });
+
+  it('never shows a per-month equivalent without the amount and cadence that produce it', () => {
+    // 🔴 $329/12 is $27.42 and no church is ever billed $27. Wherever the
+    // equivalent appears it is labelled, and the charged total is in the same
+    // sentence.
+    for (const p of plans) {
+      for (const term of DISCOUNTED_TERMS) {
+        const { html } = shown(p, term);
+        const perMonth = termMonthlyEquivalent(p.price[term], term);
+        expect(html).toContain(`$${perMonth}/mo equivalent`);
+        expect(html).toContain(`billed as $${p.price[term].toLocaleString()} every ${TERM_MONTHS[term]} months`);
+      }
+      // On monthly there is no equivalent to state — the headline IS per month.
+      expect(shown(p, 'monthly').html).not.toContain('equivalent');
     }
   });
 
@@ -180,17 +278,15 @@ describe('what a card shows and what its button buys', () => {
     // checked here is that the card's own hand-off did not take the slot the
     // commission rides in: absent, never present-and-empty.
     for (const p of plans) {
-      for (const annual of both) {
-        const { params, href } = shown(p, annual);
+      for (const term of BILLING_TERMS) {
+        const { params, href } = shown(p, term);
         expect(params.has('ref')).toBe(false);
         expect(href).not.toContain('ref=');
         expect(params.get('signup')).toBe(p.planId);
       }
-    }
-    // And with a ref in hand the term rides alongside it, never instead of it.
-    for (const p of plans) {
-      const url = appSignupUrl(p.planId, cardTerms(p.monthly, true).billing);
-      expect(url).toContain('billing=yearly');
+      // And with a ref in hand the term rides alongside it, never instead of it.
+      const url = appSignupUrl(p.planId, cardTerms(p, 'quarterly').billing);
+      expect(url).toContain('billing=quarterly');
       expect(url).toContain(`signup=${p.planId}`);
     }
   });
@@ -198,13 +294,11 @@ describe('what a card shows and what its button buys', () => {
   it('no price or trial length is restated anywhere new', () => {
     // The signup link carries intent, never figures: the price lives on the
     // card and the trial length lives in TRIAL_LENGTH_DAYS. A copy of either on
-    // the wire is a second source of truth that will go stale silently. The
-    // closed key set is the guard; the digit check catches a figure smuggled
-    // into a value.
+    // the wire is a second source of truth that will go stale silently.
     const ALLOWED = ['signup', 'billing'];
     for (const p of plans) {
-      for (const annual of both) {
-        const { params, href } = shown(p, annual);
+      for (const term of BILLING_TERMS) {
+        const { params, href } = shown(p, term);
         expect([...params.keys()]).toEqual(ALLOWED);
         expect(new URL(href).search).not.toMatch(/[0-9]/);
       }
@@ -212,31 +306,90 @@ describe('what a card shows and what its button buys', () => {
   });
 
   it('translates the toggle at exactly one boundary', () => {
-    // `cardTerms` is that boundary — the only place "Annual" becomes `yearly`.
-    // Asserted directly so the translation keeps a named home of its own.
+    // `cardTerms` is that boundary. Asserted directly so the translation keeps a
+    // named home of its own.
     for (const p of plans) {
-      expect(cardTerms(p.monthly, true)).toEqual({ price: annualMonthly(p.monthly), billing: 'yearly' });
-      expect(cardTerms(p.monthly, false)).toEqual({ price: p.monthly, billing: 'monthly' });
+      for (const term of BILLING_TERMS) {
+        expect(cardTerms(p, term)).toEqual({
+          price: p.price[term],
+          suffix: TERM_SUFFIX[term],
+          perMonth: termMonthlyEquivalent(p.price[term], term),
+          billing: term,
+        });
+      }
     }
   });
 });
 
-describe('the cross-repo price contract', () => {
-  it('the cross-repo annual contract still throws when the prices disagree', async () => {
-    // The contract runs at module scope, so this file having imported ./Pricing
-    // at all is the proof that it passes for today's prices. Two things are
-    // left to pin down, and neither is visible from the exports.
+/* ─── THE-195 TEST 12 ───────────────────────────────────────────────────────── */
+describe('the cheapest-plan figure follows the new Individual monthly price', () => {
+  it('is the lowest MONTHLY sticker price, which is now 39', () => {
+    expect(CHEAPEST_MONTHLY).toBe(39);
+    expect(CHEAPEST_MONTHLY).toBe(Math.min(...plans.map((p) => p.price.monthly)));
+  });
+
+  it('is never a discounted-term figure', () => {
+    // The surfaces that render it (Nav's mega-menu footer, the BlogPost CTA
+    // band, the Landing SEO description) carry no toggle and name no term, so a
+    // discounted figure there would be a "from $27/mo" nobody can actually buy.
+    for (const term of DISCOUNTED_TERMS) {
+      expect(CHEAPEST_MONTHLY).not.toBe(Math.min(...plans.map((p) => termMonthlyEquivalent(p.price[term], term))));
+    }
+  });
+});
+
+/* ─── THE-195 TEST 5 ─────────────────────────────────────────────────────────── */
+describe('the cross-repo price contract still throws when the two repos disagree', () => {
+  it('throws for a disagreement on ANY tier and ANY term — verified by mutation', () => {
+    // 🔴 The real thing, run against a deliberately wrong table. The contract
+    // runs at module scope, so this file having imported ./Pricing at all proves
+    // it passes for today's prices; what is proved here is that it FAILS for
+    // prices it should reject, which importing can never show.
+    for (const p of plans) {
+      for (const term of BILLING_TERMS) {
+        const mutated: Record<string, Record<BillingTerm, number>> = {
+          plus: { ...DODO_CATALOGUE_USD.plus },
+          pro: { ...DODO_CATALOGUE_USD.pro },
+          max: { ...DODO_CATALOGUE_USD.max },
+        };
+        mutated[p.planId][term] += 1;
+        expect(
+          () => planPriceContract(plans, mutated),
+          `a $1 drift on ${p.name} ${term} did not fail the contract`,
+        ).toThrow(new RegExp(`${p.name}.*${term}`));
+      }
+    }
+  });
+
+  it('throws when the app publishes a tier this site does not price at all', () => {
+    expect(() => planPriceContract(plans, { plus: DODO_CATALOGUE_USD.plus })).toThrow(/no expected prices/);
+  });
+
+  it('passes for the prices actually shipped', () => {
+    expect(() => planPriceContract(plans)).not.toThrow();
+  });
+
+  it('still runs at module scope and still THROWS, rather than warning', async () => {
     const src = await readFile(fileURLToPath(new URL('./Pricing.tsx', import.meta.url)), 'utf8');
+    // Downgraded to a warning it would ship exactly the mismatch it exists to
+    // stop, and the build would pass.
+    expect(src).toMatch(/throw new Error\(/);
+    expect(src).toMatch(/^planPriceContract\(plans\);$/m);
+    expect(src).toMatch(/const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = \{/);
+    expect(src).not.toMatch(/console\.(warn|error)\(/);
+  });
 
-    // 1. It still THROWS, and names the tier. Downgraded to a warning it would
-    //    ship exactly the mismatch it exists to stop, and the build would pass.
-    expect(src).toMatch(/if \(annualMonthly\(p\.monthly\) !== expected\) \{\s*\n\s*throw new Error\(/);
-    expect(src).toMatch(/const EXPECTED_ANNUAL_MONTHLY: Record<string, number> = \{/);
-
-    // 2. It still has teeth: move the multiplier by a month on this side alone
-    //    and at least one tier stops matching the figure the app publishes, so
-    //    the check fires rather than agreeing with whatever it is handed.
-    const shifted = (monthly: number) => Math.round((monthly * (ANNUAL_BILLED_MONTHS + 1)) / 12);
-    expect(plans.some((p) => shifted(p.monthly) !== annualMonthly(p.monthly))).toBe(true);
+  it('compares the TABLE, not a multiplier — the old shape is gone', () => {
+    // The contract used to check `annualMonthly(p.monthly)` against three
+    // expected monthly-equivalents, i.e. the output of ANNUAL_BILLED_MONTHS.
+    // There is no multiplier to check now, and comparing stored price to stored
+    // price guards strictly more: the old shape could not see a wrong MONTHLY
+    // price at all, only a wrong derivation from one.
+    const mutated = {
+      plus: { ...DODO_CATALOGUE_USD.plus, monthly: DODO_CATALOGUE_USD.plus.monthly + 10 },
+      pro: { ...DODO_CATALOGUE_USD.pro },
+      max: { ...DODO_CATALOGUE_USD.max },
+    };
+    expect(() => planPriceContract(plans, mutated)).toThrow(/Individual.*monthly/);
   });
 });
