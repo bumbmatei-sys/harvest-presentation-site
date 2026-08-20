@@ -1,7 +1,7 @@
 import React from 'react';
 import { Reveal } from './effects';
 import { Kicker, H2, container, softCard, Mark } from './shared';
-import { plans, termMonthlyEquivalent } from './Pricing';
+import { plans, formatMonthlyHeadline } from './Pricing';
 
 /* What Harvest replaces — same competitor set + monthly costs as the existing
    site. Rendered on a light card, so logos use full-colour Simple Icons (or a
@@ -36,7 +36,7 @@ const logoUrl = (slug: string | null, name: string, domain?: string) =>
 
 // This row compares against the top plan (the tier that matches the competitor
 // stack below) at its YEARLY price, expressed per month — read from the same
-// stored price table as Pricing.tsx through the shared `termMonthlyEquivalent`
+// stored price table as Pricing.tsx through the shared `formatMonthlyHeadline`
 // helper, so the two can't drift apart.
 //
 // ⚠️ The headline figure here is a per-month EQUIVALENT rather than a charged
@@ -44,6 +44,15 @@ const logoUrl = (slug: string | null, name: string, domain?: string) =>
 // total would not be comparable to what it stands beside. The charged total is
 // therefore printed directly under it — "billed annually ($1,329/yr)" — so the
 // comparison stays readable without leaving any doubt about what is taken.
+//
+// 🔴 THE-196 MADE THIS THE HOUSE STYLE RATHER THAN AN EXCEPTION. This row used
+// to be the one place on the site that led with a per-month figure; the pricing
+// cards now do the same thing for the same reason, through the same helper. The
+// row is therefore NOT redundant — it is the only per-month figure that sits
+// beside competitor costs, which is what makes the comparison legible — and it
+// is no longer inconsistent with the cards. Nothing here needed reshaping, only
+// the shared rounding (it reads $110.75 rather than $111) and a legible size on
+// the line beneath.
 //
 // Keyed on planId, not on the display name: the name is marketing copy and has
 // already been reassigned once ("Community" was retired and "Ministry" moved
@@ -53,7 +62,7 @@ const logoUrl = (slug: string | null, name: string, domain?: string) =>
 const foundTopPlan = plans.find((p) => p.planId === 'max');
 if (!foundTopPlan) throw new Error("Replaces: no plan with planId 'max' to price against.");
 const topPlan = foundTopPlan;
-const topPlanAnnual = termMonthlyEquivalent(topPlan.price.yearly, 'yearly');
+const topPlanAnnual = formatMonthlyHeadline(topPlan.price.yearly, 'yearly');
 
 export function Replaces() {
   return (
@@ -92,12 +101,14 @@ export function Replaces() {
               <div className="replaces-cat"><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mark h={24} /><span style={{ color: '#fff', fontWeight: 700 }}>Harvest</span></span></div>
               <div className="replaces-tools" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>Everything above — in one platform ({topPlan.name} plan)</div>
               <div className="replaces-cost">
-                <span style={{ color: 'var(--gold-400)', fontWeight: 800, fontSize: 18 }}>${topPlanAnnual}</span><span style={{ color: 'rgba(201,150,58,0.6)', fontSize: 13 }}>/mo</span>
-                {/* The charged total, named. The figure above is a per-month
-                    equivalent so it can be compared with the competitor column;
-                    this says what is actually taken, so the comparison cannot be
-                    mistaken for a monthly bill. */}
-                <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 10.5, marginTop: 2 }}>{`billed annually ($${topPlan.price.yearly.toLocaleString()}/yr)`}</div>
+                <span style={{ color: 'var(--gold-400)', fontWeight: 800, fontSize: 18 }}>{topPlanAnnual}</span><span style={{ color: 'rgba(201,150,58,0.6)', fontSize: 13 }}>/mo</span>
+                {/* The charged total, named.
+                    ⚠️ THE-196 RAISED THIS LINE. It was 10.5px at
+                    rgba(255,255,255,0.45) — under the 11px floor, and the
+                    quietest ink on the panel was carrying the only figure that
+                    says what is actually taken. Now 11.5px at 0.75, which is
+                    10.53:1 on the navy row. */}
+                <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11.5, fontWeight: 600, marginTop: 2 }}>{`billed annually ($${topPlan.price.yearly.toLocaleString()}/yr)`}</div>
               </div>
             </div>
           </div>

@@ -65,14 +65,81 @@ export const TERM_LABEL: Readonly<Record<BillingTerm, string>> = Object.freeze({
 });
 
 /**
- * What a term works out to per month, rounded — a DISPLAY figure, never charged.
+ * ─── 🔴 THE PER-MONTH HEADLINE (THE-196) ─────────────────────────────────────
  *
- * $329 a year is $27.42 a month. No church is ever billed $27, so every surface
- * that prints this must print the CHARGED amount and its cycle beside it; see
- * `PlanCard`, which does exactly that and is checked on rendered output.
+ * This was `Math.round(price / months)`, which was fine while the per-month
+ * figure was a footnote under the charged total. THE-196 makes it the HEADLINE,
+ * and a rounded-to-nearest headline understates two of the six discounted cells:
+ *
+ *     Individual yearly    $329/12 = $27.4167  →  $27  → implies $324, bills $329
+ *     Small Team quarterly $199/3  = $66.3333  →  $66  → implies $198, bills $199
+ *
+ * A church reading "$27/mo" expects $324 a year. That is a pricing
+ * misrepresentation, not a rounding preference, so the headline is CEILED — it
+ * may never imply less than the bill.
+ *
+ * Ceiled at the CENT rather than the dollar. Ceiling to the dollar also never
+ * understates, but it puts "$28/mo" directly above "billed as $329 every 12
+ * months", and $28 x 12 is $336: the two numbers on the card would not
+ * reconcile, which is the same class of defect this ticket exists to remove.
+ * At the cent they reconcile to within four cents — the rounding itself.
+ *
+ * ⚠️ MUST MATCH THE APP. `plan-features.ts` in Harvest-agent carries the same
+ * rule as `ceilToCent`, and `planPriceContract` below compares the two repos'
+ * price tables. A church can see the marketing card and the in-app card in one
+ * session and they must not present a price differently.
+ *
+ * The `toFixed(6)` guards the exact divisions: $99/3 is $33.00, and a binary
+ * float landing a hair above 3300 cents would ceil an exact $33 to $33.01.
  */
+export const ceilToCent = (exact: number) =>
+  Math.ceil(Number((exact * 100).toFixed(6))) / 100;
+
+/** The per-month figure a card headlines, as a number. Ceiled at the cent. */
 export const termMonthlyEquivalent = (price: number, term: BillingTerm) =>
-  Math.round(price / TERM_MONTHS[term]);
+  ceilToCent(price / TERM_MONTHS[term]);
+
+/**
+ * The headline as it is printed — `$27.42`, `$33`, `$159`. An exact division
+ * keeps its whole-dollar form; only a real remainder shows cents.
+ */
+export const formatMonthlyHeadline = (price: number, term: BillingTerm) => {
+  const v = termMonthlyEquivalent(price, term);
+  return `$${v.toLocaleString('en-US', {
+    minimumFractionDigits: Number.isInteger(v) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
+
+/**
+ * 🔴 THE HONESTY GUARD, run at module scope with the other contracts.
+ *
+ * ⚠️ It takes the ROUNDING RULE as its subject, deliberately. Checked against
+ * `ceilToCent` alone it could never fail — a ceiling cannot round down — so it
+ * would be true by construction and would guard nothing. What can regress is
+ * the rule: `Math.round` restored, or the cents "tidied" to whole dollars.
+ * Passing the rule in makes the contract a statement ABOUT the rule, and the
+ * module-scope call binds it to the one the cards actually render.
+ */
+export function monthlyHeadlineContract(
+  round: (exact: number) => number = ceilToCent,
+  table: readonly Plan[] = plans,
+): void {
+  for (const plan of table) {
+    for (const term of BILLING_TERMS) {
+      const charged = plan.price[term];
+      const months = TERM_MONTHS[term];
+      const implied = round(charged / months) * months;
+      if (implied < charged - 1e-9) {
+        throw new Error(
+          `Pricing: the ${plan.name} ${term} headline of $${round(charged / months)}/mo implies ` +
+            `$${implied.toFixed(2)} over ${months} months, but Dodo charges $${charged}. ` +
+            `A headline may never promise less than the bill.`,
+        );
+      }
+    }
+  }
+}
 
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
@@ -226,6 +293,11 @@ export function discountClaimContract(
 }
 
 discountClaimContract(plans);
+
+/* 🔴 The honesty guard runs beside the other module-scope contracts, so a
+   headline that would promise less than the bill stops the prerender rather
+   than shipping to a pricing page. */
+monthlyHeadlineContract();
 
 /**
  * The lowest monthly sticker price across all plans — what "from $X/mo" means
@@ -382,23 +454,27 @@ export function ComparisonTable() {
  * cannot render a term's price without holding that term in the same hand.
  *
  * ⚠️ `price` IS THE CHARGED AMOUNT and `suffix` names its cycle — "$99" and
- * "qtr", not "$33" and "mo". The per-month equivalent is a separate, explicitly
- * labelled field, because the one thing a church must never have to guess is
- * what leaves its account and when. Three terms make that sharper, not softer:
- * $329/yr, $99/qtr and $39/mo are three different amounts on three different
- * cycles, and only one of them is a month.
+ * "qtr". `monthlyHeadline` is the per-month EQUIVALENT — "$33" — and is what
+ * the card now prints large, with `price` on the line beneath it (THE-196).
+ * They travel together out of this one call so a card cannot show one term's
+ * headline above another term's total. Three terms make that sharper, not
+ * softer: $329/yr, $99/qtr and $39/mo are three different amounts on three
+ * different cycles, and only one of them is a month.
  */
 export function cardTerms(plan: Plan, term: BillingTerm): {
   price: number;
   suffix: string;
-  perMonth: number;
+  monthlyHeadline: string;
   billing: BillingPeriod;
 } {
   const price = plan.price[term];
   return {
     price,
     suffix: TERM_SUFFIX[term],
-    perMonth: termMonthlyEquivalent(price, term),
+    // THE-196: the card headlines this and prints `price` beneath it. Both
+    // still leave this one call together, for the reason above — a card must
+    // not be able to hold one term's headline and another term's total.
+    monthlyHeadline: formatMonthlyHeadline(price, term),
     // The site's term vocabulary and the app's are the same three words, so
     // this is an identity today — but it stays an explicit translation, because
     // the app's `?billing=` allowlist is what decides whether a forged or stale
@@ -632,7 +708,7 @@ function PlanCta({ planId, billing, variant }: { planId: string; billing: Billin
    card holds no state of its own; `Pricing` owns the toggle. */
 export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
   const pop = plan.popular;
-  const { price, suffix, perMonth, billing } = cardTerms(plan, term);
+  const { price, monthlyHeadline, billing } = cardTerms(plan, term);
   return (
     <div style={{
       width: '100%', display: 'flex', flexDirection: 'column',
@@ -643,24 +719,39 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
     }}>
       {pop && <span style={{ position: 'absolute', top: 18, right: 18, background: 'var(--brand)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>RECOMMENDED</span>}
       <div style={{ fontSize: 13, fontWeight: 600, color: pop ? 'var(--gold-400)' : 'var(--brand)' }}>{plan.name}</div>
+      {/* 🔴 THE-196 FLIPPED THIS. The headline is the PER-MONTH figure; the
+          charged total is the line below. See `ceilToCent` for why the figure
+          carries cents. */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '12px 0 4px' }}>
-        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>${price.toLocaleString()}</span>
-        <span style={{ fontSize: 13, color: pop ? 'rgba(255,255,255,0.55)' : 'var(--text-muted)' }}>/{suffix}</span>
+        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>{monthlyHeadline}</span>
+        <span style={{ fontSize: 13, color: pop ? 'rgba(255,255,255,0.55)' : 'var(--text-muted)' }}>/mo</span>
       </div>
-      {/* 🔴 THE PER-MONTH LINE NEVER TRAVELS ALONE, and this is the decision
-          THE-195 asked to be reported. The headline above is the CHARGED amount
-          on the CHARGED cycle — $329/yr, $99/qtr — because that is the figure
-          that leaves a church's account. The per-month equivalent is useful for
-          comparing tiers, and it is a number nobody is ever billed ($329/12 is
-          $27.42), so it appears only here, rounded, labelled "equivalent", and
-          in the same sentence as the amount and cadence that produce it.
-          Showing $27/mo as the headline would have been the #55 mismatch again:
-          a figure a visitor reads as their bill and never sees on a statement.
-          `minHeight` reserves the row on monthly so the three cards stay
-          aligned across a toggle change. */}
-      <div style={{ minHeight: 17, fontSize: 11.5, color: pop ? 'rgba(255,255,255,0.55)' : 'var(--text-muted)' }}>
+      {/* ── 🔴 THE CHARGED TOTAL (THE-196) ───────────────────────────────────
+          The headline above is a per-month EQUIVALENT — a figure no church is
+          ever billed. THIS is the amount that leaves the account, and now that
+          it is the smaller of the two it has to carry its own weight:
+
+            12.5px, not the 11.5px it was. Explicit px, so it cannot drift with
+            a rem base.
+
+            `--navy-900` on the light card, at 18.25:1. It was `--text-muted`
+            (#A99B84) which measures 2.72:1 on white and FAILED AA outright —
+            acceptable-ish for a footnote nobody had to read, indefensible for
+            the only number on the card that says what you pay. `--text-body`
+            (#8B7355) was the obvious middle option and measures 4.49:1, which
+            misses AA by a hundredth; it is not worth shipping a line that
+            rounds to passing. On the dark card, white at 0.86 gives 13.56:1.
+
+            600 weight. The hierarchy is carried by size — 40px serif against
+            12.5px sans — not by making the true number faint.
+
+          On MONTHLY this renders nothing: the headline is already the charged
+          amount on the charged cycle, so "billed as $39 every 1 month" under
+          "$39/mo" is the same sentence twice. `minHeight` still reserves the
+          row so the cards keep their baselines across a toggle change. */}
+      <div style={{ minHeight: 18, fontSize: 12.5, fontWeight: 600, color: pop ? 'rgba(255,255,255,0.86)' : 'var(--navy-900)' }}>
         {term !== 'monthly'
-          ? `$${perMonth}/mo equivalent — billed as $${price.toLocaleString()} every ${TERM_MONTHS[term]} months`
+          ? `billed as $${price.toLocaleString()} every ${TERM_MONTHS[term]} months`
           : ''}
       </div>
       <div style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{plan.blurb}</div>
