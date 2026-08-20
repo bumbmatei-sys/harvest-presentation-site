@@ -38,27 +38,29 @@ function walk(dir: string): string[] {
 const PRICE_BEARING = ['components/Pricing.tsx', 'content/faq.ts', 'content/legal.ts'];
 
 /**
- * ⚠️ EDITORIAL, REPORTED AND DELIBERATELY NOT REWRITTEN.
+ * ⚠️ EDITORIAL PROSE, EXEMPT FROM THE LITERAL SCAN — NOT FROM BEING RIGHT.
  *
  * `content/features.ts` carries plan prices inside prose that makes a COMPARISON
  * ARGUMENT — affiliate arithmetic, a multi-campus bill worked out in the
- * sentence, "we take zero even on the cheapest plan". Correcting the figures
- * would mean rewriting the arguments built on them, which is an editorial
- * decision and not a mechanical reprice. It is listed here rather than silently
- * skipped so the exemption is visible in the diff and someone has to justify
- * each addition to it.
+ * sentence, "we take zero even on the cheapest plan". A figure embedded in an
+ * argument's own arithmetic can't be scanned as a bare literal the way a card
+ * price can — the sentence has to be read whole to know if it is right — so this
+ * file is exempt from the mechanical per-digit checks below. It is listed here
+ * rather than silently skipped so the exemption is visible in the diff and
+ * someone has to justify each addition to it.
  *
  * The blog post `content/posts/planning-center-alternative-small-churches.md`
  * is in the same position and needs no entry: this walk scans .ts/.tsx only, so
  * prose files are out of its reach by construction. It is named here so the
- * second stale surface is not invisible just because nothing scans it.
+ * second surface is not invisible just because nothing scans it.
  *
- * 🔴 BOTH ARE CURRENTLY STALE against the THE-195 prices and were left that way
- * knowingly. The blog post quotes $49/$99/$199 monthly and $74/$149 annual
- * equivalents; content/features.ts quotes "$49 plan", "$199 plan" and
- * "$199 + $220". None understates what Harvest charges — every stale figure is
- * HIGHER than the current price — so none of them can undersell a church, but
- * they are wrong and they need an editorial pass.
+ * THE-197 corrected both against the THE-195 prices — the blog post's Harvest
+ * figures and content/features.ts's "$39 plan" / "$159 plan" / "$159 + $220"
+ * arithmetic — while leaving every competitor figure untouched. Being exempt
+ * from this scan is not licence to drift again; `plan-claims.test.ts` and the
+ * THE-197 guard in `content/features.test.ts` read these surfaces against
+ * `PLAN_PRICING`/`plans` directly, which is what a literal-string scan cannot do
+ * for prose built around arithmetic.
  */
 const EDITORIAL_EXEMPT = ['content/features.ts'];
 
