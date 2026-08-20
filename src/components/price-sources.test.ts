@@ -64,8 +64,20 @@ const EDITORIAL_EXEMPT = ['content/features.ts'];
 
 /** Every price this change published, as bare digits. */
 const PRICE_DIGITS = [...new Set(plans.flatMap((p) => BILLING_TERMS.map((t) => String(p.price[t]))))];
-/** Prices this change RETIRED. None of these may survive anywhere in src. */
-const RETIRED = ['441', '891', '1791', '37', '74', '149'];
+/**
+ * Prices this change RETIRED. None may survive in scanned source.
+ *
+ * ⚠️ `99` AND `199` ARE DELIBERATELY ABSENT. Both were old MONTHLY prices and
+ * both are now real QUARTERLY ones — Individual is $99 a quarter, Small Team
+ * $199 — so banning the string would ban the current catalogue. They are
+ * distinguished by CONTEXT, not by string match: `PRICE_DIGITS` above pins
+ * where each may appear, and the cross-repo contract pins what each means.
+ *
+ * `49` has no such collision — it is a price on no tier and no term any more —
+ * so it is banned outright. It is also the exact literal #56 had to fix three
+ * copies of.
+ */
+const RETIRED = ['49', '441', '891', '1791', '37', '74', '149'];
 
 describe('no price literal appears outside the single source', () => {
   const modules = walk(SRC).filter((f) => !PRICE_BEARING.some((allowed) => f.endsWith(allowed)));
@@ -75,10 +87,23 @@ describe('no price literal appears outside the single source', () => {
     expect(modules.length).toBeGreaterThan(20);
   });
 
+  /**
+   * Comments are stripped before scanning.
+   *
+   * A comment that says "#56 fixed three disconnected $49 literals" is the
+   * HISTORY of the rule, and it renders nothing. Only executable source can
+   * quote a church the wrong price, and a rule that failed on its own rationale
+   * would be turned off rather than obeyed.
+   */
+  const codeOf = (file: string) =>
+    readFileSync(file, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^[ \t]*\/\/.*$/gm, '');
+
   it.each(PRICE_DIGITS)('no module outside the source restates $%s', (digits) => {
     for (const file of modules) {
       if (EDITORIAL_EXEMPT.some((e) => file.endsWith(e))) continue;
-      const src = readFileSync(file, 'utf8');
+      const src = codeOf(file);
       // `$99` in a template literal or in prose — a dollar sign immediately
       // followed by the figure. Bare integers are not searched: `99` is also a
       // border-radius, and a match on one of those is noise that would get this
@@ -91,7 +116,7 @@ describe('no price literal appears outside the single source', () => {
   it.each(RETIRED)('no module anywhere still carries the retired price $%s', (digits) => {
     for (const file of walk(SRC)) {
       if (EDITORIAL_EXEMPT.some((e) => file.endsWith(e))) continue;
-      const src = readFileSync(file, 'utf8');
+      const src = codeOf(file);
       expect(src, `${file} still carries the pre-THE-195 price $${digits}`)
         .not.toMatch(new RegExp(`\\$${digits}(?![0-9])`));
     }
