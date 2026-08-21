@@ -1,7 +1,9 @@
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { CATALOG_TOOL_COUNT } from '../components/catalog';
 import { plans } from '../components/Pricing';
 import {
   LEGAL_DOCS,
@@ -477,5 +479,172 @@ describe('the merchant-of-record disclosure', () => {
       if (file === path.join('content', 'legal.ts')) continue; // where it is defined
       expect(countOf(renderedProse(source), /merchant of record/gi), `${file} writes the disclosure out by hand`).toBe(0);
     }
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * THE-198 — the product analytics disclosure.
+ *
+ * PostHog is installed in the Harvest application (app repo PR #365) and is
+ * inert only until NEXT_PUBLIC_POSTHOG_KEY is set. Once it is, the application
+ * captures usage against a Firebase uid on authenticated screens, and this
+ * policy is the only place a member is told so.
+ *
+ * Every expectation below is a fact of the SHIPPED configuration, read from
+ * src/lib/analytics/{config,events,identity}.ts and docs/analytics-posthog.md
+ * in the app repo — not from PostHog's defaults. Asserted against the rendered
+ * prose, because a constant nobody renders discloses nothing.
+ * ---------------------------------------------------------------- */
+
+describe('product analytics disclosure', () => {
+  const privacyDoc = LEGAL_DOCS.find((d) => d.slug === 'privacy')!;
+  const privacy = text(privacyDoc);
+
+  it('the privacy policy names the product analytics processor', () => {
+    // Naming the vendor is the disclosure. "A third-party analytics provider"
+    // would satisfy a reader and tell a data subject nothing they could act on.
+    expect(privacy).toContain('PostHog');
+  });
+
+  it('it distinguishes marketing-site page views from in-app product analytics', () => {
+    // 🔴 The sentence this PR exists to correct. Before THE-198 the policy's
+    // only analytics claim was "aggregated page-view analytics for this
+    // marketing site" — true of Vercel, false as a description of what Harvest
+    // now holds, because PostHog runs inside the application on authenticated
+    // screens. Both must be present AND distinguished; either alone is the bug.
+    expect(privacy).toMatch(/aggregated page-view analytics for this marketing site/i);
+    expect(privacy).toMatch(/product analytics for the harvest application/i);
+    // The site claim must be scoped, so it cannot be read as covering the app.
+    expect(privacy).toMatch(/this covers theharvest\.site only/i);
+    // And the two must be stated as different things, not as one paragraph.
+    expect(privacy).toMatch(/these work differently from the site analytics/i);
+  });
+
+  it('it states where product analytics data is processed', () => {
+    // ⚠️ Deliberately not a named region. The PostHog project does not exist
+    // yet: the founder chooses EU or US AT CREATION and it cannot be migrated
+    // (docs/analytics-posthog.md §3). config.ts defaults to eu.i.posthog.com
+    // and US requires setting NEXT_PUBLIC_POSTHOG_HOST. So the region is
+    // unverifiable today and naming one would be the kind of false sentence
+    // this whole PR exists to remove. What IS true either way, and is the fact
+    // that matters, is that it does not live with workspace data.
+    expect(privacy).toMatch(/held by posthog on posthog's own cloud infrastructure/i);
+    expect(privacy).toMatch(/separately from your workspace data/i);
+    expect(privacy).toMatch(/nor necessarily in the same country/i);
+  });
+
+  it('it does not describe uid-identified analytics as anonymous', () => {
+    // 🔴 The accuracy guard. A Firebase uid identifies a person indirectly: it
+    // is pseudonymous, not anonymous. "Aggregated" is accurate for the
+    // marketing site and would not be accurate here. This scans the rendered
+    // prose so a future edit cannot reintroduce the word by writing a new
+    // sentence somewhere else in the document.
+    const claimsAnonymity = privacy
+      .split(/(?<=[.!?])\s+/)
+      .filter((sentence) => /\banonymous\b/i.test(sentence))
+      .filter((sentence) => !/\bnot anonymous\b/i.test(sentence));
+    expect(claimsAnonymity, 'the privacy policy calls something anonymous').toEqual([]);
+    // And it says so positively, rather than merely avoiding the word.
+    expect(privacy).toMatch(/it does stand for a single person — so it is not anonymous/i);
+    expect(privacy).toMatch(/not a name or an email address/i);
+  });
+
+  it('it states that session recording and autocapture are off', () => {
+    // Both are OFF in config.ts and both are double-locked:
+    //   replay      — disable_session_recording: true, and
+    //                 disable_external_dependency_loading: true means the
+    //                 recorder cannot even be fetched.
+    //   autocapture — autocapture/capture_heatmaps/capture_dead_clicks/
+    //                 rageclick all false, and before_send drops any event
+    //                 outside the closed vocabulary, $copy_autocapture included.
+    expect(privacy).toMatch(/there is no session recording/i);
+    expect(privacy).toMatch(/does not capture or replay what is on your screen/i);
+    expect(privacy).toMatch(/blocked from being downloaded/i);
+    expect(privacy).toMatch(/nothing is collected automatically from the page/i);
+    expect(privacy).toMatch(/what you click, type, copy or hover over is not read/i);
+    // capture_exceptions: false — Sentry does that, with its own scrubbing.
+    expect(privacy).toMatch(/errors are not sent to it either/i);
+  });
+
+  it('it states the cookie and its lifetime', () => {
+    // persistence is left at PostHog's default 'localStorage+cookie', which
+    // writes a first-party ph_<token>_posthog cookie lasting 365 days
+    // (docs/analytics-posthog.md, "Consent"). ⚠️ The policy had NO cookie
+    // section before this PR — this is the first mention of a cookie in any of
+    // the three documents.
+    expect(privacy).toMatch(/first-party cookie/i);
+    expect(privacy).toMatch(/365 days/i);
+  });
+
+  it('it states which surfaces send nothing', () => {
+    // AnalyticsBridge mounts only inside App.tsx's BrowserRouter and returns
+    // early on PREAUTH_PATHS (/auth, /onboarding, /church-onboarding).
+    // /blog/[id], /form/[formId] and /event/[eventId] are their own Next.js
+    // routes that never render App.tsx, so the bridge never mounts there.
+    expect(privacy).toMatch(/screens outside the signed-in application/i);
+    expect(privacy).toMatch(/sign-in and onboarding/i);
+    expect(privacy).toMatch(/public blog, form and event pages/i);
+    expect(privacy).toMatch(/send nothing at all/i);
+  });
+
+  it('the subprocessor list includes the analytics processor', () => {
+    // The list is the place a church's own reviewer looks. Asserted through
+    // the rendered section rather than the SUB_PROCESSORS constant.
+    const whereDataLives = privacyDoc.sections.find((s) => s.id === 'where-data-lives')!;
+    const listed = whereDataLives.blocks.flatMap((b) => (b.kind === 'p' ? [] : b.items));
+    expect(listed.some((entry) => entry.startsWith('PostHog —'))).toBe(true);
+    // And Vercel's own entry is scoped to this site, so the two analytics
+    // claims cannot be read as one.
+    expect(
+      listed.some((entry) => /^Vercel —.*aggregated page-view analytics for this site\.$/.test(entry)),
+    ).toBe(true);
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * THE-198 — what this PR must NOT have moved.
+ *
+ * A privacy edit that quietly changes a payments claim, a price or another
+ * policy is the failure mode these three guard. Hashes are of the RENDERED
+ * prose, taken from origin/main at 4ee9a33 before any edit in this branch.
+ * ---------------------------------------------------------------- */
+
+describe('what the analytics disclosure must not have touched', () => {
+  const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
+
+  it('THIRD_PARTY_PROCESSING is unchanged', () => {
+    // Byte for byte. Shared by all three policies precisely so the payments
+    // claim cannot drift, so it is pinned as bytes rather than as substance —
+    // the substance is already covered above.
+    expect(THIRD_PARTY_PROCESSING).toBe(
+      'Subscription fees cover access to the Harvest software. Congregational giving and donation ' +
+        'features connect directly through third-party payment rails (Stripe Connect); Harvest does not ' +
+        'hold, control or forward donation funds, and charges a 0% platform fee on them.',
+    );
+    expect(sha256(THIRD_PARTY_PROCESSING))
+      .toBe('d520667c4c782b92bf8239ef157967a00548675eec5f94526b745bf57a086ca9');
+  });
+
+  it('the Terms and Refund policies are unchanged', () => {
+    // Nothing in THE-198 makes a sentence in either document false: neither
+    // mentions analytics, cookies or sub-processors at all. If a legitimate
+    // future edit changes one, this fails loudly and on purpose — read the
+    // diff, decide, then move the hash.
+    expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
+      .toBe('4e3fa5989d53937fbeee3c5111550dcae8ab36b6bb9421e2a63105115b8cffb5');
+    expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
+      .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
+  });
+
+  it('no price or tool count changed', () => {
+    // The prices the Terms quote still match the cards that sell them, and the
+    // catalogue count the pricing page renders is untouched.
+    expect(tierPriceMismatches(plans)).toEqual([]);
+    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
+      'plus:39/99/329',
+      'pro:79/199/659',
+      'max:159/399/1329',
+    ]);
   });
 });
