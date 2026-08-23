@@ -7,8 +7,7 @@ import {
   ADD_ON_BILLED_MONTHS, ADD_ONS, AddOns, addOnAvailability, addOnPricingContract,
   ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, ComparisonTable, PlanCard, plans,
   TERM_MONTHS, termMonthlyEquivalent,
-  type AddOn,
-} from './Pricing';
+  type AddOn, ALL_TIER_NAMES, FreeTierCard, FREE_TIER } from './Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
 import { Replaces } from './Replaces';
 import { CATEGORIES } from '../content/features';
@@ -103,9 +102,12 @@ describe('the comparison grid parses at all', () => {
   it('reads back as the plans, with rows and both kinds of mark', () => {
     // Guard against every assertion below passing vacuously off a parser that
     // silently found nothing: a bad regex would make "has no Notes row" true.
-    expect(planColumns).toEqual(plans.map((p) => p.name));
+    // ALL_TIER_NAMES, not `plans` — THE-204 added Forever Free as a fourth
+    // column. `plans` is still the PRICED list and still three long; the table
+    // renders the whole ladder.
+    expect(planColumns).toEqual(ALL_TIER_NAMES);
     expect(rows.length).toBeGreaterThan(20);
-    expect(rows.every((r) => r.cells.length === plans.length)).toBe(true);
+    expect(rows.every((r) => r.cells.length === ALL_TIER_NAMES.length)).toBe(true);
     const readings = rows.flatMap((r) => r.cells);
     expect(readings).toContain('included');
     expect(readings).toContain('excluded');
@@ -141,8 +143,11 @@ describe('CRM on the cheapest plan', () => {
     for (const name of ['Small Team', 'Ministry']) {
       expect(claim(CRM_ROW, name), `${name} lost CRM`).toBe('included');
     }
+    // Included on all FOUR tiers now: free carries `crm: true` in the app's
+    // matrix, which is the whole point of the tier — an evangelist has to be
+    // able to see who enrolled.
     expect(rows.find((r) => r.label === CRM_ROW)!.cells)
-      .toEqual(plans.map(() => 'included'));
+      .toEqual(ALL_TIER_NAMES.map(() => 'included'));
   });
 });
 
@@ -313,5 +318,167 @@ describe('what this change must not have touched', () => {
     expect(section).toContain(`A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price`);
     for (const a of ADD_ONS) expect(section).toContain(addOnAvailability(a.planIds));
     expect(addOnAvailability(['pro', 'max'])).toBe('Small Team and Ministry only');
+  });
+});
+
+
+/* ---------------------------------------------------------------- *
+ * 🔴 THE-204 — the Forever Free column.
+ *
+ * Five false claims have already been fixed on this site. Every cell
+ * below is the app's PLAN_FEATURES `free` block, read rather than
+ * remembered, and each one is a claim a reader makes a decision on.
+ * ---------------------------------------------------------------- */
+
+const FREE_COL = 'Forever Free';
+
+describe('the Forever Free column claims exactly what the tier has', () => {
+  it('is the first column, so the ladder reads cheapest-first', () => {
+    expect(planColumns[0]).toBe(FREE_COL);
+  });
+
+  it('🔴 claims NO donation page and NO fundraising', () => {
+    // `fundraising: false`. This is the tier's defining absence and the one a
+    // reader is most likely to assume away, because every other card on the
+    // page leads with 0% donation fees.
+    expect(claim('Donation Page', FREE_COL)).toBe('excluded');
+    expect(claim('Fundraising', FREE_COL)).toBe('excluded');
+  });
+
+  it('claims the 500-member cap, which is higher than Individual’s 150', () => {
+    // Not a typo and not a copy-paste from Small Team: the founder chose a
+    // generous-but-capped free tier (Option A), and 500 over 150 is exactly the
+    // tension that decision creates. It is stated rather than hidden.
+    expect(claim('Contacts', FREE_COL)).toBe('500');
+    expect(claim('Contacts', 'Individual')).toBe('150');
+  });
+
+  it('claims one course and one admin', () => {
+    expect(claim('Courses', FREE_COL)).toBe('1');
+    expect(claim('Admin accounts', FREE_COL)).toBe('1');
+  });
+
+  it('claims CRM and the installable app, which free genuinely has', () => {
+    expect(claim('CRM (Donors & Members)', FREE_COL)).toBe('included');
+    expect(claim('Mobile App (PWA)', FREE_COL)).toBe('included');
+  });
+
+  it('claims NO blog, newsletter, SMS, livestream, check-in, groups or accounting', () => {
+    for (const row of [
+      'Blog', 'Automated SEO Blog Articles', 'Newsletter', 'Automated Newsletter',
+      'SMS (bring your own Twilio)', 'Livestream + Live Giving', 'Check-In System (QR)',
+      'Community Groups', 'Event Registration', 'Church Map', 'Custom Branding',
+      'Custom Domain', 'Custom Forms \u2192 CRM', 'Accounting + QuickBooks Sync',
+      'Tax Receipts & Giving Statements', 'Sermon Notes \u2192 Livestream',
+    ]) {
+      expect(claim(row, FREE_COL), `free claims ${row}, which it does not have`).toBe('excluded');
+    }
+  });
+
+  it('does not quietly take a feature away from a paying tier', () => {
+    // Adding a column is an edit to every row. This is the no-regression half:
+    // the three priced columns must read exactly as they did before THE-204.
+    expect(claim('Blog', 'Individual')).toBe('included');
+    expect(claim('Donation Page', 'Individual')).toBe('included');
+    expect(claim('SMS (bring your own Twilio)', 'Individual')).toBe('included');
+    expect(claim('Contacts', 'Small Team')).toBe('500');
+    expect(claim('Contacts', 'Ministry')).toBe('2,000');
+    expect(claim('Courses', 'Ministry')).toBe('15');
+    expect(claim('Livestream + Live Giving', 'Small Team')).toBe('included');
+    expect(claim('Community Groups', 'Ministry')).toBe('included');
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * 🔴 THE-204 — the Forever Free CARD.
+ *
+ * The comparison table renders only after a click; the CARD is what
+ * reaches dist/pricing/index.html, so it is what a visitor and a
+ * crawler actually read. Every non-negotiable from the brief is
+ * asserted on the rendered card, not on the data behind it.
+ * ---------------------------------------------------------------- */
+
+describe('the Forever Free card', () => {
+  const html = () => render(React.createElement(FreeTierCard, { tier: FREE_TIER }));
+  const text = () => words(html());
+
+  it('names the audience, which is the differentiator — not the price', () => {
+    expect(text()).toContain('FOR EVANGELISTS');
+    expect(text()).toContain('evangelists');
+  });
+
+  it('🔴 says plainly that it has no donation page', () => {
+    // Every other card leads with 0% donation fees in this same slot. A free
+    // card that merely omitted it would let the reader carry that assumption
+    // across from the card beside it.
+    expect(text()).toContain('No donation page');
+  });
+
+  it('states the 500 cap, the honest differentiator against Individual’s 150', () => {
+    expect(text()).toContain('500 members');
+  });
+
+  it('prices at $0 with no billing cycle, and quotes no term', () => {
+    expect(text()).toContain('$0');
+    expect(text()).toContain('forever');
+    expect(text()).toContain('no card required');
+    // "/mo" would imply a cycle free does not have.
+    expect(text()).not.toContain('/mo');
+    for (const term of ['monthly', 'quarterly', 'yearly', 'annually', 'billed as']) {
+      expect(text().toLowerCase(), `the free card quotes "${term}"`).not.toContain(term);
+    }
+  });
+
+  it('does not sell a trial — free is not a trial of anything and never expires', () => {
+    expect(text()).not.toContain('Start free trial');
+    expect(text()).not.toContain('trial');
+  });
+
+  it('does NOT wear the RECOMMENDED treatment, which Ministry owns', () => {
+    // That treatment sells the most expensive plan. Using it here would put the
+    // cheapest and the dearest tier in the same visual slot.
+    expect(text()).not.toContain('RECOMMENDED');
+    const ministry = plans.find((p) => p.popular);
+    expect(ministry, 'no popular plan').toBeDefined();
+    expect(words(render(React.createElement(PlanCard, { plan: ministry!, term: 'yearly' as const }))))
+      .toContain('RECOMMENDED');
+  });
+
+  it('claims no feature free does not have', () => {
+    // Scoped to the FEATURE LIST, not the whole card. The card deliberately
+    // says the words "giving and fundraising" — in its no-donation-page line,
+    // as an absence — and a whole-card scan would read that disclosure as the
+    // very claim it exists to deny.
+    const bullets = FREE_TIER.features.join(' | ').toLowerCase();
+    for (const absent of [
+      'livestream', 'newsletter', 'check-in', 'community groups', 'custom domain',
+      'custom branding', 'accounting', 'quickbooks', 'tax receipt', 'sms',
+      'fundraising', 'donation', 'event registration', 'church map', 'blog',
+    ]) {
+      expect(bullets, `the free card lists "${absent}" as a feature`).not.toContain(absent);
+    }
+    // And the disclosure really is present, so the narrowing above cannot be
+    // read as having quietly dropped the claim.
+    expect(text()).toContain('No donation page');
+  });
+
+  it('is absent from `plans`, so no price contract can demand a price for it', () => {
+    // The seam. `plans` is the PRICED list and stays three long; a fourth entry
+    // here would need three numbers, and the cross-repo contract would then
+    // demand three matching numbers in the app's PLAN_PRICING, which
+    // deliberately has none.
+    expect(plans.map((p) => p.planId)).not.toContain('free');
+    expect(plans).toHaveLength(3);
+    expect(ALL_TIER_NAMES).toHaveLength(4);
+    // 🔴 And the contract still passes for today's data while STILL throwing on
+    // a disagreement — free being absent from it must not have turned it off.
+    expect(() => planPriceContract(plans)).not.toThrow();
+    // Built from `plans` itself and then drifted by $1, so the mutation cannot
+    // go stale when a price legitimately changes.
+    const mutated = Object.fromEntries(
+      plans.map((pl) => [pl.planId, { ...pl.price }]),
+    ) as Record<string, Record<(typeof BILLING_TERMS)[number], number>>;
+    mutated.plus.monthly += 1;
+    expect(() => planPriceContract(plans, mutated)).toThrow(/Individual.*monthly/);
   });
 });
