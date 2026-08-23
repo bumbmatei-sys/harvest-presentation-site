@@ -143,11 +143,14 @@ describe('CRM on the cheapest plan', () => {
     for (const name of ['Small Team', 'Ministry']) {
       expect(claim(CRM_ROW, name), `${name} lost CRM`).toBe('included');
     }
-    // Included on all FOUR tiers now: free carries `crm: true` in the app's
-    // matrix, which is the whole point of the tier — an evangelist has to be
-    // able to see who enrolled.
+    // 🔴 ON ALL FOUR TIERS, BUT NOT IDENTICALLY (THE-205). Free carries
+    // `crm: true` in the app's matrix — that is the whole point of the tier, an
+    // evangelist has to be able to see who enrolled — AND `fundraising: false`,
+    // so it has no donate page and no donor record can exist in it. The row
+    // LABEL is shared by four columns and keeps the priced tiers' wording;
+    // free's CELL is what says members only.
     expect(rows.find((r) => r.label === CRM_ROW)!.cells)
-      .toEqual(ALL_TIER_NAMES.map(() => 'included'));
+      .toEqual(['Members only', 'included', 'included', 'included']);
   });
 });
 
@@ -358,9 +361,31 @@ describe('the Forever Free column claims exactly what the tier has', () => {
     expect(claim('Admin accounts', FREE_COL)).toBe('1');
   });
 
-  it('claims CRM and the installable app, which free genuinely has', () => {
-    expect(claim('CRM (Donors & Members)', FREE_COL)).toBe('included');
+  it('claims the installable app, and a MEMBERS-ONLY CRM, which free genuinely has', () => {
+    // 🔴 WAS 'included' (THE-205). Free has the CRM and does not have donors —
+    // `crm: true`, `fundraising: false` — so a plain tick under a row headed
+    // "CRM (Donors & Members)" made the row label's full claim on its behalf.
+    expect(claim('CRM (Donors & Members)', FREE_COL)).toBe('Members only');
     expect(claim('Mobile App (PWA)', FREE_COL)).toBe('included');
+  });
+
+  it('🔴 claims NO news or community feed — the correction THE-205 exists for', () => {
+    // Both rows name the same product (NewsTab/AllNews over /community_posts).
+    // The app gates it on `newsFeed`, false on free and true on every tier that
+    // pays, so both must read excluded here and included everywhere else.
+    for (const row of ['News Feed', 'Community Feed']) {
+      expect(claim(row, FREE_COL), `free claims ${row}, which it does not have`).toBe('excluded');
+    }
+  });
+
+  it('🔴 leaves both feed rows included on all three priced tiers', () => {
+    // The no-regression half. Three tiers pay for this feed; a correction that
+    // reached one column too far would take it from them.
+    for (const row of ['News Feed', 'Community Feed']) {
+      for (const name of ['Individual', 'Small Team', 'Ministry']) {
+        expect(claim(row, name), `${name} lost ${row}`).toBe('included');
+      }
+    }
   });
 
   it('claims NO blog, newsletter, SMS, livestream, check-in, groups or accounting', () => {
