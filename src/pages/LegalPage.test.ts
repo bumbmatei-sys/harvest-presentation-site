@@ -1,11 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { HelmetProvider } from 'react-helmet-async';
+import { Link, MemoryRouter } from 'react-router-dom';
 import type { RouteRecord } from 'vite-react-ssg';
 import { describe, expect, it } from 'vitest';
 import { blogRoutes } from '../../build/blog-plugin';
 import { routes } from '../App';
 import { Footer } from '../components/Footer';
-import { LEGAL_DOCS, legalHref, legalLinks } from '../content/legal';
+import { LEGAL_DOCS, legalHref, legalLinks, type LegalSlug } from '../content/legal';
 import { LegalPage } from './LegalPage';
 
 /* Wiring: the three policy routes exist, point at the right page, get
@@ -128,6 +130,60 @@ describe('the footer legal column', () => {
       const path = target.split('#')[0] || '/';
       const matched = routePaths.some((p) => p === path || (p && p.includes(':') && path.startsWith(p.split(':')[0])));
       expect(matched, `the footer links to ${target}, which no route serves`).toBe(true);
+    }
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * THE-209 — each policy prints its OWN date.
+ *
+ * The three documents shared one LEGAL_UPDATED until this ticket. That made a
+ * bump dishonest in both directions: the Privacy Policy had changed materially
+ * twice (THE-198 named PostHog, THE-209 corrected what it says the app sends)
+ * while the Terms and the Refund policy had not changed at all, so one date
+ * meant either leaving privacy stale or restating two untouched documents as
+ * revised.
+ *
+ * 🔴 Asserted against RENDERED MARKUP rather than against `doc.updated`. The
+ * constant being right is not the claim — the claim is that the page prints it,
+ * and content/legal.test.ts already pins the constants. A LegalPage that went
+ * back to formatting one shared date would satisfy every assertion over there
+ * and still publish the wrong date on two documents out of three.
+ * ---------------------------------------------------------------- */
+
+describe('the last-updated line each policy prints', () => {
+  // renderToStaticMarkup splits interpolated text with <!-- -->, exactly as the
+  // prerendered dist/*/index.html does. Strip comments before matching, or the
+  // assertion passes on a page that prints nothing at all.
+  const rendered = (slug: LegalSlug) =>
+    renderToStaticMarkup(
+      React.createElement(
+        HelmetProvider,
+        // The page's <Head> needs a dispatcher context; nothing here reads what
+        // it collects, only the body markup below.
+        { context: {} },
+        React.createElement(MemoryRouter, null, React.createElement(LegalPage, { slug })),
+      ),
+    ).replace(/<!--.*?-->/g, '');
+
+  const EXPECTED: [LegalSlug, string][] = [
+    ['privacy', '23 August 2026'],
+    ['terms', '10 August 2026'],
+    ['refunds', '10 August 2026'],
+  ];
+
+  it.each(EXPECTED)('/%s prints %s', (slug, date) => {
+    expect(rendered(slug)).toContain(`Last updated ${date}`);
+  });
+
+  it('the privacy policy prints a later date than the other two', () => {
+    // The whole point of splitting the constant. If a future edit reunifies
+    // them, this is the test that says so — the other two must NOT have moved.
+    expect(rendered('privacy')).toContain('23 August 2026');
+    expect(rendered('privacy')).not.toContain('10 August 2026');
+    for (const slug of ['terms', 'refunds'] as const) {
+      expect(rendered(slug), `${slug} was restated as revised`).toContain('10 August 2026');
+      expect(rendered(slug), `${slug} picked up the privacy date`).not.toContain('23 August 2026');
     }
   });
 });

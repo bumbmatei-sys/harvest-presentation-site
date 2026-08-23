@@ -42,6 +42,8 @@ export interface LegalSection {
 
 export interface LegalDoc {
   slug: LegalSlug;
+  /** `YYYY-MM-DD`. This document's own last-changed date — see LEGAL_UPDATED. */
+  updated: string;
   /** <h1> and the page's own name. */
   title: string;
   /** Short label for the footer column. */
@@ -59,8 +61,26 @@ const list = (...items: string[]): LegalBlock => ({ kind: 'list', items });
 export const legalHref = (slug: LegalSlug) => `/${slug}`;
 export const legalCanonical = (slug: LegalSlug) => `${SITE_ORIGIN}${legalHref(slug)}`;
 
-/** `YYYY-MM-DD`. Bump whenever the wording below changes materially. */
+/* Dates are PER DOCUMENT.
+ *
+ * They were one shared constant until THE-209, and that made a bump dishonest
+ * in both directions: the Privacy Policy had changed materially twice — THE-198
+ * named PostHog, THE-209 corrected what it says the app sends — while the Terms
+ * and the Refund policy had not changed at all. One date meant either leaving
+ * the privacy policy claiming a revision date it had outgrown, or restating two
+ * untouched documents as revised. Each carries its own now, so a bump says
+ * exactly which document moved.
+ *
+ * Each is pinned in legal.test.ts. Bump a document's own date whenever its
+ * wording changes materially, and only that one. */
+
+/** `YYYY-MM-DD`. The Terms and the Refund policy, neither changed since. */
 export const LEGAL_UPDATED = '2026-08-10';
+
+/** `YYYY-MM-DD`. The Privacy Policy, which has moved twice since the date above:
+ *  THE-198 added the product-analytics disclosure, and THE-209 corrected it for
+ *  the app's public pages (app repo PR #373). */
+export const PRIVACY_UPDATED = '2026-08-23';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -185,7 +205,7 @@ const SUB_PROCESSORS = [
   'Google Cloud (Firebase and Firestore) — the database and authentication behind every workspace.',
   'Cloudflare — file and media storage (R2), and network delivery.',
   'Vercel — hosting for this site and the Harvest application, and aggregated page-view analytics for this site.',
-  'PostHog — product analytics inside the Harvest application: which screens are opened, recorded against an internal account id rather than a name or an email address.',
+  'PostHog — product analytics inside the Harvest application, its public pages included: which screens are opened, recorded against an internal account id where someone is signed in and against a device identifier where nobody is, rather than against a name or an email address.',
   'Stripe — subscription payments, and the Stripe Connect rails your ministry uses to take gifts.',
   'Dodo Payments — subscription payment processing.',
   'Resend — transactional email, such as sign-in links, receipts of our own billing, and notifications.',
@@ -241,6 +261,7 @@ const CONTACT_LINE =
 
 const TERMS: LegalDoc = {
   slug: 'terms',
+  updated: LEGAL_UPDATED,
   title: 'Terms of Service',
   nav: 'Terms of Service',
   seoTitle: 'Terms of Service — Harvest',
@@ -379,6 +400,7 @@ const TERMS: LegalDoc = {
 
 const PRIVACY: LegalDoc = {
   slug: 'privacy',
+  updated: PRIVACY_UPDATED,
   title: 'Privacy Policy',
   nav: 'Privacy Policy',
   seoTitle: 'Privacy Policy — Harvest',
@@ -406,7 +428,9 @@ const PRIVACY: LegalDoc = {
           'Billing records — plan, billing period, payment status and invoices. Card details are held by our payment providers, not by us.',
           'Support and enquiry messages — anything you send us through the contact form on this site, so we can reply and keep track of the conversation.',
           'Aggregated page-view analytics for this marketing site, which tell us which pages are read. They count visits; they are not used to identify you. This covers theharvest.site only.',
-          'Product analytics for the Harvest application itself, which tell us which parts of the app are used. These work differently from the site analytics above: each event is recorded against the internal account id of the person signed in, and against the church their account belongs to. That id is not a name or an email address, but it does stand for a single person — so it is not anonymous, and we do not describe it as such.',
+          'Product analytics for the Harvest application itself, which tell us which parts of the app are used. This covers the whole application, including the pages it serves to the public. These work differently from the site analytics above, and they record two different things depending on who is looking.',
+          'Where someone is signed in, the event is recorded against the internal account id of that person, and against the church their account belongs to. That id is not a name or an email address, but it does stand for a single person — so it is not anonymous, and we do not describe it as such.',
+          'Where nobody is signed in, there is no account id and no stored profile of the visitor. What the event is recorded against instead is a random device identifier, kept in that browser. It is not a name or an email address either, and we never look up who it belongs to, but it singles out one browser across visits — so it is not anonymous, and we do not describe it as that either.',
         ),
       ],
     },
@@ -436,8 +460,11 @@ const PRIVACY: LegalDoc = {
         p('Each of them handles the data for the purpose named above and no other. We do not share your ministry\'s data with anyone else, and we do not disclose it to third parties for their own purposes.'),
         p('Product analytics sits apart from the rest of that list. It is held by PostHog on PostHog\'s own cloud infrastructure, separately from your workspace data: your workspace records are in Firestore, and the analytics are not stored with them, nor necessarily in the same country.'),
         p('What that processor is not allowed to do matters more than what it does. There is no session recording — the application does not capture or replay what is on your screen, and the code that would do it is switched off and blocked from being downloaded at all. Nothing is collected automatically from the page: what you click, type, copy or hover over is not read. Errors are not sent to it either.'),
-        p('What is sent instead is a short, fixed list: that a screen was opened, whether it was an admin or a member screen, the internal account id of the person signed in, and the church that account belongs to. No names, no email addresses, no giving, no message or prayer content. Screens outside the signed-in application — this marketing site, sign-in and onboarding, and public blog, form and event pages — send nothing at all.'),
-        p('Product analytics sets one cookie in your browser. It is a first-party cookie, it holds the account identifier described above, and it lasts 365 days.'),
+        p('What is sent instead is a short, fixed list: that a screen was opened; which of three kinds of screen it was — an admin screen, a member screen, or a public one; and, where the person is signed in, the internal account id of that person and the church their account belongs to. No names, no email addresses, no giving, no message or prayer content.'),
+        p('The screen is recorded as its route pattern and never as the address actually visited. A form opened at /form/aB3xQ is recorded as /form/[formId]; the identifier in the address — which form, which event, which blog post, which check-in — is replaced before anything leaves the browser, and an address the application does not recognise is recorded as /[unrouted] rather than passed through. The same replacement is applied to the other addresses the analytics code collects by itself, including the page address and the page you arrived from. A link followed from somewhere else keeps the name of the site it came from and loses the rest of the address.'),
+        p('Two things still send nothing at all. This marketing site is a separate application and sends nothing to that processor. Sign-in and onboarding are deliberately left out of it: on those screens the analytics code is never started. Not started and configured not to look — never started, because they are the screens built out of email and password fields.'),
+        p('One consequence of that is worth stating plainly, because it is new and because it applies to people who have no relationship with us at all. The application\'s public pages — a church\'s blog post, a form, an event or giving-campaign page, a children\'s check-in page — are now counted in the same way as the screens behind the login. Someone who opens one is counted without signing in, without an account, and without being asked first. Nothing about them is looked up and no profile of them is stored; what they are given is the random device identifier described above, written into their own browser, which is what lets a second visit be recognised as the same browser rather than a new one. If that browser has been signed in to Harvest before, the visit is counted against the account it was last signed in as, because it is the same browser.'),
+        p('Product analytics sets one cookie in your browser. It is a first-party cookie, it lasts 365 days, and it holds whichever of the two identifiers above applies — the account id if you are signed in, the device identifier if you are not — together with the current session and a record of where you first arrived from. It is set on the public pages too, which means it can be set before you have signed in or been asked for anything.'),
       ],
     },
     {
@@ -504,6 +531,7 @@ const PRIVACY: LegalDoc = {
 
 const REFUNDS: LegalDoc = {
   slug: 'refunds',
+  updated: LEGAL_UPDATED,
   title: 'Refund & Cancellation Policy',
   nav: 'Refund & Cancellation',
   seoTitle: 'Refund & Cancellation Policy — Harvest',
