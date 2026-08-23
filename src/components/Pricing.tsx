@@ -141,10 +141,40 @@ export function monthlyHeadlineContract(
   }
 }
 
+/* ─── 🔴 THE CRM LABEL, PER TIER (THE-205) ────────────────────────────────────
+
+   "Donors" is a claim about FUNDRAISING, not about the CRM. Free is
+   `fundraising: false` in the app's matrix — no donate page, so no donor
+   record can ever exist — and "CRM (Donors & Members)" on the free card
+   therefore advertised half a roster the tier is structurally unable to fill.
+
+   🔴 ONLY FREE CHANGES. Every priced tier has `fundraising: true`, so all three
+   still read "CRM (Donors & Members)", character for character.
+
+   ⚠️ THIS REPLACES FOUR HAND-WRITTEN COPIES, it does not add a fifth. Before
+   this, the string was a literal on the Individual card, a literal on the free
+   card, and a literal on the comparison row — three copies of one piece of
+   feature vocabulary, which is exactly how a label drifts from the matrix it
+   describes. They now all read this function.
+
+   The app carries the same two strings in `crmLabel` (Harvest-agent
+   src/utils/plan-features.ts), deliberately: the two repos cannot import from
+   each other, so this is the same two-sided seam as the price contract below —
+   two independently-written copies, each pinned by its own test. Change them
+   together. The catalogue entry in components/catalog.ts is NOT a pricing claim
+   (it describes the product, not a tier) and is deliberately left alone.        */
+export function crmLabel(planId: string): string {
+  return planId === FREE_TIER_PLAN_ID ? 'CRM (Members)' : 'CRM (Donors & Members)';
+}
+
+/** The app's `TenantPlan` value for the unpriced tier. Named once so the label
+ *  above and the FREE_TIER record below cannot disagree about what "free" is. */
+const FREE_TIER_PLAN_ID = 'free';
+
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 39,  quarterly: 99,  yearly: 329  }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', 'CRM (Donors & Members)', 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 39,  quarterly: 99,  yearly: 329  }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
   { name: 'Small Team', planId: 'pro',  price: { monthly: 79,  quarterly: 199, yearly: 659  }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
   { name: 'Ministry',   planId: 'max',  price: { monthly: 159, quarterly: 399, yearly: 1329 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
@@ -199,11 +229,23 @@ export const FREE_TIER: FreeTier = {
   features: [
     '500 members · 1 admin',
     '1 course, adopted from the library',
-    'CRM (Donors & Members)',
+    // 🔴 MEMBERS ONLY (THE-205). Was 'CRM (Donors & Members)'. free is
+    // `fundraising: false`: there is no donate page, so no donor record can
+    // exist to be managed. Derived from `crmLabel` rather than rewritten here,
+    // so this card and the Individual card above cannot disagree about the
+    // vocabulary while disagreeing about the tier.
+    crmLabel(FREE_TIER_PLAN_ID),
     'Mobile App (PWA)',
     'Bible',
     'Prayer Requests',
-    'News & Community Feed',
+    // 🔴 'News & Community Feed' WAS HERE and is deliberately gone (THE-205).
+    // Not a copy fix: the feed was ungated on every tier because it had no flag
+    // at all, and the app added `newsFeed` to close it — false on free, true on
+    // the three tiers that pay. Free is discipleship only, so the card must not
+    // list a surface a free member cannot reach. This is the SIXTH false claim
+    // corrected on this site; the five before it are why every line here is
+    // pinned against the matrix in PricingComparison.test.ts rather than
+    // proof-read.
     'Your own subdomain',
   ],
   noDonatePage: 'No donation page — giving and fundraising start on Individual.',
@@ -411,8 +453,12 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Custom Domain', [false, false, false, T]],
   ] },
   { grp: 'Community', rows: [
-    ['News Feed', [T, T, T, T]],
-    ['Community Feed', [T, T, T, T]],
+    /* 🔴 TWO ROWS, ONE PRODUCT, ONE ANSWER (THE-205). Both name the church
+       feed — NewsTab/AllNews over /community_posts — and both must move
+       together: leaving either at `T` re-makes the exact claim the other just
+       dropped. `newsFeed` is false on free and true on every tier that pays. */
+    ['News Feed', [false, T, T, T]],
+    ['Community Feed', [false, T, T, T]],
     ['Prayer Requests', [T, T, T, T]],
     ['Community Groups', [false, false, false, T]],
     ['Event Registration', [false, false, false, T]],
@@ -449,7 +495,12 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Giving & Finance', rows: [
     ['Donation Page', [false, T, T, T]],
     ['Fundraising', [false, T, T, T]],
-    ['CRM (Donors & Members)', [T, T, T, T]],
+    /* The ROW LABEL is shared by four columns, so it cannot itself be per-tier
+       — it keeps the priced tiers' wording, which is also the wording three of
+       the four columns want. Free's CELL carries the correction instead: it
+       has the CRM, and it has it for members only. A `T` here would read as
+       the row label's full claim. */
+    [crmLabel('plus'), ['Members only', T, T, T]],
     ['Accounting + QuickBooks Sync', [false, false, false, T]],
     ['Tax Receipts & Giving Statements', [false, false, false, T]],
   ] },
