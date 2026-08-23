@@ -194,7 +194,7 @@ export const FAQS: Faq[] = [
     id: 'donation-fee',
     question: 'Do you take a cut of our donations?',
     answer: [
-      'No. Harvest charges a 0% platform fee on giving, and it is 0% on every plan — Individual, Small Team and Ministry alike. It is not an introductory rate, and there is no tier of Harvest that takes a percentage of a gift.',
+      'No. Harvest charges a 0% platform fee on giving, and it is 0% on every paid plan — Individual, Small Team and Ministry alike. It is not an introductory rate, and there is no tier of Harvest that takes a percentage of a gift. (Forever Free has no donation page at all, so there is no giving on it to take a cut of; giving starts on Individual.)',
       'Giving runs through your ministry\'s own Stripe account, connected once through Stripe Connect. Gifts given on your donation page, in a fundraising campaign or during a livestream settle into that account, on Stripe\'s schedule, under your ministry\'s name. Harvest does not hold, control or forward donation funds, so there is nothing for us to take a share of.',
       'Stripe\'s own processing fees are a matter between your ministry and Stripe, under your agreement with them. What you pay Harvest is the subscription, and nothing else.',
     ],
@@ -254,7 +254,7 @@ export const FAQS: Faq[] = [
     question: 'Is Harvest a phone app?',
     answer: [
       'It is an installable web app. Members open it in any browser and add it to their home screen on iPhone and Android alike, where it launches standalone like any other app. There is no App Store review to wait for, no update cycle to manage, and nothing for your members to approve. Push notifications work on every plan.',
-      'On Ministry the installed app carries your name, your icon and your colour right down to the install manifest, so it is your app on the home screen. On Individual and Small Team it installs with Harvest branding.',
+      'On Ministry the installed app carries your name, your icon and your colour right down to the install manifest, so it is your app on the home screen. On every other plan — Forever Free included — it installs with Harvest branding.',
       'The same app is a real desktop layout in a browser, not a stretched phone view, and public pages — a post, an event, a giving page, a form — open for anyone with no account at all.',
     ],
   },
