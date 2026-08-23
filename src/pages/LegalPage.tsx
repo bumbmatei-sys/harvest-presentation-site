@@ -8,7 +8,6 @@ import { plans } from '../components/Pricing';
 import {
   LEGAL_DOCS,
   LEGAL_DOC_BY_SLUG,
-  LEGAL_UPDATED,
   formatLegalDate,
   legalCanonical,
   legalHref,
@@ -99,7 +98,7 @@ export function LegalPage({ slug }: { slug: LegalSlug }) {
               {doc.standfirst}
             </p>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '18px 0 0', letterSpacing: '0.02em' }}>
-              Last updated {formatLegalDate(LEGAL_UPDATED)}
+              Last updated {formatLegalDate(doc.updated)}
             </p>
           </Reveal>
         </div>

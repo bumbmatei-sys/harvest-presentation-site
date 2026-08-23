@@ -9,6 +9,7 @@ import {
   LEGAL_DOCS,
   LEGAL_UPDATED,
   MERCHANT_OF_RECORD_NOTE,
+  PRIVACY_UPDATED,
   TIER_PRICE_CLAIMS,
   THIRD_PARTY_PROCESSING,
   TRIAL_CTA_LABEL,
@@ -577,14 +578,18 @@ describe('product analytics disclosure', () => {
   });
 
   it('it states which surfaces send nothing', () => {
-    // AnalyticsBridge mounts only inside App.tsx's BrowserRouter and returns
-    // early on PREAUTH_PATHS (/auth, /onboarding, /church-onboarding).
-    // /blog/[id], /form/[formId] and /event/[eventId] are their own Next.js
-    // routes that never render App.tsx, so the bridge never mounts there.
-    expect(privacy).toMatch(/screens outside the signed-in application/i);
-    expect(privacy).toMatch(/sign-in and onboarding/i);
-    expect(privacy).toMatch(/public blog, form and event pages/i);
+    // ⚠️ REWRITTEN BY THE-209, and the rewrite is the point. This test used to
+    // require the words "public blog, form and event pages" inside the
+    // send-nothing sentence — it pinned the claim that app PR #373 made false.
+    // The guard itself is still worth having: a reader must be told which
+    // surfaces are outside this. What changed is the true set, so the
+    // assertion narrows to the two survivors and THE_209 below refuses the
+    // third. `/auth`, `/onboarding` and `/church-onboarding` are absent from
+    // ROUTE_TABLE in the app's src/lib/analytics/routes.ts and named in
+    // PRE_AUTH_PATTERNS; the marketing site is this repo, which has no PostHog.
     expect(privacy).toMatch(/send nothing at all/i);
+    expect(privacy).toMatch(/this marketing site is a separate application/i);
+    expect(privacy).toMatch(/sign-in and onboarding are deliberately left out/i);
   });
 
   it('the subprocessor list includes the analytics processor', () => {
@@ -646,5 +651,225 @@ describe('what the analytics disclosure must not have touched', () => {
       'pro:79/199/659',
       'max:159/399/1329',
     ]);
+  });
+});
+
+/* ---------------------------------------------------------------- *
+ * THE-209 — the corrections app PR #373 made necessary.
+ *
+ * PR #373 extended PostHog from 4 of 14 pages to 14 of 14, the ten dedicated
+ * public Next routes included. Three sentences written while those pages sent
+ * nothing became false, and the policy was live while they were.
+ *
+ * Every expectation below is a fact of the SHIPPED configuration, read from
+ * src/lib/analytics/routes.ts and src/lib/analytics/config.ts and
+ * docs/analytics-posthog.md in bumbmatei-sys/Harvest-agent @ 95ddf9d5 — not
+ * from PostHog's defaults and not from the ticket. Asserted against the
+ * rendered prose (`plainText`, which is what LegalPage renders), because a
+ * constant nobody renders discloses nothing.
+ *
+ * 🔴 NOT asserted, deliberately: the hosting REGION. config.ts defaults to
+ * POSTHOG_EU_HOST and reads NEXT_PUBLIC_POSTHOG_HOST for anything else — a
+ * Vercel environment variable, which is not in the app repo. "US cloud" is
+ * therefore unverifiable from source, and naming a region would be exactly the
+ * kind of sentence this ticket exists to remove. See the THE-198 test above,
+ * which pins the region-free phrasing.
+ * ---------------------------------------------------------------- */
+
+describe('THE-209 — the public pages are now counted, and the policy says so', () => {
+  const privacyDoc = LEGAL_DOCS.find((d) => d.slug === 'privacy')!;
+  const privacy = text(privacyDoc);
+  const sentences = privacy.split(/(?<=[.!?;])\s+/);
+
+  /* 1 — the false one. */
+  it('no sentence claims public blog, form or event pages send nothing', () => {
+    // ROUTE_TABLE in the app's src/lib/analytics/routes.ts carries
+    // /blog/[id], /form/[formId], /event/[eventId] and seven more, each
+    // `surface: 'public', public: true`, each mounting PublicRouteAnalytics.
+    // They send a $pageview. The sentence that said otherwise was published.
+    const sendNothing = sentences.filter((s) => /sends? nothing/i.test(s));
+    expect(sendNothing.length, 'the send-nothing claim vanished entirely').toBeGreaterThan(0);
+    for (const sentence of sendNothing) {
+      expect(/\bblog\b/i.test(sentence), `claims blog pages send nothing: "${sentence}"`).toBe(false);
+      expect(/\bform\b/i.test(sentence), `claims form pages send nothing: "${sentence}"`).toBe(false);
+      expect(/\bevent\b/i.test(sentence), `claims event pages send nothing: "${sentence}"`).toBe(false);
+      expect(/\bpublic\b/i.test(sentence), `claims public pages send nothing: "${sentence}"`).toBe(false);
+    }
+    // And the exact published wording is gone, not merely reworded around.
+    expect(privacy).not.toMatch(/public blog, form and event pages/i);
+    expect(privacy).not.toMatch(/screens outside the signed-in application/i);
+  });
+
+  /* 2 — the survivor. Narrowed, not deleted. */
+  it('the marketing site, sign-in and onboarding are still described as sending nothing', () => {
+    // Still true, and the reason each is true is different. The marketing site
+    // is THIS repo — it has no PostHog at all. /auth, /onboarding and
+    // /church-onboarding are absent from ROUTE_TABLE and named in
+    // PRE_AUTH_PATTERNS; PR #373 explicitly did not widen coverage to them.
+    expect(privacy).toMatch(/send nothing at all/i);
+    expect(privacy).toMatch(/this marketing site is a separate application/i);
+    expect(privacy).toMatch(/sign-in and onboarding are deliberately left out/i);
+    // The pre-auth exclusion is a real exclusion, not a configured blindness.
+    expect(privacy).toMatch(/the analytics code is never started/i);
+  });
+
+  /* 3 — the substantive change, and the reason this ticket exists. */
+  it('the policy describes what an anonymous visitor is given', () => {
+    // person_profiles: 'identified_only' (config.ts) + public routes never
+    // calling identify() (docs §5b) = a random device id in first-party
+    // storage and NO stored person profile. The policy had never described
+    // this case, because until PR #373 there was no unauthenticated visitor to
+    // describe. Burying it would repeat the gap this exercise closed.
+    expect(privacy).toMatch(/random device identifier/i);
+    expect(privacy).toMatch(/no profile of them is stored/i);
+    // Counted without signing in, without an account, without being asked.
+    expect(privacy).toMatch(/without signing in, without an account, and without being asked/i);
+    // And it is stated in the open, not left to be inferred from the cookie
+    // paragraph — the disclosure must be a claim, not a side effect.
+    expect(privacy).toMatch(/worth stating plainly/i);
+    // The honest consequence: a browser that signed in before is still that
+    // account (docs §5b — the persisted distinct_id survives).
+    expect(privacy).toMatch(/if that browser has been signed in to harvest before/i);
+    // The cookie reaches them too, before any relationship exists.
+    expect(privacy).toMatch(/before you have signed in or been asked for anything/i);
+  });
+
+  /* 4 — the same honesty the account id already gets. */
+  it('it does not describe the device identifier as anonymous', () => {
+    // The policy already refuses to call the account id anonymous, because it
+    // stands for one person. A device id stands for one browser across visits,
+    // so it gets the same treatment rather than the flattering word.
+    const deviceSentences = sentences.filter((s) => /device identifier/i.test(s));
+    expect(deviceSentences.length, 'the device identifier is never described').toBeGreaterThan(0);
+    for (const sentence of deviceSentences) {
+      const claimsAnonymity = /\banonymous\b/i.test(sentence) && !/\bnot anonymous\b/i.test(sentence);
+      expect(claimsAnonymity, `calls the device identifier anonymous: "${sentence}"`).toBe(false);
+      expect(/\baggregated\b/i.test(sentence), `calls it aggregated: "${sentence}"`).toBe(false);
+    }
+    // Stated positively, so a later edit cannot quietly drop the qualification.
+    expect(privacy).toMatch(/singles out one browser across visits — so it is not anonymous/i);
+  });
+
+  /* 5 — two values became three. */
+  it('the list of what is sent no longer says only admin or member', () => {
+    // AppSurface in routes.ts is 'admin' | 'member' | 'public'.
+    expect(privacy).not.toMatch(/whether it was an admin or a member screen/i);
+    expect(privacy).toMatch(/an admin screen, a member screen, or a public one/i);
+  });
+
+  /* 6 — "the person signed in" does not describe a blog reader. */
+  it('it does not claim every event carries the id of a signed-in person', () => {
+    // The account id is now conditional. Any sentence that mentions it must
+    // carry the condition, rather than asserting it of every event.
+    expect(privacy).not.toMatch(/the internal account id of the person signed in/i);
+    const idSentences = sentences.filter((s) => /internal account id/i.test(s));
+    expect(idSentences.length).toBeGreaterThan(0);
+    for (const sentence of idSentences) {
+      expect(
+        /where (someone|the person) is signed in/i.test(sentence),
+        `states the account id unconditionally: "${sentence}"`,
+      ).toBe(true);
+    }
+  });
+
+  /* The path guarantee, which is the reason a public URL can be counted at
+     all. Not one of the three false sentences, but it is what makes the
+     corrected ones true — a resolved path never becomes a property. */
+  it('it states that the route pattern is stored, never the visited address', () => {
+    // normalizeAnalyticsPath() in routes.ts; applied again in before_send via
+    // stripUrlNoise() in config.ts, which is what catches $current_url,
+    // $referrer and $pathname. UNROUTED_PATTERN is '/[unrouted]'.
+    expect(privacy).toMatch(/recorded as its route pattern and never as the address actually visited/i);
+    expect(privacy).toContain('/form/[formId]');
+    expect(privacy).toContain('/[unrouted]');
+    // An external referrer keeps its host and loses its path.
+    expect(privacy).toMatch(/keeps the name of the site it came from and loses the rest/i);
+  });
+
+  /* 7 — the date the earlier PR was right to decline to bump. */
+  it("the privacy policy's updated date is later than the Terms and Refund dates", () => {
+    const on = (slug: string) => LEGAL_DOCS.find((d) => d.slug === slug)!.updated;
+    expect(on('privacy') > on('terms')).toBe(true);
+    expect(on('privacy') > on('refunds')).toBe(true);
+    // Pinned, all three — the point of splitting them is that each one moves
+    // only when its own wording does.
+    expect(on('terms')).toBe('2026-08-10');
+    expect(on('refunds')).toBe('2026-08-10');
+    expect(on('privacy')).toBe('2026-08-23');
+    expect(PRIVACY_UPDATED).toBe('2026-08-23');
+    expect(LEGAL_UPDATED).toBe('2026-08-10');
+    // Every document carries one, in the format the page can format.
+    for (const doc of LEGAL_DOCS) {
+      expect(doc.updated, `${doc.slug} has no date`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+    // What the page actually prints (LegalPage.tsx: formatLegalDate(doc.updated)).
+    expect(formatLegalDate(on('privacy'))).toBe('23 August 2026');
+    expect(formatLegalDate(on('terms'))).toBe('10 August 2026');
+  });
+
+  /* 8 — the two documents this ticket must not have touched. */
+  it('the Terms and Refund policies are unchanged apart from carrying their own dates', () => {
+    // Same rendered-prose hashes as the THE-198 block above, re-asserted here
+    // because per-document dates touched the LegalDoc shape that both share.
+    // `plainText` walks title, standfirst and sections only, so adding
+    // `updated` cannot move these — which is the proof that it did not.
+    const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
+    expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
+      .toBe('4e3fa5989d53937fbeee3c5111550dcae8ab36b6bb9421e2a63105115b8cffb5');
+    expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
+      .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
+    // And neither was restated as revised.
+    expect(LEGAL_DOCS.find((d) => d.slug === 'terms')!.updated).toBe(LEGAL_UPDATED);
+    expect(LEGAL_DOCS.find((d) => d.slug === 'refunds')!.updated).toBe(LEGAL_UPDATED);
+  });
+
+  /* 9 — the shared payments claim. */
+  it('THIRD_PARTY_PROCESSING is unchanged', () => {
+    // Byte for byte. Shared across all three policies precisely so the
+    // payments claim cannot drift on the back of an unrelated edit.
+    const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
+    expect(sha256(THIRD_PARTY_PROCESSING))
+      .toBe('d520667c4c782b92bf8239ef157967a00548675eec5f94526b745bf57a086ca9');
+    for (const doc of LEGAL_DOCS) {
+      expect(text(doc), `${doc.slug} lost the third-party processing statement`)
+        .toContain(THIRD_PARTY_PROCESSING);
+    }
+  });
+
+  /* 10 — the ban this correction had to be written inside. */
+  it('no overreach pattern appears', () => {
+    // "jurisdiction" and "GDPR" are banned outright, and the existing copy
+    // works around it with "not necessarily in the same country" — which the
+    // new paragraphs had to preserve rather than reach past. The global scan
+    // above covers all three documents; this re-asserts it for the prose this
+    // ticket added.
+    expect(privacy).not.toMatch(/\bjurisdiction\b/i);
+    expect(privacy).not.toMatch(/\bGDPR\b/i);
+    expect(privacy).not.toMatch(/governing law|governed by the laws|laws of the/i);
+    expect(privacy).not.toMatch(/\bcourts? of\b/i);
+    expect(privacy).not.toMatch(/\b(fully )?compl(y|ies|iant) with\b/i);
+    // The workaround is still doing its job.
+    expect(privacy).toMatch(/nor necessarily in the same country/i);
+  });
+
+  /* 11 — nothing commercial moved. */
+  it('no price or tool count changed', () => {
+    expect(tierPriceMismatches(plans)).toEqual([]);
+    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
+      'plus:39/99/329',
+      'pro:79/199/659',
+      'max:159/399/1329',
+    ]);
+  });
+
+  /* The sub-processor entry a church's own reviewer reads first. */
+  it('the sub-processor entry describes both kinds of visitor', () => {
+    const whereDataLives = privacyDoc.sections.find((s) => s.id === 'where-data-lives')!;
+    const listed = whereDataLives.blocks.flatMap((b) => (b.kind === 'p' ? [] : b.items));
+    const posthog = listed.find((entry) => entry.startsWith('PostHog —'))!;
+    expect(posthog, 'PostHog is no longer in the sub-processor list').toBeDefined();
+    expect(posthog).toMatch(/public pages/i);
+    expect(posthog).toMatch(/device identifier where nobody is/i);
   });
 });
