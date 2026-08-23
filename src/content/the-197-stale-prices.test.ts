@@ -96,14 +96,42 @@ describe('THE-197 — competitor prices in the blog post are unchanged', () => {
 describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
   const byId = (id: string) => CATEGORIES.flatMap((c) => c.features).find((f) => f.id === id)!;
 
-  it('the donation feature names the real Individual monthly price', () => {
-    expect(byId('donation').moment).toContain(`on the $${individual.price.monthly} plan and every plan above it`);
+  it('the donation feature carries NO price literal at all, so it cannot go stale', () => {
+    // ⚠️ RESOLVED AGAINST THE-204, which landed while this branch was open.
+    // THE-197 was going to correct this sentence's "$49" to "$39". THE-204 went
+    // further and removed the number entirely — "on the cheapest paid plan" —
+    // while making the tier language free-aware, because a free tier exists now
+    // and "every plan" was claiming a donate page free does not have.
+    //
+    // That is strictly the better fix and it is the one kept: a sentence with no
+    // figure in it cannot contradict PLAN_PRICING, which is the whole point of
+    // this file. So the assertion inverts — it pins the ABSENCE of a literal
+    // rather than the correctness of one.
+    const donation = byId('donation');
+    expect(donation.moment).toContain('on the cheapest paid plan and every plan above it');
+    // Scoped to PLAN prices — current and retired. The sentence legitimately
+    // cites "$200k a year online" and "$10,000", which are a CHURCH'S giving
+    // volume, not anything Harvest charges, and a blanket no-digits scan would
+    // read those as the very thing it exists to forbid.
+    for (const figure of [...plans.map((pl) => `$${pl.price.monthly}`), '$49', '$99', '$199']) {
+      expect(donation.moment, `a plan price (${figure}) came back into the donation copy`)
+        .not.toContain(figure);
+    }
+    // The free-aware wording THE-204 added, pinned so a later editorial pass
+    // cannot quietly re-promise a donate page free does not have.
+    expect(donation.title).toContain('every paid plan');
+    expect(donation.oneliner).toContain('every paid plan');
   });
 
-  it('the analytics feature names the real Individual monthly price', () => {
+  it('the analytics feature names the real Individual price, and the real FLOOR', () => {
     const analytics = byId('analytics');
+    // The moment still quotes Individual by price — THE-197's correction, kept.
     expect(analytics.moment).toContain(`on the $${individual.price.monthly} plan`);
-    expect(analytics.member.join(' ')).toContain(`including $${individual.price.monthly}`);
+    // ⚠️ The member line says "Forever Free", not a price — THE-204 again, and
+    // it is TRUE: free carries analytics in the app's matrix (it rides
+    // `crm: true`, which free has). Naming Individual as the floor here would
+    // now be wrong, so this asserts the tier rather than a figure.
+    expect(analytics.member.join(' ')).toContain('including Forever Free');
   });
 
   it('the multi-campus arithmetic uses the real Ministry monthly price and resolves cleanly', () => {

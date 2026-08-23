@@ -296,6 +296,14 @@ a:hover { color: var(--brand-active); }
    ============================================================ */
 @media (max-width: 1080px) {
   .feat-index { grid-template-columns: repeat(4, 1fr) !important; }
+  /* THE-204 put a fourth card in the plan row. The container caps at 1200px, so
+     1280 and 1440 both render 1144px of content and four cards fit there; at
+     1024 they would be 228px wide, narrower than the 40px serif price headline
+     reads well against. Two-by-two instead. Declared BEFORE the 900px block
+     below deliberately: both rules are one class with !important, so the later
+     one wins, and the later one is the single-column collapse that must own
+     every width below 900. */
+  .plan-card-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 @media (max-width: 900px) {
   .nav-links { display: none !important; }

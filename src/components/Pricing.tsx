@@ -141,13 +141,124 @@ export function monthlyHeadlineContract(
   }
 }
 
+/* ─── 🔴 THE CRM LABEL, PER TIER (THE-205) ────────────────────────────────────
+
+   "Donors" is a claim about FUNDRAISING, not about the CRM. Free is
+   `fundraising: false` in the app's matrix — no donate page, so no donor
+   record can ever exist — and "CRM (Donors & Members)" on the free card
+   therefore advertised half a roster the tier is structurally unable to fill.
+
+   🔴 ONLY FREE CHANGES. Every priced tier has `fundraising: true`, so all three
+   still read "CRM (Donors & Members)", character for character.
+
+   ⚠️ THIS REPLACES FOUR HAND-WRITTEN COPIES, it does not add a fifth. Before
+   this, the string was a literal on the Individual card, a literal on the free
+   card, and a literal on the comparison row — three copies of one piece of
+   feature vocabulary, which is exactly how a label drifts from the matrix it
+   describes. They now all read this function.
+
+   The app carries the same two strings in `crmLabel` (Harvest-agent
+   src/utils/plan-features.ts), deliberately: the two repos cannot import from
+   each other, so this is the same two-sided seam as the price contract below —
+   two independently-written copies, each pinned by its own test. Change them
+   together. The catalogue entry in components/catalog.ts is NOT a pricing claim
+   (it describes the product, not a tier) and is deliberately left alone.        */
+export function crmLabel(planId: string): string {
+  return planId === FREE_TIER_PLAN_ID ? 'CRM (Members)' : 'CRM (Donors & Members)';
+}
+
+/** The app's `TenantPlan` value for the unpriced tier. Named once so the label
+ *  above and the FREE_TIER record below cannot disagree about what "free" is. */
+const FREE_TIER_PLAN_ID = 'free';
+
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 39,  quarterly: 99,  yearly: 329  }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', 'CRM (Donors & Members)', 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 39,  quarterly: 99,  yearly: 329  }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
   { name: 'Small Team', planId: 'pro',  price: { monthly: 79,  quarterly: 199, yearly: 659  }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
   { name: 'Ministry',   planId: 'max',  price: { monthly: 159, quarterly: 399, yearly: 1329 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
+
+/* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
+
+   Free is deliberately NOT a member of `plans`.
+
+   `Plan.price` is `Record<BillingTerm, number>` — three numbers, all required.
+   Free has no price and no billing term, so putting it in `plans` would mean
+   writing three zeros, and three zeros is a lie of a different kind: it says
+   "this tier is billed, at nothing" when the truth is that it is not billed at
+   all. It would also walk straight into the cross-repo price contract below,
+   which compares `plans` cell-for-cell against the app's PLAN_PRICING — and
+   the app deliberately keeps free OUT of PLAN_PRICING for exactly this reason.
+   A zero row here would demand a zero row there, and the contract would stop
+   guarding the thing it exists to guard.
+
+   So this mirrors the seam the app already uses:
+
+     app:   PLAN_ORDER (every tier)  vs  PRICED_PLANS (every tier you can buy)
+     site:  ALL_TIER_NAMES           vs  plans
+
+   `plans` stays the PRICED list, unchanged and still three long. Everything
+   that reads it — the price contract, CHEAPEST_MONTHLY, the add-on
+   availability strings, Replaces.tsx, FeatureBlock.tsx, FaqPage, LegalPage —
+   keeps meaning "the plans you can buy", which is what every one of them
+   actually wanted. Only the two surfaces that show the whole ladder, the card
+   row and the comparison table, add free explicitly.                          */
+export interface FreeTier {
+  name: string;
+  planId: string;
+  /** No `price`. No `fee` either — a tier with no donate page charges no fee on
+   *  a gift it cannot receive, and printing "0% platform fee" beside "no
+   *  donation page" reads as a feature rather than as the absence of one. */
+  blurb: string;
+  features: string[];
+  /** Stated on the card in its own right. Every other card leads with 0%
+   *  donation fees, so a free card that merely OMITS the donate page invites
+   *  the reader to assume it has one. */
+  noDonatePage: string;
+}
+
+export const FREE_TIER: FreeTier = {
+  name: 'Forever Free',
+  planId: 'free',
+  blurb: 'For evangelists discipling the people they lead to Christ.',
+  // 🔴 EVERY LINE DERIVED FROM THE APP'S MATRIX, none written from the brief.
+  // free: maxContacts 500, maxCourses 1, maxAdmins 1, crm true, pwaApp true,
+  // and every other cell false. Five false claims have already been fixed on
+  // this site; this card is the sixth opportunity and it is not being taken.
+  features: [
+    '500 members · 1 admin',
+    '1 course, adopted from the library',
+    // 🔴 MEMBERS ONLY (THE-205). Was 'CRM (Donors & Members)'. free is
+    // `fundraising: false`: there is no donate page, so no donor record can
+    // exist to be managed. Derived from `crmLabel` rather than rewritten here,
+    // so this card and the Individual card above cannot disagree about the
+    // vocabulary while disagreeing about the tier.
+    crmLabel(FREE_TIER_PLAN_ID),
+    'Mobile App (PWA)',
+    'Bible',
+    'Prayer Requests',
+    // 🔴 'News & Community Feed' WAS HERE and is deliberately gone (THE-205).
+    // Not a copy fix: the feed was ungated on every tier because it had no flag
+    // at all, and the app added `newsFeed` to close it — false on free, true on
+    // the three tiers that pay. Free is discipleship only, so the card must not
+    // list a surface a free member cannot reach. This is the SIXTH false claim
+    // corrected on this site; the five before it are why every line here is
+    // pinned against the matrix in PricingComparison.test.ts rather than
+    // proof-read.
+    'Your own subdomain',
+  ],
+  noDonatePage: 'No donation page — giving and fundraising start on Individual.',
+};
+
+/* The free tier is not billed, so no term applies to it. Stated as a constant
+   rather than left implicit in the card so the toggle cannot ever be wired to
+   it by a later edit that "makes the cards consistent". */
+export const FREE_TIER_HAS_NO_BILLING_TERM = true;
+
+/** Every tier the ladder actually has, free first — the app's PLAN_ORDER. Used
+ *  by the comparison table's header and by nothing that prices anything. */
+export const ALL_TIER_NAMES = [FREE_TIER.name, ...plans.map((p) => p.name)];
 
 /* ─── 🔴 CROSS-REPO PRICE CONTRACT ────────────────────────────────────────────
 
@@ -317,7 +428,15 @@ export const CHEAPEST_MONTHLY = Math.min(...plans.map((p) => p.price.monthly));
 // column — so moving `popular` between plans silently left the table featuring
 // the old one. Derive both from the same flag. -1 (no popular plan) simply means
 // no column is highlighted, since no index matches.
-const popularIdx = plans.findIndex((p) => p.popular);
+// 🔴 A COLUMN index, not a `plans` index — THE-204 shifted them apart.
+// The comparison table's header and cells are keyed on ALL_TIER_NAMES, which
+// puts Forever Free at column 0, so Ministry's `popular` flag now sits one
+// column right of its position in `plans`. Deriving the column from the flag
+// rather than restating it is the same guard #44 added when moving `popular`
+// between plans silently left the table featuring the old one; the `+ 1` is
+// the free column and is stated once, here.
+const popularPlanIdx = plans.findIndex((p) => p.popular);
+const popularIdx = popularPlanIdx === -1 ? -1 : popularPlanIdx + 1;
 
 const T = true;
 type Cell = boolean | string;
@@ -326,28 +445,32 @@ type Cell = boolean | string;
 // so the width check below fails the build instead.
 const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Platform', rows: [
-    ['Web App', [T, T, T]],
-    ['Mobile App (PWA)', [T, T, T]],
-    ['Contacts', ['150', '500', '2,000']],
-    ['Admin accounts', ['2', '5', '15']],
-    ['Custom Branding', [false, false, T]],
-    ['Custom Domain', [false, false, T]],
+    ['Web App', [T, T, T, T]],
+    ['Mobile App (PWA)', [T, T, T, T]],
+    ['Contacts', ['500', '150', '500', '2,000']],
+    ['Admin accounts', ['1', '2', '5', '15']],
+    ['Custom Branding', [false, false, false, T]],
+    ['Custom Domain', [false, false, false, T]],
   ] },
   { grp: 'Community', rows: [
-    ['News Feed', [T, T, T]],
-    ['Community Feed', [T, T, T]],
-    ['Prayer Requests', [T, T, T]],
-    ['Community Groups', [false, false, T]],
-    ['Event Registration', [false, false, T]],
-    ['Church Map', [false, T, T]],
-    ['Check-In System (QR)', [false, T, T]],
-    ['Livestream + Live Giving', [false, T, T]],
+    /* 🔴 TWO ROWS, ONE PRODUCT, ONE ANSWER (THE-205). Both name the church
+       feed — NewsTab/AllNews over /community_posts — and both must move
+       together: leaving either at `T` re-makes the exact claim the other just
+       dropped. `newsFeed` is false on free and true on every tier that pays. */
+    ['News Feed', [false, T, T, T]],
+    ['Community Feed', [false, T, T, T]],
+    ['Prayer Requests', [T, T, T, T]],
+    ['Community Groups', [false, false, false, T]],
+    ['Event Registration', [false, false, false, T]],
+    ['Church Map', [false, false, T, T]],
+    ['Check-In System (QR)', [false, false, T, T]],
+    ['Livestream + Live Giving', [false, false, T, T]],
   ] },
   { grp: 'Discipleship & Content', rows: [
-    ['Bible', [T, T, T]],
-    ['Courses', ['2', '5', '15']],
-    ['Blog', [T, T, T]],
-    ['Automated SEO Blog Articles', [false, false, T]],
+    ['Bible', [T, T, T, T]],
+    ['Courses', ['1', '2', '5', '15']],
+    ['Blog', [false, T, T, T]],
+    ['Automated SEO Blog Articles', [false, false, false, T]],
     /* No Docs & Notes row, deliberately (THE-163). Notes is a real feature on
        Small Team and Ministry and the product did not change — what changed is
        that no feature table should be carrying the row at all. The in-app plan
@@ -361,20 +484,25 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
        to "finish the job" silently drops the tool count the Nav advertises),
        its section on /features/discipleship-content, and its line on the
        Individual card above. Do not chase the feature out of those. */
-    ['Sermon Notes → Livestream', [false, T, T]],
+    ['Sermon Notes → Livestream', [false, false, T, T]],
   ] },
   { grp: 'Automation', rows: [
-    ['Newsletter', [false, T, T]],
-    ['Automated Newsletter', [false, false, T]],
-    ['SMS (bring your own Twilio)', [T, T, T]],
-    ['Custom Forms → CRM', [false, false, T]],
+    ['Newsletter', [false, false, T, T]],
+    ['Automated Newsletter', [false, false, false, T]],
+    ['SMS (bring your own Twilio)', [false, T, T, T]],
+    ['Custom Forms → CRM', [false, false, false, T]],
   ] },
   { grp: 'Giving & Finance', rows: [
-    ['Donation Page', [T, T, T]],
-    ['Fundraising', [T, T, T]],
-    ['CRM (Donors & Members)', [T, T, T]],
-    ['Accounting + QuickBooks Sync', [false, false, T]],
-    ['Tax Receipts & Giving Statements', [false, false, T]],
+    ['Donation Page', [false, T, T, T]],
+    ['Fundraising', [false, T, T, T]],
+    /* The ROW LABEL is shared by four columns, so it cannot itself be per-tier
+       — it keeps the priced tiers' wording, which is also the wording three of
+       the four columns want. Free's CELL carries the correction instead: it
+       has the CRM, and it has it for members only. A `T` here would read as
+       the row label's full claim. */
+    [crmLabel('plus'), ['Members only', T, T, T]],
+    ['Accounting + QuickBooks Sync', [false, false, false, T]],
+    ['Tax Receipts & Giving Statements', [false, false, false, T]],
   ] },
 ];
 
@@ -384,14 +512,17 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
    one column left. */
 for (const sec of featureMatrix) {
   for (const [label, vals] of sec.rows) {
-    if (vals.length !== plans.length) {
-      throw new Error(`Pricing comparison row "${label}" has ${vals.length} cells, expected ${plans.length}.`);
+    if (vals.length !== ALL_TIER_NAMES.length) {
+      throw new Error(`Pricing comparison row "${label}" has ${vals.length} cells, expected ${ALL_TIER_NAMES.length}.`);
     }
   }
 }
 // Derived, so a rename or reorder in `plans` can't desync the table header from
 // the cards — the matrix rows above are positional and assume this exact order.
-const planNames = plans.map((p) => p.name);
+// Every tier, free first — not `plans`, which is the PRICED list. A row that
+// still carried three cells now fails the arity guard above rather than
+// rendering one tier's answers under another tier's heading.
+const planNames = ALL_TIER_NAMES;
 
 /* Exported for the suite, not for reuse — `Pricing` is still its only caller.
    The table renders behind `showTable`, which starts closed, so it is absent
@@ -423,7 +554,7 @@ export function ComparisonTable() {
             {featureMatrix.map((sec) => (
               <React.Fragment key={sec.grp}>
                 <tr>
-                  <td colSpan={plans.length + 1} style={{ padding: '18px 22px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--brand)' }}>{sec.grp}</td>
+                  <td colSpan={ALL_TIER_NAMES.length + 1} style={{ padding: '18px 22px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--brand)' }}>{sec.grp}</td>
                 </tr>
                 {sec.rows.map(([label, vals], ri) => (
                   <tr key={label} style={{ borderTop: '1px solid rgba(45,37,25,0.06)', background: ri % 2 ? 'rgba(45,37,25,0.015)' : 'transparent' }}>
@@ -609,7 +740,12 @@ addOnPricingContract(ADD_ONS);
  */
 export function addOnAvailability(planIds: string[]): string {
   const names = plans.filter((p) => planIds.includes(p.planId)).map((p) => p.name);
-  if (names.length === plans.length) return 'Available on every plan';
+  // 🔴 "every PAID plan" since THE-204. `plans` is the priced list, and an
+  // add-on is a subscription line item — Forever Free has no subscription to
+  // add one to, so it can buy none of these. While free did not exist, "every
+  // plan" and "every plan in `plans`" were the same sentence; they are not any
+  // more, and the shorter one is now a claim about a tier that cannot buy.
+  if (names.length === plans.length) return 'Available on every paid plan';
   const listed = names.length > 1
     ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
     : names[0];
@@ -772,6 +908,91 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
   );
 }
 
+/* ─── THE FREE CARD (THE-204) ─────────────────────────────────────────────────
+
+   A SEPARATE COMPONENT, not `PlanCard` with branches. PlanCard's whole shape is
+   built around a charged price: a 40px headline, a "/mo" suffix, a reserved
+   `minHeight` row for the charged total, and a `billing` term threaded into the
+   CTA so the price it prints and the term its button sells can be checked
+   against each other. Free has none of those, and every one of them would have
+   become `plan.price ? … : …` inside a component whose existing job is to be
+   checkable.
+
+   🔴 DISTINCT, AND DELIBERATELY NOT THE RECOMMENDED TREATMENT. Ministry owns
+   the dark navy card with the RECOMMENDED pill, and that treatment sells the
+   MOST EXPENSIVE plan. Reusing it here would put the cheapest and the dearest
+   tier in the same visual slot and make the row say two contradictory things at
+   once. So free is differentiated the other way: the cream ground the section
+   already sits on, a solid brand border instead of the hairline the white cards
+   carry, and a FOREVER FREE eyebrow in the brand colour where the priced cards
+   put a price term. It reads as an on-ramp, not as a recommendation.           */
+export function FreeTierCard({ tier }: { tier: FreeTier }) {
+  const href = useAppSignupUrl(tier.planId);
+  return (
+    <div style={{
+      width: '100%', display: 'flex', flexDirection: 'column',
+      background: 'var(--cream)',
+      border: '1.5px solid var(--brand)',
+      borderRadius: 24, padding: 24, boxShadow: '0 12px 30px rgba(45,37,25,0.05)',
+      position: 'relative',
+    }}>
+      <span style={{
+        position: 'absolute', top: 18, right: 18, background: 'transparent', color: 'var(--brand)',
+        border: '1px solid var(--brand)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+        padding: '3px 9px', borderRadius: 999,
+      }}>FOR EVANGELISTS</span>
+      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}>{tier.name}</div>
+
+      {/* No "/mo". The priced cards print a per-month EQUIVALENT beside that
+          suffix; free is not billed on a month or on anything else, and "$0/mo"
+          would imply a cycle it does not have. */}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, margin: '12px 0 4px' }}>
+        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: 'var(--navy-900)' }}>$0</span>
+        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>forever</span>
+      </div>
+
+      {/* Occupies the row the priced cards use for "billed as $X every N
+          months", so all four cards keep one baseline through a toggle change.
+          Same 12.5px/600/--navy-900 as that line, for the same reason: it is
+          the line that says what you pay. */}
+      <div style={{ minHeight: 18, fontSize: 12.5, fontWeight: 600, color: 'var(--navy-900)' }}>
+        no card required
+      </div>
+
+      <div style={{ fontSize: 12.5, color: 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{tier.blurb}</div>
+
+      {/* 🔴 WHERE THE OTHER CARDS PUT "0% PLATFORM FEE".
+          Every priced card leads with the donation-fee callout, in this exact
+          slot. A free card that simply omitted it would leave the reader to
+          carry the assumption across from the card beside it — so the slot is
+          not left empty, it is answered. Stated as an absence, in the negative,
+          in the same box the others use for a benefit. */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0', padding: '10px 12px',
+        borderRadius: 12, background: 'rgba(45,37,25,0.04)', border: '1px dashed rgba(45,37,25,0.18)',
+      }}>
+        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: 'var(--text-muted)', fontWeight: 500 }}>—</span>
+        <span style={{ fontSize: 11, color: 'var(--text-body)', lineHeight: 1.2 }}>{tier.noDonatePage}</span>
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 20 }}>
+        {tier.features.map((f) => (
+          <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <span style={{ display: 'inline-flex', color: 'var(--brand)', flexShrink: 0, marginTop: 1 }}>{I.check({ size: 15 })}</span>
+            <span style={{ fontSize: 12.5, color: 'var(--text-body)', lineHeight: 1.4 }}>{f}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* No `billing` argument — `useAppSignupUrl`'s second parameter is
+          documented as omitted for surfaces that quote no term, and this is
+          one. And not "Start free trial": the trial belongs to the paid
+          products, free is not a trial of anything, and it never expires. */}
+      <HBtn href={href} variant="light" block>Start free</HBtn>
+    </div>
+  );
+}
+
 /**
  * The term toggle — three segments, Monthly / Quarterly / Yearly.
  *
@@ -896,9 +1117,20 @@ export function Pricing() {
         <Reveal delay={80} style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
           <TermToggle value={term} onChange={setTerm} />
         </Reveal>
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${plans.length}, 1fr)`, gap: 18, alignItems: 'stretch' }} className="pricing-grid">
+        {/* FOUR cards since THE-204. `plan-card-grid` is a second class, not a
+            replacement: `pricing-grid` still collapses this row to one column
+            below 900px (index.css), and the add-on row below shares that class
+            and must NOT take the two-column rule this one needs. The 1200px
+            container leaves 1144px of content, so four 272px cards and three
+            18px gaps fit at 1280 and 1440 — which render identically, both
+            being capped by the container. 1024 is the width that does not fit
+            four, and index.css drops it to 2x2 there. */}
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${ALL_TIER_NAMES.length}, 1fr)`, gap: 18, alignItems: 'stretch' }} className="pricing-grid plan-card-grid">
+          <Reveal key={FREE_TIER.name} style={{ display: 'flex' }}>
+            <FreeTierCard tier={FREE_TIER} />
+          </Reveal>
           {plans.map((p, i) => (
-            <Reveal key={p.name} delay={i * 70} style={{ display: 'flex' }}>
+            <Reveal key={p.name} delay={(i + 1) * 70} style={{ display: 'flex' }}>
               <PlanCard plan={p} term={term} />
             </Reveal>
           ))}

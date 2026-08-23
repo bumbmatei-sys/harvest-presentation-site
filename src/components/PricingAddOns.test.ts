@@ -165,7 +165,10 @@ describe('where an add-on can be bought', () => {
     }
     const everywhere = ADD_ONS.filter((a) => a.planIds.length === plans.length);
     expect(everywhere.length).toBeGreaterThan(0);
-    for (const a of everywhere) expect(words(cardHtml(a))).toContain('Available on every plan');
+    // "every PAID plan" since THE-204: `plans` is the priced list, and Forever
+    // Free has no subscription for an add-on to attach to, so it can buy none
+    // of these. The old wording became a claim about a tier that cannot buy.
+    for (const a of everywhere) expect(words(cardHtml(a))).toContain('Available on every paid plan');
   });
 
   it('the add-on availability contract throws on a plan that does not exist', () => {
