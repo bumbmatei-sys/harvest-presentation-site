@@ -135,9 +135,9 @@ export interface TierPriceClaim {
  * check is a build failure rather than a warning.
  */
 export const TIER_PRICE_CLAIMS: TierPriceClaim[] = [
-  { planId: 'plus', name: 'Individual', monthly: 39, quarterly: 99, annual: 329 },
-  { planId: 'pro', name: 'Small Team', monthly: 79, quarterly: 199, annual: 659 },
-  { planId: 'max', name: 'Ministry', monthly: 159, quarterly: 399, annual: 1329 },
+  { planId: 'plus', name: 'Individual', monthly: 20, quarterly: 49, annual: 165 },
+  { planId: 'pro', name: 'Small Team', monthly: 40, quarterly: 99, annual: 329 },
+  { planId: 'max', name: 'Ministry', monthly: 80, quarterly: 199, annual: 659 },
 ];
 
 /** Shape of the bits of `Plan` this check needs — passed in rather than

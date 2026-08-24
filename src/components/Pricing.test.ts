@@ -48,12 +48,19 @@ describe('plan ids', () => {
    Written out here rather than derived from `plans`, deliberately: a test that
    reads the same table it is checking asserts only that the table equals
    itself. These nine are the figures verified against the authenticated live
-   Dodo API on 2026-08-20 (9900 / 19900 / 39900 minor units on the quarterly
-   products, and so on), transcribed independently. */
+   Dodo API on 2026-08-24 (4900 / 9900 / 19900 minor units on the quarterly
+   products, and so on), transcribed independently.
+
+   🔴 THE-222 MOVED THE WHOLE TABLE DOWN A TIER, which is exactly why these are
+   transcribed rather than derived. Small Team's new quarterly and yearly ($99 /
+   $329) are the figures Individual used to carry, and Ministry's new pair ($199
+   / $659) are Small Team's old pair. A reprice that shifted a row instead of
+   repricing it would leave every number on this page looking familiar and put
+   two of the three tiers on the wrong price. */
 const DODO_CATALOGUE_USD: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 39, quarterly: 99, yearly: 329 },
-  pro: { monthly: 79, quarterly: 199, yearly: 659 },
-  max: { monthly: 159, quarterly: 399, yearly: 1329 },
+  plus: { monthly: 20, quarterly: 49, yearly: 165 },
+  pro: { monthly: 40, quarterly: 99, yearly: 329 },
+  max: { monthly: 80, quarterly: 199, yearly: 659 },
 };
 
 describe('the nine plan prices match the Dodo catalogue exactly', () => {
@@ -105,22 +112,31 @@ describe('the discount badges read 15% and 30% and are not computed from the pri
     // would have justified the decision.
 
     // 1. QUARTERLY: rounding disagrees across tiers. A per-tier badge would read
-    //    15% beside Individual and 16% beside Ministry, on a toggle that sits
-    //    above all three cards at once.
+    //    18% beside Individual and 17% beside Ministry, on a toggle that sits
+    //    above all three cards at once. Still true after THE-222 — only the two
+    //    figures moved.
     const quarterlyRounded = plans.map((p) => Math.round(actualSavingPct(p, 'quarterly')));
     expect(new Set(quarterlyRounded).size).toBeGreaterThan(1);
-    expect(Math.round(actualSavingPct(plans[0], 'quarterly'))).toBe(15);
-    expect(Math.round(actualSavingPct(plans[2], 'quarterly'))).toBe(16);
+    expect(Math.round(actualSavingPct(plans[0], 'quarterly'))).toBe(18);
+    expect(Math.round(actualSavingPct(plans[2], 'quarterly'))).toBe(17);
 
-    // 2. YEARLY: rounding happens to AGREE — all three tiers round to 30 — and
-    //    that is precisely the trap. A badge computed by rounding would print a
-    //    flat 30% while the worst tier saves 29.70%, i.e. it would compute
-    //    itself into the false claim the honesty rule exists to stop. Storing
-    //    the number and deriving only the WORDING is what separates the two.
+    // 2. YEARLY: rounding AGREES across the tiers — all three now round to 31 —
+    //    and that agreement is the trap, in a different direction to before.
+    //    Pre-THE-222 the three rounded to 30 while the worst tier saved 29.70%,
+    //    so a computed badge would have rounded itself into a false claim. Now
+    //    they round to 31 and the worst tier saves 31.25%, so a computed badge
+    //    would be TRUE — and would silently move the advertised number from the
+    //    30 the founder chose to a 31 nobody signed off, on the next reprice
+    //    and every one after it.
+    //
+    //    🔴 Both failures argue for the same split: store the NUMBER, derive
+    //    only the WORDING. A badge that recomputes itself is a badge that
+    //    changes what the company advertises without anyone deciding to.
     const yearlyRounded = plans.map((p) => Math.round(actualSavingPct(p, 'yearly')));
-    expect(new Set(yearlyRounded)).toEqual(new Set([30]));
-    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeLessThan(30);
-    expect(discountClaimShape('yearly')).toBe('upTo');
+    expect(new Set(yearlyRounded)).toEqual(new Set([31]));
+    expect(new Set(yearlyRounded)).not.toEqual(new Set([ADVERTISED_DISCOUNT_PCT.yearly]));
+    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeGreaterThan(30);
+    expect(discountClaimShape('yearly')).toBe('flat');
   });
 
   it('renders the stored number on the toggle, per discounted term', () => {
@@ -148,21 +164,35 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
     }
   });
 
-  it('quarterly may be claimed flat — the worst tier saves 15.4% against an advertised 15%', () => {
+  it('quarterly may be claimed flat — the worst tier saves 17.08% against an advertised 15%', () => {
+    // The worst quarterly tier is MINISTRY, not Individual: $199 against $240
+    // bought monthly. The margin the flat claim rests on belongs to the tier
+    // that clears it least, so that is the tier named.
     expect(worst('quarterly')).toBeGreaterThan(15);
+    expect(worst('quarterly')).toBeCloseTo(17.0833, 3);
+    expect(actualSavingPct(plans[2], 'quarterly')).toBeCloseTo(worst('quarterly'), 6);
     expect(discountClaimShape('quarterly')).toBe('flat');
     expect(discountClaim('quarterly')).toBe('Save 15%');
   });
 
-  it('🔴 yearly may NOT be claimed flat — the worst tier saves 29.70% against an advertised 30%', () => {
-    // The brief that set these prices stated 15% and 30% were both safe to
-    // advertise flat. 30 is not: Individual is $329 against $468 at the monthly
-    // rate, which is 29.70% — three tenths of a point short of the claim. "Up
-    // to" is true of every tier and keeps 30 on the badge.
-    expect(worst('yearly')).toBeLessThan(30);
-    expect(worst('yearly')).toBeCloseTo(29.7008, 3);
-    expect(discountClaimShape('yearly')).toBe('upTo');
-    expect(discountClaim('yearly')).toBe('Save up to 30%');
+  it('🔴 yearly may NOW be claimed flat — the worst tier saves 31.25% against an advertised 30%', () => {
+    // 🔴 THE ASSERTION THE-222 FLIPPED, and the flip is the deliverable.
+    //
+    // Pre-THE-222 Individual's year was $329 against $468 bought monthly —
+    // 29.70%, three tenths of a point short of the advertised 30 — so this
+    // returned 'upTo' and the badge read "Save up to 30%". At $20/mo the same
+    // tier's year is $165 against $240, which is 31.25%. Individual is STILL
+    // the worst yearly tier; it simply clears 30 now, as do the other two, so
+    // the identical derivation returns 'flat' and the qualifier drops.
+    //
+    // ⚠️ NOT A COPY EDIT. `discountClaimShape` was not touched — the prices
+    // moved under it. That is the whole reason the wording is derived.
+    expect(worst('yearly')).toBeGreaterThan(30);
+    expect(worst('yearly')).toBeCloseTo(31.25, 3);
+    expect(actualSavingPct(plans[0], 'yearly')).toBeCloseTo(worst('yearly'), 6);
+    expect(discountClaimShape('yearly')).toBe('flat');
+    expect(discountClaim('yearly')).toBe('Save 30%');
+    expect(discountClaim('yearly')).not.toContain('up to');
   });
 
   it('never advertises more than even the best tier saves, under any wording', () => {
@@ -354,8 +384,8 @@ describe('what a card shows and what its button buys', () => {
 
 /* ─── THE-195 TEST 12 ───────────────────────────────────────────────────────── */
 describe('the cheapest-plan figure follows the new Individual monthly price', () => {
-  it('is the lowest MONTHLY sticker price, which is now 39', () => {
-    expect(CHEAPEST_MONTHLY).toBe(39);
+  it('is the lowest MONTHLY sticker price, which is now 20', () => {
+    expect(CHEAPEST_MONTHLY).toBe(20);
     expect(CHEAPEST_MONTHLY).toBe(Math.min(...plans.map((p) => p.price.monthly)));
   });
 

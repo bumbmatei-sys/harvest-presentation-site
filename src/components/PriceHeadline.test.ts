@@ -87,9 +87,9 @@ describe('THE-196 — the headline is the per-month figure', () => {
     // restate what it now shows rather than sliding through a derivation.
     const table = plans.map((p) => BILLING_TERMS.map((t) => formatMonthlyHeadline(p.price[t], t)));
     expect(table).toEqual([
-      ['$39', '$33', '$27.42'],
-      ['$79', '$66.34', '$54.92'],
-      ['$159', '$133', '$110.75'],
+      ['$20', '$16.34', '$13.75'],
+      ['$40', '$33', '$27.42'],
+      ['$80', '$66.34', '$54.92'],
     ]);
   });
 
@@ -180,7 +180,12 @@ describe('THE-196 — the honesty guard', () => {
     // against the shipped ceiling it could never fail.
     expect(() => monthlyHeadlineContract()).not.toThrow();
     expect(() => monthlyHeadlineContract(Math.round)).toThrow(/never promise less than the bill/);
-    expect(() => monthlyHeadlineContract(Math.round)).toThrow(/Individual yearly/);
+    // 🔴 THE-222 MOVED WHICH CELL THE OLD RULE LIES ABOUT FIRST. It used to be
+    // Individual's YEAR ($329/12 rounds to $27, implying $324). At $165 that
+    // cell is now safe — $13.75 rounds UP — and the first understatement is
+    // Individual's QUARTER: $49/3 is $16.33, rounds to $16, implies $48 against
+    // a charged $49. The guard stops at the first offender and names it.
+    expect(() => monthlyHeadlineContract(Math.round)).toThrow(/Individual quarterly/);
     expect(() => monthlyHeadlineContract(Math.floor)).toThrow(/never promise less than the bill/);
     // Ceiling to the dollar never understates, so the guard accepts it; it is
     // the reconciliation test that rules it out.
@@ -213,9 +218,9 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
        and its own suite asserts those against its rendered cards. If either
        repo changes the shape, one of the two fails. */
     const APP_HEADLINES: Record<string, Record<BillingTerm, string>> = {
-      plus: { monthly: '$39',  quarterly: '$33',     yearly: '$27.42'  },
-      pro:  { monthly: '$79',  quarterly: '$66.34',  yearly: '$54.92'  },
-      max:  { monthly: '$159', quarterly: '$133',    yearly: '$110.75' },
+      plus: { monthly: '$20', quarterly: '$16.34', yearly: '$13.75' },
+      pro:  { monthly: '$40', quarterly: '$33',    yearly: '$27.42' },
+      max:  { monthly: '$80', quarterly: '$66.34', yearly: '$54.92' },
     };
     for (const p of plans) {
       for (const term of BILLING_TERMS) {

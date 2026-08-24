@@ -89,9 +89,9 @@ export interface FaqPlanClaim {
  * mismatch is a build failure rather than a warning.
  */
 export const FAQ_PLAN_CLAIMS: FaqPlanClaim[] = [
-  { planId: 'plus', name: 'Individual', monthly: 39, quarterly: 99, annual: 329, contacts: '150', admins: '2', courses: '2' },
-  { planId: 'pro', name: 'Small Team', monthly: 79, quarterly: 199, annual: 659, contacts: '500', admins: '5', courses: '5' },
-  { planId: 'max', name: 'Ministry', monthly: 159, quarterly: 399, annual: 1329, contacts: '2,000', admins: '15', courses: '15' },
+  { planId: 'plus', name: 'Individual', monthly: 20, quarterly: 49, annual: 165, contacts: '150', admins: '2', courses: '2' },
+  { planId: 'pro', name: 'Small Team', monthly: 40, quarterly: 99, annual: 329, contacts: '500', admins: '5', courses: '5' },
+  { planId: 'max', name: 'Ministry', monthly: 80, quarterly: 199, annual: 659, contacts: '2,000', admins: '15', courses: '15' },
 ];
 
 /** Shape of the bits of `Plan` this check needs. Passed in rather than imported

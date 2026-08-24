@@ -304,9 +304,9 @@ describe("the three priced tiers' cards are unchanged", () => {
 
   it('their prices, names and RECOMMENDED badge are untouched', () => {
     expect(plans.map((p) => [p.planId, p.name, p.price.monthly, p.price.quarterly, p.price.yearly])).toEqual([
-      ['plus', 'Individual', 39, 99, 329],
-      ['pro', 'Small Team', 79, 199, 659],
-      ['max', 'Ministry', 159, 399, 1329],
+      ['plus', 'Individual', 20, 49, 165],
+      ['pro', 'Small Team', 40, 99, 329],
+      ['max', 'Ministry', 80, 199, 659],
     ]);
     expect(plans.filter((p) => p.popular).map((p) => p.name)).toEqual(['Ministry']);
   });
