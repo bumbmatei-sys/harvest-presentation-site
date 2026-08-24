@@ -124,7 +124,7 @@ describe('what the policies must not claim', () => {
      campuses — are priced and agreed but NOT BUILT. Marketing copy naming an
      unsold product is a mistake; a policy naming one is a written promise about
      something nobody can buy. */
-  const ADD_ON_PATTERNS: [string, RegExp][] = [
+  const ALL_ADD_ON_PATTERNS: [string, RegExp][] = [
     ['an add-on', /add-?ons?\b/i],
     ['unlimited anything', /\bunlimited\b/i],
     ['extra seats', /\b(extra|additional|per-)\s?(seat|seats)\b/i],
@@ -134,6 +134,32 @@ describe('what the policies must not claim', () => {
     ['the unlimited-contacts price', /\$59(?![\d,])/],
     ['the extra-seat price', /\$10(?![\d,])/],
   ];
+
+  /* 🔴 THE-222 BROKE ONE OF THESE PATTERNS, and dropping it is the fix — the
+     same collision content/faq.test.ts hits, for the same reason.
+
+     The four PRICE patterns assume an add-on's price is a figure the policies
+     have no other reason to print. THE-222 puts Individual at $20 a month, and
+     the Terms are REQUIRED to quote it (TIER_PRICE_CLAIMS, rendered into the
+     fees clause and checked at module scope by pages/LegalPage.tsx). So `/\$20/`
+     now fires on the Terms being correct, and kept it would fail the build on
+     the document saying the thing it must say.
+
+     ⚠️ THE CONCEPT IS STILL GUARDED. The four WORD patterns are the
+     load-bearing half — a policy that promised extra contacts would have to say
+     "add-on", "unlimited", "extra seats" or "campus" — and they still fire.
+     What is dropped is a numeric coincidence that can no longer tell a plan
+     price from an add-on price.
+
+     Derived from the plan table, so a future reprice off $20 restores the
+     pattern on its own, and one onto $19 / $59 / $10 drops that one in turn. */
+  const PLAN_PRICE_FIGURES = new Set(
+    plans.flatMap((p) => [p.price.monthly, p.price.quarterly, p.price.yearly].map(String)),
+  );
+  const ADD_ON_PATTERNS = ALL_ADD_ON_PATTERNS.filter(([, re]) => {
+    const figure = re.source.match(/\\\$(\d+)/)?.[1];
+    return figure === undefined || !PLAN_PRICE_FIGURES.has(figure);
+  });
 
   /* Harvest is pre-incorporation. There is no company name, company number or
      registered address to give, so none may be invented — a policy that names a
@@ -636,7 +662,7 @@ describe('what the analytics disclosure must not have touched', () => {
     // future edit changes one, this fails loudly and on purpose — read the
     // diff, decide, then move the hash.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('4e3fa5989d53937fbeee3c5111550dcae8ab36b6bb9421e2a63105115b8cffb5');
+      .toBe('05e979cff8d1e34ca4d209275cb1aa1dc410aea39d724e9760ef0b33ac63de33');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
   });
@@ -647,9 +673,9 @@ describe('what the analytics disclosure must not have touched', () => {
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
-      'plus:39/99/329',
-      'pro:79/199/659',
-      'max:159/399/1329',
+      'plus:20/49/165',
+      'pro:40/99/329',
+      'max:80/199/659',
     ]);
   });
 });
@@ -815,7 +841,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // `updated` cannot move these — which is the proof that it did not.
     const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('4e3fa5989d53937fbeee3c5111550dcae8ab36b6bb9421e2a63105115b8cffb5');
+      .toBe('05e979cff8d1e34ca4d209275cb1aa1dc410aea39d724e9760ef0b33ac63de33');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
     // And neither was restated as revised.
@@ -857,9 +883,9 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
-      'plus:39/99/329',
-      'pro:79/199/659',
-      'max:159/399/1329',
+      'plus:20/49/165',
+      'pro:40/99/329',
+      'max:80/199/659',
     ]);
   });
 

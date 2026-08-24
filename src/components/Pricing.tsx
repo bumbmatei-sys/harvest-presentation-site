@@ -174,9 +174,9 @@ const FREE_TIER_PLAN_ID = 'free';
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 39,  quarterly: 99,  yearly: 329  }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
-  { name: 'Small Team', planId: 'pro',  price: { monthly: 79,  quarterly: 199, yearly: 659  }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 159, quarterly: 399, yearly: 1329 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 49,  yearly: 165 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
+  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 99,  yearly: 329 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
+  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 199, yearly: 659 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
@@ -285,9 +285,9 @@ export const ALL_TIER_NAMES = [FREE_TIER.name, ...plans.map((p) => p.name)];
    stops here. Update these together with the app's PLAN_PRICING
    (Harvest-agent src/utils/plan-features.ts), in the same change.               */
 const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 39,  quarterly: 99,  yearly: 329  },
-  pro:  { monthly: 79,  quarterly: 199, yearly: 659  },
-  max:  { monthly: 159, quarterly: 399, yearly: 1329 },
+  plus: { monthly: 20, quarterly: 49,  yearly: 165 },
+  pro:  { monthly: 40, quarterly: 99,  yearly: 329 },
+  max:  { monthly: 80, quarterly: 199, yearly: 659 },
 };
 
 /**
@@ -347,23 +347,29 @@ export const actualSavingPct = (plan: Plan, term: BillingTerm) =>
  * smallest actual one.
  *
  * A flat "save 30%" is a claim about EVERY tier, so it is only true when the
- * worst tier saves at least 30%. The numbers:
+ * worst tier saves at least 30%. The numbers, as of THE-222:
  *
  *              Quarterly   Yearly
- *   Individual    15.4%     29.7%
- *   Small Team    16.0%     30.5%
- *   Ministry      16.4%     30.3%
+ *   Individual    18.3%     31.3%
+ *   Small Team    17.5%     31.5%
+ *   Ministry      17.1%     31.4%
  *
- *   quarterly  advertises 15, worst tier saves 15.4  → 'flat'  → "Save 15%"
- *   yearly     advertises 30, worst tier saves 29.7  → 'upTo'  → "Save up to 30%"
+ *   quarterly  advertises 15, worst tier saves 17.1  → 'flat'  → "Save 15%"
+ *   yearly     advertises 30, worst tier saves 31.3  → 'flat'  → "Save 30%"
  *
- * ⚠️ YEARLY IS THE CASE THIS EXISTS FOR. The brief that set these prices stated
- * that 15% and 30% were both safe to advertise flat. 30 is not: Individual saves
- * 29.70%, three tenths of a point short, so a bare "save 30%" overstates what
- * the cheapest tier actually saves — on the page a treasurer reads before
- * paying, which is where this site has already shipped a false claim once
- * ("keeps 100%" against a real 2.5% fee). "Up to" is true of every tier and
- * keeps 30 on the badge, which is what was actually wanted.
+ * ⚠️ YEARLY IS THE CASE THIS EXISTS FOR, AND IT HAS JUST FLIPPED. Under the
+ * pre-THE-222 prices Individual saved 29.70% against an advertised 30% — three
+ * tenths of a point short — so this returned 'upTo' and the badge read "Save up
+ * to 30%". At $20/mo Individual's year is $165 against $240 bought monthly,
+ * which is 31.25%, and it is STILL the worst yearly tier. Every tier now clears
+ * 30, so the same derivation returns 'flat' and the qualifier drops off.
+ *
+ * 🔴 NOT A COPY EDIT. Nothing in this function changed — the prices moved under
+ * it. That is the whole reason the wording is derived: this page has shipped a
+ * false claim once already ("keeps 100%" against a real 2.5% fee), and a badge
+ * that a human has to remember to re-word after a reprice is a badge that
+ * eventually lies. If a future price puts a tier back under 30, "up to" returns
+ * by itself.
  *
  * The NUMBER is stored; only the WORDING is derived. That is the split that
  * matters: the badge does not move when a price is rounded differently, but the

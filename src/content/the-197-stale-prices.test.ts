@@ -113,9 +113,20 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
     // cites "$200k a year online" and "$10,000", which are a CHURCH'S giving
     // volume, not anything Harvest charges, and a blanket no-digits scan would
     // read those as the very thing it exists to forbid.
-    for (const figure of [...plans.map((pl) => `$${pl.price.monthly}`), '$49', '$99', '$199']) {
-      expect(donation.moment, `a plan price (${figure}) came back into the donation copy`)
-        .not.toContain(figure);
+    // 🔴 BOUNDED, and THE-222 is why. This read `.toContain('$20')`, which is a
+    // SUBSTRING test: the sentence's "$200k a year online" contains "$20", so
+    // the moment Individual became $20 a month the assertion failed on a figure
+    // that is a congregation's giving volume and not a Harvest price at all.
+    // The scan has to stop at a digit boundary or it reads the very numbers the
+    // comment above says it must not.
+    //
+    // The retired figures move with the reprice too: $49, $99 and $199 are all
+    // real prices again (Individual quarterly, Small Team quarterly, Ministry
+    // quarterly), so the retired set is what THE-222 actually retired.
+    const RETIRED_MONTHLY = ['39', '79', '159'];
+    for (const figure of [...plans.map((pl) => String(pl.price.monthly)), ...RETIRED_MONTHLY]) {
+      expect(donation.moment, `a plan price ($${figure}) came back into the donation copy`)
+        .not.toMatch(new RegExp(`\\$${figure}(?![\\d,])`));
     }
     // The free-aware wording THE-204 added, pinned so a later editorial pass
     // cannot quietly re-promise a donate page free does not have.
@@ -164,11 +175,14 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
 });
 
 describe('THE-197 — no price data changed', () => {
-  it('PLAN_PRICING (plans) is byte-for-byte the prices this ticket must not touch', () => {
+  it('PLAN_PRICING (plans) is the nine prices THE-222 repriced to, and the fee is still 0%', () => {
+    // ⚠️ THE-197 could not touch a price; THE-222 IS the reprice, so this pin
+    // moves with it. What the assertion is really holding is the FEE — 0% on
+    // every tier — which no reprice may disturb, and the shape of the row.
     expect(plans.map((p) => ({ planId: p.planId, price: p.price, fee: p.fee }))).toEqual([
-      { planId: 'plus', price: { monthly: 39, quarterly: 99, yearly: 329 }, fee: 0 },
-      { planId: 'pro', price: { monthly: 79, quarterly: 199, yearly: 659 }, fee: 0 },
-      { planId: 'max', price: { monthly: 159, quarterly: 399, yearly: 1329 }, fee: 0 },
+      { planId: 'plus', price: { monthly: 20, quarterly: 49, yearly: 165 }, fee: 0 },
+      { planId: 'pro', price: { monthly: 40, quarterly: 99, yearly: 329 }, fee: 0 },
+      { planId: 'max', price: { monthly: 80, quarterly: 199, yearly: 659 }, fee: 0 },
     ]);
   });
 
@@ -184,9 +198,9 @@ describe('THE-197 — no price data changed', () => {
   it('the cross-repo price contract still throws when the two repos disagree', () => {
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 39, quarterly: 99, yearly: 329 },
-        pro: { monthly: 79, quarterly: 199, yearly: 659 },
-        max: { monthly: 159, quarterly: 399, yearly: 1330 },
+        plus: { monthly: 20, quarterly: 49, yearly: 165 },
+        pro: { monthly: 40, quarterly: 99, yearly: 329 },
+        max: { monthly: 80, quarterly: 199, yearly: 660 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();

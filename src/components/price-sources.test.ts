@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { BILLING_TERMS, ComparisonTable, plans } from './Pricing';
+import { ADD_ONS, BILLING_TERMS, ComparisonTable, plans } from './Pricing';
 
 /* ─── THE-195 TESTS 10 & 11 ───────────────────────────────────────────────────
  *
@@ -64,22 +64,85 @@ const PRICE_BEARING = ['components/Pricing.tsx', 'content/faq.ts', 'content/lega
  */
 const EDITORIAL_EXEMPT = ['content/features.ts'];
 
+/**
+ * ⚠️ MOCK PRODUCT SCREENSHOTS — A CHURCH'S MONEY, NEVER HARVEST'S PRICE.
+ *
+ * `components/FeatureMock.tsx` is a gallery of fake in-app screenshots: a
+ * donation list, an event ticket table, a QuickBooks receipt ledger, a campaign
+ * thermometer. Every dollar figure in it is SAMPLE DATA standing for a
+ * congregation's own transactions — a $40 adult admission, a $50 gift, a
+ * $250,000 campaign goal. None of it is a plan price and none of it is a claim
+ * about what Harvest charges.
+ *
+ * 🔴 THIS EXEMPTION IS NEW, AND THE-222 IS WHY. The old prices — 39, 79, 159,
+ * 99, 199, 399, 329, 659, 1329 — are odd figures that never turn up as a sample
+ * ticket or a sample gift, so a bare `$`-scan over this file was clean for
+ * free. The reprice to $20 / $40 / $80 ended that: those are the most ordinary
+ * amounts in the file, and the scan started failing on a mock ticket price and
+ * a mock receipt. Neither can quote a church anything.
+ *
+ * ⚠️ IT IS SCOPED TO THE CURRENT-PRICE SWEEP ONLY. This file stays inside the
+ * RETIRED sweep below — a retired plan price appearing here would still be
+ * caught — and the assertion beneath the sweep pins that the mock never names a
+ * TIER beside a figure, which is the only way it could make a price claim at
+ * all.
+ */
+const MOCK_UI_EXEMPT = ['components/FeatureMock.tsx'];
+
 /** Every price this change published, as bare digits. */
-const PRICE_DIGITS = [...new Set(plans.flatMap((p) => BILLING_TERMS.map((t) => String(p.price[t]))))];
+const ALL_PRICE_DIGITS = [...new Set(plans.flatMap((p) => BILLING_TERMS.map((t) => String(p.price[t]))))];
+
+/**
+ * 🔴 A FIGURE THAT IS BOTH A PLAN PRICE AND AN ADD-ON PRICE CANNOT BE
+ * ATTRIBUTED BY STRING MATCH, so it is not swept — it is pinned by context.
+ *
+ * This is the same reasoning the RETIRED list below applies to `$99` and
+ * `$199`, arrived at from the other side. THE-222 put Individual at $20 a
+ * month, and $20 was already the price of TWO add-ons: Contacts +500 in
+ * `ADD_ONS`, and the multi-campus extra that `components/catalog.ts` names in
+ * its Multi-Campus entry ("one included, $20/mo for each one after"). Sweeping
+ * `$20` therefore fails on a sentence about campuses that has nothing to do
+ * with the Individual plan, and no regex can tell the two apart — they are the
+ * same four characters meaning different products.
+ *
+ * ⚠️ THE FIGURE IS NOT LEFT UNGUARDED. Individual's monthly price is pinned by
+ * the cross-repo contract in Pricing.tsx, by FAQ_PLAN_CLAIMS in content/faq.ts
+ * and by TIER_PRICE_CLAIMS in content/legal.ts — three module-scope checks that
+ * fail the prerender and name the tier. What is given up is a string sweep that
+ * could not have said which product it had found.
+ *
+ * Derived from `ADD_ONS` rather than listed, so an add-on repriced onto (or off)
+ * a plan price moves this set without anyone remembering to.
+ */
+const ADD_ON_PRICE_DIGITS = new Set(
+  ADD_ONS.flatMap((a) => [String(a.monthly), String(a.annual)]),
+);
+
+const PRICE_DIGITS = ALL_PRICE_DIGITS.filter((d) => !ADD_ON_PRICE_DIGITS.has(d));
 /**
  * Prices this change RETIRED. None may survive in scanned source.
  *
- * ⚠️ `99` AND `199` ARE DELIBERATELY ABSENT. Both were old MONTHLY prices and
- * both are now real QUARTERLY ones — Individual is $99 a quarter, Small Team
- * $199 — so banning the string would ban the current catalogue. They are
- * distinguished by CONTEXT, not by string match: `PRICE_DIGITS` above pins
- * where each may appear, and the cross-repo contract pins what each means.
+ * 🔴 THE-222 MOVED THE TABLE DOWN A TIER, so five figures changed MEANING
+ * rather than retiring, and not one of them may be banned:
  *
- * `49` has no such collision — it is a price on no tier and no term any more —
- * so it is banned outright. It is also the exact literal #56 had to fix three
- * copies of.
+ *   $49    was Individual monthly (pre-THE-195) and was banned outright until
+ *          now. It is Individual QUARTERLY as of THE-222, so it LEAVES this
+ *          list — banning it would ban the live catalogue.
+ *   $99    was Individual quarterly, is now Small Team quarterly.
+ *   $199   was Small Team quarterly, is now Ministry quarterly.
+ *   $329   was Individual yearly, is now Small Team yearly.
+ *   $659   was Small Team yearly, is now Ministry yearly.
+ *
+ * They are distinguished by CONTEXT, not by string match: `PRICE_DIGITS` above
+ * pins where each may appear, and the cross-repo contract pins what each means.
+ *
+ * 🔴 WHAT DID RETIRE: `39`, `79`, `159`, `399` and `1329` — the whole old
+ * monthly column plus the two top-tier figures nothing inherited. They are a
+ * price on no tier and no term now, so they are banned outright, exactly as
+ * `$49` was and for the same reason: #56 had to fix three disconnected copies
+ * of a figure a reprice had left behind.
  */
-const RETIRED = ['49', '441', '891', '1791', '37', '74', '149'];
+const RETIRED = ['441', '891', '1791', '37', '74', '149', '39', '79', '159', '399', '1329'];
 
 describe('no price literal appears outside the single source', () => {
   const modules = walk(SRC).filter((f) => !PRICE_BEARING.some((allowed) => f.endsWith(allowed)));
@@ -105,6 +168,7 @@ describe('no price literal appears outside the single source', () => {
   it.each(PRICE_DIGITS)('no module outside the source restates $%s', (digits) => {
     for (const file of modules) {
       if (EDITORIAL_EXEMPT.some((e) => file.endsWith(e))) continue;
+      if (MOCK_UI_EXEMPT.some((e) => file.endsWith(e))) continue;
       const src = codeOf(file);
       // `$99` in a template literal or in prose — a dollar sign immediately
       // followed by the figure. Bare integers are not searched: `99` is also a
@@ -128,6 +192,49 @@ describe('no price literal appears outside the single source', () => {
     // The exemption is the dangerous part of this test: an over-broad list
     // turns it into a no-op. One entry, and it is editorial prose.
     expect(EDITORIAL_EXEMPT).toEqual(['content/features.ts']);
+  });
+
+  it('names the mock-UI exemption explicitly, and keeps it to the one file', () => {
+    expect(MOCK_UI_EXEMPT).toEqual(['components/FeatureMock.tsx']);
+  });
+
+  /**
+   * 🔴 THE COLLISION EXCLUSION IS ITSELF A HOLE, so its size is pinned.
+   *
+   * `PRICE_DIGITS` drops any figure that is also an add-on price. If add-ons
+   * were ever repriced onto all nine plan figures the sweep would quietly
+   * become a no-op and every assertion above would pass over an empty list.
+   * Both halves are stated: exactly which figure collides today, and that eight
+   * of the nine are still swept.
+   */
+  it('excludes only the figures that genuinely collide with an add-on price', () => {
+    expect(ALL_PRICE_DIGITS).toHaveLength(9);
+    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d))).toEqual(['20']);
+    expect(PRICE_DIGITS).toHaveLength(8);
+    expect(PRICE_DIGITS).not.toContain('20');
+    // The figure dropped is Individual's monthly price, and it is the only one.
+    expect(String(plans.find((p) => p.planId === 'plus')!.price.monthly)).toBe('20');
+  });
+
+  /**
+   * 🔴 THE COMPENSATING GUARD for the exemption above.
+   *
+   * A mock screenshot can only make a PRICE CLAIM if it puts a tier's name
+   * beside a figure — "Ministry $80/mo" in a fake settings panel would be a
+   * pricing claim wearing a screenshot's clothes, and the digit sweep no longer
+   * looks at this file. So the tier names are what is checked instead, in
+   * executable source only: the two that appear in FeatureMock's comments are
+   * prose about which vignette is which, and "Ministry name" is a form-field
+   * label in a branding mock, not a tier.
+   */
+  it('the exempt mock never names a tier beside a price', () => {
+    const mock = codeOf(join(SRC, 'components/FeatureMock.tsx'));
+    for (const tier of plans.map((p) => p.name)) {
+      // A tier name within ~40 characters of a dollar figure, either order.
+      const nearPrice = new RegExp(`(${tier}[\\s\\S]{0,40}\\$\\d|\\$\\d[\\s\\S]{0,40}${tier})`);
+      expect(mock, `FeatureMock puts "${tier}" beside a price — that is a plan claim, not a mock`)
+        .not.toMatch(nearPrice);
+    }
   });
 });
 

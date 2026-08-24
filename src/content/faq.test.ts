@@ -100,14 +100,17 @@ describe('the prices and limits quoted in the FAQ', () => {
 
   it('describes each discount in the wording the prices permit', () => {
     // 🔴 The sentence carries `discountClaim`, which decides FROM THE PRICES
-    // whether a percentage may be stated flat or has to say "up to". Quarterly
-    // is flat (worst tier saves 15.4% against 15%); yearly is "up to" (worst
-    // tier saves 29.70% against 30%). Asserting the rendered prose is what
-    // stops a copy edit quietly turning the hedge back into a flat claim.
+    // whether a percentage may be stated flat or has to say "up to". Both terms
+    // are flat as of THE-222: quarterly's worst tier saves 17.08% against an
+    // advertised 15%, and yearly's worst saves 31.25% against 30%. Asserting the
+    // RENDERED prose is what proves the hedge actually left the page — the
+    // sentence is built from `discountClaim`, so it moved without a copy edit.
     expect(body).toContain(discountClaim('quarterly'));
     expect(body.toLowerCase()).toContain(discountClaim('yearly').toLowerCase());
-    expect(discountClaim('yearly')).toBe('Save up to 30%');
-    expect(body.toLowerCase()).not.toMatch(/\bsave 30%/);
+    expect(discountClaim('yearly')).toBe('Save 30%');
+    expect(body.toLowerCase()).toMatch(/\bsave 30%/);
+    // 🔴 And the qualifier is GONE from the page, not merely unused in code.
+    expect(body.toLowerCase()).not.toContain('up to 30%');
     // The old 9-of-12 sentence must not survive: there is no such multiplier.
     expect(body.toLowerCase()).not.toContain('nine months of the monthly rate');
   });
@@ -165,7 +168,7 @@ describe('what the FAQ must not claim', () => {
      extra campuses — are priced and agreed but NOT BUILT. Naming one on the page
      a buyer reads before paying would sell a product nobody can buy. Mirrors the
      list in content/legal.test.ts, because the hazard is identical. */
-  const ADD_ON_PATTERNS: [string, RegExp][] = [
+  const ALL_ADD_ON_PATTERNS: [string, RegExp][] = [
     ['an add-on', /add-?ons?\b/i],
     ['unlimited anything', /\bunlimited\b/i],
     ['extra seats', /\b(extra|additional|per-)\s?(seat|seats)\b/i],
@@ -175,6 +178,34 @@ describe('what the FAQ must not claim', () => {
     ['the unlimited-contacts price', /\$59(?![\d,])/],
     ['the extra-seat price', /\$10(?![\d,])/],
   ];
+
+  /* 🔴 THE-222 BROKE ONE OF THESE PATTERNS, and dropping it is the fix.
+   *
+   * The four PRICE patterns above assume an add-on's price is a figure this
+   * page has no other reason to print. That held while the cheapest plan was
+   * $39. THE-222 puts Individual at $20 a month — the same figure as the
+   * Contacts +500 add-on — so `/\$20/` now fires on the FAQ's own, correct,
+   * required statement of what the Individual plan costs. Kept, it would fail
+   * the build on the page being right.
+   *
+   * ⚠️ THE CONCEPT IS STILL GUARDED. `$20` was never the load-bearing half of
+   * this check — the four WORD patterns are: an answer that sold extra contacts
+   * would have to say "add-on", "unlimited", "extra seats" or "campus" to sell
+   * anything at all, and those still fire. What is dropped is a numeric
+   * coincidence that can no longer tell a plan price from an add-on price.
+   *
+   * Derived from the plan table rather than deleted by hand, so if a future
+   * reprice moves Individual off $20 the pattern comes back on its own — and if
+   * one lands on $19, $59 or $10, that pattern drops in turn.
+   */
+  const PLAN_PRICE_FIGURES = new Set(
+    plans.flatMap((p) => [p.price.monthly, p.price.quarterly, p.price.yearly].map(String)),
+  );
+  const collidesWithAPlanPrice = ([, re]: [string, RegExp]) => {
+    const figure = re.source.match(/\\\$(\d+)/)?.[1];
+    return figure !== undefined && PLAN_PRICE_FIGURES.has(figure);
+  };
+  const ADD_ON_PATTERNS = ALL_ADD_ON_PATTERNS.filter((entry) => !collidesWithAPlanPrice(entry));
 
   /* The trial is whatever the live Dodo products run, which is 14 days — set as
      DODO_TRIAL_DAYS in the app's src/lib/dodo/catalogue.ts, with nothing in the
