@@ -5,7 +5,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
   ADD_ON_BILLED_MONTHS, ADD_ONS, AddOnCard, AddOns, addOnAvailability, addOnPricingContract,
-  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, PlanCard, Pricing, plans, type AddOn,
+  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, DODO_ADD_ON_CATALOG, dodoAddOnCatalogContract,
+  planPriceContract, PlanCard, Pricing, plans, type AddOn,
   TERM_MONTHS, termMonthlyEquivalent,
 } from './Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
@@ -86,16 +87,34 @@ describe('add-on annual pricing', () => {
   it('no add-on price passes through annualMonthly', () => {
     // A PLAN discount applied to an add-on, on either term and in either
     // direction: 15% or 30% off the monthly figure, and the same off the yearly
-    // one. None of them may appear anywhere in the rendered section.
-    const shown = dollars(addOnsHtml(true)).concat(dollars(addOnsHtml(false)));
+    // one.
+    //
+    // 🔴 CHECKED PER CARD, NOT ACROSS THE SECTION, SINCE THE-223 — and the
+    // reason is the ticket's own warning about attributing a figure by string
+    // match. Campus is $12, and 15% off $12 rounds to $10, which is the Admin
+    // seat's real price. A section-wide sweep therefore fails on a correct
+    // Admin seat card because a DIFFERENT add-on's discounted figure happens to
+    // collide with it — the test would be reporting the wrong product. The
+    // hazard was always "this card shows a discounted version of ITS OWN
+    // price", so that is what is asserted, on the card where it would appear.
     for (const a of ADD_ONS) {
+      const own = dollars(cardHtml(a));
       for (const pct of Object.values(ADVERTISED_DISCOUNT_PCT)) {
         for (const base of [a.monthly, a.annual]) {
           const wrong = Math.round(base * (1 - pct / 100));
-          expect(shown, `${a.name}: $${wrong} is a ${pct}% plan discount applied to an add-on`)
+          if (wrong === a.monthly || wrong === a.annual) continue;
+          expect(own, `${a.name}: $${wrong} is a ${pct}% plan discount applied to an add-on`)
             .not.toContain(wrong);
         }
       }
+    }
+    // And the section as a whole prints NOTHING but the legitimate figures, so
+    // a discounted figure still cannot hide in it — this is the check the sweep
+    // above was really making, stated in a way a collision cannot confuse.
+    const legitimate = new Set(ADD_ONS.flatMap((a) => [a.monthly, a.annual]));
+    for (const shown of dollars(addOnsHtml(true)).concat(dollars(addOnsHtml(false)))) {
+      expect(legitimate, `the add-on section prints $${shown}, which is no add-on's price`)
+        .toContain(shown);
     }
     // And the helper is never CALLED from the add-on code — the section renders
     // its figures straight from ADD_ONS. Comments and error strings may name it,
@@ -190,28 +209,73 @@ describe('where an add-on can be bought', () => {
 });
 
 describe('Campus', () => {
-  it('Campus is not presented as purchasable', () => {
-    // The two LIVE Dodo add-on ids for Campus were never recorded, so the app
-    // refuses a live Campus purchase — advertising it, at any price or with any
-    // "soon" label, is a claim the product cannot honour. It is omitted from
-    // this page entirely, which is the same decision MULTI_CAMPUS_ENABLED
-    // already encodes for every other campus surface on the site.
-    expect(MULTI_CAMPUS_ENABLED).toBe(false);
-    expect(ADD_ONS.map((a) => a.name).join(' ')).not.toMatch(/campus/i);
+  /* 🔴 THIS BLOCK IS INVERTED, AND THE INVERSION IS THE POINT.
+   *
+   * It used to assert Campus was NOT purchasable, because the two live Dodo
+   * add-on ids had never been recorded and the app refused the purchase. Both
+   * ids exist now (Harvest-agent DODO_LIVE_ADDONS, PR 328), every live plan
+   * product carries the period-matched Campus add-on, and the app raises
+   * `maxChurches` by one per campus owned. The reason for the omission is gone,
+   * so the omission is the defect — a church could buy a campus and had no way
+   * to find out what one costs.
+   *
+   * ⚠️ The old assertions banned `$15` and `$180` from this file "as Campus's
+   * price". Live Dodo says those are CONTACTS +500, and Campus is $12/$144 —
+   * the ban was pinning a figure nobody had checked against the products. That
+   * is the whole THE-223 lesson in one assertion, and it is why what replaces
+   * it reads the catalogue instead of a remembered number. */
+  it('Campus is advertised', () => {
+    const campus = ADD_ONS.find((a) => a.name === 'Campus');
+    expect(campus, 'Campus is not in ADD_ONS').toBeDefined();
+    expect(campus!.monthly).toBe(DODO_ADD_ON_CATALOG.Campus.monthlyCents / 100);
+    expect(campus!.annual).toBe(DODO_ADD_ON_CATALOG.Campus.annualCents / 100);
+    // On the rendered page, not merely in the data.
     for (const markup of [pageHtml(), addOnsHtml(true), addOnsHtml(false)]) {
-      expect(words(markup)).not.toMatch(/campus/i);
+      expect(words(markup)).toMatch(/campus/i);
     }
-    // Nor its price, in either form, anywhere in this file.
-    expect(PRICING_SRC).not.toMatch(/\$\s*15\b/);
-    expect(PRICING_SRC).not.toMatch(/\$\s*180\b/);
+    const read = words(cardHtml(campus!));
+    expect(dollars(cardHtml(campus!))).toEqual([campus!.monthly, campus!.annual]);
+    // Sold on every paid plan — all three live products carry it.
+    expect(campus!.planIds).toEqual(['plus', 'pro', 'max']);
+    expect(read).toContain('Available on every paid plan');
+  });
+
+  it('the Campus card does not imply a tier includes more than one campus', () => {
+    // 🔴 `maxChurches` is 1 on every paid tier in the app's matrix and this
+    // add-on is the ONLY path past it, one campus per purchase. A card that
+    // read "run every campus from one plan" — the feature page's line — would
+    // make a tier claim this ladder does not support.
+    const read = words(cardHtml(ADD_ONS.find((a) => a.name === 'Campus')!));
+    expect(read).toContain('One more campus');
+    expect(read).toContain('Your plan includes one');
+    expect(read).not.toMatch(/every campus|all your campuses|unlimited campuses|multi-campus/i);
+    // And it is stated as capacity, not as a feature the tier switches on.
+    expect(read).not.toMatch(/\bincluded (in|on|with) (your|the) plan\b/i);
+  });
+
+  it('the multi-campus FEATURE marketing stays behind its flag', () => {
+    // The add-on being buyable did not un-hide the feature-page section or the
+    // catalogue's Multi-Campus tool entry. Those are a separate decision, and
+    // flipping the flag would also move CATALOG_TOOL_COUNT off its derived 28.
+    expect(MULTI_CAMPUS_ENABLED).toBe(false);
+    expect(CATALOG.flatMap((g) => g.items.map((i) => i.title))).not.toContain('Multi-Campus');
+    expect(CATALOG_TOOL_COUNT).toBe(28);
   });
 });
 
 describe('one source for an add-on price', () => {
   it('no add-on price literal appears outside the single constant', () => {
-    // #56 fixed three disconnected $49 literals. Every add-on figure lives in
-    // ADD_ONS and nowhere else — not in copy, not in a second table, not in the
-    // contract's expectations (the contract checks a relation, not a literal).
+    // #56 fixed three disconnected $49 literals. Every add-on figure a VISITOR
+    // READS lives in ADD_ONS and nowhere else — not in copy, not in the ×12
+    // contract's expectations (that one checks a relation, not a literal).
+    //
+    // ⚠️ THE-223 ADDED A SECOND TABLE ON PURPOSE, and it is not an exception to
+    // this rule — it is the same mechanism EXPECTED_PLAN_PRICES is half of, one
+    // level down. DODO_ADD_ON_CATALOG holds Dodo's own figures in Dodo's own
+    // unit (minor units, `price: 2000`), so it is not a second copy of a
+    // DOLLAR price and cannot be rendered by anything: the assertion below
+    // still sweeps for `$N` and still finds nothing. Two independently-written
+    // copies that must agree is the guard; one copy would be a comment.
     expect(ADD_ONS_BLOCK, 'the ADD_ONS literal could not be located').toBeDefined();
     const rest = publishable(PRICING_SRC.replace(ADD_ONS_BLOCK!, ''));
     for (const a of ADD_ONS) {

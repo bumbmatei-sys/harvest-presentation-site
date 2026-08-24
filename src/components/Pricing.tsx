@@ -677,29 +677,114 @@ export interface AddOn {
   planIds: string[];
 }
 
-/* THE ONE PLACE AN ADD-ON PRICE IS WRITTEN. Both figures for every add-on live
-   here and nothing else on this site may restate one — #56 fixed three
-   disconnected $49 literals and this is the add-on equivalent waiting to happen.
-   The section below renders these fields; no copy quotes a price.
+/* ─── 🔴 THE DODO ADD-ON CONTRACT (THE-223) ───────────────────────────────────
 
-   ⚠️ CAMPUS IS DELIBERATELY ABSENT. A second campus is priced and live in Dodo
-   in principle, but the two LIVE Dodo add-on ids for it were never recorded, so
-   the app refuses a live Campus purchase (pinned by a test in REP-5b).
-   Advertising it — even as a price with a "soon" label — is a claim the product
-   cannot honour, and it is the same surface `MULTI_CAMPUS_ENABLED` (lib/flags.ts)
-   exists to keep hidden. It is omitted entirely rather than listed as coming
-   soon: this section's whole subject is what you can buy, and a row inside it is
-   read as buyable whatever the label says. Add it when the live ids exist and
-   the flag flips, in the same change. */
+   WHY THIS EXISTS. The nine PLAN prices are pinned three times over — the
+   cross-repo contract above, TIER_PRICE_CLAIMS in content/legal.ts and
+   FAQ_PLAN_CLAIMS in content/faq.ts — and those guards are what FOUND the two
+   unknown price locations in THE-222, by failing the build. Add-ons had no
+   guard at all, and the consequence is exactly what an unguarded price does:
+   four of the five figures below drifted away from Dodo across three
+   repricings and nobody noticed, including one that advertised $19 while Dodo
+   charged $20. An advertised price BELOW the charged one is not staleness; it
+   is a promise the checkout breaks.
+
+   WHAT IS PINNED, AND WHY IT IS NOT CIRCULAR. Dodo is the source of truth and
+   this site cannot call it at build time, so the prices are transcribed. What
+   makes a transcription checkable rather than a second opinion is the ID: each
+   figure below names the exact Dodo product it was read off, so re-verifying is
+   a lookup, not a judgement call.
+
+   ⚠️ THE APP HOLDS THE IDS AND DELIBERATELY HOLDS NO PRICES. Harvest-agent
+   src/lib/dodo/catalogue.ts DODO_LIVE_ADDONS carries these same ten ids — so the
+   id half of this table is a genuine cross-repo pin, the same mechanism as
+   EXPECTED_PLAN_PRICES. The price half cannot be: the app reads add-on prices
+   live from Dodo at runtime ("named and priced by Dodo, never by code" —
+   utils/addon-change.ts) and its only add-on figures are a ban-list and test
+   fixtures. So there is nothing in the app to pin a price against, and the
+   transcription below is the site's own, dated and attributed.
+
+   CENTS, NOT DOLLARS, because that is the unit Dodo's API returns (`price:
+   2000`). Transcribing the API's own value keeps the check a comparison rather
+   than a conversion someone has to trust.
+
+   READ 2026-08-24 from the authenticated live API: `client.addons.list()` for
+   the ten products below, and `client.products.retrieve()` on all nine plan
+   products for the attachment matrix that `planIds` states. Re-read both when
+   this table is next touched. */
+export interface DodoAddOnProduct {
+  /** Live Dodo `addon_id` for the monthly product. */
+  readonly monthlyId: string;
+  /** Live Dodo `addon_id` for the annual product. */
+  readonly annualId: string;
+  /** `price` exactly as Dodo's API returns it: USD minor units. */
+  readonly monthlyCents: number;
+  readonly annualCents: number;
+}
+
+/* Keyed by the add-on's rendered `name`, so a rename cannot quietly detach a
+   card from the product it is priced against — it fails here instead. Order
+   matches the app's DODO_LIVE_ADDONS table. */
+export const DODO_ADD_ON_CATALOG: Record<string, DodoAddOnProduct> = {
+  'AI Assistant': {
+    monthlyId: 'adn_0NlKtuImtSn7PcdvjnSni', annualId: 'adn_0NlKtw3IOHfv1GGCevNol',
+    monthlyCents: 2000, annualCents: 24000,
+  },
+  'Admin seat': {
+    monthlyId: 'adn_0NlKtw7AayNYI6YYwphQ5', annualId: 'adn_0NlKtw9lWLs0VRN9hWciX',
+    monthlyCents: 1000, annualCents: 12000,
+  },
+  Campus: {
+    monthlyId: 'adn_0NlKwDcuqIWoVK7Qay13L', annualId: 'adn_0NlKwDgKMpuqzR5VmlCBD',
+    monthlyCents: 1200, annualCents: 14400,
+  },
+  'Contacts +500': {
+    monthlyId: 'adn_0NlKtwD3VfBLgx2LTw69O', annualId: 'adn_0NlKtwGbLRk2nPC07uC6o',
+    monthlyCents: 1500, annualCents: 18000,
+  },
+  'Unlimited contacts': {
+    monthlyId: 'adn_0NlKtwKAhJgz0jeaqDX2c', annualId: 'adn_0NlKtwMjMlsjzZ8z2Wt7P',
+    monthlyCents: 4000, annualCents: 48000,
+  },
+};
+
+/* THE ONE PLACE AN ADD-ON PRICE IS WRITTEN AS A FIGURE A VISITOR READS. Both
+   figures for every add-on live here and nothing else on this site may restate
+   one — #56 fixed three disconnected $49 literals and this is the add-on
+   equivalent waiting to happen. The section below renders these fields; no copy
+   quotes a price. `DODO_ADD_ON_CATALOG` above is the other copy, in Dodo's
+   units, and the two disagreeing is a build failure — that is the mechanism,
+   the same one EXPECTED_PLAN_PRICES is half of.
+
+   ⚠️ CAMPUS WAS ABSENT FROM #58 UNTIL NOW, and the reason it was absent is
+   gone. It was omitted because the two live Dodo add-on ids had never been
+   recorded, so the app refused a live Campus purchase. Both ids exist now
+   (Harvest-agent DODO_LIVE_ADDONS, recorded in PR 328), all nine live plan
+   products carry the period-matched Campus add-on, and getEffectiveFeatures
+   raises `maxChurches` by one per campus owned. It is buyable on every paid
+   plan, so it is advertised.
+
+   🔴 `MULTI_CAMPUS_ENABLED` STAYS FALSE, and that is not a contradiction. That
+   flag gates the multi-campus FEATURE marketing — the features.ts section and
+   the catalogue's Multi-Campus tool entry — not this add-on. Flipping it would
+   add a tool to CATALOG_TOOL_COUNT, which is a derived 28 and not this
+   change's to move. What is advertised here is the capacity a church can buy
+   today, which is what this section is for. */
 export const ADD_ONS: AddOn[] = [
   // Unlike every other row below, this is a whole-plan toggle, not a per-unit
   // capacity raise: one purchase turns the AI assistant on in the app for
   // every member on the plan. It is not sold per person and no member ever
   // needs their own seat.
-  { name: 'AI Assistant', monthly: 19, annual: 228, blurb: 'Turns on the AI assistant for every member of your congregation, in the app — one purchase for the whole plan, not billed per person.', planIds: ['plus', 'pro', 'max'] },
+  { name: 'AI Assistant', monthly: 20, annual: 240, blurb: 'Turns on the AI assistant for every member of your congregation, in the app — one purchase for the whole plan, not billed per person.', planIds: ['plus', 'pro', 'max'] },
   { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
-  { name: 'Contacts +500', monthly: 20, annual: 240, blurb: '500 more contacts, on top of your plan’s limit.', planIds: ['pro', 'max'] },
-  { name: 'Unlimited contacts', monthly: 59, annual: 708, blurb: 'No contact limit at all.', planIds: ['max'] },
+  /* ⚠️ THE BLURB MAY NOT IMPLY A TIER INCLUDES MORE THAN ONE CAMPUS. Every
+     paid tier is `maxChurches: 1` in the app's matrix and this add-on is the
+     ONLY path past that, one campus per purchase — so the sentence has to say
+     "one more", not "run every campus", which is the feature page's line for a
+     feature page's job. Attached to all three paid products in Dodo. */
+  { name: 'Campus', monthly: 12, annual: 144, blurb: 'One more campus, with its own address, service times and pastor. Your plan includes one — each additional campus is one of these.', planIds: ['plus', 'pro', 'max'] },
+  { name: 'Contacts +500', monthly: 15, annual: 180, blurb: '500 more contacts, on top of your plan’s limit.', planIds: ['pro', 'max'] },
+  { name: 'Unlimited contacts', monthly: 40, annual: 480, blurb: 'No contact limit at all.', planIds: ['max'] },
 ];
 
 /**
@@ -738,6 +823,97 @@ export function addOnPricingContract(addOns: AddOn[]): void {
 }
 
 addOnPricingContract(ADD_ONS);
+
+/**
+ * 🔴 THE GUARD THAT DID NOT EXIST — `ADD_ONS` against the live Dodo catalogue.
+ *
+ * `addOnPricingContract` above checks a RELATION (annual is twelve monthlies).
+ * A relation cannot see a price that is internally consistent and simply wrong:
+ * $19/$228 satisfies it perfectly while Dodo charges $20/$240. This checks the
+ * FIGURES, against the transcribed products they were read from.
+ *
+ * Four failures, and the third is the one that let Campus sit unadvertised
+ * through three repricings:
+ *   1. an advertised price that is not the product's price
+ *   2. an advertised add-on with no live product behind it
+ *   3. 🔴 a LIVE PRODUCT THIS SITE DOES NOT ADVERTISE — absence is a defect
+ *      here, not a default, and nothing else on this site could have said so
+ *   4. two add-ons pinned to the same product, which is how a copy-paste makes
+ *      one card quietly inherit another's price
+ *
+ * Module scope, so it fails the prerender rather than a page view; exported and
+ * defaulted, so a test can hand it a wrong catalogue and prove it has teeth.
+ * ⚠️ It reads no files and shells out to nothing — the ids are literals here
+ * and in the app, and comparing two literals is the whole mechanism.
+ */
+export function dodoAddOnCatalogContract(
+  addOns: readonly AddOn[],
+  catalog: Record<string, DodoAddOnProduct> = DODO_ADD_ON_CATALOG,
+): void {
+  const advertised = new Set(addOns.map((a) => a.name));
+  for (const name of Object.keys(catalog)) {
+    if (!advertised.has(name)) {
+      throw new Error(
+        `Pricing: Dodo sells the add-on "${name}" (${catalog[name].monthlyId}) and this site does not ` +
+        `advertise it. An add-on a church can buy but cannot find is the Campus defect THE-223 fixed — ` +
+        `add it to ADD_ONS, or remove it from DODO_ADD_ON_CATALOG if Dodo has genuinely retired it.`
+      );
+    }
+  }
+
+  const seenIds = new Map<string, string>();
+  for (const a of addOns) {
+    const product = catalog[a.name];
+    if (product === undefined) {
+      throw new Error(
+        `Pricing: add-on "${a.name}" is advertised but has no entry in DODO_ADD_ON_CATALOG, so nothing ` +
+        `says which Dodo product it is priced against. Every advertised add-on must name its products.`
+      );
+    }
+    const cells: [string, number, number][] = [
+      ['monthly', a.monthly, product.monthlyCents],
+      ['annual', a.annual, product.annualCents],
+    ];
+    for (const [term, dollars, cents] of cells) {
+      if (dollars * 100 !== cents) {
+        throw new Error(
+          `Pricing: add-on "${a.name}" advertises $${dollars} ${term}, but the live Dodo product ` +
+          `(${term === 'monthly' ? product.monthlyId : product.annualId}) charges ` +
+          `$${cents / 100} — ${cents} minor units. ` +
+          (dollars < cents / 100
+            ? `🔴 THE SITE ADVERTISES LESS THAN DODO CHARGES. That is a promise the checkout breaks.`
+            : `The advert is stale and overstates what a church would pay.`)
+        );
+      }
+    }
+    // Dodo's own two products must themselves obey the ×12 rule. A transcription
+    // that got both cells wrong in the same direction would pass every check
+    // above; this is what notices.
+    if (product.annualCents !== product.monthlyCents * ADD_ON_BILLED_MONTHS) {
+      throw new Error(
+        `Pricing: the transcribed Dodo products for "${a.name}" are ${product.monthlyCents} and ` +
+        `${product.annualCents} minor units, which is not ${ADD_ON_BILLED_MONTHS} × the monthly one. ` +
+        `Either the transcription is wrong or Dodo has started discounting an add-on annually — ` +
+        `re-read the API before changing this.`
+      );
+    }
+    for (const [term, id] of [['monthly', product.monthlyId], ['annual', product.annualId]] as const) {
+      if (!/^adn_[A-Za-z0-9]+$/.test(id)) {
+        throw new Error(`Pricing: add-on "${a.name}" has "${id}" as its ${term} Dodo id, which is not an \`adn_\` add-on id.`);
+      }
+      const owner = seenIds.get(id);
+      if (owner !== undefined) {
+        throw new Error(
+          `Pricing: add-on "${a.name}" and "${owner}" are both pinned to the Dodo product ${id}. ` +
+          `One of them is priced against the wrong product and its figure is unguarded.`
+        );
+      }
+      seenIds.set(id, a.name);
+    }
+  }
+}
+
+dodoAddOnCatalogContract(ADD_ONS);
 
 /**
  * Where an add-on can be bought, in words, derived from `plans` — never a

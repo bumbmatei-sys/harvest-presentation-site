@@ -14,6 +14,14 @@
  *  footer link, mega-menu item, feature entry and SEO copy — not ref capture. */
 export const AFFILIATE_PROGRAM_ENABLED = false;
 
-/** Additional campuses beyond the one every plan includes. Decided as a paid
- *  add-on, not built — so nothing may advertise it. */
+/** The multi-campus FEATURE MARKETING — the features.ts section and the
+ *  catalogue's Multi-Campus tool entry. Not the add-on.
+ *
+ *  ⚠️ THE-223 SPLIT THESE TWO APART, and the distinction is now load-bearing.
+ *  The Campus ADD-ON is live in Dodo, attached to all three paid products, and
+ *  is advertised on the pricing page like any other capacity a church can buy.
+ *  What stays hidden is the feature-page treatment of multi-campus, which sells
+ *  it as a capability rather than as a limit raise. Flipping this also adds a
+ *  tool to the derived CATALOG_TOOL_COUNT, so it is a decision about the
+ *  "N tools in one platform" claim as well as about campuses. */
 export const MULTI_CAMPUS_ENABLED = false;
