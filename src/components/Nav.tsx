@@ -139,16 +139,6 @@ export function Nav() {
           >
             Resources
           </Link>
-          <a
-            href="https://trello.com/b/1Uz9u1Lb/harvest-roadmap"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={linkStyle}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-800)')}
-          >
-            Roadmap
-          </a>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -281,15 +271,6 @@ export function Nav() {
           >
             Resources
           </Link>
-          <a
-            href="https://trello.com/b/1Uz9u1Lb/harvest-roadmap"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={closeMobile}
-            style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}
-          >
-            Roadmap
-          </a>
 
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(45,37,25,0.06)' }}>
             <HBtn to="/#pricing" variant="gold" block onClick={closeMobile}>{TRIAL_CTA_LABEL}</HBtn>
