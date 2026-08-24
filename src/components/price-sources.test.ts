@@ -4,7 +4,14 @@ import { join } from 'node:path';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { ADD_ONS, BILLING_TERMS, ComparisonTable, plans } from './Pricing';
+import { ADD_ONS, BILLING_TERMS, ComparisonTable, planPriceContract, plans, type BillingTerm } from './Pricing';
+
+/* The contract's expectations, DERIVED from `plans` rather than typed out a
+   fourth time. Handing it this passes; bumping one cell of it is a repo
+   disagreeing with itself, which must throw. */
+const EXPECTED_FOR_MUTATION: Record<string, Record<BillingTerm, number>> = Object.fromEntries(
+  plans.map((p) => [p.planId, { ...p.price }]),
+);
 
 /* ─── THE-195 TESTS 10 & 11 ───────────────────────────────────────────────────
  *
@@ -208,12 +215,32 @@ describe('no price literal appears outside the single source', () => {
    * of the nine are still swept.
    */
   it('excludes only the figures that genuinely collide with an add-on price', () => {
+    // 🔴 TWO COLLISIONS SINCE THE-223, where there was one. Correcting the
+    // add-ons against live Dodo moved Unlimited Contacts to $40, which is also
+    // Small Team's monthly price, so a second plan figure leaves the sweep. The
+    // hole is bigger and is therefore stated more loudly, not quietly widened:
+    // both colliding figures are named, and seven of the nine are still swept.
     expect(ALL_PRICE_DIGITS).toHaveLength(9);
-    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d))).toEqual(['20']);
-    expect(PRICE_DIGITS).toHaveLength(8);
+    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['20', '40']);
+    expect(PRICE_DIGITS).toHaveLength(7);
     expect(PRICE_DIGITS).not.toContain('20');
-    // The figure dropped is Individual's monthly price, and it is the only one.
+    expect(PRICE_DIGITS).not.toContain('40');
+    // The two dropped are Individual's and Small Team's monthly prices, and
+    // they are the only ones.
     expect(String(plans.find((p) => p.planId === 'plus')!.price.monthly)).toBe('20');
+    expect(String(plans.find((p) => p.planId === 'pro')!.price.monthly)).toBe('40');
+    // ⚠️ NEITHER IS LEFT UNGUARDED, which is the only thing that makes dropping
+    // them acceptable. Both are pinned by the cross-repo contract in
+    // Pricing.tsx, by FAQ_PLAN_CLAIMS and by TIER_PRICE_CLAIMS — three
+    // module-scope checks that name the tier and fail the prerender. What is
+    // given up is a string sweep that could not say which product it had found.
+    for (const planId of ['plus', 'pro']) {
+      const price = plans.find((p) => p.planId === planId)!.price;
+      expect(() => planPriceContract(plans, {
+        ...EXPECTED_FOR_MUTATION,
+        [planId]: { ...EXPECTED_FOR_MUTATION[planId], monthly: price.monthly + 1 },
+      })).toThrow(/monthly/);
+    }
   });
 
   /**

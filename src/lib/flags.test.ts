@@ -105,9 +105,11 @@ describe('MULTI_CAMPUS_ENABLED', () => {
 /* Everything above mocks the flags, so it verifies both settings work and is
    silent about which one ships. That silence is the gap: flipping a flag is a
    one-line edit with no diff anywhere near the surfaces it reveals.
-   MULTI_CAMPUS in particular gates something flags.ts records as "decided as a
-   paid add-on, not built" — advertising it is a claim about a product that does
-   not exist, which is the same class of error as a wrong price.
+   MULTI_CAMPUS in particular gates the multi-campus FEATURE marketing. Since
+   THE-223 that is no longer the same thing as the Campus add-on, which is live
+   in Dodo and IS advertised, on the pricing page where a buyable capacity
+   belongs. Flipping this flag publishes a feature-page section and a catalogue
+   tool entry, and moves CATALOG_TOOL_COUNT off its derived 28.
 
    So the shipped values are pinned. This is a tripwire, not a change-detector:
    these literals are the same idiom as EXPECTED_ANNUAL_MONTHLY in Pricing.tsx —
@@ -121,7 +123,11 @@ describe('the values this site actually ships', () => {
       .not.toContain('Affiliate Program');
   });
 
-  it('leaves multi-campus unadvertised, because it is not built', () => {
+  it('leaves the multi-campus feature section and tool entry unpublished', () => {
+    // ⚠️ NOT "unadvertised" any more, and the distinction is the THE-223 one:
+    // the Campus ADD-ON is advertised in Pricing.tsx's ADD_ONS at its live Dodo
+    // price. What these assertions hold shut is the feature-page treatment and
+    // the tool-catalogue entry, which are a separate decision.
     expect(MULTI_CAMPUS_ENABLED).toBe(false);
     expect((CATALOG as CatalogGroup[]).flatMap((g) => g.items.map((i) => i.title)))
       .not.toContain('Multi-Campus');

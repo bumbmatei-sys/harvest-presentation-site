@@ -109,11 +109,21 @@ describe('the add-on prices are unchanged, and annual is still ×12', () => {
   it('the listed add-ons are byte-for-byte what they were before THE-222', () => {
     // A reprice of the PLANS may not move an add-on. Written out so a silent
     // edit to the list fails here rather than on the pricing page.
+    //
+    // 🔴 THE-223 MOVED THEM DELIBERATELY, and this pin moves with it rather
+    // than being deleted. THE-222 left add-ons alone and this test proved it;
+    // what it could never prove is that the figures it was pinning were RIGHT.
+    // Four of them were not — the site had drifted from live Dodo, including
+    // AI Assistant at $19 against a $20 charge — and no test on this site
+    // compared them to anything outside itself. These are the live Dodo
+    // figures, and `dodoAddOnCatalogContract` is now what checks them; this
+    // stays as the no-regression pin it always was.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual }))).toEqual([
-      { name: 'AI Assistant', monthly: 19, annual: 228 },
+      { name: 'AI Assistant', monthly: 20, annual: 240 },
       { name: 'Admin seat', monthly: 10, annual: 120 },
-      { name: 'Contacts +500', monthly: 20, annual: 240 },
-      { name: 'Unlimited contacts', monthly: 59, annual: 708 },
+      { name: 'Campus', monthly: 12, annual: 144 },
+      { name: 'Contacts +500', monthly: 15, annual: 180 },
+      { name: 'Unlimited contacts', monthly: 40, annual: 480 },
     ]);
   });
 

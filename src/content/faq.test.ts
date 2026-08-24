@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ADVERTISED_DISCOUNT_PCT, discountClaim, plans } from '../components/Pricing';
+import { ADD_ONS, ADVERTISED_DISCOUNT_PCT, discountClaim, plans } from '../components/Pricing';
 import { TRIAL_LENGTH_DAYS } from './legal';
 import {
   FAQS,
@@ -165,18 +165,29 @@ describe('the donation-fee answer', () => {
 
 describe('what the FAQ must not claim', () => {
   /* Add-ons — AI, extra contacts, unlimited contacts, extra admin accounts and
-     extra campuses — are priced and agreed but NOT BUILT. Naming one on the page
-     a buyer reads before paying would sell a product nobody can buy. Mirrors the
-     list in content/legal.test.ts, because the hazard is identical. */
+     extra campuses — are bought inside the app once a plan is active, and the
+     pricing page is the one surface that advertises them. Quoting one here,
+     on the page a buyer reads immediately before paying, would put a second
+     price for the same product in front of them with nothing keeping the two in
+     step. Mirrors the list in content/legal.test.ts, because the hazard is
+     identical. */
+  /* 🔴 THE PRICE PATTERNS ARE DERIVED FROM `ADD_ONS` SINCE THE-223, not listed.
+   *
+   * They used to be four literals — $19, $20, $59, $10 — and THE-223 is what
+   * showed why that could not hold: the site's add-on prices had drifted from
+   * live Dodo, so this list was banning $19 and $59, which are now no add-on's
+   * price, while saying nothing about $12 (Campus) or $15 (Contacts +500),
+   * which are. A ban list that names yesterday's figures guards yesterday's
+   * page. Reading the live table means a reprice moves this guard with it. */
   const ALL_ADD_ON_PATTERNS: [string, RegExp][] = [
     ['an add-on', /add-?ons?\b/i],
     ['unlimited anything', /\bunlimited\b/i],
     ['extra seats', /\b(extra|additional|per-)\s?(seat|seats)\b/i],
     ['campuses', /\bcampus(es)?\b/i],
-    ['the AI add-on price', /\$19(?![\d,])/],
-    ['the extra-contacts price', /\$20(?![\d,])/],
-    ['the unlimited-contacts price', /\$59(?![\d,])/],
-    ['the extra-seat price', /\$10(?![\d,])/],
+    ...ADD_ONS.flatMap(({ name, monthly, annual }): [string, RegExp][] => [
+      [`the ${name} monthly price`, new RegExp(`\\$${monthly}(?![\\d,])`)],
+      [`the ${name} annual price`, new RegExp(`\\$${annual}(?![\\d,])`)],
+    ]),
   ];
 
   /* 🔴 THE-222 BROKE ONE OF THESE PATTERNS, and dropping it is the fix.

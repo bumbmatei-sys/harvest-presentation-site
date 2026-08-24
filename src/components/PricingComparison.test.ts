@@ -304,12 +304,17 @@ describe('what this change must not have touched', () => {
     // that keeps a discount badge from reading as if it applied to these prices
     // too. 🔴 ADD_ON_BILLED_MONTHS stays 12 — quarterly did not add a column,
     // because a quarterly product carries the MONTHLY add-on ids.
+    // 🔴 THE-223 corrected all five figures against live Dodo and added Campus,
+    // which the section had never listed. The three-term change this test was
+    // written for still did not touch them — that is what it guards — so the
+    // pin is restated at the corrected values rather than dropped.
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
-      ['AI Assistant', 19, 228],
+      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
-      ['Contacts +500', 20, 240],
-      ['Unlimited contacts', 59, 708],
+      ['Campus', 12, 144],
+      ['Contacts +500', 15, 180],
+      ['Unlimited contacts', 40, 480],
     ]);
     expect(() => addOnPricingContract(ADD_ONS)).not.toThrow();
     const discounted: AddOn = { ...ADD_ONS[0], annual: Math.round(ADD_ONS[0].annual * 0.7) };

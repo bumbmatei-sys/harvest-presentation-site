@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { CATALOG_TOOL_COUNT } from '../components/catalog';
-import { plans } from '../components/Pricing';
+import { ADD_ONS, plans } from '../components/Pricing';
 import {
   LEGAL_DOCS,
   LEGAL_UPDATED,
@@ -121,18 +121,26 @@ describe('the third-party processing statement', () => {
 
 describe('what the policies must not claim', () => {
   /* Add-ons — AI, extra contacts, unlimited contacts, extra seats and extra
-     campuses — are priced and agreed but NOT BUILT. Marketing copy naming an
-     unsold product is a mistake; a policy naming one is a written promise about
-     something nobody can buy. */
+     campuses — are sold in the app, not from the website, and the pricing page
+     is the one surface that advertises them. A policy is a written commitment,
+     so naming a purchasable extra here would bind Harvest to terms nobody
+     drafted for it; naming an unsold one would promise a product that does not
+     exist. Neither belongs in a policy, which is why the ban is on the subject
+     and not on whether it happens to be buyable this month. */
+  /* 🔴 DERIVED FROM `ADD_ONS` SINCE THE-223, for the reason content/faq.test.ts
+     gives at the same spot: four hard-coded figures were banning $19 and $59,
+     which no add-on costs any more, and were silent about $12 and $15, which
+     two of them do. A policy naming an add-on price is the hazard; which
+     figures those are is not this file's to remember. */
   const ALL_ADD_ON_PATTERNS: [string, RegExp][] = [
     ['an add-on', /add-?ons?\b/i],
     ['unlimited anything', /\bunlimited\b/i],
     ['extra seats', /\b(extra|additional|per-)\s?(seat|seats)\b/i],
     ['campuses', /\bcampus(es)?\b/i],
-    ['the AI add-on price', /\$19(?![\d,])/],
-    ['the extra-contacts price', /\$20(?![\d,])/],
-    ['the unlimited-contacts price', /\$59(?![\d,])/],
-    ['the extra-seat price', /\$10(?![\d,])/],
+    ...ADD_ONS.flatMap(({ name, monthly, annual }): [string, RegExp][] => [
+      [`the ${name} monthly price`, new RegExp(`\\$${monthly}(?![\\d,])`)],
+      [`the ${name} annual price`, new RegExp(`\\$${annual}(?![\\d,])`)],
+    ]),
   ];
 
   /* 🔴 THE-222 BROKE ONE OF THESE PATTERNS, and dropping it is the fix — the

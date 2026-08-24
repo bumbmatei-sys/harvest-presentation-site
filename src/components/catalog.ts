@@ -77,9 +77,12 @@ export const CATALOG: CatalogGroup[] = [
       item('smartphone', 'Mobile App (PWA)', 'Installable on iOS & Android — no app store required.'),
       item('layout-dashboard', 'Admin Dashboard', 'Full control over members, content, branding and analytics.'),
       item('palette', 'Custom Branding & Domain', 'White-label everything — your brand, your domain, your platform.'),
-      // Hidden add-on — see the ⚠️ note on the `churches` feature entry. Every
-      // plan includes one campus; extras are $20/mo each and are not built yet.
-      ...(MULTI_CAMPUS_ENABLED ? [item('building-2', 'Multi-Campus', 'Run every campus from one plan — one included, $20/mo for each one after.')] : []),
+      // Hidden FEATURE entry — see the ⚠️ note on the `churches` feature entry.
+      // The add-on itself is live and is advertised in Pricing.tsx's ADD_ONS at
+      // its real Dodo price; this entry is the tool-catalogue treatment, which
+      // stays behind the flag. THE-223 corrected the figure here from $20 to
+      // $12: it was a Campus price nothing rendered and nothing checked.
+      ...(MULTI_CAMPUS_ENABLED ? [item('building-2', 'Multi-Campus', 'Run every campus from one plan — one included, $12/mo for each one after.')] : []),
       item('chart-column', 'Evangelism Analytics', 'Track engagement, growth and impact with real data.'),
     ],
   },

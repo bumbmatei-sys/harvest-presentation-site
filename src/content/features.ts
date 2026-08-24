@@ -441,13 +441,22 @@ const ALL_CATEGORIES: Category[] = [
         adminLabel: 'Make it yours', memberLabel: 'What people see',
         crosslinks: [{ label: 'Mobile App', href: '/features/platform-brand#pwa' }, { label: 'Multi-Campus', href: '/features/platform-brand#churches' }],
       },
-      /* ⚠️ Hidden behind MULTI_CAMPUS_ENABLED, and it must stay hidden.
-         Additional campuses are a DECIDED but UNBUILT paid add-on ($20/campus/mo
-         on top of any plan; every plan already includes one). The copy below is
-         corrected so it is accurate the day the add-on exists — it is not
-         permission to render it. Do not flip the flag until the add-on billing
-         actually ships; Harvest has shipped four claims about features that did
-         not exist and this must not be the fifth.
+      /* ⚠️ Hidden behind MULTI_CAMPUS_ENABLED, and it stays hidden — but the
+         reason has changed, so read this before assuming the old one.
+
+         The add-on itself SHIPPED. Campus is live in Dodo at $12/campus/mo,
+         attached to all three paid products, and THE-223 advertises it in
+         Pricing.tsx's ADD_ONS where a buyable capacity belongs. What is still
+         hidden is THIS: the feature-page treatment, which sells multi-campus as
+         a capability rather than as the limit raise it is. Flipping the flag is
+         now a marketing decision (and a CATALOG_TOOL_COUNT one), not a wait for
+         billing.
+
+         🔴 THE FIGURES BELOW WERE $20 AND WERE WRONG — a Campus price nothing
+         rendered, nothing checked, and nobody could see. THE-223 corrected them
+         to the live $12 and pinned the arithmetic to ADD_ONS in
+         the-197-stale-prices.test.ts, so this copy cannot drift again while it
+         waits behind the flag.
 
          `tiers` is [0,0,0] deliberately: this is an add-on, not an entitlement
          of any plan, so no plan chip is truthful. Whoever un-hides this has to
@@ -456,11 +465,11 @@ const ALL_CATEGORIES: Category[] = [
       {
         id: 'churches', name: 'Multi-Campus', n: '5',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 0],
-        eyebrow: '$20 a campus — the whole pricing page',
+        eyebrow: '$12 a campus — the whole pricing page',
         title: 'Every campus on one platform.',
-        oneliner: 'Every paid plan includes one campus. Add more — each with its own address, service times and pastor — at a flat $20/month per campus, confirmed before you’re ever charged.',
-        moment: 'A planting network with 12 campuses knows their bill is $80 + $220 before they talk to anyone: one campus is in the plan, the other eleven are $20 each. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
-        admin: ['One campus on every paid plan; add more whenever you need them', 'Add locations with Google address autocomplete', 'Flat $20/mo each, added to your existing subscription', 'An explicit confirm dialog names the price first', 'Filter the roster by city, pastor or country'],
+        oneliner: 'Every paid plan includes one campus. Add more — each with its own address, service times and pastor — at a flat $12/month per campus, confirmed before you’re ever charged.',
+        moment: 'A planting network with 12 campuses knows their bill is $80 + $132 before they talk to anyone: one campus is in the plan, the other eleven are $12 each. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
+        admin: ['One campus on every paid plan; add more whenever you need them', 'Add locations with Google address autocomplete', 'Flat $12/mo each, added to your existing subscription', 'An explicit confirm dialog names the price first', 'Filter the roster by city, pastor or country'],
         member: ['Every campus on the member map, sorted by distance', 'Its own service times, pastor & contact', 'One-tap directions to the nearest one', 'One tenant, one member list & CRM across campuses'],
         adminLabel: 'For admins', memberLabel: 'For members',
         crosslinks: [{ label: 'Church Map', href: '/features/community-engagement#map' }, { label: 'Admin Dashboard', href: '/features/platform-brand#dashboard' }],

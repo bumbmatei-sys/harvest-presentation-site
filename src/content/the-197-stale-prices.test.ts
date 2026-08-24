@@ -172,11 +172,22 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
   });
 
   it('the multi-campus arithmetic uses the real Ministry monthly price and resolves cleanly', () => {
-    // First campus is included in the plan; 11 more at the stated flat $20/mo
-    // each is $220 — unchanged, since that add-on price never moved. Hidden
-    // behind MULTI_CAMPUS_ENABLED, so read straight from source (see above).
-    expect(FEATURES_SRC).toContain(`bill is $${ministry.price.monthly} + $220`);
-    expect(11 * 20).toBe(220);
+    // First campus is included in the plan; 11 more at the flat Campus add-on
+    // price. Hidden behind MULTI_CAMPUS_ENABLED, so read straight from source
+    // (see above) — nothing renders it, which is exactly why it went stale.
+    //
+    // 🔴 DERIVED FROM `ADD_ONS`, NOT FROM A LITERAL, AND THAT IS THE THE-223
+    // FIX. This test used to assert `11 * 20 === 220` — arithmetic that is
+    // internally perfect and was checking the wrong price, because $20 was
+    // never what Dodo charged for a campus. Reading the figure from the add-on
+    // table means a reprice fails here instead of leaving a sentence behind the
+    // flag that quotes a price no product has.
+    const campus = ADD_ONS.find((a) => a.name === 'Campus');
+    expect(campus, 'no Campus add-on to price the arithmetic from').toBeDefined();
+    const elevenMore = 11 * campus!.monthly;
+    expect(FEATURES_SRC).toContain(`bill is $${ministry.price.monthly} + $${elevenMore}`);
+    expect(FEATURES_SRC).toContain(`the other eleven are $${campus!.monthly} each`);
+    expect(FEATURES_SRC).toContain(`Flat $${campus!.monthly}/mo each`);
   });
 
   it('the affiliate arithmetic uses the real Ministry monthly price and totals correctly', () => {
@@ -213,11 +224,18 @@ describe('THE-197 — no price data changed', () => {
   });
 
   it('ADD_ONS and ADD_ON_BILLED_MONTHS are untouched', () => {
+    // 🔴 THE-223 is the change that DID touch them — four prices were wrong
+    // against live Dodo and Campus was missing entirely. The availability
+    // column is unchanged and is now confirmed against the products themselves:
+    // every live plan product carries AI and Admin Seat, Contacts +500 starts
+    // at Small Team, Unlimited is Ministry only, and Campus is attached to all
+    // three. THE-197 still moved no price data, which is what this pins.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual, planIds: a.planIds }))).toEqual([
-      { name: 'AI Assistant', monthly: 19, annual: 228, planIds: ['plus', 'pro', 'max'] },
+      { name: 'AI Assistant', monthly: 20, annual: 240, planIds: ['plus', 'pro', 'max'] },
       { name: 'Admin seat', monthly: 10, annual: 120, planIds: ['plus', 'pro', 'max'] },
-      { name: 'Contacts +500', monthly: 20, annual: 240, planIds: ['pro', 'max'] },
-      { name: 'Unlimited contacts', monthly: 59, annual: 708, planIds: ['max'] },
+      { name: 'Campus', monthly: 12, annual: 144, planIds: ['plus', 'pro', 'max'] },
+      { name: 'Contacts +500', monthly: 15, annual: 180, planIds: ['pro', 'max'] },
+      { name: 'Unlimited contacts', monthly: 40, annual: 480, planIds: ['max'] },
     ]);
   });
 
