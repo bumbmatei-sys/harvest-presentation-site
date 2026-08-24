@@ -771,11 +771,40 @@ export const DODO_ADD_ON_CATALOG: Record<string, DodoAddOnProduct> = {
    change's to move. What is advertised here is the capacity a church can buy
    today, which is what this section is for. */
 export const ADD_ONS: AddOn[] = [
-  // Unlike every other row below, this is a whole-plan toggle, not a per-unit
-  // capacity raise: one purchase turns the AI assistant on in the app for
-  // every member on the plan. It is not sold per person and no member ever
-  // needs their own seat.
-  { name: 'AI Assistant', monthly: 20, annual: 240, blurb: 'Turns on the AI assistant for every member of your congregation, in the app — one purchase for the whole plan, not billed per person.', planIds: ['plus', 'pro', 'max'] },
+  /* 🔴 "AI Assistant" WAS THE FIRST ROW HERE AND IS DELIBERATELY GONE — THE-224.
+     Its omission is declared in `INTENTIONALLY_UNADVERTISED` below, which is
+     what keeps `dodoAddOnCatalogContract`'s unadvertised-product check armed
+     rather than disabled. The card, and why it could not stay:
+
+       $20/mo · "Turns on the AI assistant for every member of your
+       congregation, in the app — one purchase for the whole plan, not billed
+       per person." · sold on plus, pro and max.
+
+     The member-facing assistant is the app's `aiChat`, a PLAN CAPABILITY:
+     false on free and Individual, true on Small Team and Ministry. This site
+     already says so itself — the AI Chat feature entry carries `tiers: [0, 1,
+     1]`. So on Small Team and Ministry the card charged $20/mo for something
+     the plan already includes, which is the false-claim class this project has
+     now fixed seven times.
+
+     ⚠️ AND IT WAS NOT SALVAGEABLE BY NARROWING IT TO INDIVIDUAL, which is the
+     one tier where the assistant genuinely is off and the sentence would read
+     true. Buying it does not turn `aiChat` on there either: `getEffectiveFeatures`
+     raises the `aiAssistant` COUNT and nothing else, under the rule stated at
+     its own definition — "an add-on buys capacity, never a feature flag". A
+     card on Individual would be the same false claim with a smaller audience.
+     Making that sale real is a BUILD (an add-on that flips a feature flag, or a
+     token top-up on `queryTokensPerMonth`), and THE-224 deliberately did not
+     build it.
+
+     ⚠️ THE PRICE IS NOT THE DEFECT AND IS UNTOUCHED. $20/$240 is exactly what
+     Dodo charges; `DODO_ADD_ON_CATALOG['AI Assistant']` keeps both figures and
+     both product ids, so the price stays pinned against the live products while
+     nothing on this page quotes it. This is a card removal, not a reprice.
+
+     🔴 THE TWO DODO PRODUCTS ARE STILL LIVE AND STILL ATTACHED TO THE NINE PLAN
+     PRODUCTS, so the in-app add-on surface can still sell this. Detaching or
+     archiving them is a processor change, not a code change — see the PR. */
   { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
   /* ⚠️ THE BLURB MAY NOT IMPLY A TIER INCLUDES MORE THAN ONE CAMPUS. Every
      paid tier is `maxChurches: 1` in the app's matrix and this add-on is the
@@ -786,6 +815,38 @@ export const ADD_ONS: AddOn[] = [
   { name: 'Contacts +500', monthly: 15, annual: 180, blurb: '500 more contacts, on top of your plan’s limit.', planIds: ['pro', 'max'] },
   { name: 'Unlimited contacts', monthly: 40, annual: 480, blurb: 'No contact limit at all.', planIds: ['max'] },
 ];
+
+/**
+ * 🔴 LIVE DODO PRODUCTS THIS SITE DELIBERATELY DOES NOT ADVERTISE — name → why.
+ *
+ * `dodoAddOnCatalogContract`'s third failure exists because absence used to be
+ * indistinguishable from an oversight: Campus sat unadvertised through three
+ * repricings and nothing could say whether that was a decision or a dropped
+ * line. Withdrawing the AI Assistant card (THE-224) is the first time absence
+ * has been the RIGHT answer, and the guard had to learn the difference without
+ * being turned off for it.
+ *
+ * ⚠️ THIS IS THE OPPOSITE OF A SUPPRESSION LIST. An entry does not silence the
+ * check — it MOVES the product to a stricter one. The contract below throws if
+ * an entry is also advertised (the two statements contradict), if an entry
+ * names a product Dodo does not sell (a stale excuse outliving its product,
+ * which is how a list like this rots into a blanket exemption), and if a reason
+ * is blank. What stays exactly as it was: a live product that is neither
+ * advertised NOR named here still fails the prerender. Silence is still a
+ * defect; only a signed, current, non-contradictory omission passes.
+ *
+ * The reason is prose on purpose. "Why is this not on the pricing page" is a
+ * question the next person will ask, and the answer belongs where the omission
+ * is, not in a commit message nobody will find.
+ */
+export const INTENTIONALLY_UNADVERTISED: Record<string, string> = {
+  'AI Assistant':
+    'THE-224 — the member-facing assistant is the plan capability `aiChat`, included from ' +
+    'Small Team up, so the card charged $20/mo for something those plans already have. It ' +
+    'cannot be narrowed to Individual either: an add-on raises a capacity, never a feature ' +
+    'flag, so buying it would not switch the assistant on there. Selling it again means ' +
+    'building an enforced limit first — seats, or a top-up on the monthly query-token cap.',
+};
 
 /**
  * ADD-ON PRICE CONTRACT — the same idiom as the cross-repo plan contract above,
@@ -849,14 +910,43 @@ addOnPricingContract(ADD_ONS);
 export function dodoAddOnCatalogContract(
   addOns: readonly AddOn[],
   catalog: Record<string, DodoAddOnProduct> = DODO_ADD_ON_CATALOG,
+  unadvertised: Record<string, string> = INTENTIONALLY_UNADVERTISED,
 ): void {
   const advertised = new Set(addOns.map((a) => a.name));
+
+  // The declared omissions are checked FIRST and on their own terms, so an
+  // entry here can never be the reason a real defect goes unreported. Each of
+  // these is a failure the list could not previously have — the cost of being
+  // allowed to say "deliberately absent" is that the saying is itself checked.
+  for (const [name, reason] of Object.entries(unadvertised)) {
+    if (advertised.has(name)) {
+      throw new Error(
+        `Pricing: add-on "${name}" is in ADD_ONS and in INTENTIONALLY_UNADVERTISED at the same time. ` +
+        `One of the two is a leftover — the page cannot both advertise it and declare that it does not.`
+      );
+    }
+    if (catalog[name] === undefined) {
+      throw new Error(
+        `Pricing: INTENTIONALLY_UNADVERTISED names "${name}", which is not a product in ` +
+        `DODO_ADD_ON_CATALOG. An excuse that outlives its product is how this list turns into a ` +
+        `blanket exemption — drop the entry if Dodo has retired it.`
+      );
+    }
+    if (reason.trim() === '') {
+      throw new Error(
+        `Pricing: add-on "${name}" is declared unadvertised with no reason. The reason is the whole ` +
+        `difference between a decision and a dropped line.`
+      );
+    }
+  }
+
   for (const name of Object.keys(catalog)) {
-    if (!advertised.has(name)) {
+    if (!advertised.has(name) && unadvertised[name] === undefined) {
       throw new Error(
         `Pricing: Dodo sells the add-on "${name}" (${catalog[name].monthlyId}) and this site does not ` +
         `advertise it. An add-on a church can buy but cannot find is the Campus defect THE-223 fixed — ` +
-        `add it to ADD_ONS, or remove it from DODO_ADD_ON_CATALOG if Dodo has genuinely retired it.`
+        `add it to ADD_ONS, or declare the omission in INTENTIONALLY_UNADVERTISED with a reason, or ` +
+        `remove it from DODO_ADD_ON_CATALOG if Dodo has genuinely retired it.`
       );
     }
   }
