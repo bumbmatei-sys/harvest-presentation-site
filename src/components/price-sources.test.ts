@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { ADD_ONS, BILLING_TERMS, ComparisonTable, planPriceContract, plans, type BillingTerm } from './Pricing';
+import { ADD_ONS, BILLING_TERMS, ComparisonTable, DODO_ADD_ON_CATALOG, planPriceContract, plans, type BillingTerm } from './Pricing';
 
 /* The contract's expectations, DERIVED from `plans` rather than typed out a
    fourth time. Handing it this passes; bumping one cell of it is a repo
@@ -104,19 +104,24 @@ const ALL_PRICE_DIGITS = [...new Set(plans.flatMap((p) => BILLING_TERMS.map((t) 
  * ATTRIBUTED BY STRING MATCH, so it is not swept — it is pinned by context.
  *
  * This is the same reasoning the RETIRED list below applies to `$99` and
- * `$199`, arrived at from the other side. THE-222 put Individual at $20 a
- * month, and $20 was already the price of TWO add-ons: Contacts +500 in
- * `ADD_ONS`, and the multi-campus extra that `components/catalog.ts` names in
- * its Multi-Campus entry ("one included, $20/mo for each one after"). Sweeping
- * `$20` therefore fails on a sentence about campuses that has nothing to do
- * with the Individual plan, and no regex can tell the two apart — they are the
- * same four characters meaning different products.
+ * `$199`, arrived at from the other side. The figure that collides TODAY is
+ * `$40`: THE-223 corrected Unlimited contacts to $40/mo, which is also Small
+ * Team's monthly price, and no regex can tell the two apart — they are the same
+ * three characters meaning different products.
  *
- * ⚠️ THE FIGURE IS NOT LEFT UNGUARDED. Individual's monthly price is pinned by
- * the cross-repo contract in Pricing.tsx, by FAQ_PLAN_CLAIMS in content/faq.ts
- * and by TIER_PRICE_CLAIMS in content/legal.ts — three module-scope checks that
- * fail the prerender and name the tier. What is given up is a string sweep that
- * could not have said which product it had found.
+ * 🔴 `$20` USED TO BE HERE AND NO LONGER IS. THE-222 put Individual at $20 a
+ * month while a $20 AI Assistant add-on was advertised, so the plan figure left
+ * the sweep. THE-224 withdrew that card (see INTENTIONALLY_UNADVERTISED in
+ * Pricing.tsx) and, because this set is DERIVED from `ADD_ONS` rather than
+ * listed, $20 came back under the sweep with no edit here. That is the set
+ * doing its job in the shrinking direction — worth saying, because every other
+ * note in this file records it growing.
+ *
+ * ⚠️ THE COLLIDING FIGURE IS NOT LEFT UNGUARDED. Small Team's monthly price is
+ * pinned by the cross-repo contract in Pricing.tsx, by FAQ_PLAN_CLAIMS in
+ * content/faq.ts and by TIER_PRICE_CLAIMS in content/legal.ts — three
+ * module-scope checks that fail the prerender and name the tier. What is given
+ * up is a string sweep that could not have said which product it had found.
  *
  * Derived from `ADD_ONS` rather than listed, so an add-on repriced onto (or off)
  * a plan price moves this set without anyone remembering to.
@@ -215,22 +220,29 @@ describe('no price literal appears outside the single source', () => {
    * of the nine are still swept.
    */
   it('excludes only the figures that genuinely collide with an add-on price', () => {
-    // 🔴 TWO COLLISIONS SINCE THE-223, where there was one. Correcting the
-    // add-ons against live Dodo moved Unlimited Contacts to $40, which is also
-    // Small Team's monthly price, so a second plan figure leaves the sweep. The
-    // hole is bigger and is therefore stated more loudly, not quietly widened:
-    // both colliding figures are named, and seven of the nine are still swept.
+    // 🔴 BACK TO ONE COLLISION — THE-224 SHRANK THIS HOLE RATHER THAN WIDENING
+    // IT. THE-223 had grown it to two: correcting the add-ons against live Dodo
+    // moved Unlimited Contacts to $40 (also Small Team's monthly), and the $20
+    // AI Assistant collided with Individual's monthly. Withdrawing that card
+    // takes $20 out of `ADD_ON_PRICE_DIGITS` — which is derived, so the set
+    // moved on its own — and Individual's monthly price returns to the sweep.
+    // Eight of the nine are swept now, where seven were.
     expect(ALL_PRICE_DIGITS).toHaveLength(9);
-    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['20', '40']);
-    expect(PRICE_DIGITS).toHaveLength(7);
-    expect(PRICE_DIGITS).not.toContain('20');
+    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['40']);
+    expect(PRICE_DIGITS).toHaveLength(8);
+    expect(PRICE_DIGITS).toContain('20');
     expect(PRICE_DIGITS).not.toContain('40');
-    // The two dropped are Individual's and Small Team's monthly prices, and
-    // they are the only ones.
+    // ⚠️ AND THE WITHDRAWN ADD-ON'S OWN PRICE DID NOT MOVE. $20/$240 is still
+    // what Dodo charges and still what DODO_ADD_ON_CATALOG pins; it simply is
+    // not advertised any more, so it no longer shields a plan figure.
+    expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(2000);
+    expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(24000);
+    // The one dropped is Small Team's monthly price, and it is the only one.
     expect(String(plans.find((p) => p.planId === 'plus')!.price.monthly)).toBe('20');
     expect(String(plans.find((p) => p.planId === 'pro')!.price.monthly)).toBe('40');
-    // ⚠️ NEITHER IS LEFT UNGUARDED, which is the only thing that makes dropping
-    // them acceptable. Both are pinned by the cross-repo contract in
+    // ⚠️ NEITHER IS LEFT UNGUARDED — asserted for both, because $20 has only
+    // just rejoined the sweep and the guarantee that made dropping it
+    // acceptable has to still hold. Both are pinned by the cross-repo contract in
     // Pricing.tsx, by FAQ_PLAN_CLAIMS and by TIER_PRICE_CLAIMS — three
     // module-scope checks that name the tier and fail the prerender. What is
     // given up is a string sweep that could not say which product it had found.

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { ADD_ONS, plans, planPriceContract } from '../components/Pricing';
+import { ADD_ONS, DODO_ADD_ON_CATALOG, INTENTIONALLY_UNADVERTISED, plans, planPriceContract } from '../components/Pricing';
 import { CATEGORIES } from './features';
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
 
@@ -230,13 +230,25 @@ describe('THE-197 — no price data changed', () => {
     // every live plan product carries AI and Admin Seat, Contacts +500 starts
     // at Small Team, Unlimited is Ministry only, and Campus is attached to all
     // three. THE-197 still moved no price data, which is what this pins.
+    //
+    // 🔴 THE-224 REMOVED THE AI ASSISTANT ROW, AND MOVED NO PRICE. The card sold
+    // the member-facing assistant, which is the plan capability `aiChat`,
+    // already included from Small Team up — so it charged $20/mo for something
+    // those plans have. The remaining four are byte-for-byte what they were.
+    // The withdrawn row's own $20/$240 is asserted just below, unchanged, from
+    // the catalogue that still pins it against the live Dodo products: this
+    // stays a no-price-moved test and now says so about five add-ons, not four.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual, planIds: a.planIds }))).toEqual([
-      { name: 'AI Assistant', monthly: 20, annual: 240, planIds: ['plus', 'pro', 'max'] },
       { name: 'Admin seat', monthly: 10, annual: 120, planIds: ['plus', 'pro', 'max'] },
       { name: 'Campus', monthly: 12, annual: 144, planIds: ['plus', 'pro', 'max'] },
       { name: 'Contacts +500', monthly: 15, annual: 180, planIds: ['pro', 'max'] },
       { name: 'Unlimited contacts', monthly: 40, annual: 480, planIds: ['max'] },
     ]);
+    expect(DODO_ADD_ON_CATALOG['AI Assistant']).toEqual({
+      monthlyId: 'adn_0NlKtuImtSn7PcdvjnSni', annualId: 'adn_0NlKtw3IOHfv1GGCevNol',
+      monthlyCents: 2000, annualCents: 24000,
+    });
+    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toBeTruthy();
   });
 
   it('the cross-repo price contract still throws when the two repos disagree', () => {

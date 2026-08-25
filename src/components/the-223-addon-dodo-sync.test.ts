@@ -10,6 +10,7 @@ import {
   BILLING_TERMS,
   DISCOUNTED_TERMS,
   DODO_ADD_ON_CATALOG,
+  INTENTIONALLY_UNADVERTISED,
   discountClaim,
   dodoAddOnCatalogContract,
   PlanCard,
@@ -92,18 +93,33 @@ const LIVE_DODO = [
   { name: 'Unlimited contacts', monthly: 40, annual: 480, monthlyId: 'adn_0NlKtwKAhJgz0jeaqDX2c', annualId: 'adn_0NlKtwMjMlsjzZ8z2Wt7P' },
 ] as const;
 
+/* The live products this site is expected to QUOTE — every one Dodo sells, less
+   the omissions declared (and independently checked) in Pricing.tsx. Derived,
+   so withdrawing or restoring a card moves it without an edit here, and so a
+   card that vanishes WITHOUT being declared still fails the set check above. */
+const ADVERTISED_LIVE = LIVE_DODO.filter((d) => INTENTIONALLY_UNADVERTISED[d.name] === undefined);
+
 /* ── 1 ─────────────────────────────────────────────────────────────────────── */
 describe('every add-on price matches live Dodo', () => {
-  it('advertises exactly the add-ons Dodo sells, and no others', () => {
+  it('advertises exactly the add-ons Dodo sells, minus the declared omissions', () => {
     // Campus is why this assertion exists. An add-on missing from the page is
     // invisible to every check that iterates ADD_ONS — including all five
     // below — so the SET is checked before any price is.
-    expect(ADD_ONS.map((a) => a.name)).toEqual(LIVE_DODO.map((d) => d.name));
+    //
+    // 🔴 THE-224 MADE ONE ABSENCE LEGITIMATE, and this is still an equality
+    // rather than a subset: the page must carry every live add-on EXCEPT the
+    // ones named in INTENTIONALLY_UNADVERTISED, and no others. An undeclared
+    // disappearance fails here exactly as Campus's did, and a declared one that
+    // is also advertised fails in the contract itself.
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
+    expect(ADD_ONS.map((a) => a.name)).toEqual(
+      LIVE_DODO.filter((d) => INTENTIONALLY_UNADVERTISED[d.name] === undefined).map((d) => d.name),
+    );
   });
 
   // 🔴 One named test per add-on: a single loop reports "add-ons are wrong",
   // which is not a bug report. Five names means the failure says which product.
-  it.each(LIVE_DODO.map((d) => [d.name, d] as const))(
+  it.each(ADVERTISED_LIVE.map((d) => [d.name, d] as const))(
     '%s is advertised at the price Dodo charges',
     (name, live) => {
       const addOn = ADD_ONS.find((a) => a.name === name)!;
@@ -161,30 +177,43 @@ describe('every add-on price matches live Dodo', () => {
 });
 
 /* ── 2 ─────────────────────────────────────────────────────────────────────── */
-describe('the AI Assistant price is not lower than what Dodo charges', () => {
-  const live = LIVE_DODO.find((d) => d.name === 'AI Assistant')!;
+describe('no add-on is advertised below what Dodo charges', () => {
+  it('the AI Assistant quotes no figure at all, because THE-224 withdrew it', () => {
+    /* 🔴 THIS WAS THE SERIOUS HALF OF THE-223 AND IS NOW SATISFIED THE OTHER
+       WAY. The assertion was that the AI Assistant's card quoted at least the
+       $20 Dodo bills — the site had shipped $19 against a $20 charge, which is
+       a promise the checkout breaks. THE-224 withdrew the card, so the page
+       quotes nothing for it, and a figure that is never printed cannot be
+       printed below the charge.
 
-  it('advertises at least the $20 Dodo bills, on the rendered card', () => {
-    /* 🔴 THE SERIOUS HALF OF THIS TICKET, AND A DIFFERENT ASSERTION FROM THE
-       ONE ABOVE. Test 1 says the figure EQUALS Dodo's. This says it is not
-       BELOW it, and the two fail differently on purpose: an advert above the
-       charge is stale and embarrassing, an advert below it is a promise the
-       checkout breaks — the church is billed more than the page said. The site
-       shipped $19 against a $20 charge, so this is not hypothetical. */
-    const addOn = ADD_ONS.find((a) => a.name === 'AI Assistant')!;
-    const [monthly, annual] = dollars(cardHtml(addOn));
-    expect(monthly, `the page promises $${monthly}/mo and Dodo bills $${live.monthly}`)
-      .toBeGreaterThanOrEqual(live.monthly);
-    expect(annual, `the page promises $${annual}/yr and Dodo bills $${live.annual}`)
-      .toBeGreaterThanOrEqual(live.annual);
-    // The retired figure is gone from the page, not merely unused in the data.
-    expect(words(pageHtml())).not.toMatch(/\$19(?![\d,])/);
+       ⚠️ THE OLD GUARANTEE IS NOT DROPPED, IT MOVED: the undersell check now
+       runs over every advertised add-on in the test below, and the AI
+       Assistant's real price stays pinned against its live products here. What
+       this asserts is the withdrawal itself, on the RENDERED page — no card, no
+       name, neither figure — because that is the claim the ticket makes. */
+    const live = LIVE_DODO.find((d) => d.name === 'AI Assistant')!;
+    expect(ADD_ONS.find((a) => a.name === 'AI Assistant')).toBeUndefined();
+
+    const read = words(pageHtml());
+    expect(read, 'the pricing page still names the withdrawn AI Assistant add-on')
+      .not.toMatch(/AI Assistant/i);
+    for (const term of BILLING_TERMS) {
+      const section = words(sectionHtml(term));
+      expect(section, `the ${term} add-on section still names AI Assistant`)
+        .not.toMatch(/AI Assistant/i);
+      expect(dollars(sectionHtml(term)), `the ${term} add-on section still prints $${live.annual}`)
+        .not.toContain(live.annual);
+    }
+    // The retired $19 stays gone, and the real price stays pinned unadvertised.
+    expect(read).not.toMatch(/\$19(?![\d,])/);
+    expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(live.monthly * 100);
+    expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(live.annual * 100);
   });
 
   it('holds for every add-on, not just the one that was wrong', () => {
     // The undersell is a class of error, not an incident. Checked on rendered
     // cards so it covers the seam as well as the table.
-    for (const live of LIVE_DODO) {
+    for (const live of ADVERTISED_LIVE) {
       const [monthly, annual] = dollars(cardHtml(ADD_ONS.find((a) => a.name === live.name)!));
       expect(monthly, `${live.name} advertises $${monthly}/mo below Dodo's $${live.monthly}`)
         .toBeGreaterThanOrEqual(live.monthly);
@@ -230,10 +259,15 @@ describe('Campus is advertised', () => {
 
   it('nothing else was omitted for the same reason', () => {
     // The live catalogue is ten products: five add-ons × two terms. Campus was
-    // the only one this site did not advertise.
+    // the only one this site did not advertise BY ACCIDENT — and the AI
+    // Assistant is now the only one it does not advertise ON PURPOSE. Both
+    // halves are pinned, because "four cards" is only correct while the missing
+    // fifth is the declared one.
     expect(LIVE_DODO).toHaveLength(5);
     expect(Object.keys(DODO_ADD_ON_CATALOG).sort()).toEqual(LIVE_DODO.map((d) => d.name).sort());
-    expect(ADD_ONS).toHaveLength(5);
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
+    expect(ADD_ONS).toHaveLength(4);
+    expect(ADD_ONS.some((a) => a.name === 'Campus')).toBe(true);
   });
 });
 
