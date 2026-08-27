@@ -3,7 +3,7 @@
    Each item links to its section on the category page it belongs to; that mapping
    lives in content/features.ts, keyed by `slugify(title)`. */
 
-import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED } from '../lib/flags';
+import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 import { COMING_SOON_HREF, COMING_SOON_ITEMS, COMING_SOON_KICKER, COMING_SOON_NAME, soonItemHref } from '../content/coming-soon';
 
 export const slugify = (s: string) =>
@@ -92,7 +92,14 @@ export const CATALOG: CatalogGroup[] = [
       item('message-square', 'AI Chat', "A contextual assistant for members — your ministry's voice, not a generic bot."),
       item('mail', 'Newsletter', 'Write a newsletter and send it through your own Mailchimp audience.'),
       item('sparkles', 'Automated Newsletter', 'AI drafts a newsletter from a month of your own Instagram posts.'),
-      item('message-square-text', 'SMS Automation', 'Twilio-powered SMS flows for follow-up, reminders and care.'),
+      // Hidden FEATURE entry — THE-245. 🔴 This is the one that moves the
+      // count: CATALOG_TOOL_COUNT is a derived tally of everything NOT marked
+      // `soon`, so withdrawing this tool takes it from 28 to 27. That is the
+      // correct direction — the figure is quoted to visitors as "N tools in one
+      // platform", and a tool a church cannot use is not one of them. The SMS
+      // entry that appears in the Coming Soon column above is `soon: true` and
+      // contributes nothing, which is what keeps 27 honest rather than 28.
+      ...(SMS_MARKETING_ENABLED ? [item('message-square-text', 'SMS Automation', 'Twilio-powered SMS flows for follow-up, reminders and care.')] : []),
       item('clipboard-list', 'Custom Forms → CRM', 'Build forms that feed straight into your CRM pipeline.'),
     ],
   },

@@ -459,12 +459,12 @@ describe('the cross-repo plan contract still throws when the repos disagree', ()
 
 /* ── 9 ─────────────────────────────────────────────────────────────────────── */
 describe('the tool count is unchanged at its derived value', () => {
-  it('is 28, and is still counted rather than stated', () => {
+  it('is 27, and is still counted rather than stated', () => {
     // Add-ons are capacity, not tools — none of this may inflate the "N tools
     // in one platform" claim. Campus in particular: the catalogue's
     // Multi-Campus entry stays behind MULTI_CAMPUS_ENABLED, and flipping that
     // flag would add a 29th tool. Advertising the add-on did not flip it.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

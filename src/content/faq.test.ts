@@ -13,6 +13,7 @@ import {
   faqPlainText,
   faqPlanMismatches,
 } from './faq';
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* What the FAQ says.
  *
@@ -328,11 +329,32 @@ describe('product facts stated in the FAQ', () => {
     expect(text).toMatch(/no page builder/i);
   });
 
-  it('describes SMS and bulk email as the customer’s own accounts', () => {
+  it('describes bulk email as the customer’s own account, and SMS by its real state', () => {
+    // THE-245 — the SMS half of this answer is asserted THROUGH the flag,
+    // because both readings are product facts and exactly one is true at a time.
+    // The Mailchimp half is unconditional: it did not change.
     const text = answerText(FAQS.find((f) => f.id === 'messaging')!);
-    expect(text).toMatch(/bring-your-own twilio/i);
     expect(text).toMatch(/your own mailchimp account/i);
-    expect(text).toMatch(/billed to you by twilio at their rates/i);
+
+    if (SMS_MARKETING_ENABLED) {
+      expect(text).toMatch(/bring-your-own twilio/i);
+      expect(text).toMatch(/billed to you by twilio at their rates/i);
+    } else {
+      // 🔴 The answer must SAY SO rather than fall silent. A buyer asking
+      // "does it text?" who gets an answer about email only would reasonably
+      // read the omission as a yes.
+      expect(text).toMatch(/harvest does not send sms/i);
+      expect(text).toMatch(/text messages, not yet/i);
+      // And it must make no claim about a Twilio integration that is switched
+      // off — no rates, no billing relationship, no working composer.
+      expect(text).not.toMatch(/bring-your-own twilio/i);
+      expect(text).not.toMatch(/billed to you by twilio/i);
+      // ⚠️ The composer is NAMED, in the negative ("there is no broadcast
+      // composer"), so the assertion has to distinguish the denial from the
+      // claim rather than ban the words. The claim form is what must be absent.
+      expect(text).not.toMatch(/the broadcast composer shows/i);
+      expect(text).toMatch(/no broadcast composer/i);
+    }
   });
 
   it('puts the church in control of member data and Harvest in the processor seat', () => {

@@ -1,6 +1,7 @@
 import { ADVERTISED_DISCOUNT_PCT, discountClaim } from '../components/Pricing';
 import { SITE_ORIGIN } from './post-core';
 import { TRIAL_LENGTH_DAYS } from './legal';
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* /faq — the buyer's FAQ, as data.
  *
@@ -258,15 +259,30 @@ export const FAQS: Faq[] = [
       'The same app is a real desktop layout in a browser, not a stretched phone view, and public pages — a post, an event, a giving page, a form — open for anyone with no account at all.',
     ],
   },
+  /* THE-245 — the question is asked in both tenses because the honest answer
+     changed, not because the copy did. While SMS is hidden Harvest sends EMAIL
+     and no text at all, so an answer that described a live Twilio integration
+     would be exactly the seventh false claim the note at the top of this file
+     is about. The question itself keeps its id and its wording: a buyer asking
+     "does it text?" deserves the answer either way, and "no, and here is what
+     it does instead" is an answer. Flip SMS_MARKETING_ENABLED to restore the
+     original four paragraphs verbatim. */
   {
     id: 'messaging',
     question: 'Does Harvest send email and text messages?',
-    answer: [
-      'Some of each, and where they come from matters, so here is the exact shape of it.',
-      'SMS is bring-your-own Twilio. You connect your own Twilio account, and every message sent from Harvest is billed to you by Twilio at their rates — Harvest does not resell messages and takes no margin on them. The broadcast composer shows the recipient count and the cost before you send.',
-      'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts — goes through our own provider and is included in your subscription.',
-      'You contract directly with Twilio and Mailchimp, you pay them, and their terms and prices apply to you. If one of those connections breaks, the rest of Harvest keeps working.',
-    ],
+    answer: SMS_MARKETING_ENABLED
+      ? [
+          'Some of each, and where they come from matters, so here is the exact shape of it.',
+          'SMS is bring-your-own Twilio. You connect your own Twilio account, and every message sent from Harvest is billed to you by Twilio at their rates — Harvest does not resell messages and takes no margin on them. The broadcast composer shows the recipient count and the cost before you send.',
+          'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts — goes through our own provider and is included in your subscription.',
+          'You contract directly with Twilio and Mailchimp, you pay them, and their terms and prices apply to you. If one of those connections breaks, the rest of Harvest keeps working.',
+        ]
+      : [
+          'Email, yes. Text messages, not yet — so here is the exact shape of what does send.',
+          'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts, check-in and registration confirmations — goes through our own provider and is included in your subscription.',
+          'Harvest does not send SMS. There is no broadcast composer and no keyword a member can text you; anything you have read about texting in Harvest describes work that is not finished. It is on our Coming Soon page with everything else we are not shipping yet.',
+          'You contract directly with Mailchimp, you pay them, and their terms and prices apply to you. If that connection breaks, the rest of Harvest keeps working.',
+        ],
   },
   {
     id: 'data-owner',

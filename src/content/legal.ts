@@ -1,4 +1,5 @@
 import { SITE_ORIGIN } from './post-core';
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* The three legal policies, as data.
  *
@@ -325,8 +326,16 @@ const TERMS: LegalDoc = {
       heading: '6. Services you connect yourself',
       blocks: [
         p('Some parts of Harvest run on accounts you hold directly with another provider. Where that is the case, you contract with that provider, you pay them, and their terms and prices apply to you:'),
+        // THE-245 — the Twilio line is withheld while SMS is hidden. 🔴 These
+        // are TERMS: a bullet describing a connection a church cannot make is a
+        // contractual statement about a service that is not being provided, and
+        // this document has already had to be corrected once for describing a
+        // website builder that did not exist. Withheld rather than reworded —
+        // there is nothing true to say about a connection that is switched off.
         list(
-          'SMS is bring-your-own Twilio. You connect your own Twilio account and every message sent from Harvest is billed to you by Twilio at their rates.',
+          ...(SMS_MARKETING_ENABLED
+            ? ['SMS is bring-your-own Twilio. You connect your own Twilio account and every message sent from Harvest is billed to you by Twilio at their rates.']
+            : []),
           'Bulk newsletters go through your own Mailchimp account, on whatever Mailchimp plan you hold.',
           'Giving runs through your own Stripe account, as described above.',
         ),
@@ -476,12 +485,18 @@ const PRIVACY: LegalDoc = {
         p('Card details for your own Harvest subscription are handled by our payment providers in the same way: entered with them, held by them, never stored by us.'),
       ],
     },
+    // THE-245 — the heading and the second paragraph both name SMS. A privacy
+    // policy describing where phone numbers go is a statement about processing
+    // that is not happening, so while SMS is hidden this section covers email
+    // only. Nothing about Mailchimp or Resend changes.
     {
       id: 'messaging',
-      heading: '6. Email and SMS',
+      heading: SMS_MARKETING_ENABLED ? '6. Email and SMS' : '6. Email',
       blocks: [
         p('Transactional email that Harvest sends on your behalf — notifications, sign-in links, confirmations — goes through Resend.'),
-        p('Bulk newsletters are sent from your ministry\'s own Mailchimp account, and SMS from your ministry\'s own Twilio account. Where that is how you have set things up, the contact details involved reach Mailchimp or Twilio under your agreements with them, and their privacy terms apply to what they do with them.'),
+        SMS_MARKETING_ENABLED
+          ? p('Bulk newsletters are sent from your ministry\'s own Mailchimp account, and SMS from your ministry\'s own Twilio account. Where that is how you have set things up, the contact details involved reach Mailchimp or Twilio under your agreements with them, and their privacy terms apply to what they do with them.')
+          : p('Bulk newsletters are sent from your ministry\'s own Mailchimp account. Where that is how you have set things up, the contact details involved reach Mailchimp under your agreement with them, and their privacy terms apply to what they do with them.'),
       ],
     },
     {

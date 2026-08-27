@@ -278,7 +278,7 @@ describe('THE-197 — no price data changed', () => {
   });
 
   it('the tool count is unchanged at its derived value', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

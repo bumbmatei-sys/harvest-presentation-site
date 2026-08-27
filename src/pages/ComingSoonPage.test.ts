@@ -415,6 +415,12 @@ describe('the Coming Soon page lists every named item', () => {
     expect(COMING_SOON_ITEMS.map((i) => i.ref)).toEqual([
       'THE-123', 'THE-122', 'THE-112', 'THE-117', 'THE-59', 'THE-58',
       'THE-118', 'THE-98',
+      // THE-245 — SMS & Text-to-Give, the ninth and the only RELOCATED one:
+      // every entry above describes work that was never built, this one
+      // describes work that shipped, was found untested, and was withdrawn from
+      // sale before it could be marketed. Its ref is the card that withdrew it,
+      // which is the open card that now owns the gap.
+      'THE-245',
     ]);
     // THE-115 (a Play Store / App Store listing) was on this page and was
     // pulled at the founder's direction. It must not drift back in.
@@ -695,26 +701,34 @@ describe('the in-app AI assistant copy does not describe the shipping member ass
 });
 
 /* ── 9 ───────────────────────────────────────────────────────────────────── */
-describe('the tool count is unchanged and still derived', () => {
-  it('🔴 CATALOG_TOOL_COUNT is still 28, and still a reduce over CATALOG', () => {
+describe('the tool count is derived, and the unbuilt entries never touch it', () => {
+  it('🔴 CATALOG_TOOL_COUNT is 27, and still a reduce over CATALOG', () => {
     // The figure is a claim about what EXISTS, quoted to visitors as "N tools
     // in one platform". Nine unbuilt features must not move it.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    //
+    // 🔴 28 → 27 AT THE-245, and the direction is the point. The count moved
+    // because a LIVE tool was withdrawn — SMS Automation left the catalogue
+    // when the feature was hidden — not because a coming-soon entry started
+    // counting. The entry that replaced it is `soon` and adds nothing back,
+    // which is exactly what the next test proves. Advertising 28 tools with
+    // only 27 usable would be the same class of false claim as a stale price.
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
   });
 
-  it('the eight new entries contribute nothing to it', () => {
+  it('the nine unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(live).toBe(28);
-    expect(CATALOG[0].items).toHaveLength(8);
+    expect(live).toBe(27);
+    expect(CATALOG[0].items).toHaveLength(9);
     expect(CATALOG[0].items.filter((i) => !i.soon)).toHaveLength(0);
   });
 
   it('🔴 and it WOULD have moved if a single entry lost its soon flag — by mutation', () => {
     // The tripwire, proved rather than asserted. Without `soon`, the count runs
-    // to 36 and the site starts advertising eight tools it does not have.
+    // to 36 and the site starts advertising nine tools it does not have — one
+    // of which, SMS, it would be advertising for the second time.
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
@@ -724,7 +738,7 @@ describe('the tool count is unchanged and still derived', () => {
     // And one entry alone is enough to break it.
     const oneLost = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it, j) => (j === 0 ? { ...it, soon: false } : it)) } : g));
-    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(29);
+    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(28);
   });
 
   it('the nav still quotes the derived figure', () => {

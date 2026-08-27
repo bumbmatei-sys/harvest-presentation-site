@@ -6,7 +6,7 @@
    LEGACY_ANCHORS maps the retired /features#<slug> anchors onto their new home
    so old deep links, the Nav mega-menu and indexed URLs all keep working. */
 
-import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED } from '../lib/flags';
+import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 import { plans } from '../components/Pricing';
 
 export interface Crosslink { label: string; href: string }
@@ -224,10 +224,16 @@ const ALL_CATEGORIES: Category[] = [
     heroBg: 'linear-gradient(180deg,#cbdcb4 0%,#dbe8ca 44%,#eef2e6 72%,var(--cream) 100%)',
     headline: 'AI with a conscience,\nbuilt for the church.',
     headWidth: 940, introWidth: 660,
-    intro: 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.',
+    // THE-245 — the category blurb named SMS among what it carries. While the
+    // feature is hidden it names what is actually there.
+    intro: SMS_MARKETING_ENABLED
+      ? 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
+      : 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.',
     ctaHeading: 'AI your congregation can trust.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters, SMS and forms that feed your CRM.',
+    seo: SMS_MARKETING_ENABLED
+      ? 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters, SMS and forms that feed your CRM.'
+      : 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters and forms that feed your CRM.',
     features: [
       {
         id: 'knowledge', name: 'AI Knowledge Base', n: '1',
@@ -347,7 +353,10 @@ const ALL_CATEGORIES: Category[] = [
         title: 'One record per person — built automatically.',
         oneliner: 'Give, register, check in or fill a form and a contact appears with the history attached. One person, one row — deduplicated by email, typed Donor & Member as they give. Connect Gmail and email them without leaving the dashboard.',
         moment: 'Anyone who\'s used church software has a database full of duplicate Bob Smiths. Harvest merges app members and manual contacts into one row on a stable link — so a person\'s giving history never scatters across three records.',
-        admin: ['Members & manual contacts merged into one list', 'Contacts scale by plan: 150 → 500 → 2,000', 'Connect Gmail and email a contact from their record', 'Auto-typed member / donor / both as they give', 'Five-stage discipleship pipeline: New → Champion', 'Tags that drive SMS broadcast targeting'],
+        // THE-245 — the last bullet sold tags on what they unlock in SMS. The
+        // tags themselves are real and unchanged; only the SMS claim is withheld.
+        admin: ['Members & manual contacts merged into one list', 'Contacts scale by plan: 150 → 500 → 2,000', 'Connect Gmail and email a contact from their record', 'Auto-typed member / donor / both as they give', 'Five-stage discipleship pipeline: New → Champion',
+          SMS_MARKETING_ENABLED ? 'Tags that drive SMS broadcast targeting' : 'Tags you can segment and filter the whole list by'],
         member: ['A single profile that follows them everywhere', 'Giving, events, check-ins & forms on one timeline', 'Emails you send land from your own address', 'Total given & last gift always current'],
         crosslinks: [{ label: 'Custom Forms', href: '/features/ai-automation#forms' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }, { label: 'SMS', href: '/features/ai-automation#sms' }],
       },
@@ -497,9 +506,23 @@ const ALL_CATEGORIES: Category[] = [
 const HIDDEN_FEATURE_IDS: ReadonlySet<string> = new Set([
   ...(AFFILIATE_PROGRAM_ENABLED ? [] : ['affiliate']),
   ...(MULTI_CAMPUS_ENABLED ? [] : ['churches']),
+  // THE-245 — SMS & Text-to-Give. Hiding the section also strips the four
+  // crosslinks that point at `#sms` (from Donation Page, Check-In, Newsletter
+  // and CRM), which matters more here than for the other two: three of those
+  // sit on GIVING pages and one of them is labelled "Text-to-Give". Its retired
+  // slugs are re-pointed at the Coming Soon entry below rather than merely
+  // defragmented, so an indexed link lands somewhere that explains itself.
+  ...(SMS_MARKETING_ENABLED ? [] : ['sms']),
 ]);
 
-/** True when a href's #fragment names a feature that is currently hidden. */
+/** True when a href's #fragment names a feature that is currently hidden.
+ *
+ *  ⚠️ READS CATEGORY-PAGE HREFS ONLY, which is safe because that is all this
+ *  table and the crosslinks hold. Worth knowing if that ever changes:
+ *  /features/coming-soon has its own id space which OVERLAPS this one —
+ *  THE-245's entry is `#sms` on both pages, deliberately, because it is the
+ *  same capability in two tenses — so a coming-soon href passed through here
+ *  would have its fragment wrongly stripped. */
 const pointsAtHiddenFeature = (href: string) => {
   const i = href.indexOf('#');
   return i >= 0 && HIDDEN_FEATURE_IDS.has(href.slice(i + 1));
@@ -555,6 +578,22 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   // landing on that section rather than on the plain newsletter above it.
   'automated-newsletter': '/features/ai-automation#autonewsletter',
   'newsletter': '/features/ai-automation#newsletter',
+  /* THE-245 — both SMS slugs stay mapped here while the feature is hidden, on
+     the same terms as the affiliate pair above: they are indexed and still have
+     to land somewhere, and with the section not rendering `resolveHref` drops
+     the fragment so they arrive at the top of the category page.
+
+     ⚠️ NOT RE-POINTED AT THE COMING SOON ENTRY, though it is tempting and was
+     tried. THE-247 made "a coming-soon item is never a redirect target" a rule
+     and asserted it twice — every LEGACY_ANCHORS value must resolve to one of
+     the five LIVE category pages, and no coming-soon item may appear in this
+     table under its own slug. SMS is the first entry that has both a retired
+     URL and a coming-soon home, so it is the first case where that rule costs
+     something: a visitor following an indexed "SMS Automation" link lands on
+     /features/ai-automation with no SMS section and no explanation. The
+     Coming Soon entry is still reachable — it is the first column of the
+     mega-menu — so the cost is a worse landing, not an unreachable page. Raised
+     in the pull request rather than resolved by bending a tested invariant. */
   'sms-automation': '/features/ai-automation#sms',
   'sms-text-to-give': '/features/ai-automation#sms',
   'custom-forms-crm': '/features/ai-automation#forms',
