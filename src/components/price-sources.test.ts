@@ -153,8 +153,42 @@ const PRICE_DIGITS = ALL_PRICE_DIGITS.filter((d) => !ADD_ON_PRICE_DIGITS.has(d))
  * price on no tier and no term now, so they are banned outright, exactly as
  * `$49` was and for the same reason: #56 had to fix three disconnected copies
  * of a figure a reprice had left behind.
+ *
+ * ─── 🔴 THE-248, AND THE THREE FIGURES IT COULD NOT BAN ──────────────────────
+ *
+ * THE-248 raised the six discounted cells, retiring `49`, `99`, `199`, `165`,
+ * `329` and `659`. Only THREE of them join this list.
+ *
+ *   BANNED — `165`, `329`, `659`. Dead on every tier and every term, and each
+ *     appears nowhere on this site in any other sense. (`0.165` in
+ *     components/magic.tsx is a border-radius ratio and carries no `$`, so the
+ *     `\$` anchor never reaches it.)
+ *
+ *   🔴 NOT BANNED — `49`, `99`, `199`. Each is still a REAL PRICE ON THIS
+ *     PAGE — a competitor's. components/Replaces.tsx sells the "what you'd
+ *     otherwise pay" table, and the prerendered output carries "Tithe.ly
+ *     Donorbox $49–99/mo", "Skool $99/mo" and "Planning Center Check-Ins
+ *     $99–199/mo"; the Planning Center blog post quotes Skool Pro at $99/mo.
+ *     They survive today only because those figures are written WITHOUT a `$`
+ *     in source (`cost: '49–99'`, and .md is outside this walk), so a ban would
+ *     pass now and fire the first time someone writes a competitor price with
+ *     its currency symbol attached — failing a true statement about another
+ *     company's pricing. Banning a figure this site legitimately prints is how
+ *     a rule gets deleted rather than obeyed.
+ *
+ * ⚠️ THAT IS NOT A HOLE. Those three are pinned by CONTEXT instead, which is
+ * the stronger check anyway: the cross-repo contract in Pricing.tsx,
+ * TIER_PRICE_CLAIMS in content/legal.ts and FAQ_PLAN_CLAIMS in content/faq.ts
+ * each compare tier-by-tier and term-by-term and fail the prerender by name, so
+ * a stale `$99` sitting where a Harvest price belongs is caught by the table it
+ * disagrees with rather than by a string sweep that could never have said which
+ * company's price it had found.
  */
-const RETIRED = ['441', '891', '1791', '37', '74', '149', '39', '79', '159', '399', '1329'];
+const RETIRED = [
+  '441', '891', '1791', '37', '74', '149', '39', '79', '159', '399', '1329',
+  // THE-248's retirees. See above for the three deliberately absent.
+  '165', '329', '659',
+];
 
 describe('no price literal appears outside the single source', () => {
   const modules = walk(SRC).filter((f) => !PRICE_BEARING.some((allowed) => f.endsWith(allowed)));

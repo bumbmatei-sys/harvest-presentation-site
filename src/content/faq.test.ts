@@ -101,16 +101,21 @@ describe('the prices and limits quoted in the FAQ', () => {
   it('describes each discount in the wording the prices permit', () => {
     // 🔴 The sentence carries `discountClaim`, which decides FROM THE PRICES
     // whether a percentage may be stated flat or has to say "up to". Both terms
-    // are flat as of THE-222: quarterly's worst tier saves 17.08% against an
-    // advertised 15%, and yearly's worst saves 31.25% against 30%. Asserting the
-    // RENDERED prose is what proves the hedge actually left the page — the
+    // are flat as of THE-248: quarterly's worst tier saves exactly 10.0% against
+    // an advertised 10%, and yearly's worst saves 20.83% against 20. Asserting
+    // the RENDERED prose is what proves the hedge is absent from the page — the
     // sentence is built from `discountClaim`, so it moved without a copy edit.
     expect(body).toContain(discountClaim('quarterly'));
     expect(body.toLowerCase()).toContain(discountClaim('yearly').toLowerCase());
-    expect(discountClaim('yearly')).toBe('Save 30%');
-    expect(body.toLowerCase()).toMatch(/\bsave 30%/);
+    expect(discountClaim('quarterly')).toBe('Save 10%');
+    expect(discountClaim('yearly')).toBe('Save 20%');
+    expect(body.toLowerCase()).toMatch(/\bsave 20%/);
     // 🔴 And the qualifier is GONE from the page, not merely unused in code.
-    expect(body.toLowerCase()).not.toContain('up to 30%');
+    // Both terms, because quarterly is the one now sitting on the knife edge:
+    // it MEETS its claim exactly rather than clearing it, so a regression in
+    // `actualSavingPct` would surface here as "up to 10%" on a live page.
+    expect(body.toLowerCase()).not.toContain('up to 20%');
+    expect(body.toLowerCase()).not.toContain('up to 10%');
     // The old 9-of-12 sentence must not survive: there is no such multiplier.
     expect(body.toLowerCase()).not.toContain('nine months of the monthly rate');
   });
@@ -118,7 +123,7 @@ describe('the prices and limits quoted in the FAQ', () => {
   it('says the longer terms are one charge, not a cheaper monthly one', () => {
     // ⚠️ What a church is actually charged must be unambiguous.
     expect(body).toContain(`a single payment of $${grouped(FAQ_PLAN_CLAIMS[0].annual)}`);
-    expect(ADVERTISED_DISCOUNT_PCT.quarterly).toBe(15);
+    expect(ADVERTISED_DISCOUNT_PCT.quarterly).toBe(10);
   });
 });
 
