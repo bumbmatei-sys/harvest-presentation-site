@@ -5,6 +5,7 @@ import { HBtn } from './magic';
 import { I } from './icons';
 import { Kicker, H2, container, softCard } from './shared';
 import { MERCHANT_OF_RECORD_NOTE } from '../content/legal';
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
 
 export interface Plan {
   name: string;
@@ -182,8 +183,19 @@ const FREE_TIER_PLAN_ID = 'free';
 
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
+//
+// 🔴 Individual's 'SMS (bring your own Twilio)' line is now behind
+// SMS_MARKETING_ENABLED — THE-245, finished in THE-250. The app refuses every
+// send with a 503 while its own SMS_FEATURE_ENABLED is false, so this line was
+// selling a capability the product will not perform. SMS moved to Coming Soon
+// ("SMS & Text-to-Give") instead of vanishing.
+//
+// ⚠️ GATED, NOT DELETED, and that is the whole point of the flag: flipping one
+// value has to bring back EVERY SMS surface and simultaneously drop the Coming
+// Soon entry, or the same claim gets made twice in two tenses. See the matching
+// note on the Automation group in COMPARISON below. No price changed here.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []), 'Donation page & Fundraising'] },
   { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
   { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
@@ -553,7 +565,34 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Automation', rows: [
     ['Newsletter', [false, false, T, T]],
     ['Automated Newsletter', [false, false, false, T]],
-    ['SMS (bring your own Twilio)', [false, T, T, T]],
+    /* 🔴 The SMS row is behind SMS_MARKETING_ENABLED (THE-245, finished in
+       THE-250). This grid asserted ['SMS (bring your own Twilio)',
+       [false, T, T, T]] — SMS included on all three paid tiers — while the app
+       refused every send with a 503. That is the site selling a capability the
+       product will not perform, the exact failure this page has been corrected
+       for six times.
+
+       ⚠️ THIS IS A RELOCATION, NOT A RETRACTION. SMS now has a Coming Soon entry
+       ("SMS & Text-to-Give"), where the `SoonItem` shape has nowhere to put a
+       price, a tier or a call to action. A row HERE and an entry THERE would be
+       the same claim in two tenses — so the two are one switch: this row
+       appears exactly when `COMING_SOON_ITEMS` filters that entry out, and the
+       `the-250-sms-pricing-removed.test.ts` suite asserts the pair can never
+       both be present, in either flag state.
+
+       GATED, NOT DELETED, per the contract at the top of lib/flags.ts: every
+       hidden marketing surface stays in the tree behind its boolean so restoring
+       it is a one-line change. Deleting the row would have made the flip back a
+       hunt through git history for wording and cell values.
+
+       ⚠️ Neither this row nor the Individual card's line feeds CATALOG_TOOL_COUNT
+       — that is a reduce over CATALOG in components/catalog.ts, where the SMS
+       tool has its own gate on the same flag (which is what moves the count
+       between a derived 28 and a derived 27). A row and a catalogue entry are
+       different objects; do not hardcode the count to "fix" one from the other. */
+    ...(SMS_MARKETING_ENABLED
+      ? [['SMS (bring your own Twilio)', [false, T, T, T]] as [string, Cell[]]]
+      : []),
     ['Custom Forms → CRM', [false, false, false, T]],
   ] },
   { grp: 'Giving & Finance', rows: [

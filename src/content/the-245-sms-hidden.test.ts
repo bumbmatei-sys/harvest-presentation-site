@@ -251,32 +251,39 @@ describe('4 — the tool count moved, and is still derived', () => {
 /* ── 5 ─────────────────────────────────────────────────────────────────────
    🔴 The two module-scope contracts, VERIFIED BY MUTATION.                   */
 describe('5 — dropping the pricing-card SMS line trips neither contract', () => {
-  /* ⚠️ THE PRICING CARD IS NOT EDITED BY THIS TICKET. components/Pricing.tsx is
-     owned by a concurrent repricing ticket, so THE-245 reports the two lines
-     rather than removing them:
+  /* ✅ THE HAND-OVER LANDED — THE-250. components/Pricing.tsx was owned by a
+     concurrent repricing ticket while THE-245 ran, so THE-245 could only REPORT
+     the two lines and prove that removing them was safe:
 
-       · line ~186 — the Individual card's `features` array carries
-         'SMS (bring your own Twilio)'
-       · line ~556 — the comparison table's Automation group carries the row
+       · the Individual card's `features` array carried 'SMS (bring your own Twilio)'
+       · the comparison table's Automation group carried the row
          ['SMS (bring your own Twilio)', [false, T, T, T]]
 
-     What this block proves is that removing them is SAFE — the STOP condition
-     asked whether the card can drop the line without tripping a contract, and
-     the answer is yes, demonstrated on mutated input rather than reasoned
-     about. Both contracts are exported precisely so they can be handed data
-     they were not called with. */
+     THE-250 put both behind `SMS_MARKETING_ENABLED` — gated, not deleted, so the
+     flip back is still one value. THE-245's mutation therefore IS the shipped
+     state now, and this block keeps running for the reason it was written: the
+     STOP condition asked whether the card can drop the line without tripping a
+     contract, and the controls below are what make "did not throw" mean
+     something. Both contracts are exported precisely so they can be handed data
+     they were not called with. The full re-verification lives in
+     content/the-250-sms-pricing-removed.test.ts. */
 
-  /** The Individual card with its SMS line removed — the proposed change. */
+  /** The Individual card with any SMS line removed. A NO-OP while the flag is
+   *  off — asserted as such below — and the real mutation again if it flips. */
   const withoutSmsLine = (): Plan[] =>
     plans.map((p) => ({ ...p, features: p.features.filter((f) => !/\bSMS\b/i.test(f)) }));
 
   it('🔴 the cross-repo price contract reads PRICES, never the feature list', () => {
     const mutated = withoutSmsLine();
-    // The line really did go, so the mutation is not a no-op.
-    expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f))).toBe(true);
+    // Neither the shipped list nor the mutated one claims SMS: the line is
+    // behind the flag, and the flag is off. That equality IS the landed
+    // hand-over — with the flag on these two would differ again.
+    expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f)))
+      .toBe(SMS_MARKETING_ENABLED);
     expect(mutated.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f))).toBe(false);
-    // …and the contract does not care.
+    // …and the contract does not care either way.
     expect(() => planPriceContract(mutated)).not.toThrow();
+    expect(() => planPriceContract(plans)).not.toThrow();
   });
 
   it('🔴 and it STILL throws when the repos disagree — the mutation control', () => {
@@ -320,20 +327,24 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
     expect(() => render(React.createElement(ComparisonTable))).not.toThrow();
   });
 
-  it('🔴 records the exact hand-over, so it cannot be lost', () => {
-    // The two lines another ticket has to remove, pinned by their real text. If
-    // they are already gone when this runs, the site and the app agree and this
-    // test is the thing that says so.
+  it('🔴 records that the hand-over landed, so it cannot be undone quietly', () => {
+    // ⚠️ REWRITTEN BY THE-250, which is the ticket that took the hand-over. The
+    // original asked "are the two lines still here?" and allowed either answer.
+    // Both are now GATED rather than gone, so neither of the old branches
+    // describes the file: the string is still in the source (that is the
+    // hide-not-delete guarantee) but no rendered surface carries it.
+    //
+    // The claim is therefore about RENDERED OUTPUT, not about source text —
+    // which is what the STOP condition was ever about.
+    const cards = plans.flatMap((p) => p.features).join(' ');
+    expect(cards, 'a pricing card claims SMS again').not.toMatch(/\bSMS\b/i);
+    const grid = visibleText(render(React.createElement(ComparisonTable)));
+    expect(grid, 'the comparison grid claims SMS again').not.toMatch(/\bSMS\b/i);
+    // And the source still HOLDS it, behind the one flag, ready to come back.
     const pricing = readSrc('components/Pricing.tsx');
-    const CARD_LINE = "'SMS (bring your own Twilio)'";
-    const stillClaimed = pricing.includes(CARD_LINE);
-    if (stillClaimed) {
-      // Documented, not silently tolerated: exactly two occurrences, both known.
-      expect((pricing.match(/'SMS \(bring your own Twilio\)'/g) ?? []).length).toBe(2);
-    } else {
-      // The hand-over landed — nothing on the pricing page claims SMS.
-      expect(pricing).not.toMatch(/\bSMS\b/);
-    }
+    expect(pricing, 'the SMS line was deleted rather than gated')
+      .toContain("'SMS (bring your own Twilio)'");
+    expect(pricing).toContain('SMS_MARKETING_ENABLED');
   });
 });
 

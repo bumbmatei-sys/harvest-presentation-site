@@ -13,6 +13,7 @@ import { Replaces } from './Replaces';
 import { CATEGORIES } from '../content/features';
 import { FAQS } from '../content/faq';
 import { LEGAL_DOCS } from '../content/legal';
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* THE-163 — two claims in the plan comparison grid, and everything the change
  * had to leave alone.
@@ -400,7 +401,9 @@ describe('the Forever Free column claims exactly what the tier has', () => {
   it('claims NO blog, newsletter, SMS, livestream, check-in, groups or accounting', () => {
     for (const row of [
       'Blog', 'Automated SEO Blog Articles', 'Newsletter', 'Automated Newsletter',
-      'SMS (bring your own Twilio)', 'Livestream + Live Giving', 'Check-In System (QR)',
+      // THE-250 — see the note on the priced-tier assertion below.
+      ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []),
+      'Livestream + Live Giving', 'Check-In System (QR)',
       'Community Groups', 'Event Registration', 'Church Map', 'Custom Branding',
       'Custom Domain', 'Custom Forms \u2192 CRM', 'Accounting + QuickBooks Sync',
       'Tax Receipts & Giving Statements', 'Sermon Notes \u2192 Livestream',
@@ -414,7 +417,13 @@ describe('the Forever Free column claims exactly what the tier has', () => {
     // the three priced columns must read exactly as they did before THE-204.
     expect(claim('Blog', 'Individual')).toBe('included');
     expect(claim('Donation Page', 'Individual')).toBe('included');
-    expect(claim('SMS (bring your own Twilio)', 'Individual')).toBe('included');
+    // THE-250 — the SMS row moved behind SMS_MARKETING_ENABLED, so with the flag
+    // off there is no row to read. Guarded rather than deleted: this block's
+    // claim is that the priced columns read as they did BEFORE THE-204, and
+    // with the flag on that still has to include SMS on Individual.
+    if (SMS_MARKETING_ENABLED) {
+      expect(claim('SMS (bring your own Twilio)', 'Individual')).toBe('included');
+    }
     expect(claim('Contacts', 'Small Team')).toBe('500');
     expect(claim('Contacts', 'Ministry')).toBe('2,000');
     expect(claim('Courses', 'Ministry')).toBe('15');
