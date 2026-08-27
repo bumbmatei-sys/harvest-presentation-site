@@ -5,6 +5,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ADD_ONS, BILLING_TERMS, ComparisonTable, DODO_ADD_ON_CATALOG, planPriceContract, plans, type BillingTerm } from './Pricing';
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* The contract's expectations, DERIVED from `plans` rather than typed out a
    fourth time. Handing it this passes; bumping one cell of it is a repo
@@ -320,9 +321,15 @@ describe('the plan feature matrix is unchanged', () => {
   it('still lists each tier with the same bullets it listed before', () => {
     // The card bullet lists, verbatim. A repricing that quietly moved a feature
     // between tiers would be a different product sold at a new price.
+    // THE-250 — the SMS row/line moved behind SMS_MARKETING_ENABLED. Spread on
+// the flag rather than deleted from this baseline: this block's claim is that
+// nothing ELSE moved, and a hardcoded list would restate that claim against
+// the wrong baseline the moment the switch flips back.
     expect(plans.find((p) => p.planId === 'plus')!.features).toEqual([
       '150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
-      'CRM (Donors & Members)', 'SMS (bring your own Twilio)', 'Donation page & Fundraising',
+      'CRM (Donors & Members)',
+      ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []),
+      'Donation page & Fundraising',
     ]);
     expect(plans.find((p) => p.planId === 'pro')!.features).toEqual([
       'Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',

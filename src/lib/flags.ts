@@ -55,10 +55,15 @@ export const MULTI_CAMPUS_ENABLED = false;
  *           claim made twice, in two tenses. `COMING_SOON_ITEMS` filters on this
  *           flag for exactly that reason.
  *
- *  ⚠️ What it does NOT gate: the two pricing-card surfaces in components/Pricing.tsx
- *  (the Individual card's feature list and the comparison-table row). That file
- *  is owned by a concurrent repricing ticket, so THE-245 does not edit it; the
- *  two-line change is written out in the pull request and verified by mutation
- *  in the-245-sms-hidden.test.ts, which proves neither cross-repo contract trips
- *  when those lines go. */
+ *  ✅ IT NOW GATES THE TWO PRICING SURFACES TOO — THE-250. `components/Pricing.tsx`
+ *  (the Individual card's feature list and the comparison-table Automation row)
+ *  was owned by a concurrent repricing ticket while THE-245 was in flight, so
+ *  THE-245 proved by mutation that removing both lines trips neither cross-repo
+ *  contract and wrote the change into its pull request rather than making it.
+ *  THE-250 made it, as a gate rather than a deletion — per the "nothing is
+ *  deleted" contract at the top of this file, and because the flip back has to
+ *  be ONE value: true restores both pricing surfaces AND drops the Coming Soon
+ *  entry in the same motion. `the-250-sms-pricing-removed.test.ts` asserts on
+ *  RENDERED OUTPUT that the sold-here / promised-there pair is never both, in
+ *  either flag state. */
 export const SMS_MARKETING_ENABLED = false;
