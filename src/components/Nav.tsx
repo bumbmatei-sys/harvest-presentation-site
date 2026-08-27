@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { HBtn } from './magic';
 import { L } from './icons';
 import { Mark } from './shared';
-import { CATALOG, CATALOG_TOOL_COUNT, slugify } from './catalog';
+import { CATALOG, CATALOG_TOOL_COUNT, slugify, type CatalogGroup, type CatalogItem } from './catalog';
 import { CATEGORIES, CATEGORY_BY_NAME, categoryHref, featureHref as featurePath } from '../content/features';
 import { TRIAL_CTA_LABEL } from '../content/legal';
 import { CHEAPEST_MONTHLY } from './Pricing';
@@ -18,16 +18,37 @@ import { CHEAPEST_MONTHLY } from './Pricing';
    clicked from a feature page. Each mega-menu item deep-links to its section on
    the category page it belongs to, and each column header opens that page. */
 
-const featureHref = (title: string) => featurePath(slugify(title));
 // Menu group names match the category names in content/features.ts. The fallback
 // only matters if one is renamed on one side — a wrong link beats a nav that
 // throws on every route.
 const groupHref = (name: string) => categoryHref((CATEGORY_BY_NAME[name] || CATEGORIES[0]).slug);
 
-/* Inline SOON pill for mega-menu items — same sky tokens as the /features card
-   badge, sized to sit next to the item title rather than absolutely positioned. */
+/* Where a mega-menu entry goes.
+   The five live groups resolve through LEGACY_ANCHORS, which maps a retired
+   /features#<slug> URL onto the category page and section that feature moved
+   to. The Coming Soon group cannot: an unbuilt feature has no retired URL and
+   no section on a live category page, so it carries its destination on the
+   entry itself. Falling back to the derived lookup keeps the five unchanged. */
+/* Exported so content/features.test.ts can assert on the resolver the menu
+   actually uses rather than re-deriving it — the same reason
+   `MegaMenuFooterLabel` below is its own export. A test that re-implements the
+   lookup passes while the JSX seam sends every visitor somewhere else. */
+export const itemHref = (it: CatalogItem) => it.href ?? featurePath(slugify(it.title));
+export const columnHref = (g: CatalogGroup) => g.href ?? groupHref(g.name);
+
+/* Inline SOON pill for mega-menu items, sized to sit next to the item title
+   rather than absolutely positioned.
+
+   🔴 GREY, NOT SKY. This carried --sky-100 / --sky-700 while nothing in the
+   catalogue was marked `soon`, so it never rendered. It renders now, on all
+   eight Coming Soon entries, and sky is the LIVE colour of Community &
+   Engagement — a badge in another category's brand tint next to an unbuilt
+   feature is the opposite of the signal it exists to send. Dashed, because
+   dashed already means "not included" in this codebase (an unlit plan chip in
+   FeatureBlock). */
 const soonPill: React.CSSProperties = {
-  background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 8.5, fontWeight: 700,
+  background: 'var(--surface-soon)', color: 'var(--text-soon)',
+  border: '1px dashed var(--text-soon-soft)', fontSize: 8.5, fontWeight: 700,
   letterSpacing: '0.06em', padding: '2px 6px', borderRadius: 999, lineHeight: 1.4,
 };
 
@@ -43,6 +64,69 @@ const linkStyle: React.CSSProperties = {
 const PAGE_LINKS: [string, string][] = [
   ['Pricing', '/#pricing'],
 ];
+
+/** Both Features menus' column list — six headers, each over its own items.
+ *
+ *  ⚠️ EXPORTED AND SHARED FOR THE SAME REASON `MegaMenuFooterLabel` BELOW IS.
+ *  The desktop grid renders only once `mega` state is true and the accordion
+ *  only once `mobile` is, and nothing outside a real click can set either in
+ *  this repo's DOM-less test runner — so neither menu could be asserted against
+ *  rendered markup at all. Pulled out, both can be, which matters here because
+ *  the founder's requirement is about ORDER ("leftmost on desktop, first on the
+ *  phone") and order is a property of the markup, not of the array.
+ *
+ *  One component rather than two also makes the ordering claim structural:
+ *  both menus map the same `CATALOG` in the same pass, so a category cannot end
+ *  up first on one and third on the other. The two variants differ only in
+ *  type scale and spacing — the sizes each menu already used. */
+export function FeatureMenuColumns({ variant, onNavigate = () => {} }:
+  { variant: 'desktop' | 'mobile'; onNavigate?: () => void }) {
+  const desktop = variant === 'desktop';
+  return (
+    <>
+      {CATALOG.map((g) => (
+        <div key={g.name} style={desktop ? undefined : { marginBottom: 14 }}>
+          <Link
+            to={columnHref(g)}
+            onClick={onNavigate}
+            style={{
+              display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: g.tint, textDecoration: 'none',
+              ...(desktop ? { marginBottom: 12 } : { margin: '6px 0 8px' }),
+            }}
+            onMouseEnter={desktop ? (e) => { e.currentTarget.style.textDecoration = 'underline'; } : undefined}
+            onMouseLeave={desktop ? (e) => { e.currentTarget.style.textDecoration = 'none'; } : undefined}
+          >
+            {g.name}
+          </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: desktop ? 3 : 2 }}>
+            {g.items.map((it) => (
+              <Link
+                key={it.title}
+                to={itemHref(it)}
+                role={desktop ? 'menuitem' : undefined}
+                onClick={onNavigate}
+                style={{
+                  display: 'flex', alignItems: 'center', borderRadius: 9, textDecoration: 'none',
+                  fontWeight: 500, color: 'var(--navy-800)',
+                  ...(desktop
+                    ? { gap: 8, padding: '6px 8px', margin: '0 -8px', fontSize: 13, transition: 'background 150ms' }
+                    : { gap: 9, padding: '7px 6px', fontSize: 14 }),
+                }}
+                onMouseEnter={desktop ? (e) => { e.currentTarget.style.background = 'var(--stone-100)'; } : undefined}
+                onMouseLeave={desktop ? (e) => { e.currentTarget.style.background = 'transparent'; } : undefined}
+              >
+                <L name={it.icon} size={desktop ? 15 : 16} color={g.tint} />
+                <span>{it.title}</span>
+                {it.soon && <span style={soonPill}>SOON</span>}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
 
 /** The mega-menu footer's price and tool-count claim, split out into its own
  *  component so a test can render it with `renderToStaticMarkup` directly —
@@ -167,44 +251,35 @@ export function Nav() {
           role="menu"
           aria-label="Features"
           style={{
-            width: 'min(1100px, calc(100vw - 40px))', marginTop: 10,
+            width: 'min(1180px, calc(100vw - 40px))', marginTop: 10,
             background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
             border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
             boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: '26px 30px',
+            /* 🔴 The desktop panel had no height cap and could run off the
+               bottom of a short window with no way to reach what it hid. The
+               mobile panel below has always capped and scrolled; this is the
+               same rule, and it is needed here now that a sixth column makes
+               the panel taller — measured at 696px against a 600px-tall window
+               at 1024 wide, and 816px against 700px at 901 wide, where six
+               groups wrap onto two rows. */
+            maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 24 }}>
-            {CATALOG.map((g) => (
-              <div key={g.name}>
-                <Link
-                  to={groupHref(g.name)}
-                  onClick={() => setMega(false)}
-                  style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, marginBottom: 12, textDecoration: 'none' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
-                >
-                  {g.name}
-                </Link>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {g.items.map((it) => (
-                    <Link
-                      key={it.title}
-                      to={featureHref(it.title)}
-                      role="menuitem"
-                      onClick={() => setMega(false)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', margin: '0 -8px', borderRadius: 9, textDecoration: 'none', fontSize: 13, fontWeight: 500, color: 'var(--navy-800)', transition: 'background 150ms' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--stone-100)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                    >
-                      <L name={it.icon} size={15} color={g.tint} />
-                      <span>{it.title}</span>
-                      {it.soon && <span style={soonPill}>SOON</span>}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
+          {/* Six columns since THE-247, but deliberately NOT a fixed
+              six-track grid.
+              🔴 A bare `1fr` column has an implicit min-width of `auto`: it
+              refuses to shrink below its content and overflows the panel
+              instead. Forcing six fixed columns left "Documentation" about 2px
+              of slack at 901px — the narrowest width this menu ever renders at,
+              since `.nav-links` is display:none below 900 — against roughly
+              32px for the five live columns before the change. That is the
+              shape of the 41px overflow this site has already been bitten by.
+              `auto-fit` + `minmax` cannot overflow by construction: it lays
+              down as many >=136px tracks as fit and wraps the rest onto a
+              second row. Six across at 1024 and up, five at 901. */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(136px, 1fr))', gap: 18 }}>
+            <FeatureMenuColumns variant="desktop" onNavigate={() => setMega(false)} />
           </div>
           <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}><MegaMenuFooterLabel /></span>
@@ -236,27 +311,7 @@ export function Nav() {
           </button>
           {mobileFeatures && (
             <div style={{ padding: '4px 8px 12px' }}>
-              {CATALOG.map((g) => (
-                <div key={g.name} style={{ marginBottom: 14 }}>
-                  <Link
-                    to={groupHref(g.name)}
-                    onClick={closeMobile}
-                    style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, margin: '6px 0 8px', textDecoration: 'none' }}
-                  >
-                    {g.name}
-                  </Link>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {g.items.map((it) => (
-                      <Link key={it.title} to={featureHref(it.title)} onClick={closeMobile}
-                        style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 6px', borderRadius: 9, textDecoration: 'none', fontSize: 14, fontWeight: 500, color: 'var(--navy-800)' }}>
-                        <L name={it.icon} size={16} color={g.tint} />
-                        <span>{it.title}</span>
-                        {it.soon && <span style={soonPill}>SOON</span>}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <FeatureMenuColumns variant="mobile" onNavigate={closeMobile} />
             </div>
           )}
 

@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { blogRoutes } from '../../build/blog-plugin';
 import { routes } from '../App';
 import { Footer } from '../components/Footer';
+import { COMING_SOON_HREF } from '../content/coming-soon';
 import { LEGAL_DOCS, legalHref, legalLinks, type LegalSlug } from '../content/legal';
 import { LegalPage } from './LegalPage';
 
@@ -72,12 +73,22 @@ describe('the prerender list', () => {
     expect(prerendered, `/${slug} would ship as an empty shell`).toContain(legalHref(slug));
   });
 
-  it('prerenders 19 pages', () => {
-    // 15 before the policies, 18 with them, 19 with /faq. The number is asserted
-    // rather than derived so that a route silently dropping out of the list is a
-    // failure here rather than a page that quietly stops being crawlable.
-    expect(prerendered).toHaveLength(19);
+  it('prerenders 20 pages', () => {
+    // 15 before the policies, 18 with them, 19 with /faq, 20 with the Coming
+    // Soon category (THE-247). The number is asserted rather than derived so
+    // that a route silently dropping out of the list is a failure here rather
+    // than a page that quietly stops being crawlable.
+    expect(prerendered).toHaveLength(20);
     expect(new Set(prerendered).size).toBe(prerendered.length);
+  });
+
+  it('includes the Coming Soon category', () => {
+    // A page whose whole job is to say what does NOT exist is worth crawling: a
+    // church searching for a capability Harvest lacks should find the page that
+    // says so. Left out of the prerender it would ship as an empty shell, which
+    // is the one way this page could mislead by omission.
+    expect(prerendered, 'the Coming Soon page would ship as an empty shell')
+      .toContain(COMING_SOON_HREF);
   });
 
   it('prerenders every route the router declares, catch-all and dynamic aside', () => {
