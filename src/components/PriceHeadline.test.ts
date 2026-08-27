@@ -87,18 +87,22 @@ describe('THE-196 — the headline is the per-month figure', () => {
     // restate what it now shows rather than sliding through a derivation.
     const table = plans.map((p) => BILLING_TERMS.map((t) => formatMonthlyHeadline(p.price[t], t)));
     expect(table).toEqual([
-      ['$20', '$16.34', '$13.75'],
-      ['$40', '$33', '$27.42'],
-      ['$80', '$66.34', '$54.92'],
+      ['$20', '$18', '$15.84'],
+      ['$40', '$36', '$31.67'],
+      ['$80', '$72', '$63.34'],
     ]);
   });
 
   it('an exact division shows no cents and a remainder always does', () => {
-    expect(formatMonthlyHeadline(99, 'quarterly')).toBe('$33');       // 33.00 exactly
-    expect(formatMonthlyHeadline(399, 'quarterly')).toBe('$133');     // 133.00 exactly
+    // The three live quarters all divide exactly as of THE-248, so the
+    // whole-dollar branch is exercised by real prices rather than by a synthetic
+    // one; $1,329 stays as the "exact but not whole" case, which no current
+    // price produces.
+    expect(formatMonthlyHeadline(108, 'quarterly')).toBe('$36');      // 36.00 exactly
+    expect(formatMonthlyHeadline(216, 'quarterly')).toBe('$72');      // 72.00 exactly
     expect(formatMonthlyHeadline(1329, 'yearly')).toBe('$110.75');    // exact, but not whole
-    expect(formatMonthlyHeadline(329, 'yearly')).toBe('$27.42');      // 27.4167 ceiled
-    expect(ceilToCent(33)).toBe(33);                                  // no float drift upward
+    expect(formatMonthlyHeadline(380, 'yearly')).toBe('$31.67');      // 31.6667 ceiled
+    expect(ceilToCent(36)).toBe(36);                                  // no float drift upward
   });
 });
 
@@ -180,12 +184,14 @@ describe('THE-196 — the honesty guard', () => {
     // against the shipped ceiling it could never fail.
     expect(() => monthlyHeadlineContract()).not.toThrow();
     expect(() => monthlyHeadlineContract(Math.round)).toThrow(/never promise less than the bill/);
-    // 🔴 THE-222 MOVED WHICH CELL THE OLD RULE LIES ABOUT FIRST. It used to be
-    // Individual's YEAR ($329/12 rounds to $27, implying $324). At $165 that
-    // cell is now safe — $13.75 rounds UP — and the first understatement is
-    // Individual's QUARTER: $49/3 is $16.33, rounds to $16, implies $48 against
-    // a charged $49. The guard stops at the first offender and names it.
-    expect(() => monthlyHeadlineContract(Math.round)).toThrow(/Individual quarterly/);
+    // 🔴 THE-248 MOVED IT AGAIN, AND DOWN TO A SINGLE CELL. Every quarter now
+    // divides exactly ($54/3, $108/3, $216/3), so no quarterly cell can round
+    // down at all, and two of the three years round UP ($190/12 = $15.83 → $16,
+    // $380/12 = $31.67 → $32). Exactly one cell is left where the old rule
+    // lies: Ministry's YEAR — $760/12 is $63.3333, rounds to $63, implies $756
+    // against a charged $760. The guard stops at the first offender and names
+    // it, and one offender is all this mutation needs.
+    expect(() => monthlyHeadlineContract(Math.round)).toThrow(/Ministry yearly/);
     expect(() => monthlyHeadlineContract(Math.floor)).toThrow(/never promise less than the bill/);
     // Ceiling to the dollar never understates, so the guard accepts it; it is
     // the reconciliation test that rules it out.
@@ -193,12 +199,23 @@ describe('THE-196 — the honesty guard', () => {
   });
 
   it('the headline reconciles with the charged total, not merely exceeds it', () => {
-    // Ceiling to the DOLLAR would put $28/mo over a charged $329 — a $7
+    // Ceiling to the DOLLAR would put $64/mo over a charged $760 — an $8
     // disagreement between two numbers on the same card.
+    //
+    // 🔴 THE BOUND IS DERIVED, NOT A CONSTANT. It was a flat `0.05`, which was
+    // simply the worst gap the THE-222 prices happened to produce; THE-248's
+    // $760 year overshoots by $0.08 and would have failed a rule it does not
+    // actually break. Ceiling at the cent can add at most one cent per month,
+    // so the honest ceiling on the disagreement is `months × $0.01` — twelve
+    // cents on a year, three on a quarter. That still excludes ceiling to the
+    // DOLLAR (up to $0.99 a month), which is the presentation this rules out.
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        const implied = ceilToCent(p.price[term] / TERM_MONTHS[term]) * TERM_MONTHS[term];
-        expect(implied - p.price[term]).toBeLessThan(0.05);
+        const months = TERM_MONTHS[term];
+        const implied = ceilToCent(p.price[term] / months) * months;
+        expect(implied - p.price[term], `${p.planId} ${term}`).toBeLessThan(months * 0.01 + 1e-9);
+        // Never UNDER, either — the whole point of the ceiling.
+        expect(implied - p.price[term], `${p.planId} ${term}`).toBeGreaterThanOrEqual(-1e-9);
       }
     }
   });
@@ -218,9 +235,9 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
        and its own suite asserts those against its rendered cards. If either
        repo changes the shape, one of the two fails. */
     const APP_HEADLINES: Record<string, Record<BillingTerm, string>> = {
-      plus: { monthly: '$20', quarterly: '$16.34', yearly: '$13.75' },
-      pro:  { monthly: '$40', quarterly: '$33',    yearly: '$27.42' },
-      max:  { monthly: '$80', quarterly: '$66.34', yearly: '$54.92' },
+      plus: { monthly: '$20', quarterly: '$18', yearly: '$15.84' },
+      pro:  { monthly: '$40', quarterly: '$36', yearly: '$31.67' },
+      max:  { monthly: '$80', quarterly: '$72', yearly: '$63.34' },
     };
     for (const p of plans) {
       for (const term of BILLING_TERMS) {

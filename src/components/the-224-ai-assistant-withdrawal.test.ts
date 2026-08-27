@@ -237,9 +237,9 @@ describe('no price changed', () => {
     // 🔴 CONTRACT-PINNED AND LIVE. THE-224 is a card removal; if any of these
     // moved, the change did something it was explicitly forbidden to do.
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([49, 99, 199]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([165, 329, 659]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
+    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 760]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 

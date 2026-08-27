@@ -78,19 +78,28 @@ export const TERM_LABEL: Readonly<Record<BillingTerm, string>> = Object.freeze({
  * misrepresentation, not a rounding preference, so the headline is CEILED — it
  * may never imply less than the bill.
  *
+ * ⚠️ THOSE TWO CELLS ARE HISTORY; THE RULE IS NOT. Under THE-248's prices all
+ * three quarters divide exactly ($54/3, $108/3, $216/3 → $18, $36, $72) and two
+ * of the three years round up, leaving exactly ONE cell that still understates
+ * under `Math.round`: Ministry yearly, $760/12 = $63.3333 → $63 → implies $756
+ * against a charged $760. One is enough, and a reprice decides which — so this
+ * is guarded as a rule, never as a list of offending cells.
+ *
  * Ceiled at the CENT rather than the dollar. Ceiling to the dollar also never
- * understates, but it puts "$28/mo" directly above "billed as $329 every 12
- * months", and $28 x 12 is $336: the two numbers on the card would not
+ * understates, but it puts "$64/mo" directly above "billed as $760 every 12
+ * months", and $64 x 12 is $768: the two numbers on the card would not
  * reconcile, which is the same class of defect this ticket exists to remove.
- * At the cent they reconcile to within four cents — the rounding itself.
+ * At the cent they reconcile to within eight cents — the rounding itself.
  *
  * ⚠️ MUST MATCH THE APP. `plan-features.ts` in Harvest-agent carries the same
  * rule as `ceilToCent`, and `planPriceContract` below compares the two repos'
  * price tables. A church can see the marketing card and the in-app card in one
  * session and they must not present a price differently.
  *
- * The `toFixed(6)` guards the exact divisions: $99/3 is $33.00, and a binary
- * float landing a hair above 3300 cents would ceil an exact $33 to $33.01.
+ * The `toFixed(6)` guards the exact divisions: $108/3 is $36.00, and a binary
+ * float landing a hair above 3600 cents would ceil an exact $36 to $36.01.
+ * THE-248 makes all three quarters exact, so this guard now carries three cells
+ * rather than one.
  */
 export const ceilToCent = (exact: number) =>
   Math.ceil(Number((exact * 100).toFixed(6))) / 100;
@@ -174,9 +183,9 @@ const FREE_TIER_PLAN_ID = 'free';
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 49,  yearly: 165 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
-  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 99,  yearly: 329 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 199, yearly: 659 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'SMS (bring your own Twilio)', 'Donation page & Fundraising'] },
+  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
+  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
@@ -285,9 +294,9 @@ export const ALL_TIER_NAMES = [FREE_TIER.name, ...plans.map((p) => p.name)];
    stops here. Update these together with the app's PLAN_PRICING
    (Harvest-agent src/utils/plan-features.ts), in the same change.               */
 const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, quarterly: 49,  yearly: 165 },
-  pro:  { monthly: 40, quarterly: 99,  yearly: 329 },
-  max:  { monthly: 80, quarterly: 199, yearly: 659 },
+  plus: { monthly: 20, quarterly: 54,  yearly: 190 },
+  pro:  { monthly: 40, quarterly: 108, yearly: 380 },
+  max:  { monthly: 80, quarterly: 216, yearly: 760 },
 };
 
 /**
@@ -331,16 +340,57 @@ planPriceContract(plans);
  * control that governs all three cards, and one number cannot be derived from
  * three. Kept identical to the app's ADVERTISED_DISCOUNT_PCT.
  */
-export const ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { quarterly: 15, yearly: 30 };
+export const ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { quarterly: 10, yearly: 20 };
 
 export type DiscountedTerm = Exclude<BillingTerm, 'monthly'>;
 
 /** The two terms carrying a discount. Derived, so a term cannot be forgotten. */
 export const DISCOUNTED_TERMS = BILLING_TERMS.filter((t): t is DiscountedTerm => t !== 'monthly');
 
-/** What `plan` on `term` actually saves against paying monthly, exactly. */
-export const actualSavingPct = (plan: Plan, term: BillingTerm) =>
-  (1 - plan.price[term] / (plan.price.monthly * TERM_MONTHS[term])) * 100;
+/**
+ * What `plan` on `term` actually saves against paying monthly, exactly.
+ *
+ * ─── 🔴 WHY THE SUBTRACTION HAPPENS IN DOLLARS (THE-248) ─────────────────────
+ *
+ * This read `(1 - price / atMonthlyRate) * 100`. That is the same arithmetic on
+ * paper and NOT the same in binary floating point, and THE-248 is the reprice
+ * that walked into the difference: quarterly is now EXACTLY 10% off on all
+ * three tiers — $54 against $60, $108 against $120, $216 against $240 — and the
+ * old form computes that as 9.999999999999998.
+ *
+ *     54 / 60   →  0.9   (the nearest double to nine tenths, a hair BELOW it)
+ *     1 - 0.9   →  0.09999999999999998
+ *     × 100     →  9.999999999999998
+ *
+ * A tenth has no exact binary representation, so the subtraction from 1 leaves
+ * the representation error somewhere a comparison can see it. Both readers then
+ * land on the wrong side of the knife edge:
+ *
+ *   `discountClaimShape` asks `10 <= worst`, gets false, and degrades an
+ *     honest flat "Save 10%" to "Save up to 10%".
+ *   `discountClaimContract` asks `10 > best`, gets true, and FAILS THE
+ *     PRERENDER over a percentage the prices genuinely deliver.
+ *
+ * 🔴 NEITHER COMPARISON IS THE BUG, and neither may be loosened to hide this.
+ * `<=` and `>` are exactly right: a claim equal to the saving is honest, and
+ * only a claim ABOVE the best tier is a lie under every wording. Relaxing `>`
+ * to `>=` would silence this case and simultaneously let a future claim that
+ * really does exceed every tier through the guard — the precise failure the
+ * guard exists to catch. The arithmetic was wrong, so the arithmetic changed.
+ *
+ * Subtracting in DOLLARS keeps the numerator a whole number: 60 - 54 is 6, and
+ * 6 × 100 / 60 is 600 / 60, which is 10 exactly — every value on that path is
+ * an integer a double holds exactly. Plan prices are whole dollars (pinned by
+ * `Pricing.test.ts`), so this holds for all nine cells, not just today's.
+ *
+ * ⚠️ The app carries the identical reordering in `actualSavingPct`
+ * (Harvest-agent src/utils/plan-features.ts). Both repos run this guard at
+ * module scope, so a fix to one alone leaves the other's build broken.
+ */
+export const actualSavingPct = (plan: Plan, term: BillingTerm) => {
+  const atMonthlyRate = plan.price.monthly * TERM_MONTHS[term];
+  return atMonthlyRate === 0 ? 0 : ((atMonthlyRate - plan.price[term]) * 100) / atMonthlyRate;
+};
 
 /**
  * 🔴 THE HONESTY RULE, mechanised: no copy may claim a saving larger than the
@@ -350,19 +400,27 @@ export const actualSavingPct = (plan: Plan, term: BillingTerm) =>
  * worst tier saves at least 30%. The numbers, as of THE-222:
  *
  *              Quarterly   Yearly
- *   Individual    18.3%     31.3%
- *   Small Team    17.5%     31.5%
- *   Ministry      17.1%     31.4%
+ *   Individual    10.0%     20.8%
+ *   Small Team    10.0%     20.8%
+ *   Ministry      10.0%     20.8%
  *
- *   quarterly  advertises 15, worst tier saves 17.1  → 'flat'  → "Save 15%"
- *   yearly     advertises 30, worst tier saves 31.3  → 'flat'  → "Save 30%"
+ *   quarterly  advertises 10, worst tier saves 10.0  → 'flat'  → "Save 10%"
+ *   yearly     advertises 20, worst tier saves 20.8  → 'flat'  → "Save 20%"
  *
- * ⚠️ YEARLY IS THE CASE THIS EXISTS FOR, AND IT HAS JUST FLIPPED. Under the
- * pre-THE-222 prices Individual saved 29.70% against an advertised 30% — three
- * tenths of a point short — so this returned 'upTo' and the badge read "Save up
- * to 30%". At $20/mo Individual's year is $165 against $240 bought monthly,
- * which is 31.25%, and it is STILL the worst yearly tier. Every tier now clears
- * 30, so the same derivation returns 'flat' and the qualifier drops off.
+ * ⚠️ QUARTERLY IS THE CASE THIS NOW TURNS ON, and it turns on EQUALITY rather
+ * than clearance. THE-248 puts every tier's quarter at exactly 10.0% off, so
+ * the claim does not clear the worst saving — it MEETS it, to the cent. `<=`
+ * is load-bearing in a way it was not before: under `<`, a claim the prices
+ * honour exactly would print "up to 10%", hedging against nothing at all.
+ *
+ * 🔴 AND EQUALITY IS WHERE FLOATING POINT BITES. `actualSavingPct` above had to
+ * subtract in dollars before this comparison could see a true 10 instead of
+ * 9.999999999999998. The operator was always right; the arithmetic feeding it
+ * was not. Do not loosen this to `<` for the next knife edge.
+ *
+ * Yearly clears with room — 20 advertised against 20.83 delivered on all three
+ * tiers — so it is quarterly, not yearly, that a future reprice will break
+ * first.
  *
  * 🔴 NOT A COPY EDIT. Nothing in this function changed — the prices moved under
  * it. That is the whole reason the wording is derived: this page has shipped a

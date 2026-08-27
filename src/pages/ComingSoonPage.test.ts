@@ -782,9 +782,9 @@ describe('the withdrawn AI Assistant add-on is not resurrected, and the unadvert
 describe('no price changed and both contracts still throw', () => {
   it('the nine plan prices are exactly what they were', () => {
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([49, 99, 199]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([165, 329, 659]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
+    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 760]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 

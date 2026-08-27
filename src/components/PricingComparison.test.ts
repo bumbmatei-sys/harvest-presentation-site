@@ -254,9 +254,9 @@ describe('what this change must not have touched', () => {
     // 🔴 Data and rendered cards both. Nine stored prices, three terms; the
     // badges are 15% and 30% and are NOT computed from the prices.
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([49, 99, 199]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([165, 329, 659]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
+    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 760]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
         // 🔴 THE-196 flipped the hierarchy: the headline is now the per-month
@@ -288,9 +288,9 @@ describe('what this change must not have touched', () => {
     // hand it a table that disagrees on one cell and it must throw.
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, quarterly: 49, yearly: 165 },
-        pro: { monthly: 40, quarterly: 100, yearly: 329 },
-        max: { monthly: 80, quarterly: 199, yearly: 659 },
+        plus: { monthly: 20, quarterly: 54, yearly: 190 },
+        pro: { monthly: 40, quarterly: 109, yearly: 380 },
+        max: { monthly: 80, quarterly: 216, yearly: 760 },
       }),
     ).toThrow(/Small Team.*quarterly/);
 

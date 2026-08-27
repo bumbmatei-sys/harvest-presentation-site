@@ -52,15 +52,20 @@ describe('plan ids', () => {
    products, and so on), transcribed independently.
 
    🔴 THE-222 MOVED THE WHOLE TABLE DOWN A TIER, which is exactly why these are
-   transcribed rather than derived. Small Team's new quarterly and yearly ($99 /
-   $329) are the figures Individual used to carry, and Ministry's new pair ($199
-   / $659) are Small Team's old pair. A reprice that shifted a row instead of
+   transcribed rather than derived: a reprice that shifted a row instead of
    repricing it would leave every number on this page looking familiar and put
-   two of the three tiers on the wrong price. */
+   two of the three tiers on the wrong price.
+
+   🔴 THE-248 RAISED THE SIX DISCOUNTED CELLS AND LEFT THE MONTHLY COLUMN
+   ALONE — verified live in Dodo on 2026-08-27 (5400 / 10800 / 21600 minor units
+   quarterly, 19000 / 38000 / 76000 yearly), product ids unchanged. Prices went
+   UP: the quarters were 49 / 99 / 199 and the years 165 / 329 / 659. That is a
+   deliberate REDUCTION IN DISCOUNT — 10% and 20% in place of the 17–18% and 31%
+   the old figures gave — and not a mistake to be "corrected" back. */
 const DODO_CATALOGUE_USD: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, quarterly: 49, yearly: 165 },
-  pro: { monthly: 40, quarterly: 99, yearly: 329 },
-  max: { monthly: 80, quarterly: 199, yearly: 659 },
+  plus: { monthly: 20, quarterly: 54, yearly: 190 },
+  pro: { monthly: 40, quarterly: 108, yearly: 380 },
+  max: { monthly: 80, quarterly: 216, yearly: 760 },
 };
 
 describe('the nine plan prices match the Dodo catalogue exactly', () => {
@@ -101,50 +106,56 @@ describe('the nine plan prices match the Dodo catalogue exactly', () => {
 
 /* ─── THE-195 TESTS 3 & 4 ─────────────────────────────────────────────────────
    The badges, and the honesty rule they have to satisfy. */
-describe('the discount badges read 15% and 30% and are not computed from the prices', () => {
-  it('advertises exactly 15% and 30%', () => {
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
+describe('the discount badges read 10% and 20% and are not computed from the prices', () => {
+  it('advertises exactly 10% and 20%', () => {
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
   });
 
   it('does NOT compute the badge from the prices — a computed badge fails two different ways', () => {
     // 🔴 This is the point of storing them, and the two discounted terms fail a
     // computed badge for DIFFERENT reasons — which is why neither one alone
     // would have justified the decision.
-
-    // 1. QUARTERLY: rounding disagrees across tiers. A per-tier badge would read
-    //    18% beside Individual and 17% beside Ministry, on a toggle that sits
-    //    above all three cards at once. Still true after THE-222 — only the two
-    //    figures moved.
-    const quarterlyRounded = plans.map((p) => Math.round(actualSavingPct(p, 'quarterly')));
-    expect(new Set(quarterlyRounded).size).toBeGreaterThan(1);
-    expect(Math.round(actualSavingPct(plans[0], 'quarterly'))).toBe(18);
-    expect(Math.round(actualSavingPct(plans[2], 'quarterly'))).toBe(17);
-
-    // 2. YEARLY: rounding AGREES across the tiers — all three now round to 31 —
-    //    and that agreement is the trap, in a different direction to before.
-    //    Pre-THE-222 the three rounded to 30 while the worst tier saved 29.70%,
-    //    so a computed badge would have rounded itself into a false claim. Now
-    //    they round to 31 and the worst tier saves 31.25%, so a computed badge
-    //    would be TRUE — and would silently move the advertised number from the
-    //    30 the founder chose to a 31 nobody signed off, on the next reprice
-    //    and every one after it.
     //
-    //    🔴 Both failures argue for the same split: store the NUMBER, derive
-    //    only the WORDING. A badge that recomputes itself is a badge that
-    //    changes what the company advertises without anyone deciding to.
+    // ⚠️ THE-248 INVERTED WHICH TERM FAILS WHICH WAY. The old argument was
+    // "quarterly disagrees across tiers, yearly agrees but drifts". The spread
+    // is gone — every tier now saves the same on both terms — so the first half
+    // of that argument no longer holds, and it is restated here rather than
+    // quietly left standing on a premise the prices retired.
+
+    // 1. QUARTERLY: computing AGREES with the stored number, exactly. All three
+    //    tiers save 10.0%, and 10 is what the toggle advertises. 🔴 THAT
+    //    AGREEMENT IS THE TRAP, not a reason to derive it: it makes computing
+    //    look safe on the one term where it currently is, and the next reprice
+    //    that rounds one tier differently would start printing a per-tier badge
+    //    above a toggle that governs all three cards at once.
+    const quarterlySavings = plans.map((p) => actualSavingPct(p, 'quarterly'));
+    expect(new Set(quarterlySavings)).toEqual(new Set([10]));
+    expect(new Set(quarterlySavings.map(Math.round))).toEqual(
+      new Set([ADVERTISED_DISCOUNT_PCT.quarterly]),
+    );
+
+    // 2. YEARLY: computing DISAGREES with the stored number. All three tiers
+    //    save 20.83%, so a computed badge reads "20.8%" — or rounds to 21 —
+    //    beside a page that says 20 in the Terms, in the FAQ and in the app. A
+    //    percentage nobody chose is not more honest for being derived; it is a
+    //    number every other surface would then have to chase.
     const yearlyRounded = plans.map((p) => Math.round(actualSavingPct(p, 'yearly')));
-    expect(new Set(yearlyRounded)).toEqual(new Set([31]));
+    expect(new Set(yearlyRounded)).toEqual(new Set([21]));
     expect(new Set(yearlyRounded)).not.toEqual(new Set([ADVERTISED_DISCOUNT_PCT.yearly]));
-    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeGreaterThan(30);
+    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeGreaterThan(20);
     expect(discountClaimShape('yearly')).toBe('flat');
+
+    // 🔴 Both failures argue for the same split: store the NUMBER, derive only
+    // the WORDING. A badge that recomputes itself is a badge that changes what
+    // the company advertises without anyone deciding to.
   });
 
   it('renders the stored number on the toggle, per discounted term', () => {
     const html = renderToStaticMarkup(
       React.createElement(TermToggle, { value: 'yearly', onChange: () => {} }),
     );
-    expect(html).toContain('-15%');
-    expect(html).toContain('-30%');
+    expect(html).toContain('-10%');
+    expect(html).toContain('-20%');
     // Monthly carries no badge — there is nothing to save against itself.
     expect(html.match(/-[0-9]+%/g)).toHaveLength(2);
   });
@@ -164,34 +175,40 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
     }
   });
 
-  it('quarterly may be claimed flat — the worst tier saves 17.08% against an advertised 15%', () => {
-    // The worst quarterly tier is MINISTRY, not Individual: $199 against $240
-    // bought monthly. The margin the flat claim rests on belongs to the tier
-    // that clears it least, so that is the tier named.
-    expect(worst('quarterly')).toBeGreaterThan(15);
-    expect(worst('quarterly')).toBeCloseTo(17.0833, 3);
-    expect(actualSavingPct(plans[2], 'quarterly')).toBeCloseTo(worst('quarterly'), 6);
+  it('quarterly may be claimed flat — every tier saves EXACTLY the advertised 10%', () => {
+    // 🔴 THE KNIFE EDGE. This is the one case the derivation has never had to
+    // handle: the claim does not CLEAR the worst saving, it MEETS it. $54
+    // against $60, $108 against $120 and $216 against $240 are each exactly
+    // nine tenths, so every tier saves 10.0% and the advertised figure is 10.
+    //
+    // `toBe(10)`, not `toBeCloseTo` — an exact assertion is the whole point.
+    // `actualSavingPct` computed this as 9.999999999999998 until THE-248
+    // reordered its arithmetic, and at that value `10 <= worst` is FALSE:
+    // the badge would have read "Save up to 10%" and the module-scope contract
+    // would have failed the prerender. A tolerant matcher here would have let
+    // both through.
+    expect(worst('quarterly')).toBe(10);
+    expect(best('quarterly')).toBe(10);
+    for (const p of plans) {
+      expect(actualSavingPct(p, 'quarterly'), `${p.planId} quarterly`).toBe(10);
+    }
+    expect(ADVERTISED_DISCOUNT_PCT.quarterly).toBe(worst('quarterly'));
     expect(discountClaimShape('quarterly')).toBe('flat');
-    expect(discountClaim('quarterly')).toBe('Save 15%');
+    expect(discountClaim('quarterly')).toBe('Save 10%');
+    expect(discountClaim('quarterly')).not.toContain('up to');
   });
 
-  it('🔴 yearly may NOW be claimed flat — the worst tier saves 31.25% against an advertised 30%', () => {
-    // 🔴 THE ASSERTION THE-222 FLIPPED, and the flip is the deliverable.
-    //
-    // Pre-THE-222 Individual's year was $329 against $468 bought monthly —
-    // 29.70%, three tenths of a point short of the advertised 30 — so this
-    // returned 'upTo' and the badge read "Save up to 30%". At $20/mo the same
-    // tier's year is $165 against $240, which is 31.25%. Individual is STILL
-    // the worst yearly tier; it simply clears 30 now, as do the other two, so
-    // the identical derivation returns 'flat' and the qualifier drops.
-    //
-    // ⚠️ NOT A COPY EDIT. `discountClaimShape` was not touched — the prices
-    // moved under it. That is the whole reason the wording is derived.
-    expect(worst('yearly')).toBeGreaterThan(30);
-    expect(worst('yearly')).toBeCloseTo(31.25, 3);
-    expect(actualSavingPct(plans[0], 'yearly')).toBeCloseTo(worst('yearly'), 6);
+  it('yearly may be claimed flat — every tier saves 20.83% against an advertised 20%', () => {
+    // Yearly clears with room, on all three tiers alike: $190 against $240,
+    // $380 against $480, $760 against $960 are each 20.8333%. So yearly is NOT
+    // the term a future reprice breaks first — quarterly, sitting on equality,
+    // is. The founder's number is the round 20; the prices deliver more, which
+    // is the direction a claim is allowed to be wrong in.
+    expect(worst('yearly')).toBeGreaterThan(20);
+    expect(worst('yearly')).toBeCloseTo(20.8333, 3);
+    expect(best('yearly')).toBeCloseTo(worst('yearly'), 9);
     expect(discountClaimShape('yearly')).toBe('flat');
-    expect(discountClaim('yearly')).toBe('Save 30%');
+    expect(discountClaim('yearly')).toBe('Save 20%');
     expect(discountClaim('yearly')).not.toContain('up to');
   });
 
@@ -203,8 +220,14 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
 
   it('the honesty guard throws when an advertised percentage outruns every tier', () => {
     // By mutation: no wording rescues "up to 40%" when nothing reaches 40%.
-    expect(() => discountClaimContract(plans, { quarterly: 15, yearly: 40 })).toThrow(/best tier only/);
-    expect(() => discountClaimContract(plans, { quarterly: 99, yearly: 30 })).toThrow(/quarterly advertises 99%/);
+    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 40 })).toThrow(/best tier only/);
+    expect(() => discountClaimContract(plans, { quarterly: 99, yearly: 20 })).toThrow(/quarterly advertises 99%/);
+    // 🔴 AND A CLAIM EXACTLY EQUAL TO THE SAVING PASSES. The guard is `>`, not
+    // `>=`: only a claim ABOVE the best tier is false under every wording, and
+    // quarterly's advertised 10 IS the best (and worst) tier's 10. One point
+    // over is the smallest real lie, and it must still throw.
+    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 20 })).not.toThrow();
+    expect(() => discountClaimContract(plans, { quarterly: 11, yearly: 20 })).toThrow(/quarterly advertises 11%/);
     // And it passes for what the site actually advertises.
     expect(() => discountClaimContract(plans)).not.toThrow();
   });
@@ -316,8 +339,8 @@ describe('what a card shows and what its button buys', () => {
 
   it('the per-month headline never implies less than the charged total', () => {
     // 🔴 THE HONESTY GUARD, on rendered output — one assertion per tier per
-    // term. Under the old Math.round the Individual yearly card headlined $27,
-    // which implies $324 against a charged $329.
+    // term. Under the old Math.round the Ministry yearly card would headline
+    // $63, which implies $756 against a charged $760.
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
         const { headline } = shown(p, term);
@@ -327,8 +350,14 @@ describe('what a card shows and what its button buys', () => {
           `${p.name} ${term}: headline $${headline}/mo implies $${implied.toFixed(2)}, charged $${p.price[term]}`,
         ).toBeGreaterThanOrEqual(p.price[term]);
         // …and reconciles, rather than merely exceeding: ceiling to the dollar
-        // would put $28 over a charged $329 and pass the line above.
-        expect(implied - p.price[term]).toBeLessThan(0.05);
+        // would put $64 over a charged $760 and pass the line above.
+        //
+        // The bound is DERIVED — ceiling at the cent adds at most one cent per
+        // month, so `months × $0.01` is the honest ceiling. It was a flat 0.05,
+        // which was only the worst gap the THE-222 prices happened to make; the
+        // $760 year overshoots by $0.08 without breaking the rule at all.
+        expect(implied - p.price[term], `${p.name} ${term}`)
+          .toBeLessThan(TERM_MONTHS[term] * 0.01 + 1e-9);
       }
     }
   });

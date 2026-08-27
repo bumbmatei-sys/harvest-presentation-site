@@ -59,21 +59,31 @@ describe('THE-197 — the blog post no longer contradicts PLAN_PRICING', () => {
   it('the Ministry-vs-competitors argument uses the real yearly monthly-equivalent', () => {
     // ⚠️ THE-222 MOVED WHICH TIER DIVIDES EXACTLY. This used to assert
     // `ministry.price.yearly / 12` was exactly 110.75, because $1,329 over
-    // twelve months is exact. Ministry's year is $659 now, which is $54.9167 —
-    // so the exact-division assertion is gone and the ceiling rule applies, the
-    // same rule the card headline uses. (Individual is the tier that divides
-    // cleanly now, at $13.75, and neither argument in this post names it.)
-    expect(perMonth(ministry.price.yearly)).toBe(54.92);
+    // twelve months is exact. No year divides cleanly under THE-248 — $190,
+    // $380 and $760 over twelve are $15.8333, $31.6667 and $63.3333 — so the
+    // ceiling rule applies to all three, the same rule the card headline uses.
+    //
+    // 🔴 THE-248 IS THE FIRST REPRICE THAT RAISED PRICES, WHICH INVERTS THIS
+    // GUARD'S RISK. Every stale figure this file has caught before was HIGHER
+    // than the real price and so could only oversell. Ministry's year went
+    // $659 → $760, so the sentence left unedited would have read $54.92/month
+    // against a real $63.34 — an UNDERSELL of $8.42 a month, $101 a year, and a
+    // price a church could reasonably expect to be honoured. That is why this
+    // assertion is `toBe` on the derived figure and a `toContain` on the
+    // sentence, not a scan for retired numbers: only the derivation catches a
+    // stale figure that is too LOW.
+    expect(perMonth(ministry.price.yearly)).toBe(63.34);
     expect(blogPost).toContain(
       `Harvest's Ministry plan is $${perMonth(ministry.price.yearly).toFixed(2)}/month billed annually`,
     );
   });
 
   it('the Small Team-vs-competitors argument uses the real yearly monthly-equivalent', () => {
-    // Small Team yearly is $329 over 12 months — $27.4167, ceiled to the cent.
-    // 🔴 $54.92 was THIS tier's figure before THE-222 and is Ministry's now, so
-    // a post left unedited would have read plausibly and priced the wrong tier.
-    expect(perMonth(smallTeam.price.yearly)).toBe(27.42);
+    // Small Team yearly is $380 over 12 months — $31.6667, ceiled to the cent.
+    // 🔴 $27.42 was THIS tier's figure until THE-248 and is now nobody's, so a
+    // post left unedited would have read plausibly and UNDERSOLD by $4.25 a
+    // month ($51 a year) — see the note on the Ministry case above.
+    expect(perMonth(smallTeam.price.yearly)).toBe(31.67);
     expect(perMonth(smallTeam.price.yearly)).not.toBe(perMonth(ministry.price.yearly));
     expect(blogPost).toContain(
       `Harvest's Small Team plan is $${perMonth(smallTeam.price.yearly).toFixed(2)}/month billed annually`,
@@ -95,6 +105,11 @@ describe('THE-197 — the blog post no longer contradicts PLAN_PRICING', () => {
     expect(blogPost).not.toMatch(/2 on \$39/);
     expect(blogPost).not.toMatch(/Ministry plan is \$110\.75/);
     expect(blogPost).not.toMatch(/Small Team plan is \$54\.92/);
+    // 🔴 THE-248's own retirees. Both UNDERSTATE the current price, which is
+    // the first time a figure banned here could have been too low rather than
+    // too high — see the note on the Ministry assertion above.
+    expect(blogPost).not.toMatch(/Ministry plan is \$54\.92/);
+    expect(blogPost).not.toMatch(/Small Team plan is \$27\.42/);
   });
 });
 
@@ -217,9 +232,9 @@ describe('THE-197 — no price data changed', () => {
     // moves with it. What the assertion is really holding is the FEE — 0% on
     // every tier — which no reprice may disturb, and the shape of the row.
     expect(plans.map((p) => ({ planId: p.planId, price: p.price, fee: p.fee }))).toEqual([
-      { planId: 'plus', price: { monthly: 20, quarterly: 49, yearly: 165 }, fee: 0 },
-      { planId: 'pro', price: { monthly: 40, quarterly: 99, yearly: 329 }, fee: 0 },
-      { planId: 'max', price: { monthly: 80, quarterly: 199, yearly: 659 }, fee: 0 },
+      { planId: 'plus', price: { monthly: 20, quarterly: 54, yearly: 190 }, fee: 0 },
+      { planId: 'pro', price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0 },
+      { planId: 'max', price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0 },
     ]);
   });
 
@@ -254,9 +269,9 @@ describe('THE-197 — no price data changed', () => {
   it('the cross-repo price contract still throws when the two repos disagree', () => {
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, quarterly: 49, yearly: 165 },
-        pro: { monthly: 40, quarterly: 99, yearly: 329 },
-        max: { monthly: 80, quarterly: 199, yearly: 660 },
+        plus: { monthly: 20, quarterly: 54, yearly: 190 },
+        pro: { monthly: 40, quarterly: 108, yearly: 380 },
+        max: { monthly: 80, quarterly: 216, yearly: 761 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();

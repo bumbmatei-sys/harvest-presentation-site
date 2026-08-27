@@ -669,8 +669,17 @@ describe('what the analytics disclosure must not have touched', () => {
     // mentions analytics, cookies or sub-processors at all. If a legitimate
     // future edit changes one, this fails loudly and on purpose — read the
     // diff, decide, then move the hash.
+    //
+    // 🔴 THE TERMS HASH MOVED AT THE-248, and this is that mechanism working
+    // rather than failing. The Terms QUOTE the tier prices — `tierRows` renders
+    // "Individual — $20 per month, $54 per three months, or $190 per year" out
+    // of TIER_PRICE_CLAIMS — so a reprice necessarily changes the document's
+    // text. The diff was read: only the six discounted figures moved, no clause
+    // was reworded, and the monthly column is untouched. The REFUND policy hash
+    // below quotes no price and is unchanged, which is the control on that
+    // reading.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('05e979cff8d1e34ca4d209275cb1aa1dc410aea39d724e9760ef0b33ac63de33');
+      .toBe('9da56f436ab4cca16dca691a5cd81f6822b1b3a26109908029e03fc0b547fbd0');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
   });
@@ -681,9 +690,9 @@ describe('what the analytics disclosure must not have touched', () => {
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
-      'plus:20/49/165',
-      'pro:40/99/329',
-      'max:80/199/659',
+      'plus:20/54/190',
+      'pro:40/108/380',
+      'max:80/216/760',
     ]);
   });
 });
@@ -849,7 +858,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // `updated` cannot move these — which is the proof that it did not.
     const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('05e979cff8d1e34ca4d209275cb1aa1dc410aea39d724e9760ef0b33ac63de33');
+      .toBe('9da56f436ab4cca16dca691a5cd81f6822b1b3a26109908029e03fc0b547fbd0');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
     // And neither was restated as revised.
@@ -891,9 +900,9 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
-      'plus:20/49/165',
-      'pro:40/99/329',
-      'max:80/199/659',
+      'plus:20/54/190',
+      'pro:40/108/380',
+      'max:80/216/760',
     ]);
   });
 

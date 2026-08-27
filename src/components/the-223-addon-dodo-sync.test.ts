@@ -396,9 +396,9 @@ describe('the nine plan prices are unchanged', () => {
     // $40/$99/$329 and $80/$199/$659 are live in Dodo and correct — confirmed
     // against the nine live plan products in the same API read as the add-ons.
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([49, 99, 199]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([165, 329, 659]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 15, yearly: 30 });
+    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 760]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
   });
 
   it('holds on the rendered plan cards, on every term', () => {
@@ -425,9 +425,9 @@ describe('the cross-repo plan contract still throws when the repos disagree', ()
     // it a table with one cell moved is the two repos disagreeing.
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, quarterly: 49, yearly: 165 },
-        pro: { monthly: 40, quarterly: 99, yearly: 329 },
-        max: { monthly: 80, quarterly: 199, yearly: 660 },
+        plus: { monthly: 20, quarterly: 54, yearly: 190 },
+        pro: { monthly: 40, quarterly: 108, yearly: 380 },
+        max: { monthly: 80, quarterly: 216, yearly: 761 },
       }),
     ).toThrow(/Ministry.*yearly/);
   });
