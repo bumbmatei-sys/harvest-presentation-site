@@ -81,7 +81,7 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     considering: [
       'Translating the member app first, where most of the reading happens',
       'A per-member language choice rather than one setting for the whole church',
-      'Right-to-left layouts costed separately — mirroring a layout is not the same job as translating it, and assuming it comes free is how it gets skipped',
+      'Right-to-left layouts costed separately — mirroring a layout is not the same job as translating it, and assuming translation covers it is how it gets skipped',
     ],
     navDesc: 'The interface in more than English. Not built yet.',
   },
@@ -206,16 +206,21 @@ export const soonItemHref = (id: string) => `${COMING_SOON_HREF}#${id}`;
 
 /* ── The contract ─────────────────────────────────────────────────────────────
  *
- * Run at module scope, so a violation fails `tsc -b`'s sibling — the prerender —
- * rather than only a test, exactly as `addOnPricingContract` and the tier-width
- * check in content/features.ts do. A page of unbuilt features is one careless
- * sentence away from being the seventh false claim on this site, and a red test
- * somebody can skip is not the guard that stops it.
+ * ⚠️ EXPORTED **AND** CALLED AT MODULE SCOPE, which is the shape
+ * `addOnPricingContract` and `dodoAddOnCatalogContract` already use in
+ * components/Pricing.tsx, and it is two properties rather than one:
  *
- * ⚠️ These patterns run over THIS FILE'S OWN COPY ONLY. The rendered page is
+ *   · Called at module scope, a violation throws during `vite-react-ssg build`
+ *     — the page fails to prerender, so it cannot ship. A red test can be
+ *     skipped; a build that will not produce the file cannot.
+ *   · Exported, it can be handed MUTATED input, so a test can prove it still
+ *     has teeth rather than asserting that its source text is present. A guard
+ *     nobody has watched fail is a guard nobody knows works.
+ *
+ * ⚠️ THESE PATTERNS RUN OVER THIS FILE'S COPY ONLY. The rendered page is
  * checked separately in pages/ComingSoonPage.test.ts, because a claim is not a
- * claim until something draws it — the precedent is PR 55, where a pure-function
- * test passed while the JSX seam was mutated. */
+ * claim until something draws it — the precedent is PR 55, where a
+ * pure-function test passed while the JSX seam was mutated. */
 
 /** Wording that would make an unbuilt feature read as a purchasable one. */
 const FORBIDDEN: [string, RegExp][] = [
@@ -226,47 +231,63 @@ const FORBIDDEN: [string, RegExp][] = [
   ['an add-on', /\badd-?ons?\b/i],
   ['a seat', /\b(extra|additional|per-|one more)\s?seats?\b|\bassistant seat\b/i],
   ['a purchase call to action', /\b(buy|purchase|subscribe|start (your |a )?(free )?trial|upgrade now|get started)\b/i],
+  // "Forever Free" is a real plan on this site, so the bare word on a page that
+  // must carry no pricing signal is one careless scan away from reading as one.
+  ['the word "free"', /\bfree\b/i],
   ['a delivery date', /\b(q[1-4]\s*20\d\d|by (january|february|march|april|may|june|july|august|september|october|november|december)|in \d+ (weeks|months)|next (month|quarter|year)|ship(s|ping)? (in|by|this))\b/i],
   ['a promise that it is coming', /\bwill (ship|launch|be (built|available|released))\b|\bwe promise\b|\bguarantee/i],
 ];
 
-/** The three tier names, which must never be attached to an unbuilt item. */
+/** The plan names, which must never be attached to unbuilt work. */
 const TIER_WORDS = /\b(Individual|Small Team|Ministry|Forever Free)\b/;
 
-for (const item of COMING_SOON_ITEMS) {
-  /* `today` and `notThis` describe what ALREADY SHIPS, so they are the two
-     fields allowed to name a plan — "AI Chat is part of Small Team and
-     Ministry" is a true statement about a live feature and is exactly the
-     distinction this page must draw. Every other field is about the unbuilt
-     thing, where a tier name could only be a false claim. */
-  const aboutTheUnbuiltThing = [
-    item.name, item.eyebrow, item.title, item.oneliner, ...item.considering,
-  ];
-  const everything = [...aboutTheUnbuiltThing, item.today, item.notThis ?? '', item.navDesc];
+/**
+ * Throws, by name, on any coming-soon entry that could be read as purchasable.
+ *
+ * 🔴 `today` and `notThis` are EXEMPT FROM THE TIER CHECK ONLY, and the
+ * exemption is the point rather than a hole in it. Those two fields describe
+ * what ALREADY SHIPS — "branding on the Ministry plan", "AI Chat is part of
+ * Small Team and Ministry" — so a plan name in them is a true statement about a
+ * live feature, and it is exactly the distinction this page exists to draw.
+ * Banning the words outright would force both sentences to be vaguer, and
+ * vaguer is the one direction this page must never move. They are still held to
+ * every FORBIDDEN pattern.
+ */
+export function comingSoonContract(items: readonly SoonItem[]): void {
+  for (const item of items) {
+    const aboutTheUnbuiltThing = [
+      item.name, item.eyebrow, item.title, item.oneliner, ...item.considering,
+    ];
+    const everything = [...aboutTheUnbuiltThing, item.today, item.notThis ?? '', item.navDesc];
 
-  for (const text of everything) {
-    for (const [label, pattern] of FORBIDDEN) {
-      if (pattern.test(text)) {
-        throw new Error(`Coming-soon item "${item.id}" carries ${label}: "${text}"`);
+    for (const text of everything) {
+      for (const [label, pattern] of FORBIDDEN) {
+        if (pattern.test(text)) {
+          throw new Error(`Coming-soon item "${item.id}" carries ${label}: "${text}"`);
+        }
       }
     }
-  }
-  for (const text of aboutTheUnbuiltThing) {
-    if (TIER_WORDS.test(text)) {
-      throw new Error(`Coming-soon item "${item.id}" names a plan tier against an unbuilt feature: "${text}"`);
+    for (const text of aboutTheUnbuiltThing) {
+      if (TIER_WORDS.test(text)) {
+        throw new Error(`Coming-soon item "${item.id}" names a plan tier against unbuilt work: "${text}"`);
+      }
+    }
+    if (item.stage === 'Blocked' && !item.blockedBy?.trim()) {
+      throw new Error(`Coming-soon item "${item.id}" is Blocked with no named blocker.`);
+    }
+    if (item.stage !== 'Blocked' && item.blockedBy) {
+      throw new Error(`Coming-soon item "${item.id}" names a blocker but is not Blocked.`);
+    }
+    if (!/^THE-\d+$/.test(item.ref)) {
+      throw new Error(`Coming-soon item "${item.id}" has no board reference; every entry must trace to an open card.`);
     }
   }
-  if (item.stage === 'Blocked' && !item.blockedBy?.trim()) {
-    throw new Error(`Coming-soon item "${item.id}" is Blocked with no named blocker.`);
-  }
-  if (item.stage !== 'Blocked' && item.blockedBy) {
-    throw new Error(`Coming-soon item "${item.id}" names a blocker but is not Blocked.`);
-  }
-  if (!/^THE-\d+$/.test(item.ref)) {
-    throw new Error(`Coming-soon item "${item.id}" has no board reference; every entry must trace to an open card.`);
+
+  const ids = items.map((i) => i.id);
+  if (new Set(ids).size !== ids.length) {
+    throw new Error('Coming-soon ids must be unique — they are in-page anchors.');
   }
 }
 
-if (new Set(COMING_SOON_IDS).size !== COMING_SOON_IDS.length) {
-  throw new Error('Coming-soon ids must be unique — they are in-page anchors.');
-}
+// Armed. A violation fails the prerender, not merely a test.
+comingSoonContract(COMING_SOON_ITEMS);

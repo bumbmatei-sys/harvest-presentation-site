@@ -65,6 +65,69 @@ const PAGE_LINKS: [string, string][] = [
   ['Pricing', '/#pricing'],
 ];
 
+/** Both Features menus' column list — six headers, each over its own items.
+ *
+ *  ⚠️ EXPORTED AND SHARED FOR THE SAME REASON `MegaMenuFooterLabel` BELOW IS.
+ *  The desktop grid renders only once `mega` state is true and the accordion
+ *  only once `mobile` is, and nothing outside a real click can set either in
+ *  this repo's DOM-less test runner — so neither menu could be asserted against
+ *  rendered markup at all. Pulled out, both can be, which matters here because
+ *  the founder's requirement is about ORDER ("leftmost on desktop, first on the
+ *  phone") and order is a property of the markup, not of the array.
+ *
+ *  One component rather than two also makes the ordering claim structural:
+ *  both menus map the same `CATALOG` in the same pass, so a category cannot end
+ *  up first on one and third on the other. The two variants differ only in
+ *  type scale and spacing — the sizes each menu already used. */
+export function FeatureMenuColumns({ variant, onNavigate = () => {} }:
+  { variant: 'desktop' | 'mobile'; onNavigate?: () => void }) {
+  const desktop = variant === 'desktop';
+  return (
+    <>
+      {CATALOG.map((g) => (
+        <div key={g.name} style={desktop ? undefined : { marginBottom: 14 }}>
+          <Link
+            to={columnHref(g)}
+            onClick={onNavigate}
+            style={{
+              display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: g.tint, textDecoration: 'none',
+              ...(desktop ? { marginBottom: 12 } : { margin: '6px 0 8px' }),
+            }}
+            onMouseEnter={desktop ? (e) => { e.currentTarget.style.textDecoration = 'underline'; } : undefined}
+            onMouseLeave={desktop ? (e) => { e.currentTarget.style.textDecoration = 'none'; } : undefined}
+          >
+            {g.name}
+          </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: desktop ? 3 : 2 }}>
+            {g.items.map((it) => (
+              <Link
+                key={it.title}
+                to={itemHref(it)}
+                role={desktop ? 'menuitem' : undefined}
+                onClick={onNavigate}
+                style={{
+                  display: 'flex', alignItems: 'center', borderRadius: 9, textDecoration: 'none',
+                  fontWeight: 500, color: 'var(--navy-800)',
+                  ...(desktop
+                    ? { gap: 8, padding: '6px 8px', margin: '0 -8px', fontSize: 13, transition: 'background 150ms' }
+                    : { gap: 9, padding: '7px 6px', fontSize: 14 }),
+                }}
+                onMouseEnter={desktop ? (e) => { e.currentTarget.style.background = 'var(--stone-100)'; } : undefined}
+                onMouseLeave={desktop ? (e) => { e.currentTarget.style.background = 'transparent'; } : undefined}
+              >
+                <L name={it.icon} size={desktop ? 15 : 16} color={g.tint} />
+                <span>{it.title}</span>
+                {it.soon && <span style={soonPill}>SOON</span>}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 /** The mega-menu footer's price and tool-count claim, split out into its own
  *  component so a test can render it with `renderToStaticMarkup` directly —
  *  the footer otherwise only exists once `mega` state is true, which nothing
@@ -195,43 +258,20 @@ export function Nav() {
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
         >
-          {/* Six columns since THE-247. The panel widened 1100 -> 1180 and the
-              gap tightened 24 -> 18 to absorb the extra column: at 1180 that is
-              a 172px column against 189px before, and the menu only renders
-              above 900px (.nav-links is display:none below it), where the
-              narrowest case is a 119px column that still wraps rather than
-              overflowing. */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 18 }}>
-            {CATALOG.map((g) => (
-              <div key={g.name}>
-                <Link
-                  to={columnHref(g)}
-                  onClick={() => setMega(false)}
-                  style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, marginBottom: 12, textDecoration: 'none' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
-                >
-                  {g.name}
-                </Link>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {g.items.map((it) => (
-                    <Link
-                      key={it.title}
-                      to={itemHref(it)}
-                      role="menuitem"
-                      onClick={() => setMega(false)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', margin: '0 -8px', borderRadius: 9, textDecoration: 'none', fontSize: 13, fontWeight: 500, color: 'var(--navy-800)', transition: 'background 150ms' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--stone-100)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                    >
-                      <L name={it.icon} size={15} color={g.tint} />
-                      <span>{it.title}</span>
-                      {it.soon && <span style={soonPill}>SOON</span>}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
+          {/* Six columns since THE-247, but deliberately NOT a fixed
+              six-track grid.
+              🔴 A bare `1fr` column has an implicit min-width of `auto`: it
+              refuses to shrink below its content and overflows the panel
+              instead. Forcing six fixed columns left "Documentation" about 2px
+              of slack at 901px — the narrowest width this menu ever renders at,
+              since `.nav-links` is display:none below 900 — against roughly
+              32px for the five live columns before the change. That is the
+              shape of the 41px overflow this site has already been bitten by.
+              `auto-fit` + `minmax` cannot overflow by construction: it lays
+              down as many >=136px tracks as fit and wraps the rest onto a
+              second row. Six across at 1024 and up, five at 901. */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(136px, 1fr))', gap: 18 }}>
+            <FeatureMenuColumns variant="desktop" onNavigate={() => setMega(false)} />
           </div>
           <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}><MegaMenuFooterLabel /></span>
@@ -263,27 +303,7 @@ export function Nav() {
           </button>
           {mobileFeatures && (
             <div style={{ padding: '4px 8px 12px' }}>
-              {CATALOG.map((g) => (
-                <div key={g.name} style={{ marginBottom: 14 }}>
-                  <Link
-                    to={columnHref(g)}
-                    onClick={closeMobile}
-                    style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, margin: '6px 0 8px', textDecoration: 'none' }}
-                  >
-                    {g.name}
-                  </Link>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {g.items.map((it) => (
-                      <Link key={it.title} to={itemHref(it)} onClick={closeMobile}
-                        style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 6px', borderRadius: 9, textDecoration: 'none', fontSize: 14, fontWeight: 500, color: 'var(--navy-800)' }}>
-                        <L name={it.icon} size={16} color={g.tint} />
-                        <span>{it.title}</span>
-                        {it.soon && <span style={soonPill}>SOON</span>}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <FeatureMenuColumns variant="mobile" onNavigate={closeMobile} />
             </div>
           )}
 

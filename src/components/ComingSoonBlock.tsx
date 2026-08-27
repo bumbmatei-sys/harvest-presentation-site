@@ -97,13 +97,17 @@ export function ComingSoonBlock({ item }: { item: SoonItem }) {
                 width: '100%', maxWidth: 410, margin: '0 auto', background: '#fff',
                 border: `1px dashed ${INK_SOFT}`, borderRadius: 22, overflow: 'hidden',
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderBottom: `1px dashed ${INK_SOFT}`, background: 'var(--surface-soon)' }}>
+                {/* flexWrap, and the caption below is NOT nowrap: at 380px the
+                    frame has 256px of room, and a nowrap caption plus the
+                    longest name left it about 1.5px short. Wrapping cannot
+                    overflow; a nowrap caption can. */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '12px 16px', borderBottom: `1px dashed ${INK_SOFT}`, background: 'var(--surface-soon)' }}>
                   <span style={{ width: 9, height: 9, borderRadius: '50%', flexShrink: 0, border: `1px solid ${INK_SOFT}` }} />
                   <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, fontWeight: 700, color: INK }}>{item.name}</span>
                   {/* The disclaimer travels with the picture, not in a caption
                       under it — a cropped screenshot of this frame still says
                       what it is. */}
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: INK, fontWeight: 600, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>Concept sketch — nothing built</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: INK, fontWeight: 600, letterSpacing: '0.04em' }}>Concept sketch — nothing built</span>
                 </div>
                 <div style={{ ...SKETCH_GROUND, padding: '15px 16px 18px' }}>
                   <SoonMock id={item.id} />
