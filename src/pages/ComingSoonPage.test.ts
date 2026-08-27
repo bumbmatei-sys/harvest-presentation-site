@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { HelmetProvider } from 'react-helmet-async';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { ComingSoonPage } from './ComingSoonPage';
@@ -54,8 +55,19 @@ const ROOT = path.resolve(here, '..', '..');
 const DIST_PAGE = path.join(ROOT, 'dist', 'features', 'coming-soon', 'index.html');
 const built = fs.existsSync(DIST_PAGE);
 
+/* ⚠️ HelmetProvider IS NOT OPTIONAL, and leaving it out is a green-locally /
+   red-in-CI trap this suite fell into once. The page renders <Seo/>, which is
+   vite-react-ssg's <Head/>, which is react-helmet-async — and without a
+   provider its dispatcher throws before a single test in the file runs. It only
+   looked fine because an earlier `npm run build` had left dist/ on disk, so the
+   fallback render path was never taken. CI runs `npm test` BEFORE
+   `npm run build`, so on a clean checkout that path is the ONLY one.
+   pages/LegalPage.test.ts wraps its renders the same way. */
 const render = (el: React.ReactElement) =>
-  renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [COMING_SOON_HREF] }, el));
+  renderToStaticMarkup(React.createElement(
+    HelmetProvider, null,
+    React.createElement(MemoryRouter, { initialEntries: [COMING_SOON_HREF] }, el),
+  ));
 
 /** The page as it ships. Post-build this is the real artifact; on a clean
  *  checkout `npm test` runs before `npm run build`, so the same component goes
@@ -449,16 +461,27 @@ describe('no coming-soon item carries a price, a tier badge or a purchase call t
     expect(hrefs).toEqual(expected);
   });
 
-  it('the <main> scoping is not a loophole — the chrome outside it is unchanged', () => {
+  it('the <main> scoping is not a loophole — the site still has a trial CTA elsewhere', () => {
     /* 🔴 THE ASSERTION THAT KEEPS THE THREE ABOVE HONEST. Scoping to <main>
-       would be a way to pass by deleting the site's nav instead of by writing
-       a clean page. The trial CTA and the pricing link are still there, in the
-       chrome that wraps every route — so the cleanliness above is a property of
-       the PAGE, not of a stripped-down render. */
-    const outside = pageHtml.replace(mainHtml, '');
-    expect(outside, 'the nav/footer trial CTA vanished — this test is now vacuous')
-      .toMatch(/Start free trial/);
-    expect(outside).toContain('/#pricing');
+       would be a way to pass by deleting the site's nav rather than by writing
+       a clean page. The trial CTA and the pricing link are still there — in the
+       chrome that wraps EVERY route, /contact and /terms included — so the
+       cleanliness above is a property of this PAGE, not of a stripped render.
+
+       ⚠️ Which markup carries that proof depends on how the page was obtained.
+       The prerendered file is the whole document, chrome and all. The fallback
+       renders <ComingSoonPage/> alone — there is no Layout around it — so the
+       chrome is checked on the nav itself, which owns the CTA either way. */
+    if (built) {
+      const outside = pageHtml.replace(mainHtml, '');
+      expect(outside, 'the nav/footer trial CTA vanished — this test is now vacuous')
+        .toMatch(/Start free trial/);
+      expect(outside).toContain('/#pricing');
+    } else {
+      expect(navHtml, 'the nav lost its trial CTA — this test is now vacuous')
+        .toMatch(/Start free trial/);
+      expect(navHtml).toContain('/#pricing');
+    }
   });
 
   it('🔴 the content contract throws on every way this page could become a claim — by mutation', () => {
