@@ -125,7 +125,11 @@ export function ComingSoonBlock({ item }: { item: SoonItem }) {
               gap: 'clamp(20px, 3vw, 40px)',
             }}
           >
-            <div>
+            {/* Capped at a reading measure. FeatureBlock's two capability
+                columns keep their lines near 46ch by construction; this list
+                is single-column whenever there is no "Not to be confused with"
+                beside it, and uncapped it ran to ~90 characters. */}
+            <div style={{ maxWidth: item.notThis ? undefined : '76ch' }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, marginBottom: 14 }}>Under consideration — not committed</div>
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
                 {item.considering.map((line) => (

@@ -255,6 +255,14 @@ export function Nav() {
             background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
             border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
             boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: '26px 30px',
+            /* 🔴 The desktop panel had no height cap and could run off the
+               bottom of a short window with no way to reach what it hid. The
+               mobile panel below has always capped and scrolled; this is the
+               same rule, and it is needed here now that a sixth column makes
+               the panel taller — measured at 696px against a 600px-tall window
+               at 1024 wide, and 816px against 700px at 901 wide, where six
+               groups wrap onto two rows. */
+            maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
         >

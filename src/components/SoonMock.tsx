@@ -207,7 +207,10 @@ const SKETCHES: Record<string, React.ReactElement> = {
  *  down, and the block's prose carries the meaning either way. */
 export function SoonMock({ id }: { id: string }) {
   return (
-    <div aria-hidden="true" style={{ minHeight: 142, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+    // Tall enough to balance the story column beside it. The live vignettes in
+    // FeatureMock are screenshots of real, dense UI; a wireframe is sparser, so
+    // it needs a floor or the card reads as half-empty at desktop widths.
+    <div aria-hidden="true" style={{ minHeight: 190, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       {SKETCHES[id] ?? <Panel><Rows n={3} lead /></Panel>}
     </div>
   );

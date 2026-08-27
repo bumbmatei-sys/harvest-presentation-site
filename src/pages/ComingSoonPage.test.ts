@@ -183,7 +183,20 @@ describe('Coming Soon is first on desktop and first on mobile', () => {
     expect((src.match(/CATALOG\.map/g) ?? []).length, 'a menu maps CATALOG on its own').toBe(1);
   });
 
-  it('the mega-menu grid cannot overflow, so "first" survives a narrow viewport', () => {
+  it('the mega-menu is capped and scrolls, so a sixth column cannot run off a short window', () => {
+    /* 🔴 FOUND BY MEASURING THE REAL BROWSER, not by arithmetic. The desktop
+       panel had no height cap at all: with six columns it measured 696px tall
+       against a 600px window at 1024 wide, and 816px against a 700px window at
+       901 wide — where six groups wrap onto two rows — and everything below the
+       fold was unreachable. The mobile panel has always capped and scrolled;
+       the desktop one now uses the same rule. */
+    const src = fs.readFileSync(path.join(ROOT, 'src/components/Nav.tsx'), 'utf8');
+    const panel = src.slice(src.indexOf('className="nav-mega"'), src.indexOf('harvestMenuIn', src.indexOf('className="nav-mega"')));
+    expect(panel).toContain("maxHeight: 'calc(100vh - 120px)'");
+    expect(panel).toContain("overflowY: 'auto'");
+  });
+
+  it('the mega-menu grid cannot overflow horizontally, so "first" survives a narrow viewport', () => {
     // 🔴 `repeat(6, 1fr)` would have been the obvious way to add a column and
     // is the wrong one: a bare 1fr track's implicit min-width is `auto`, so it
     // refuses to shrink below its content and pushes the panel wider than the
