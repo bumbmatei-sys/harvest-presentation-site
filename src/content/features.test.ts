@@ -110,8 +110,32 @@ describe('the mega-menu reaches every feature it lists', () => {
       const [path, fragment] = item.href!.split('#');
       expect(path).toBe(COMING_SOON_HREF);
       expect(COMING_SOON_IDS, `#${fragment} is not a section on the page`).toContain(fragment);
-      // And it is NOT in the redirect table — see the note above.
-      expect(LEGACY_ANCHORS[slugify(item.title)]).toBeUndefined();
+
+      /* And it is NOT in the redirect table — see the note above.
+       *
+       * ⚠️ ONE NAMED EXCEPTION, added by THE-245. The rule's reasoning is that
+       * an unbuilt feature has no retired URL to redirect, which held for all
+       * eight original entries because none of them had ever shipped. SMS had:
+       * it was a live, SOLD feature that this ticket RELOCATED to Coming Soon
+       * while it is untested, so `sms-automation` and `sms-text-to-give` are
+       * genuinely indexed URLs that predate the entry and still have to land
+       * somewhere. They resolve to the LIVE category page with the fragment
+       * stripped — a different destination from the coming-soon anchor, not a
+       * second one for it — which is the affiliate treatment exactly.
+       *
+       * The exception is spelled as a literal so it cannot widen: a NEW
+       * coming-soon item that collided with a legacy slug would still fail,
+       * which is the failure this assertion is for. Delete this branch when
+       * SMS is switched back on and its entry leaves the page. */
+      const RELOCATED_FROM_LIVE = ['sms-text-to-give'];
+      if (!RELOCATED_FROM_LIVE.includes(slugify(item.title))) {
+        expect(LEGACY_ANCHORS[slugify(item.title)]).toBeUndefined();
+      } else {
+        // It IS mapped, and it must point at the live category page rather than
+        // at this item — two destinations for one name is the real hazard.
+        expect(LEGACY_ANCHORS[slugify(item.title)]).toBe('/features/ai-automation');
+        expect(LEGACY_ANCHORS[slugify(item.title)]).not.toContain('coming-soon');
+      }
     },
   );
 });

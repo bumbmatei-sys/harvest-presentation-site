@@ -21,6 +21,8 @@
  * no card, it does not belong on this page. Statuses are the board's own —
  * none of these is In Progress, and the copy must not imply otherwise. */
 
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
+
 export interface SoonItem {
   /** In-page anchor, e.g. /features/coming-soon#languages. */
   id: string;
@@ -183,12 +185,35 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     ],
     navDesc: 'Give to a specific fund. Not built yet.',
   },
+  {
+    id: 'sms', name: 'SMS & Text-to-Give', icon: 'message-square-text', ref: 'THE-245',
+    eyebrow: 'Texting the church, and giving by text',
+    title: 'Harvest does not text your congregation yet.',
+    oneliner: 'Broadcasts to your members, donors or a tag on your own Twilio account — and a keyword a member texts to your number to get their giving link back.',
+    today: 'Nothing in Harvest sends a text. There is no broadcast composer, no automated reminder, and no keyword a member can text you. Giving happens on your branded donation page, from a link or a QR code you print or put on a slide, and every gift still writes a receipt and a CRM record the same way. Check-in, event registration and pledges confirm by email.',
+    considering: [
+      'Your own Twilio account rather than messages resold through us, so the per-message rate is the one you negotiate and the relationship is yours',
+      'A recipient count and a segment cost shown before anything is sent — a broadcast is the one action where finding out afterwards is too late',
+      'A keyword that answers with your giving link, so the closing slide can say "text one word" instead of spelling out a URL',
+      'US numbers first. Per-segment rates vary about tenfold by country and pretending otherwise is how a church gets a bill it did not expect',
+    ],
+    notThis: 'This is not the donation page, which already ships and is how a church takes a gift today. Nor is it the newsletter, which sends real email through your own Mailchimp audience on the Small Team and Ministry plans. What is missing is the messaging itself, in both directions.',
+    navDesc: 'Broadcasts and giving by text. Not built yet.',
+  },
 ];
 
 /** The list as the page renders it, with the index ordinal derived from
  *  position — the same reason `content/features.ts` renumbers `n` after its
  *  filter, so removing an entry can never leave 1, 2, 4. */
-export const COMING_SOON_ITEMS: SoonItem[] = ITEMS.map((item, i) => ({ ...item, n: String(i + 1) }));
+export const COMING_SOON_ITEMS: SoonItem[] = ITEMS
+  /* 🔴 THE-245 — SMS is here BECAUSE it is hidden in the app, so it has to leave
+     again the moment it is not. A capability that ships while this page still
+     lists it as unbuilt is the same claim made twice, in two tenses, and this
+     page's whole job is to be the tense that is true. The filter runs before the
+     renumber for the reason the map below already exists: removing an entry must
+     never leave the index reading 1, 2, 3, 4, 5, 6, 7, 8, 10. */
+  .filter((item) => item.id !== 'sms' || !SMS_MARKETING_ENABLED)
+  .map((item, i) => ({ ...item, n: String(i + 1) }));
 
 /** Ids, for the tests and for anchor resolution. */
 export const COMING_SOON_IDS: readonly string[] = COMING_SOON_ITEMS.map((i) => i.id);

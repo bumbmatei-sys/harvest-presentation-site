@@ -33,6 +33,8 @@ import {
 
 const docs = LEGAL_DOCS.map((d) => [d.slug, d] as const);
 const terms = LEGAL_DOCS.find((d) => d.slug === 'terms')!;
+import { SMS_MARKETING_ENABLED } from '../lib/flags';
+
 const text = (doc: LegalDoc) => plainText(doc);
 
 describe('the legal document set', () => {
@@ -310,10 +312,23 @@ describe('product facts stated in the policies', () => {
     expect(body).toContain(`the ${topTier} plan adds your own domain`);
   });
 
-  it('describes SMS and bulk email as the customer’s own accounts', () => {
-    const body = text(terms);
-    expect(body).toMatch(/bring-your-own twilio/i);
-    expect(body).toMatch(/your own mailchimp account/i);
+  it('describes the services a church connects itself, and only those', () => {
+    // THE-245 — asserted THROUGH the flag, because both readings are statements
+    // about what Harvest does and exactly one is true at a time. Mailchimp and
+    // Stripe are unconditional: neither changed.
+    const terms = text(LEGAL_DOCS.find((d) => d.slug === 'terms')!);
+    expect(terms).toMatch(/your own mailchimp account/i);
+    expect(terms).toMatch(/your own stripe account/i);
+
+    if (SMS_MARKETING_ENABLED) {
+      expect(terms).toMatch(/bring-your-own twilio/i);
+    } else {
+      // 🔴 No Twilio clause at all while the feature is hidden. A contract that
+      // describes a connection a church cannot make is a promise about a
+      // service that is not being provided.
+      expect(terms).not.toMatch(/twilio/i);
+      expect(terms).not.toMatch(/\bsms\b/i);
+    }
   });
 
   it('puts the church in control of member data and Harvest in the processor seat', () => {
@@ -678,8 +693,16 @@ describe('what the analytics disclosure must not have touched', () => {
     // was reworded, and the monthly column is untouched. The REFUND policy hash
     // below quotes no price and is unchanged, which is the control on that
     // reading.
+    //
+    // 🔴 AND AGAIN AT THE-245, for a different reason: §6 lists the services a
+    // church connects itself, and one of them was "SMS is bring-your-own
+    // Twilio". While SMS is hidden that bullet describes a connection nobody
+    // can make, which in a contract is worse than an out-of-date price. The
+    // diff was read: exactly one list item was REMOVED, no clause reworded, no
+    // price touched, and the surrounding paragraphs are byte-identical. The
+    // REFUND hash below is unchanged again, which is the same control holding.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('9da56f436ab4cca16dca691a5cd81f6822b1b3a26109908029e03fc0b547fbd0');
+      .toBe('42bbc084fc48a5f790d06d36b84fc70abfce17e9828005eb2f37d578532143fc');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
   });
@@ -688,7 +711,7 @@ describe('what the analytics disclosure must not have touched', () => {
     // The prices the Terms quote still match the cards that sell them, and the
     // catalogue count the pricing page renders is untouched.
     expect(tierPriceMismatches(plans)).toEqual([]);
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
@@ -858,7 +881,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // `updated` cannot move these — which is the proof that it did not.
     const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('9da56f436ab4cca16dca691a5cd81f6822b1b3a26109908029e03fc0b547fbd0');
+      .toBe('42bbc084fc48a5f790d06d36b84fc70abfce17e9828005eb2f37d578532143fc');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
     // And neither was restated as revised.
@@ -898,7 +921,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
   /* 11 — nothing commercial moved. */
   it('no price or tool count changed', () => {
     expect(tierPriceMismatches(plans)).toEqual([]);
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
