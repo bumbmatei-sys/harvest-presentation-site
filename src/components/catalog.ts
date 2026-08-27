@@ -48,7 +48,7 @@ export const CATALOG: CatalogGroup[] = [
 
      ⚠️ EVERY ITEM IS `soon: true`, WHICH IS LOAD-BEARING, NOT DECORATION.
      CATALOG_TOOL_COUNT is a derived count of everything NOT marked soon, and it
-     is quoted to visitors as "N tools in one platform". Advertising nine
+     is quoted to visitors as "N tools in one platform". Advertising eight
      unbuilt features as tools in the platform would be the same false claim as
      a stale price. The count is unchanged at 28; the assertion lives in
      pages/ComingSoonPage.test.ts and in two older suites that already pin it. */

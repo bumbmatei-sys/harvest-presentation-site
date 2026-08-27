@@ -101,8 +101,9 @@ function SoonIndex() {
   return (
     <section style={{ background: 'var(--cream)', padding: '8px 20px 4px' }}>
       {/* `.soon-index` rather than `.feat-index`: the live pages carry at most
-          seven sections, this one carries nine, and nine columns across 1140px
-          is a 116px card. Its breakpoints follow the same rhythm — see
+          seven sections, this one carries eight, and eight columns across
+          1140px is a 130px card. Five wrapping to a second row reads better and
+          leaves each card 228px. Its breakpoints follow the same rhythm — see
           index.css. */}
       <div className="soon-index" style={{ maxWidth: 1140, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
         {COMING_SOON_ITEMS.map((item) => (
@@ -191,7 +192,7 @@ export function ComingSoonPage() {
     <main>
       <Seo
         title={`${COMING_SOON_NAME} — Harvest`}
-        description="What Harvest does not do yet: languages, service planning, application review, documentation, a website builder, an admin AI agent, store listings, one login across churches and fund designations. None of it is built, dated or for sale."
+        description="What Harvest does not do yet: languages, service planning, application review, documentation, a website builder, an admin AI agent, one login across churches and fund designations. None of it is built, dated or for sale."
         canonical={`https://theharvest.site${COMING_SOON_HREF}`}
       />
       <Hero />

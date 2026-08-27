@@ -7,7 +7,7 @@ import { L } from './icons';
  * pages put a still life of the real product beside each feature — a vignette
  * of the actual UI, in that feature's colour, framed with the ministry's name
  * and a "Harvest" tab label. That frame is doing work: it says "this is a
- * screen you will see". None of these nine features has a screen, so borrowing
+ * screen you will see". None of these eight features has a screen, so borrowing
  * that frame would be a picture of something that does not exist, which is
  * exactly the false claim this whole page has to avoid.
  *
@@ -161,18 +161,6 @@ const SKETCHES: Record<string, React.ReactElement> = {
         ))}
       </Panel>
       <div style={{ ...row, gap: 6, flexWrap: 'wrap' }}><Pill>Admin only</Pill><Pill>Acts</Pill></div>
-    </div>
-  ),
-  /* Two blank store tiles — deliberately unbranded, because the icon stays Harvest. */
-  stores: (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
-      {['iOS', 'Android'].map((s) => (
-        <Panel key={s} label={s} style={{ alignItems: 'center', padding: '11px 8px' }}>
-          <span style={{ ...dashed(11), width: 30, height: 30 }} />
-          <Bar w="70%" />
-          <Pill>Install</Pill>
-        </Panel>
-      ))}
     </div>
   ),
   /* One identity node, two church memberships hanging off it. */

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Reveal } from './effects';
 import { SoonMock, SoonIcon, SKETCH_GROUND } from './SoonMock';
-import { NOT_BUILT_LABEL, type SoonItem } from '../content/coming-soon';
+import { IN_PROCESS_LABEL, NOT_BUILT_LABEL, type SoonItem } from '../content/coming-soon';
 
 /* One card per unbuilt item on /features/coming-soon.
  *
@@ -34,8 +34,13 @@ import { NOT_BUILT_LABEL, type SoonItem } from '../content/coming-soon';
 const INK = 'var(--text-soon)';
 const INK_SOFT = 'var(--text-soon-soft)';
 
-/** The blunt status row: what it is not, and the open card it traces to. */
-function StatusRow({ item }: { item: SoonItem }) {
+/** The status row: the blunt fact first, the founder's framing second.
+ *
+ *  ⚠️ THE PAIRING IS THE POINT. "In process" on its own would be a claim that
+ *  work is under way, which the board does not support for any of these. Read
+ *  together — "Not built yet · In process" — a church gets the state and the
+ *  intent in that order, with no date attached to either. */
+function StatusRow(_: { item: SoonItem }) {
   return (
     <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
       <span style={{
@@ -46,9 +51,7 @@ function StatusRow({ item }: { item: SoonItem }) {
         <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, border: `1px solid ${INK}` }} />
         {NOT_BUILT_LABEL}
       </span>
-      <span style={{ fontSize: 12.5, color: INK, fontWeight: 600 }}>
-        {item.stage === 'Blocked' ? `Blocked on ${item.blockedBy}` : 'Planned — not started'}
-      </span>
+      <span style={{ fontSize: 12.5, color: INK, fontWeight: 600 }}>{IN_PROCESS_LABEL}</span>
     </div>
   );
 }
@@ -130,7 +133,7 @@ export function ComingSoonBlock({ item }: { item: SoonItem }) {
                 is single-column whenever there is no "Not to be confused with"
                 beside it, and uncapped it ran to ~90 characters. */}
             <div style={{ maxWidth: item.notThis ? undefined : '76ch' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, marginBottom: 14 }}>Under consideration — not committed</div>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, marginBottom: 14 }}>Under consideration</div>
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
                 {item.considering.map((line) => (
                   <li key={line} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>

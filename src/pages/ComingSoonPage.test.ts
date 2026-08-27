@@ -23,7 +23,7 @@ import {
 import { CATEGORIES } from '../content/features';
 import {
   COMING_SOON_HREF, COMING_SOON_IDS, COMING_SOON_ITEMS, COMING_SOON_NAME,
-  NOT_BUILT_LABEL, NOT_BUILT_NOTICE, comingSoonContract, type SoonItem,
+  IN_PROCESS_LABEL, NOT_BUILT_LABEL, NOT_BUILT_NOTICE, comingSoonContract, type SoonItem,
 } from '../content/coming-soon';
 
 /* ─── THE-247 — a Coming Soon category, and the page behind it ────────────────
@@ -33,7 +33,7 @@ import {
  * directory that did not exist, a $59/mo figure in the nav, a 7-vs-14-day
  * trial, a Docs & Notes comparison row, Notes and Community claimed on every
  * plan, and four add-on prices that disagreed with Dodo. Every one of those was
- * a wrong claim about something REAL. This is a whole page about nine things
+ * a wrong claim about something REAL. This is a whole page about eight things
  * that are not real, so the only defence is that nothing on it can be read as
  * purchasable.
  *
@@ -170,7 +170,7 @@ describe('Coming Soon is first on desktop and first on mobile', () => {
         expect(liveAt, `"${g.name}" is missing from the ${where} menu`).toBeGreaterThanOrEqual(0);
         expect(soonAt, `"${g.name}" renders before Coming Soon on ${where}`).toBeLessThan(liveAt);
       }
-      // And its nine items lead too, not just its header.
+      // And its eight items lead too, not just its header.
       expect(html.indexOf(COMING_SOON_ITEMS[0].name))
         .toBeLessThan(html.indexOf('Community Feed'));
     }
@@ -243,6 +243,20 @@ describe('Coming Soon renders in a muted style, distinct from the five live cate
     const pill = src.slice(src.indexOf('const soonPill'), src.indexOf('const linkStyle'));
     expect(pill).toContain('var(--text-soon)');
     expect(pill, 'the SOON pill still uses Community & Engagement\'s sky tint').not.toContain('--sky-');
+  });
+
+  it('every item reads "In process", and none of them reads "not started"', () => {
+    /* Founder direction. ⚠️ The pairing is deliberate and is what keeps it
+       honest: each card carries NOT_BUILT_LABEL and IN_PROCESS_LABEL together,
+       in that order, so "In process" never stands alone as a claim that work
+       is under way. No date accompanies either. */
+    const inProcess = [...mainText.matchAll(new RegExp(IN_PROCESS_LABEL, 'g'))];
+    expect(inProcess).toHaveLength(COMING_SOON_ITEMS.length);
+    expect(mainText).not.toMatch(/not started/i);
+    expect(mainText).not.toMatch(/nothing has been started/i);
+    expect(mainText).not.toMatch(/not committed/i);
+    // The blunt half is still there, once per item, and still comes first.
+    expect(mainText.indexOf(NOT_BUILT_LABEL)).toBeLessThan(mainText.indexOf(IN_PROCESS_LABEL));
   });
 
   it('every unbuilt item is marked soon and says so in words, not only in colour', () => {
@@ -394,14 +408,18 @@ describe('the Coming Soon page lists every named item', () => {
     }
   });
 
-  it('plus the three found on the board, and nothing invented', () => {
+  it('plus the two found on the board, and nothing invented', () => {
     // Every entry traces to a real open card. An item with no card would be
     // this page inventing a promise, which is the failure mode it exists to
     // prevent.
     expect(COMING_SOON_ITEMS.map((i) => i.ref)).toEqual([
       'THE-123', 'THE-122', 'THE-112', 'THE-117', 'THE-59', 'THE-58',
-      'THE-115', 'THE-118', 'THE-98',
+      'THE-118', 'THE-98',
     ]);
+    // THE-115 (a Play Store / App Store listing) was on this page and was
+    // pulled at the founder's direction. It must not drift back in.
+    expect(COMING_SOON_ITEMS.map((i) => i.ref)).not.toContain('THE-115');
+    expect(mainText).not.toMatch(/play store|app store/i);
     for (const item of COMING_SOON_ITEMS) expect(item.ref).toMatch(/^THE-\d+$/);
   });
 
@@ -420,7 +438,7 @@ describe('the Coming Soon page lists every named item', () => {
     },
   );
 
-  it('the mega-menu lists the same nine, derived rather than kept twice', () => {
+  it('the mega-menu lists the same eight, derived rather than kept twice', () => {
     expect(CATALOG[0].items.map((i) => i.title)).toEqual(COMING_SOON_ITEMS.map((i) => i.name));
     for (const item of CATALOG[0].items) {
       for (const [where, html] of [['desktop', desktopMenu], ['mobile', mobileMenu]] as const) {
@@ -520,8 +538,8 @@ describe('no coming-soon item carries a price, a tier badge or a purchase call t
       ['a delivery date', { oneliner: 'Landing in Q3 2027.' }, /a delivery date/],
       ['a promise it will ship', { title: 'This will ship to every church.' }, /a promise that it is coming/],
       ['a tier on unbuilt work', { eyebrow: 'Coming to Ministry' }, /names a plan tier against unbuilt work/],
-      ['a blocker with no reason', { stage: 'Blocked' as const }, /Blocked with no named blocker/],
-      ['a reason with no blocker', { blockedBy: 'nothing in particular' }, /names a blocker but is not Blocked/],
+      ['a "not started" phrasing', { navDesc: 'Not started, and no date.' }, /a "not started" phrasing/],
+      ['an "uncommitted" hedge', { title: 'Considered but not committed.' }, /an "uncommitted" hedge/],
       ['an entry with no board card', { ref: 'invented' }, /no board reference/],
     ];
 
@@ -687,20 +705,20 @@ describe('the tool count is unchanged and still derived', () => {
     );
   });
 
-  it('the nine new entries contribute nothing to it', () => {
+  it('the eight new entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     expect(live).toBe(28);
-    expect(CATALOG[0].items).toHaveLength(9);
+    expect(CATALOG[0].items).toHaveLength(8);
     expect(CATALOG[0].items.filter((i) => !i.soon)).toHaveLength(0);
   });
 
   it('🔴 and it WOULD have moved if a single entry lost its soon flag — by mutation', () => {
     // The tripwire, proved rather than asserted. Without `soon`, the count runs
-    // to 37 and the site starts advertising nine tools it does not have.
+    // to 36 and the site starts advertising eight tools it does not have.
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(37);
+    expect(wrong).toBe(36);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.

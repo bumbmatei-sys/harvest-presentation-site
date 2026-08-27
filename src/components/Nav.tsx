@@ -41,7 +41,7 @@ export const columnHref = (g: CatalogGroup) => g.href ?? groupHref(g.name);
 
    🔴 GREY, NOT SKY. This carried --sky-100 / --sky-700 while nothing in the
    catalogue was marked `soon`, so it never rendered. It renders now, on all
-   nine Coming Soon entries, and sky is the LIVE colour of Community &
+   eight Coming Soon entries, and sky is the LIVE colour of Community &
    Engagement — a badge in another category's brand tint next to an unbuilt
    feature is the opposite of the signal it exists to send. Dashed, because
    dashed already means "not included" in this codebase (an unlit plan chip in
