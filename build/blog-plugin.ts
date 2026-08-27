@@ -6,6 +6,7 @@ import { CATEGORIES } from '../src/content/categories';
 import { CATEGORIES as FEATURE_CATEGORIES, categoryHref } from '../src/content/features';
 import { LEGAL_DOCS, legalHref } from '../src/content/legal';
 import { FAQ_HREF } from '../src/content/faq';
+import { COMING_SOON_HREF } from '../src/content/coming-soon';
 import { byNewest, SITE_ORIGIN, type ImageSizes, type Post } from '../src/content/post-core';
 import { parsePost } from './parse-post';
 
@@ -43,6 +44,10 @@ const SIZE_WARN_BYTES = 400 * 1024;
 const STATIC_ROUTES = [
   '/',
   ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
+  // The Coming Soon category. Indexed deliberately: a church searching for a
+  // capability Harvest does not have should find the page that says so rather
+  // than a page that implies otherwise.
+  COMING_SOON_HREF,
   '/contact',
   FAQ_HREF,
   ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
@@ -105,6 +110,7 @@ export function blogRoutes(): string[] {
     '/pricing',
     '/features',
     ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
+    COMING_SOON_HREF,
     '/contact',
     FAQ_HREF,
     ...LEGAL_DOCS.map((d) => legalHref(d.slug)),

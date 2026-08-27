@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { HBtn } from './magic';
 import { L } from './icons';
 import { Mark } from './shared';
-import { CATALOG, CATALOG_TOOL_COUNT, slugify } from './catalog';
+import { CATALOG, CATALOG_TOOL_COUNT, slugify, type CatalogGroup, type CatalogItem } from './catalog';
 import { CATEGORIES, CATEGORY_BY_NAME, categoryHref, featureHref as featurePath } from '../content/features';
 import { TRIAL_CTA_LABEL } from '../content/legal';
 import { CHEAPEST_MONTHLY } from './Pricing';
@@ -18,16 +18,37 @@ import { CHEAPEST_MONTHLY } from './Pricing';
    clicked from a feature page. Each mega-menu item deep-links to its section on
    the category page it belongs to, and each column header opens that page. */
 
-const featureHref = (title: string) => featurePath(slugify(title));
 // Menu group names match the category names in content/features.ts. The fallback
 // only matters if one is renamed on one side — a wrong link beats a nav that
 // throws on every route.
 const groupHref = (name: string) => categoryHref((CATEGORY_BY_NAME[name] || CATEGORIES[0]).slug);
 
-/* Inline SOON pill for mega-menu items — same sky tokens as the /features card
-   badge, sized to sit next to the item title rather than absolutely positioned. */
+/* Where a mega-menu entry goes.
+   The five live groups resolve through LEGACY_ANCHORS, which maps a retired
+   /features#<slug> URL onto the category page and section that feature moved
+   to. The Coming Soon group cannot: an unbuilt feature has no retired URL and
+   no section on a live category page, so it carries its destination on the
+   entry itself. Falling back to the derived lookup keeps the five unchanged. */
+/* Exported so content/features.test.ts can assert on the resolver the menu
+   actually uses rather than re-deriving it — the same reason
+   `MegaMenuFooterLabel` below is its own export. A test that re-implements the
+   lookup passes while the JSX seam sends every visitor somewhere else. */
+export const itemHref = (it: CatalogItem) => it.href ?? featurePath(slugify(it.title));
+export const columnHref = (g: CatalogGroup) => g.href ?? groupHref(g.name);
+
+/* Inline SOON pill for mega-menu items, sized to sit next to the item title
+   rather than absolutely positioned.
+
+   🔴 GREY, NOT SKY. This carried --sky-100 / --sky-700 while nothing in the
+   catalogue was marked `soon`, so it never rendered. It renders now, on all
+   nine Coming Soon entries, and sky is the LIVE colour of Community &
+   Engagement — a badge in another category's brand tint next to an unbuilt
+   feature is the opposite of the signal it exists to send. Dashed, because
+   dashed already means "not included" in this codebase (an unlit plan chip in
+   FeatureBlock). */
 const soonPill: React.CSSProperties = {
-  background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 8.5, fontWeight: 700,
+  background: 'var(--surface-soon)', color: 'var(--text-soon)',
+  border: '1px dashed var(--text-soon-soft)', fontSize: 8.5, fontWeight: 700,
   letterSpacing: '0.06em', padding: '2px 6px', borderRadius: 999, lineHeight: 1.4,
 };
 
@@ -167,18 +188,24 @@ export function Nav() {
           role="menu"
           aria-label="Features"
           style={{
-            width: 'min(1100px, calc(100vw - 40px))', marginTop: 10,
+            width: 'min(1180px, calc(100vw - 40px))', marginTop: 10,
             background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
             border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
             boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: '26px 30px',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 24 }}>
+          {/* Six columns since THE-247. The panel widened 1100 -> 1180 and the
+              gap tightened 24 -> 18 to absorb the extra column: at 1180 that is
+              a 172px column against 189px before, and the menu only renders
+              above 900px (.nav-links is display:none below it), where the
+              narrowest case is a 119px column that still wraps rather than
+              overflowing. */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 18 }}>
             {CATALOG.map((g) => (
               <div key={g.name}>
                 <Link
-                  to={groupHref(g.name)}
+                  to={columnHref(g)}
                   onClick={() => setMega(false)}
                   style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, marginBottom: 12, textDecoration: 'none' }}
                   onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
@@ -190,7 +217,7 @@ export function Nav() {
                   {g.items.map((it) => (
                     <Link
                       key={it.title}
-                      to={featureHref(it.title)}
+                      to={itemHref(it)}
                       role="menuitem"
                       onClick={() => setMega(false)}
                       style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', margin: '0 -8px', borderRadius: 9, textDecoration: 'none', fontSize: 13, fontWeight: 500, color: 'var(--navy-800)', transition: 'background 150ms' }}
@@ -239,7 +266,7 @@ export function Nav() {
               {CATALOG.map((g) => (
                 <div key={g.name} style={{ marginBottom: 14 }}>
                   <Link
-                    to={groupHref(g.name)}
+                    to={columnHref(g)}
                     onClick={closeMobile}
                     style={{ display: 'block', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: g.tint, margin: '6px 0 8px', textDecoration: 'none' }}
                   >
@@ -247,7 +274,7 @@ export function Nav() {
                   </Link>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {g.items.map((it) => (
-                      <Link key={it.title} to={featureHref(it.title)} onClick={closeMobile}
+                      <Link key={it.title} to={itemHref(it)} onClick={closeMobile}
                         style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 6px', borderRadius: 9, textDecoration: 'none', fontSize: 14, fontWeight: 500, color: 'var(--navy-800)' }}>
                         <L name={it.icon} size={16} color={g.tint} />
                         <span>{it.title}</span>

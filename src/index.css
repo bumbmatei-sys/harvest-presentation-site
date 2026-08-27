@@ -73,6 +73,42 @@
   --text-body-dark:    rgba(255, 255, 255, 0.62);
   --text-muted-dark:   rgba(255, 255, 255, 0.40);
 
+  /* ---- Coming Soon (unbuilt work) ----
+     The five live feature categories each carry a colour; the Coming Soon
+     category is grey, and the difference is the honest signal — every other
+     category is a capability a church can use today, and this one is not.
+
+     🔴 WHY THESE ARE NEW TOKENS RATHER THAN --text-muted. --text-muted (#A99B84)
+     measures 2.72 : 1 on white, 2.57 on cream and 2.36 on --stone-100. It is a
+     tint for de-emphasised furniture next to text that carries the meaning; as
+     the ONLY colour on a nav column and a page of headings it falls under every
+     threshold and reads as disabled-or-broken rather than as "not yet". The
+     grey has to be quiet AND legible, which is a different job.
+
+     Measured, on every ground the site actually paints (WCAG AA normal text is
+     4.5 : 1; the least-contrasty LIVE category tint, --gold-600, is 3.27 on
+     white, so these clear the shipped bar as well as the standard):
+
+       --text-soon        #6D6A66   white 5.38   cream 5.07   stone-100 4.66
+       --text-soon-dark   #A5A29C   navy-900 7.17   navy-950 7.52   navy-700 5.32
+
+     ⚠️ EACH BELONGS TO ONE GROUND, exactly as --text-muted / --text-muted-dark
+     do: --text-soon drops to 3.39 on navy and --text-soon-dark to 2.55 on
+     white, so swapping them is the bug this pairing exists to prevent.
+
+     Both are near-neutral by measurement, not by eye — chroma 2.7 and 3.5 in
+     Lab, against 26 to 52 for the five live tints (--navy-600 26, --green-600
+     31, --sky-600 38, --gold-700 44, --gold-600 52). That gap is what makes
+     "grey, not coloured" legible as a deliberate difference rather than as a
+     sixth brand colour, and it is nearest-neighbour ΔE 29 from every one of
+     them, so no visitor has to compare two similar swatches to tell them
+     apart. */
+  --text-soon:       #6D6A66;  /* unbuilt, on cream / white / stone grounds */
+  --text-soon-dark:  #A5A29C;  /* the same signal on a navy band */
+  --text-soon-soft:  #9E9A93;  /* wireframe strokes and greeked bars — decorative */
+  --surface-soon:    var(--stone-100);  /* the concept-sketch ground */
+  --soon-rule:       #E0DAD1;  /* graph paper behind a sketch, 1.20 : 1 — a texture, not a line */
+
   --border-light:     var(--stone-200);
   --border-strong:    var(--stone-300);
   --border-dark:      rgba(255, 255, 255, 0.10);
@@ -291,11 +327,23 @@ a:hover { color: var(--brand-active); }
 .feat-index-card { transition: border-color 250ms var(--ease-out), transform 250ms var(--ease-out); }
 .feat-index-card:hover { border-color: var(--brand) !important; transform: translateY(-3px); }
 
+/* The Coming Soon page's jump-to index. Its own class rather than `.feat-index`
+   because it carries NINE cards where the largest live category carries seven,
+   and nine columns across 1140px is a 116px card. Five columns wrapping to a
+   second row reads better and leaves each card 228px. The breakpoints below
+   follow the same rhythm as `.feat-index`.
+
+   The hover accent is grey, not `--brand`: a gold border on hover would put the
+   brand colour back on the one category that must not carry it. */
+.soon-index-card { transition: border-color 250ms var(--ease-out), transform 250ms var(--ease-out); }
+.soon-index-card:hover { border-color: var(--text-soon) !important; transform: translateY(-3px); }
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1080px) {
   .feat-index { grid-template-columns: repeat(4, 1fr) !important; }
+  .soon-index { grid-template-columns: repeat(4, 1fr) !important; }
   /* THE-204 put a fourth card in the plan row. The container caps at 1200px, so
      1280 and 1440 both render 1144px of content and four cards fit there; at
      1024 they would be 228px wide, narrower than the 40px serif price headline
@@ -313,6 +361,7 @@ a:hover { color: var(--brand-active); }
   /* Story first, then the vignette, on every feature card. */
   .fb-caps { grid-template-columns: 1fr !important; gap: 26px !important; }
   .feat-index { grid-template-columns: repeat(3, 1fr) !important; }
+  .soon-index { grid-template-columns: repeat(3, 1fr) !important; }
   .split-grid > *[style*="order: 2"] { order: 0 !important; }
   .bento-grid > * { grid-column: span 1 !important; }
   .dash-sidebar { display: none !important; }
@@ -327,6 +376,7 @@ a:hover { color: var(--brand-active); }
    logos wrap onto a second full-width line. */
 @media (max-width: 560px) {
   .feat-index { grid-template-columns: repeat(2, 1fr) !important; }
+  .soon-index { grid-template-columns: repeat(2, 1fr) !important; }
   .blog-row { gap: 14px !important; }
   .blog-thumb { width: 96px; }
   .blog-body { font-size: 17px; }

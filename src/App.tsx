@@ -8,11 +8,13 @@ import { Footer } from './components/Footer';
 import { ScrollManager } from './components/ScrollManager';
 import { Landing } from './pages/Landing';
 import { CategoryPage } from './pages/CategoryPage';
+import { ComingSoonPage } from './pages/ComingSoonPage';
 import { FeaturesRedirect } from './pages/FeaturesRedirect';
 import { ContactPage } from './pages/ContactPage';
 import { LegalPage } from './pages/LegalPage';
 import { FaqPage } from './pages/FaqPage';
 import { CATEGORIES, categoryHref } from './content/features';
+import { COMING_SOON_HREF } from './content/coming-soon';
 import { LEGAL_DOCS, legalHref } from './content/legal';
 import { FAQ_HREF } from './content/faq';
 import { BlogIndex } from './pages/BlogIndex';
@@ -50,6 +52,10 @@ export const routes: RouteRecord[] = [
         path: categoryHref(c.slug),
         element: <CategoryPage slug={c.slug} />,
       })),
+      // The sixth category, and the only one that is not a CategoryPage: its
+      // content is not in CATEGORIES because a `Feature` carries `tiers` and an
+      // unbuilt item has no tier to carry. See src/pages/ComingSoonPage.tsx.
+      { path: COMING_SOON_HREF, element: <ComingSoonPage /> },
       { path: '/contact', element: <ContactPage /> },
       // The buyer's FAQ. Its own route rather than a landing anchor: the value
       // is the indexed page and its FAQPage markup, which needs a URL.

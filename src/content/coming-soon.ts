@@ -1,0 +1,272 @@
+/* The Coming Soon category — /features/coming-soon.
+ *
+ * 🔴 NOTHING HERE IS BUILT. This file describes work that does not exist yet,
+ * which makes it the highest-risk copy on the site: six false-claim incidents
+ * have already been corrected here (a Church directory that did not exist, a
+ * $59/mo nav figure, a 7-vs-14-day trial, a Docs & Notes row, Notes and
+ * Community on every plan, and four add-on prices that disagreed with Dodo).
+ * Every one of those was a claim about something that shipped. This page is a
+ * whole page of claims about things that have not.
+ *
+ * THE SHAPE IS THE GUARD. `SoonItem` deliberately has no `tiers`, no price and
+ * no call-to-action field — unlike `Feature` in content/features.ts, which has
+ * all three. A coming-soon entry therefore cannot express "available on
+ * Ministry" or "$12/mo" even by accident, because there is nowhere to put it.
+ * `ComingSoonBlock` renders no plan chips for the same reason, and the page
+ * closes with a plain note instead of the `SiteCTA` band the five live
+ * category pages use (that band sells a trial).
+ *
+ * EVERY ENTRY IS TRACEABLE. `ref` names the open card on the Harvest board that
+ * the entry describes. Nothing here was invented for the page: if a claim has
+ * no card, it does not belong on this page. Statuses are the board's own —
+ * none of these is In Progress, and the copy must not imply otherwise. */
+
+/** Where an item actually stands. The board's own vocabulary, not a promise.
+ *  There is deliberately no 'shipping' or 'soon' member: an item that ships
+ *  moves to content/features.ts and leaves this file entirely. */
+export type SoonStage = 'Planned' | 'Blocked';
+
+export interface SoonItem {
+  /** In-page anchor, e.g. /features/coming-soon#languages. */
+  id: string;
+  /** Display name — the nav item, the page index card and the block heading. */
+  name: string;
+  /** Lucide icon name, resolved through components/icons.tsx. */
+  icon: string;
+  /** Ordinal in the page's index. Renumbered from the list, never written down. */
+  n: string;
+  /** The open card on the Harvest board this describes. */
+  ref: string;
+  stage: SoonStage;
+  /** Named blocker. Required on a Blocked item — see the contract below. */
+  blockedBy?: string;
+  eyebrow: string;
+  title: string;
+  /** One line on what it would be. Written in the conditional throughout. */
+  oneliner: string;
+  /** 🔴 What a church has TODAY instead. This is the honest half of every
+   *  entry: it stops the page reading as a feature list by naming the gap. */
+  today: string;
+  /** What is being considered — explicitly not a commitment, and rendered
+   *  under a heading that says so. */
+  considering: string[];
+  /** A hard boundary against a feature that already ships and could be
+   *  confused with this one. Rendered prominently where present. */
+  notThis?: string;
+  /** The mega-menu's one-line description. */
+  navDesc: string;
+}
+
+export const COMING_SOON_SLUG = 'coming-soon';
+export const COMING_SOON_NAME = 'Coming Soon';
+export const COMING_SOON_HREF = `/features/${COMING_SOON_SLUG}`;
+export const COMING_SOON_KICKER = 'Not yet';
+
+/** The one sentence the whole page has to carry, restated wherever a visitor
+ *  could arrive mid-page. Exported so the page and its tests share one string
+ *  rather than two that can drift apart. */
+export const NOT_BUILT_NOTICE =
+  'Nothing on this page is built, dated or for sale. These are the things churches keep asking for, kept in public so you can see what is missing before you decide.';
+
+/** The label on every item's status pill. Deliberately blunt. */
+export const NOT_BUILT_LABEL = 'Not built yet';
+
+const ITEMS: Omit<SoonItem, 'n'>[] = [
+  {
+    id: 'languages', name: 'Multiple languages', icon: 'globe', ref: 'THE-123', stage: 'Planned',
+    eyebrow: 'One church, several languages',
+    title: 'Harvest speaks English, and only English.',
+    oneliner: 'The interface would be translatable, so a congregation that worships in two languages could read the app in both.',
+    today: 'Every screen, email and notification is English. A member who does not read English gets an English app, and there is no setting that changes it.',
+    considering: [
+      'Translating the member app first, where most of the reading happens',
+      'A per-member language choice rather than one setting for the whole church',
+      'Right-to-left layouts costed separately — mirroring a layout is not the same job as translating it, and assuming it comes free is how it gets skipped',
+    ],
+    navDesc: 'The interface in more than English. Not built yet.',
+  },
+  {
+    id: 'services', name: 'Service and worship planning', icon: 'church', ref: 'THE-122', stage: 'Planned',
+    eyebrow: 'The Sunday run sheet',
+    title: 'Planning Sunday still happens in a spreadsheet and a group chat.',
+    oneliner: 'An order of service your team plans together — songs, people, timings — instead of a document somebody emails round on Thursday.',
+    today: 'Harvest runs events, check-in and the livestream. It does not plan the service itself: there is no order of service, no song library and no rota.',
+    considering: [
+      'A song library carrying keys and CCLI numbers, with chord charts attached',
+      'Rehearsal scheduling with availability and blockouts, so the conflict is caught before Sunday',
+      'Recurring templates, because most services are last week with three things changed',
+    ],
+    navDesc: 'Order of service, songs and rotas. Not built yet.',
+  },
+  {
+    id: 'applications', name: 'Application processing', icon: 'clipboard-list', ref: 'THE-112', stage: 'Planned',
+    eyebrow: 'From form to decision',
+    title: 'Applications arrive as email, and end up retyped into a spreadsheet.',
+    oneliner: 'A review pipeline on top of the forms Harvest already collects — several reviewers scoring the same application, and the acceptance letter generated from the decision.',
+    today: 'Forms collect submissions, export to CSV and link to a CRM contact. Everything after that — status, reviewer notes, the contract or the rejection — happens outside Harvest.',
+    considering: [
+      'A status on each submission, so an application can be somewhere rather than just received',
+      'Multiple reviewers with scores and notes on one application — the part a spreadsheet handles worst',
+      'The acceptance or rejection document generated from the decision, as a fixed template with merge fields',
+      'No e-signature. That is a different product and pretending otherwise would be the sixth thing this site had to correct',
+    ],
+    navDesc: 'Review applicants and issue the decision. Not built yet.',
+  },
+  {
+    id: 'docs', name: 'Documentation', icon: 'book-open', ref: 'THE-117', stage: 'Planned',
+    eyebrow: 'Proper documentation',
+    title: 'There is no manual. There should be.',
+    oneliner: 'A documentation site an admin can search at the moment they are stuck, instead of working it out from the interface.',
+    today: 'Harvest has a contact form and an FAQ. Neither is documentation: nothing explains how a feature works, in order, in one place you can link a volunteer to.',
+    considering: [
+      'A separate site at its own address, so it can be indexed and linked without touching the app',
+      'Written per admin task, not per screen — the question is usually "how do I take a registration", not "what is this button"',
+      'Nothing has been started. This is a decision recorded, not work under way',
+    ],
+    navDesc: 'A real manual you can search. Not built yet.',
+  },
+  {
+    id: 'website', name: 'Website builder', icon: 'blocks', ref: 'THE-59', stage: 'Planned',
+    eyebrow: 'The public site',
+    title: 'Harvest is your app. It is not your website.',
+    oneliner: 'A church site you could build and edit inside Harvest, drawing on the events, sermons and giving pages already in your account.',
+    today: 'There is no website builder, no page builder and no template gallery. What exists is branding — your domain, logo and colour on the Ministry plan — and editors for your blog, documents and sermon notes. An earlier draft of our own Terms claimed a website builder and had to be corrected; this line is the correction holding.',
+    considering: [
+      'Pages that read live from your Harvest data, so a service time is not typed in two places',
+      'Publishing to the domain a church already points at Harvest',
+      'This one is furthest out of everything on this page',
+    ],
+    navDesc: 'A public church site, built in Harvest. Not built yet.',
+  },
+  {
+    id: 'agent', name: 'In-app AI agent for admins', icon: 'bot', ref: 'THE-58', stage: 'Planned',
+    eyebrow: 'For the people running the church',
+    title: 'An assistant that does the work, not one that answers questions.',
+    oneliner: 'An agent working inside the admin — drafting, filing and chasing across Harvest and the tools a church has already connected.',
+    today: 'Admin work is manual. Every newsletter, every follow-up and every record is typed by a person, and nothing in Harvest acts on an admin\'s behalf.',
+    notThis: 'This is not AI Chat, which already ships. AI Chat is for your members: it answers their questions from your own teaching, and it is part of the Small Team and Ministry plans at no extra charge. This one would be for your staff, it would take actions rather than answer questions, and it does not exist.',
+    considering: [
+      'Acting across the admin surfaces rather than talking about them',
+      'Reaching the tools a church has already connected, not just Harvest\'s own data',
+      'Months of work, and not started. It waits behind the things churches are paying for today',
+    ],
+    navDesc: 'An admin-side agent that acts. Not built yet.',
+  },
+  {
+    id: 'stores', name: 'App Store and Play Store', icon: 'arrow-down-to-line', ref: 'THE-115', stage: 'Planned',
+    eyebrow: 'Installed from the store',
+    title: 'Your app installs from the browser, not from a store listing.',
+    oneliner: 'A Harvest app in both stores that a member installs the ordinary way, then picks their church and sees your branding.',
+    today: 'The mobile app is a PWA: it installs from your own domain on iOS and Android without a store, which is real and works. What it is not is a store listing — a member searching the App Store finds nothing.',
+    considering: [
+      'One listing for every church, with your branding applied once a member picks you',
+      'A ceiling worth saying out loud: the store name and icon would stay Harvest. Your branding starts inside the app, not on the home screen',
+      'Store review timelines are weeks, and none of that has started',
+    ],
+    navDesc: 'A real store listing, not just a PWA. Not built yet.',
+  },
+  {
+    id: 'identity', name: 'One login, many churches', icon: 'user-check', ref: 'THE-118', stage: 'Planned',
+    eyebrow: 'People belong to more than one',
+    title: 'A person at two churches needs two accounts.',
+    oneliner: 'One identity that carries across churches, with a separate role at each — a worship leader at one and a member at another, signing in once.',
+    today: 'Accounts are per church. Somebody who serves at two has two logins and two profiles, and nothing connects them.',
+    considering: [
+      'A single identity with per-church membership and roles hanging off it',
+      'Existing accounts migrated first, so nobody has to start again',
+      'Security-critical and weeks of work. It is a permissions rewrite, and the risk of getting it wrong is one church seeing another\'s data',
+    ],
+    navDesc: 'One account across several churches. Not built yet.',
+  },
+  {
+    id: 'designations', name: 'Fund designations on giving', icon: 'hand-heart', ref: 'THE-98', stage: 'Blocked',
+    blockedBy: 'live donation processing, which is waiting on incorporation',
+    eyebrow: 'Where the gift is going',
+    title: 'A donor can give, but cannot say what for.',
+    oneliner: 'Funds a church configures — General, Missions, Building, Benevolence — that a donor picks at the moment of giving and that follow the gift into every report.',
+    today: 'Giving goes to one undesignated pot. A church that runs a building fund tracks it outside Harvest, or asks donors to write it in a note.',
+    considering: [
+      'Funds the church defines, rather than a fixed list we choose',
+      'The designation carried into receipts, statements and exports — a fund that only exists on the giving page is worse than none',
+      'It touches every path that writes a donation, so it is not a small change',
+    ],
+    navDesc: 'Give to a specific fund. Not built yet.',
+  },
+];
+
+/** The list as the page renders it, with the index ordinal derived from
+ *  position — the same reason `content/features.ts` renumbers `n` after its
+ *  filter, so removing an entry can never leave 1, 2, 4. */
+export const COMING_SOON_ITEMS: SoonItem[] = ITEMS.map((item, i) => ({ ...item, n: String(i + 1) }));
+
+/** Ids, for the tests and for anchor resolution. */
+export const COMING_SOON_IDS: readonly string[] = COMING_SOON_ITEMS.map((i) => i.id);
+
+export const soonItemHref = (id: string) => `${COMING_SOON_HREF}#${id}`;
+
+/* ── The contract ─────────────────────────────────────────────────────────────
+ *
+ * Run at module scope, so a violation fails `tsc -b`'s sibling — the prerender —
+ * rather than only a test, exactly as `addOnPricingContract` and the tier-width
+ * check in content/features.ts do. A page of unbuilt features is one careless
+ * sentence away from being the seventh false claim on this site, and a red test
+ * somebody can skip is not the guard that stops it.
+ *
+ * ⚠️ These patterns run over THIS FILE'S OWN COPY ONLY. The rendered page is
+ * checked separately in pages/ComingSoonPage.test.ts, because a claim is not a
+ * claim until something draws it — the precedent is PR 55, where a pure-function
+ * test passed while the JSX seam was mutated. */
+
+/** Wording that would make an unbuilt feature read as a purchasable one. */
+const FORBIDDEN: [string, RegExp][] = [
+  ['a price', /\$\s?\d/],
+  ['a per-month or per-year figure', /\b\d+\s*(\/|per\s)\s*(mo|month|yr|year)\b/i],
+  ['an "included in a plan" claim', /\bincluded (in|on|with)\b|\bcomes with your plan\b/i],
+  ['an availability claim', /\bavailable (on|now|from|in)\b|\bavailable to\b/i],
+  ['an add-on', /\badd-?ons?\b/i],
+  ['a seat', /\b(extra|additional|per-|one more)\s?seats?\b|\bassistant seat\b/i],
+  ['a purchase call to action', /\b(buy|purchase|subscribe|start (your |a )?(free )?trial|upgrade now|get started)\b/i],
+  ['a delivery date', /\b(q[1-4]\s*20\d\d|by (january|february|march|april|may|june|july|august|september|october|november|december)|in \d+ (weeks|months)|next (month|quarter|year)|ship(s|ping)? (in|by|this))\b/i],
+  ['a promise that it is coming', /\bwill (ship|launch|be (built|available|released))\b|\bwe promise\b|\bguarantee/i],
+];
+
+/** The three tier names, which must never be attached to an unbuilt item. */
+const TIER_WORDS = /\b(Individual|Small Team|Ministry|Forever Free)\b/;
+
+for (const item of COMING_SOON_ITEMS) {
+  /* `today` and `notThis` describe what ALREADY SHIPS, so they are the two
+     fields allowed to name a plan — "AI Chat is part of Small Team and
+     Ministry" is a true statement about a live feature and is exactly the
+     distinction this page must draw. Every other field is about the unbuilt
+     thing, where a tier name could only be a false claim. */
+  const aboutTheUnbuiltThing = [
+    item.name, item.eyebrow, item.title, item.oneliner, ...item.considering,
+  ];
+  const everything = [...aboutTheUnbuiltThing, item.today, item.notThis ?? '', item.navDesc];
+
+  for (const text of everything) {
+    for (const [label, pattern] of FORBIDDEN) {
+      if (pattern.test(text)) {
+        throw new Error(`Coming-soon item "${item.id}" carries ${label}: "${text}"`);
+      }
+    }
+  }
+  for (const text of aboutTheUnbuiltThing) {
+    if (TIER_WORDS.test(text)) {
+      throw new Error(`Coming-soon item "${item.id}" names a plan tier against an unbuilt feature: "${text}"`);
+    }
+  }
+  if (item.stage === 'Blocked' && !item.blockedBy?.trim()) {
+    throw new Error(`Coming-soon item "${item.id}" is Blocked with no named blocker.`);
+  }
+  if (item.stage !== 'Blocked' && item.blockedBy) {
+    throw new Error(`Coming-soon item "${item.id}" names a blocker but is not Blocked.`);
+  }
+  if (!/^THE-\d+$/.test(item.ref)) {
+    throw new Error(`Coming-soon item "${item.id}" has no board reference; every entry must trace to an open card.`);
+  }
+}
+
+if (new Set(COMING_SOON_IDS).size !== COMING_SOON_IDS.length) {
+  throw new Error('Coming-soon ids must be unique — they are in-page anchors.');
+}

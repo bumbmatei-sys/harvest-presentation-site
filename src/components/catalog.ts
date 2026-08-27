@@ -4,6 +4,7 @@
    lives in content/features.ts, keyed by `slugify(title)`. */
 
 import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED } from '../lib/flags';
+import { COMING_SOON_HREF, COMING_SOON_ITEMS, COMING_SOON_KICKER, COMING_SOON_NAME, soonItemHref } from '../content/coming-soon';
 
 export const slugify = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -12,13 +13,20 @@ export interface CatalogItem {
   icon: string;
   title: string;
   desc: string;
+  /** Not built. Excluded from CATALOG_TOOL_COUNT — see the note on it below. */
   soon?: boolean;
+  /** Explicit destination. Set only by the Coming Soon group, whose items are
+   *  not in LEGACY_ANCHORS: that table maps RETIRED /features#<slug> URLs onto
+   *  their new home, and an unbuilt feature has no retired URL to redirect. */
+  href?: string;
 }
 export interface CatalogGroup {
   name: string;
   kicker: string;
   tint: string;
   bg: string;
+  /** Explicit destination for the column header, same reason as CatalogItem. */
+  href?: string;
   items: CatalogItem[];
 }
 
@@ -26,6 +34,35 @@ const item = (icon: string, title: string, desc: string, soon = false): CatalogI
   ({ icon, title, desc, soon });
 
 export const CATALOG: CatalogGroup[] = [
+  /* 🔴 FIRST DELIBERATELY, and first is a strong claim on attention: this is
+     the leftmost column of the desktop mega-menu and the first block of the
+     mobile accordion, ahead of five categories of shipped work. That is what
+     the founder asked for — "the sixth one placed on the left side of the
+     dropdown, or on the phone the first one" — and the trade-off is called out
+     in the PR rather than quietly softened here.
+
+     GREY, NOT A COLOUR. The other five carry --sky-600, --green-600,
+     --gold-600, --gold-700 and --navy-600. This one carries --text-soon, and
+     the difference is the whole point: every other category is a capability a
+     church can use today.
+
+     ⚠️ EVERY ITEM IS `soon: true`, WHICH IS LOAD-BEARING, NOT DECORATION.
+     CATALOG_TOOL_COUNT is a derived count of everything NOT marked soon, and it
+     is quoted to visitors as "N tools in one platform". Advertising nine
+     unbuilt features as tools in the platform would be the same false claim as
+     a stale price. The count is unchanged at 28; the assertion lives in
+     pages/ComingSoonPage.test.ts and in two older suites that already pin it. */
+  {
+    name: COMING_SOON_NAME, kicker: COMING_SOON_KICKER,
+    tint: 'var(--text-soon)', bg: 'var(--surface-soon)',
+    href: COMING_SOON_HREF,
+    // Derived from content/coming-soon.ts so the menu and the page cannot
+    // disagree about what is on the list — the failure that a second hand-kept
+    // array would eventually produce.
+    items: COMING_SOON_ITEMS.map((i) => ({
+      icon: i.icon, title: i.name, desc: i.navDesc, soon: true, href: soonItemHref(i.id),
+    })),
+  },
   {
     name: 'Community & Engagement', kicker: 'Belong', tint: 'var(--sky-600)', bg: 'var(--sky-100)',
     items: [
