@@ -204,10 +204,9 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     id: 'affiliate', name: 'Affiliate referrals', icon: 'share-2', ref: 'THE-97',
     eyebrow: 'If a church came through your link',
     title: 'Harvest has no affiliate programme right now.',
-    oneliner: 'A link you could share, paying you 15% of what a church that joins through it pays for its plan, on every payment in that church\'s first twelve months.',
+    oneliner: 'A link you could share, paying you 15% of what a church that joins through it actually pays for its plan — every payment it makes in the twelve months from its first.',
     today: 'Nothing pays a share for a referral today. There is no place to ask for a link, nothing that reports what a link has brought in, and no money moving either way. Links shared while the programme was advertised are still recognised when someone arrives on one, so an old link keeps recording where a visitor came from — and nothing is calculated or paid against it.',
     considering: [
-      'Exactly when the year starts — the church\'s first payment, or the referral itself. Those are not the same span, and the gap between them is somebody\'s money',
       'What happens when a church moves up or down a plan, or leaves partway through the year',
       'Plans only. The share would be worked out on what a church pays for its plan, and on nothing else it pays Harvest',
       'How a link would be issued, how a share would be tracked and how the money would reach the person who earned it are all still open — which is why none of it is described here',

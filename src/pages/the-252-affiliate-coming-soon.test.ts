@@ -233,17 +233,30 @@ describe('2 — it states 15% for twelve months, in one unambiguous sentence', (
     expect(withRate, 'the 15% claim is made in more than one place').toHaveLength(1);
     expect(withRate[0]).toBe(
       'A link you could share, paying you 15% of what a church that joins through it '
-      + "pays for its plan, on every payment in that church's first twelve months.",
+      + 'actually pays for its plan — every payment it makes in the twelve months from its first.',
     );
     // It is the one-liner, not a stray line the block happens to draw.
     expect(words(item().oneliner)).toBe(withRate[0]);
   });
 
-  it('the rate, the basis and the span are all in that one sentence', () => {
+  it('the rate, the basis, the span AND the start are all in that one sentence', () => {
     const s = sentences.find((x) => x.includes('15%'))!;
     expect(s, 'the rate is missing').toMatch(/\b15%/);
     expect(s, 'the basis is missing').toMatch(/what a church .* pays for its plan/);
+    /* 🔴 AND THE BASIS IS THE AMOUNT ACTUALLY PAID, confirmed by the founder:
+       a church on the yearly term generates 15% of the DISCOUNTED figure, not
+       of a list price it never paid. "actually" is what stops "what a church
+       pays for its plan" being read back as "the plan's price". */
+    expect(s, 'the discounted-amount reading is no longer explicit').toMatch(/actually pays for its plan/);
     expect(s, 'the span is missing').toMatch(/twelve months/);
+    /* 🔴 THE ANCHOR, and it is the half that was open when this entry was first
+       written. The founder settled it: the twelve months run FROM THE CHURCH'S
+       FIRST PAYMENT, not from the referral and not from signup. The distinction
+       is money — the product runs a trial during which a church can cancel and
+       pay nothing, so a window anchored at the referral would be spent before
+       any payment existed. "from its first" is that anchor, and `every payment
+       it makes` is what "its first" elides. */
+    expect(s, 'the twelve months are not anchored').toMatch(/every payment it makes in the twelve months from its first/);
     // Twelve months is stated ONCE. A second statement is a second chance to
     // state it differently, which is how two readings get published.
     expect(mainText.match(/twelve months/gi)).toHaveLength(1);
@@ -263,8 +276,8 @@ describe('2 — it states 15% for twelve months, in one unambiguous sentence', (
     // raw search for "15%" in the file can miss it. Normalised first.
     if (!built) return;
     const prerendered = words(fs.readFileSync(DIST_PAGE, 'utf8'));
-    expect(prerendered).toContain('15% of what a church that joins through it pays for its plan');
-    expect(prerendered).toContain("on every payment in that church's first twelve months");
+    expect(prerendered).toContain('15% of what a church that joins through it actually pays for its plan');
+    expect(prerendered).toContain('every payment it makes in the twelve months from its first');
   });
 
   it('states it in the conditional, so the sentence is not a live offer', () => {
@@ -287,20 +300,23 @@ describe('2 — it states 15% for twelve months, in one unambiguous sentence', (
     expect(mainText).not.toMatch(/\badd-?on/i);
   });
 
-  it('🔴 every open question is named as open, not answered by invention', () => {
-    /* The founder's sentence settles a rate, a span and a basis. It settles
-       neither the start of the clock nor what a mid-year plan change does, and
-       both are money. They are stated as undecided under "Under consideration",
-       which is the field that exists to say exactly that — rather than resolved
-       here and discovered to be wrong by someone who acted on it. */
+  it('🔴 what is settled is stated, and what is not is named as open', () => {
+    /* THE LINE BETWEEN THE TWO, and it moved once. The founder settled the rate,
+       the span, the basis (the amount actually paid) and — later — the start of
+       the clock. Those four are in the sentence above. What is still undecided
+       is a mid-year plan change and every payout mechanic, and those are under
+       "Under consideration", which is the field that exists to say exactly that
+       rather than resolve it here and be found wrong by someone who acted on it. */
     const bullets = item().considering.join(' ');
-    expect(bullets, 'the start of the twelve months is silently assumed')
-      .toMatch(/when the year starts/i);
-    expect(bullets).toMatch(/first payment, or the referral itself/i);
     expect(bullets, 'a mid-year plan change is silently assumed')
       .toMatch(/moves up or down a plan, or leaves partway through/i);
     expect(bullets, 'the mechanics are stated rather than left open')
       .toMatch(/are all still open/i);
+
+    // 🔴 AND THE SETTLED ONE HAS LEFT. A question the sentence now answers must
+    // not also stand in the list as undecided — the page would say both.
+    expect(bullets, 'the start of the year is answered above and still open here')
+      .not.toMatch(/when the year starts|first payment, or the referral/i);
 
     // 🔴 AND THE COPY DOES NOT ANSWER THEM ELSEWHERE. A question named in one
     // field and resolved in another is worse than either alone.
@@ -308,6 +324,9 @@ describe('2 — it states 15% for twelve months, in one unambiguous sentence', (
     expect(c).not.toMatch(/\bclawback|\breversed?\b|\brefund(ed|s)?\b/i);
     expect(c).not.toMatch(/\bpro[- ]?rat(a|ed)\b/i);
     expect(c).not.toMatch(/\b(commission (stops|ends)|stops? immediately)\b/i);
+    // 🔴 STILL BANNED, and now for a sharper reason than when it was written:
+    //    the clock is anchored at the first payment, so a stray "from signup"
+    //    would contradict the sentence rather than merely over-specify it.
     expect(c).not.toMatch(/\bfrom (signup|sign-up|the referral)\b/i);
     expect(c).not.toMatch(/\bconverted customers?\b/i);
   });
