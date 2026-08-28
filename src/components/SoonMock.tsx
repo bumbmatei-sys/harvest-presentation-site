@@ -7,7 +7,7 @@ import { L } from './icons';
  * pages put a still life of the real product beside each feature — a vignette
  * of the actual UI, in that feature's colour, framed with the ministry's name
  * and a "Harvest" tab label. That frame is doing work: it says "this is a
- * screen you will see". None of these eight features has a screen, so borrowing
+ * screen you will see". None of the features on this page has a screen, so borrowing
  * that frame would be a picture of something that does not exist, which is
  * exactly the false claim this whole page has to avoid.
  *
@@ -186,6 +186,28 @@ const SKETCHES: Record<string, React.ReactElement> = {
         </div>
       </Panel>
       <Panel label="Amount"><span style={{ ...dashed(7), height: 22 }} /></Panel>
+    </div>
+  ),
+  /* 🔴 A LINK, A CHURCH, AND A SPAN OF MONTHS — and deliberately NOT an earnings
+     screen. The obvious drawing for an affiliate programme is a dashboard: a
+     balance, a this-month figure, a chart climbing. Every one of those is a
+     number nobody can be shown yet, and a wireframe of one still reads as "this
+     exists and here is roughly what you would see". So the schematic depicts
+     only what would be TRACKED — a link, the church that arrived on it, and the
+     twelve cells of the window — with no figure, no currency and no chart
+     anywhere in it. The prose carries the terms; the picture carries none. */
+  affiliate: (
+    <div style={col}>
+      <Panel label="Link"><Bar w="72%" /></Panel>
+      <div style={{ display: 'flex', justifyContent: 'center', color: INK_SOFT, fontSize: 11 }} aria-hidden="true">⌄</div>
+      <Panel label="Church"><Bar w="80%" /><Bar w="52%" /></Panel>
+      {/* Twelve cells, on `1fr` tracks with no content in them, so the strip
+          shrinks with the frame instead of setting a floor under it. */}
+      <Panel label="Months">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3 }}>
+          {Array.from({ length: 12 }, (_, i) => <span key={i} style={{ ...dashed(3), height: 12 }} />)}
+        </div>
+      </Panel>
     </div>
   ),
 };

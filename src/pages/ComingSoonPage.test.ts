@@ -421,6 +421,12 @@ describe('the Coming Soon page lists every named item', () => {
       // sale before it could be marketed. Its ref is the card that withdrew it,
       // which is the open card that now owns the gap.
       'THE-245',
+      // THE-97 — the affiliate programme (THE-252). The SECOND relocated entry,
+      // and it traces to the card that owns the gap rather than to the ticket
+      // that wrote the copy: THE-97 is the open "decide where payouts originate"
+      // card, still Todo, and it is why nobody can be paid a referral share
+      // today. Its own terms are asserted in the-252-affiliate-coming-soon.test.ts.
+      'THE-97',
     ]);
     // THE-115 (a Play Store / App Store listing) was on this page and was
     // pulled at the founder's direction. It must not drift back in.
@@ -721,18 +727,19 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
   it('the nine unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     expect(live).toBe(27);
-    expect(CATALOG[0].items).toHaveLength(9);
+    expect(CATALOG[0].items).toHaveLength(10);   // 9 + THE-252's affiliate entry
     expect(CATALOG[0].items.filter((i) => !i.soon)).toHaveLength(0);
   });
 
   it('🔴 and it WOULD have moved if a single entry lost its soon flag — by mutation', () => {
     // The tripwire, proved rather than asserted. Without `soon`, the count runs
-    // to 36 and the site starts advertising nine tools it does not have — one
-    // of which, SMS, it would be advertising for the second time.
+    // to 37 and the site starts advertising ten tools it does not have — two of
+    // which, SMS and the affiliate programme, it would be advertising for the
+    // second time, in the tense it already withdrew them from.
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(36);
+    expect(wrong).toBe(37);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.

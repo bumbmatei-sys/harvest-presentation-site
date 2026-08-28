@@ -21,7 +21,7 @@
  * no card, it does not belong on this page. Statuses are the board's own —
  * none of these is In Progress, and the copy must not imply otherwise. */
 
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { AFFILIATE_PROGRAM_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 export interface SoonItem {
   /** In-page anchor, e.g. /features/coming-soon#languages. */
@@ -200,6 +200,20 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     notThis: 'This is not the donation page, which already ships and is how a church takes a gift today. Nor is it the newsletter, which sends real email through your own Mailchimp audience on the Small Team and Ministry plans. What is missing is the messaging itself, in both directions.',
     navDesc: 'Broadcasts and giving by text. Not built yet.',
   },
+  {
+    id: 'affiliate', name: 'Affiliate referrals', icon: 'share-2', ref: 'THE-97',
+    eyebrow: 'If a church came through your link',
+    title: 'Harvest has no affiliate programme right now.',
+    oneliner: 'A link you could share, paying you 15% of what a church that joins through it actually pays for its plan — every payment it makes in the twelve months from its first.',
+    today: 'Nothing pays a share for a referral today. There is no place to ask for a link, nothing that reports what a link has brought in, and no money moving either way. Links shared while the programme was advertised are still recognised when someone arrives on one, so an old link keeps recording where a visitor came from — and nothing is calculated or paid against it.',
+    considering: [
+      'What happens when a church moves up or down a plan, or leaves partway through the year',
+      'Plans only. The share would be worked out on what a church pays for its plan, and on nothing else it pays Harvest',
+      'How a link would be issued, how a share would be tracked and how the money would reach the person who earned it are all still open — which is why none of it is described here',
+    ],
+    notThis: 'This is not a cut of anything your church receives. Giving on Harvest carries no platform fee at all on any paid plan, and every gift lands in your church\'s own Stripe account — that ships today and is unchanged. What is described here would come out of what a referred church pays Harvest for its own plan, and would go to whoever referred them.',
+    navDesc: 'A share of what your referrals pay. Not built yet.',
+  },
 ];
 
 /** The list as the page renders it, with the index ordinal derived from
@@ -213,6 +227,15 @@ export const COMING_SOON_ITEMS: SoonItem[] = ITEMS
      renumber for the reason the map below already exists: removing an entry must
      never leave the index reading 1, 2, 3, 4, 5, 6, 7, 8, 10. */
   .filter((item) => item.id !== 'sms' || !SMS_MARKETING_ENABLED)
+  /* 🔴 THE-252 — the affiliate entry is here on the SAME TERMS, and for the same
+     reason. AFFILIATE_PROGRAM_ENABLED already hides a landing section, a footer
+     link, a mega-menu tool, a feature entry and a line of SEO copy that between
+     them advertise a live programme with a rate, a year and a "become an
+     affiliate" button. Turning that flag on while this entry still stood would
+     put the same programme on the site twice, in two tenses — sold on the
+     landing page, unbuilt here — which is exactly what the `sms` filter above
+     exists to prevent. One flag, one tense, either way it is set. */
+  .filter((item) => item.id !== 'affiliate' || !AFFILIATE_PROGRAM_ENABLED)
   .map((item, i) => ({ ...item, n: String(i + 1) }));
 
 /** Ids, for the tests and for anchor resolution. */
