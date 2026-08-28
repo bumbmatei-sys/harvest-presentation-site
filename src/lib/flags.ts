@@ -11,7 +11,20 @@
  * programme is unadvertised. */
 
 /** Mirrors the app's `AFFILIATE_PROGRAM_ENABLED`. Hides the landing section,
- *  footer link, mega-menu item, feature entry and SEO copy — not ref capture. */
+ *  footer link, mega-menu item, feature entry and SEO copy — not ref capture.
+ *
+ *  🔴 THE-252 MADE IT RELOCATE, NOT ONLY HIDE — the shape SMS_MARKETING_ENABLED
+ *  already has, and for the same reason. The five surfaces above between them
+ *  advertise a live programme: a rate, a twelve-month year and a button reading
+ *  "Become an affiliate", pointed at a portal. So:
+ *
+ *    OFF · an "Affiliate referrals" entry APPEARS in Coming Soon (THE-247),
+ *          where the shape itself forbids a price, a tier and a call to action.
+ *    ON  · all five surfaces come back AND that entry LEAVES again.
+ *
+ *  🔴 A programme sold on the landing page while this page calls it unbuilt is
+ *  the same claim in two tenses. `COMING_SOON_ITEMS` filters on this flag for
+ *  exactly that reason, so the flip back stays ONE value. */
 export const AFFILIATE_PROGRAM_ENABLED = false;
 
 /** The multi-campus FEATURE MARKETING — the features.ts section and the
