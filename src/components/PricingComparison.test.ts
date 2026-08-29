@@ -217,12 +217,23 @@ describe('Notes outside the comparison table', () => {
     expect(pricingFaq, 'no pricing FAQ').toBeDefined();
     expect(pricingFaq!.answer.join(' ')).toMatch(/docs and sermon notes/i);
 
-    // 5. The "what Harvest replaces" cost table (components/Replaces.tsx),
-    //    which prices Notion against Notes / Docs. A different kind of table —
-    //    competitors and their monthly cost, not plans and their features — and
-    //    it renders on this same page, so it is the nearest thing to the row
-    //    that was cut and the likeliest to be swept up with it.
-    expect(words(render(React.createElement(Replaces)))).toContain('Notes / Docs');
+    // 5. The one-plan table on the landing page (components/Replaces.tsx),
+    //    which still lists the feature. It renders on this same page, so it is
+    //    the nearest thing to the row that was cut and the likeliest to be
+    //    swept up with it.
+    //
+    //    🔴 THIS ASSERTION MOVED IN THE-257, AND THE FILE UNDER IT IS A
+    //    DIFFERENT TABLE NOW. It used to read `toContain('Notes / Docs')` — a
+    //    CATEGORY LABEL from the retired competitor grid, whose row priced
+    //    Notion against Notes / Docs. That grid is gone: no competitors, no
+    //    cost column, no `rows` array for the label to come from. What replaced
+    //    it lists Harvest's own features, and THE-257 captions this one "Docs"
+    //    on the ground that docs and notes are the same thing and listing both
+    //    reads as two features where there is one. So the claim this point makes
+    //    — the feature survived a cut that was only ever about a table row — is
+    //    unchanged; the string that carries it had to move with the component.
+    //    Asserted on rendered markup, as every point here is.
+    expect(words(render(React.createElement(Replaces)))).toContain('Docs');
 
     // 6. The Terms' description of the product (content/legal.ts).
     const terms = LEGAL_DOCS.find((d) => d.slug === 'terms');
