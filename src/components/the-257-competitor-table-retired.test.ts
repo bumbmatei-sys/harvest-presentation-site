@@ -1,0 +1,326 @@
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, expect, it, vi } from 'vitest';
+import { Replaces } from './Replaces';
+import { formatMonthlyHeadline, plans } from './Pricing';
+import { CATEGORIES, type Category } from '../content/features';
+import { COMING_SOON_ITEMS } from '../content/coming-soon';
+import {
+  AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
+
+/* THE-257 — the competitor table is retired, and what stands in its place.
+ *
+ * The `#replaces` section used to be a price comparison: nine rows of rival
+ * products (Tithe.ly, Pushpay, Subsplash, HubSpot, Planning Center, Skool,
+ * Teachable, Typeform, WordPress, Notion, The Church Co, Donorbox), a monthly
+ * cost against each, a "$864–1,994/mo · 9 subscriptions to manage" total and a
+ * Harvest row beneath it. Harvest is not making that argument — so the section
+ * is now a plain list of what one plan contains, and the only price in it is
+ * Harvest's own.
+ *
+ * ⚠️ EVERYTHING HERE READS RENDERED MARKUP, never the module's exports. The
+ * claim being pinned is what a visitor sees in the section, and a test that
+ * asserted on an exported array would keep passing if the component stopped
+ * rendering it — which is exactly what happened to the assertion this suite
+ * replaces (PricingComparison.test.ts asserted `toContain('Notes / Docs')`, a
+ * label from the deleted `rows`).
+ *
+ * ⚠️ AND NOTHING HERE SHELLS OUT. `git show` at assertion time would make the
+ * suite a statement about the repository's history rather than about the file
+ * on disk, and it would pass or fail differently in a shallow CI checkout. */
+
+const render = (el: React.ReactElement) => renderToStaticMarkup(el);
+/** Markup with tags stripped and entities decoded — what a visitor reads. */
+const words = (markup: string) => markup
+  .replace(/<[^>]*>/g, ' ')
+  .replace(/&#x27;|&#39;/g, "'")
+  .replace(/&amp;/g, '&')
+  .replace(/&quot;/g, '"')
+  .replace(/&#x2F;/g, '/')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const SECTION = words(render(React.createElement(Replaces)));
+
+/** The one caption that deviates from a verbatim features.ts name — mirrored
+ *  from the component, because the deviation is the thing under test. */
+const CAPTIONS: Readonly<Record<string, string>> = { docs: 'Docs' };
+const captionOf = (id: string, name: string) => CAPTIONS[id] ?? name;
+
+/* The section's contents, as IDS. Names are never typed in this file either:
+   they are read out of content/features.ts, so a rename there moves the
+   expectation and the component together and this suite cannot certify a name
+   the catalogue does not carry. */
+const EXPECTED: ReadonlyArray<readonly [string, readonly string[]]> = [
+  ['Community & Engagement', ['feed', 'groups', 'prayer', 'map']],
+  ['Events & Livestream', ['events', 'checkin', 'livestream']],
+  ['Discipleship & Content', ['bible', 'courses', 'blog', 'aiblog', 'docs']],
+  ['Automation', ['knowledge', 'newsletter', 'autonewsletter', 'forms']],
+  ['Giving & Finance', ['donation', 'fundraising', 'crm', 'accounting']],
+  ['Platform & Brand', ['webapp', 'pwa', 'dashboard']],
+];
+
+const featureById = (categories: readonly Category[]) =>
+  new Map(categories.flatMap((c) => c.features.map((f) => [f.id, f] as const)));
+
+/**
+ * 🔴 THE EXCLUSIONS THAT ARE *NOT* A FLAG, named one by one.
+ *
+ * Everything else the catalogue shows has to appear in the section — that is
+ * `coverageGuard` below, and it is what makes the flag-driven exclusions real
+ * rather than merely absent from a typed list.
+ *
+ *   aichat    · founder direction: AI Chat is an ADD-ON, not an included plan
+ *               feature, so it does not belong in a list of what one plan
+ *               contains. Deliberately NOT keyed off the app's `aiChat` plan
+ *               cells, which still say otherwise while THE-253 is in flight.
+ *   branding  · ⚠️ REPORTED DRIFT, NOT A DECISION THIS TICKET MADE. THE-257
+ *   analytics · specifies a six-row table that omits Branding & Domain and
+ *               Evangelism Analytics, but its "what is excluded, and why each"
+ *               list names only AI Chat, SMS and Affiliate — so these two are
+ *               omitted with no stated reason. Neither is behind a flag; both
+ *               are live, on-plan features. They are listed HERE, explicitly,
+ *               rather than silently missing, so that the omission is a visible
+ *               editorial choice someone can overturn in one line. Adding them
+ *               back means adding their ids to the Platform & Brand row.
+ */
+const EDITORIAL_EXCLUSIONS: ReadonlySet<string> = new Set(['aichat', 'branding', 'analytics']);
+
+/**
+ * Every feature the catalogue currently SHOWS is either rendered in the section
+ * or named above. Throws rather than expects, so the flag-flip mutation below
+ * can run the very same rule and assert that it trips.
+ */
+const coverageGuard = (categories: readonly Category[], rendered: string) => {
+  for (const c of categories) {
+    for (const f of c.features) {
+      if (EDITORIAL_EXCLUSIONS.has(f.id)) continue;
+      const caption = captionOf(f.id, f.name);
+      if (!rendered.includes(caption)) {
+        throw new Error(`"${f.name}" (#${f.id}) is visible in features.ts but absent from #replaces.`);
+      }
+    }
+  }
+};
+
+describe('the section lists what is in one plan', () => {
+  it('every category and item renders, sourced from features.ts', () => {
+    const byId = featureById(CATEGORIES);
+
+    for (const [label, ids] of EXPECTED) {
+      expect(SECTION, `the "${label}" row is missing`).toContain(label);
+
+      for (const id of ids) {
+        const feature = byId.get(id);
+        // A missing id means the catalogue renamed or hid something this table
+        // lists — the component throws on it at module scope; this says so by
+        // name rather than failing on an inscrutable `undefined`.
+        expect(feature, `content/features.ts has no visible feature #${id}`).toBeDefined();
+        expect(SECTION, `#${id} is missing from the "${label}" row`)
+          .toContain(captionOf(id, feature!.name));
+      }
+    }
+
+    // The row count is pinned too: a seventh row, or a lost one, is a change to
+    // what the section claims and should not pass silently.
+    expect(EXPECTED).toHaveLength(6);
+  });
+
+  it('Docs renders once, and "Notes" appears nowhere in the section', () => {
+    // 🔴 THE ONE PERMITTED DEVIATION FROM A VERBATIM NAME. features.ts calls it
+    // "Docs & Notes"; docs and notes are the same thing, and listing both reads
+    // as two features where there is one.
+    expect(SECTION).toContain('Docs');
+    expect(SECTION).not.toMatch(/notes?/i);
+    expect(SECTION.match(/Docs/g)).toHaveLength(1);
+
+    // ⚠️ And the catalogue still calls it what it calls it. The deviation is a
+    // caption in one section, not a rename — if `docs` ever splits into two
+    // genuinely separate features, merging them here becomes a false claim.
+    const docs = featureById(CATEGORIES).get('docs');
+    expect(docs, 'content/features.ts has no #docs feature').toBeDefined();
+    expect(docs!.name).toBe('Docs & Notes');
+  });
+
+  it('SMS, AI Chat and Affiliate appear nowhere in the section', () => {
+    for (const absent of ['SMS', 'Text-to-Give', 'AI Chat', 'Affiliate', 'Multi-Campus']) {
+      expect(SECTION, `"${absent}" is in the section`).not.toContain(absent);
+    }
+  });
+
+  it('no competitor name appears anywhere in the section', () => {
+    // 🔴 THE RETIRED CLAIM, named in full. Every one of these was printed in
+    // the section before THE-257, most of them beside a monthly price.
+    const COMPETITORS = [
+      'Tithe.ly', 'Pushpay', 'Subsplash', 'HubSpot', 'Planning Center', 'Skool',
+      'Teachable', 'Typeform', 'WordPress', 'Donorbox', 'Notion', 'The Church Co',
+    ];
+    for (const name of COMPETITORS) {
+      expect(SECTION, `"${name}" is still named in the section`).not.toContain(name);
+    }
+
+    // Nor the shape of the argument that carried them: no per-row cost, no
+    // total, and no count of subscriptions to manage.
+    expect(SECTION).not.toMatch(/subscriptions to manage/i);
+    expect(SECTION).not.toMatch(/billed separately/i);
+    expect(SECTION).not.toMatch(/\d,\d{3}\/mo/);
+
+    // And no competitor logo survives the table it belonged to. The
+    // integrations row below is the only image left in the section.
+    const markup = render(React.createElement(Replaces));
+    expect([...markup.matchAll(/<img/g)]).toHaveLength(3);
+  });
+});
+
+describe('the one price in the section', () => {
+  const topPlan = plans.find((p) => p.planId === 'max')!;
+
+  it('the bottom line reads $63.34/mo billed annually, and no /yr figure appears', () => {
+    const monthly = formatMonthlyHeadline(topPlan.price.yearly, 'yearly');
+
+    // Pinned against the computation, and against the figure it produces today.
+    // A repricing must move both deliberately — this line is read aloud to 8,000
+    // people, so it is not a number that should change without anyone noticing.
+    expect(monthly).toBe('$63.34');
+    expect(SECTION).toContain(`Everything above, on the ${topPlan.name} plan — ${monthly}/mo, billed annually.`);
+
+    // 🔴 NO ANNUAL TOTAL, ANYWHERE. The retired Harvest row carried
+    // "billed annually (<yearly>/yr)" under the figure; the founder asked for
+    // the monthly figure alone. The yearly total is written here as an
+    // expression rather than a literal so this file does not restate a price
+    // that lives in `plans` — see price-sources.test.ts.
+    expect(SECTION).not.toContain(`$${topPlan.price.yearly}`);
+    expect(SECTION).not.toContain(`$${topPlan.price.yearly.toLocaleString()}`);
+    expect(SECTION).not.toMatch(/\/yr\b/);
+    expect(SECTION).not.toMatch(/per year|a year|annually \(/i);
+
+    // Exactly one figure in the whole section, and it is that one.
+    expect([...SECTION.matchAll(/\$[0-9][0-9,]*(?:\.[0-9]{2})?/g)].map((m) => m[0])).toEqual([monthly]);
+  });
+
+  it('the monthly figure is computed', async () => {
+    /* 🔴 THE MUTATION, RUN IN-SUITE. Asserting that the rendered figure equals
+       `formatMonthlyHeadline(<the live price>)` cannot fail on a typed literal
+       while the literal happens to be right — the two agree today either way.
+       So the fixture MOVES the Ministry yearly price and re-imports the
+       component: a hardcoded "$63.34" keeps printing $63.34 and fails here.
+
+       The mock spreads the real module and replaces only `plans`, so
+       Pricing.tsx's own module-scope contracts are untouched and content/
+       features.ts still sees three plans for its tiers-length check. */
+    const MOVED_YEARLY = 1000;
+
+    vi.resetModules();
+    const actual = await vi.importActual<typeof import('./Pricing')>('./Pricing');
+    vi.doMock('./Pricing', () => ({
+      ...actual,
+      plans: actual.plans.map((p) => (
+        p.planId === 'max' ? { ...p, price: { ...p.price, yearly: MOVED_YEARLY } } : p
+      )),
+    }));
+
+    try {
+      const moved = await import('./Replaces');
+      const movedText = words(render(React.createElement(moved.Replaces)));
+      const expected = actual.formatMonthlyHeadline(MOVED_YEARLY, 'yearly');
+
+      expect(expected).toBe('$83.34');           // $1,000 / 12, ceiled at the cent
+      expect(movedText).toContain(`${expected}/mo, billed annually.`);
+      expect(movedText).not.toContain('$63.34'); // the live figure did not survive the move
+    } finally {
+      vi.doUnmock('./Pricing');
+      vi.resetModules();
+    }
+  });
+});
+
+describe('what the change did not touch', () => {
+  it('the exclusions are flag-driven', () => {
+    // Live values first: excluding a feature the site actually sells would be a
+    // false claim in the other direction.
+    expect(SMS_MARKETING_ENABLED).toBe(false);
+    expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
+    expect(MULTI_CAMPUS_ENABLED).toBe(false);
+
+    // And the section covers everything the catalogue shows, bar the three
+    // editorial exclusions named at the top of this file.
+    expect(() => coverageGuard(CATEGORIES, SECTION)).not.toThrow();
+  });
+
+  it('a flag flip trips the coverage guard, so the exclusions are not merely typed out of a list', async () => {
+    /* 🔴 THE SECOND MUTATION. `Affiliate Program` is absent from the section
+       today — but so is anything simply left out of the component's ROWS, and
+       the two are indistinguishable from the rendered markup alone. Flipping
+       AFFILIATE_PROGRAM_ENABLED to true makes the catalogue show the feature
+       again; the guard above must then FAIL, which is what proves the item
+       leaves this section because the flag hides it rather than because nobody
+       typed it.
+
+       ⚠️ THE FLAG IS MOCKED, NEVER SET. THE-257 reads flags and writes none —
+       the affiliate programme's real state belongs to THE-252 and to the
+       rebuild that follows it. `vi.doUnmock` in the finally block is what keeps
+       that true for every suite that runs after this one. */
+    vi.resetModules();
+    const actualFlags = await vi.importActual<typeof import('../lib/flags')>('../lib/flags');
+    vi.doMock('../lib/flags', () => ({ ...actualFlags, AFFILIATE_PROGRAM_ENABLED: true }));
+
+    try {
+      const { CATEGORIES: flipped } = await import('../content/features');
+      const { Replaces: FlippedReplaces } = await import('./Replaces');
+      const flippedText = words(render(React.createElement(FlippedReplaces)));
+
+      // The flip really did un-hide the feature...
+      const affiliate = featureById(flipped).get('affiliate');
+      expect(affiliate, 'the mocked flag did not un-hide #affiliate').toBeDefined();
+      expect(affiliate!.name).toBe('Affiliate Program');
+
+      // ...the section still does not render it...
+      expect(flippedText).not.toContain('Affiliate');
+
+      // ...and that combination is exactly what the guard is there to catch.
+      expect(() => coverageGuard(flipped, flippedText))
+        .toThrow(/Affiliate Program.*absent from #replaces/);
+    } finally {
+      vi.doUnmock('../lib/flags');
+      vi.resetModules();
+    }
+  });
+
+  it('the integrations row is unchanged', () => {
+    // 🔴 NEVER A COMPETITOR CLAIM. These are the services Harvest CONNECTS TO,
+    // which is why they survived a change that deleted every other logo in the
+    // section — and why the sentence introducing them still reads the same.
+    expect(SECTION).toContain('Plus integrates with your newsletter & tools —');
+    for (const name of ['QuickBooks', 'Twilio', 'Mailchimp']) {
+      expect(SECTION, `the integrations row lost ${name}`).toContain(name);
+    }
+
+    const markup = render(React.createElement(Replaces));
+    expect(markup).toContain('https://cdn.simpleicons.org/quickbooks');
+    expect(markup).toContain('https://cdn.simpleicons.org/mailchimp');
+    // Twilio has no Simple Icons slug and falls back to a favicon, as before.
+    expect(markup).toContain('https://www.google.com/s2/favicons?domain=twilio.com&amp;sz=64');
+  });
+
+  it('no flag value changed, and coming-soon.ts is untouched', () => {
+    // The flag values, pinned again from the other direction: this ticket reads
+    // them and sets none.
+    expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
+    expect(SMS_MARKETING_ENABLED).toBe(false);
+    expect(MULTI_CAMPUS_ENABLED).toBe(false);
+
+    /* 🔴 THE AFFILIATE PROGRAMME'S STATE IS NOT THIS TICKET'S. THE-252 put it
+       on Coming Soon, and it is to be rebuilt on a third-party platform later —
+       the supplier is a board decision (THE-97) that this repo deliberately
+       does not name anywhere, see the-252-affiliate-coming-soon.test.ts §6.
+       Removing the programme from one table must not have moved it anywhere
+       else, so both relocated entries are still exactly where their own tickets
+       put them. */
+    const soon = COMING_SOON_ITEMS.map((i) => i.id);
+    expect(soon).toContain('affiliate');
+    expect(soon).toContain('sms');
+    expect(COMING_SOON_ITEMS.find((i) => i.id === 'affiliate')!.name).toBe('Affiliate referrals');
+    expect(COMING_SOON_ITEMS.find((i) => i.id === 'sms')!.name).toBe('SMS & Text-to-Give');
+  });
+});
