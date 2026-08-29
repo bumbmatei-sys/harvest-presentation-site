@@ -237,14 +237,15 @@ describe('the one price in the section', () => {
 
 describe('what the change did not touch', () => {
   it('the exclusions are flag-driven', () => {
-    // Live values first: excluding a feature the site actually sells would be a
-    // false claim in the other direction.
-    expect(SMS_MARKETING_ENABLED).toBe(false);
-    expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
-    expect(MULTI_CAMPUS_ENABLED).toBe(false);
+    /* The section covers everything the catalogue currently SHOWS, bar the three
+       editorial exclusions named at the top of this file — so an item leaves
+       this table only because a flag hides it.
 
-    // And the section covers everything the catalogue shows, bar the three
-    // editorial exclusions named at the top of this file.
+       ⚠️ THE FLAG VALUES ARE PINNED IN THEIR OWN TEST BELOW, deliberately not
+       here. Asserting them first would short-circuit this one: flipping a flag
+       for real would fail on `toBe(false)` before the guard ever ran, and the
+       failure would say a flag moved rather than that the section had gone
+       silent about a live feature — which is the thing worth being told. */
     expect(() => coverageGuard(CATEGORIES, SECTION)).not.toThrow();
   });
 
