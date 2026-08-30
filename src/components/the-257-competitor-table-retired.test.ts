@@ -58,7 +58,7 @@ const EXPECTED: ReadonlyArray<readonly [string, readonly string[]]> = [
   ['Discipleship & Content', ['bible', 'courses', 'blog', 'aiblog', 'docs']],
   ['Automation', ['knowledge', 'newsletter', 'autonewsletter', 'forms']],
   ['Giving & Finance', ['donation', 'fundraising', 'crm', 'accounting']],
-  ['Platform & Brand', ['webapp', 'pwa', 'dashboard']],
+  ['Platform & Brand', ['webapp', 'pwa', 'dashboard', 'branding', 'analytics']],
 ];
 
 const featureById = (categories: readonly Category[]) =>
@@ -71,21 +71,27 @@ const featureById = (categories: readonly Category[]) =>
  * `coverageGuard` below, and it is what makes the flag-driven exclusions real
  * rather than merely absent from a typed list.
  *
- *   aichat    · founder direction: AI Chat is an ADD-ON, not an included plan
- *               feature, so it does not belong in a list of what one plan
- *               contains. Deliberately NOT keyed off the app's `aiChat` plan
- *               cells, which still say otherwise while THE-253 is in flight.
- *   branding  · ⚠️ REPORTED DRIFT, NOT A DECISION THIS TICKET MADE. THE-257
- *   analytics · specifies a six-row table that omits Branding & Domain and
- *               Evangelism Analytics, but its "what is excluded, and why each"
- *               list names only AI Chat, SMS and Affiliate — so these two are
- *               omitted with no stated reason. Neither is behind a flag; both
- *               are live, on-plan features. They are listed HERE, explicitly,
- *               rather than silently missing, so that the omission is a visible
- *               editorial choice someone can overturn in one line. Adding them
- *               back means adding their ids to the Platform & Brand row.
+ *   aichat · founder direction: AI Chat is an ADD-ON, not an included plan
+ *            feature, so it does not belong in a list of what one plan contains.
+ *            Deliberately NOT keyed off the app's `aiChat` plan cells, which
+ *            still say otherwise while THE-253 is in flight.
+ *
+ * ⚠️ SMS AND AFFILIATE ARE NOT IN HERE AND NEVER WERE. They are excluded by
+ * FLAG — SMS_MARKETING_ENABLED and AFFILIATE_PROGRAM_ENABLED keep them out of
+ * `CATEGORIES` entirely, so they never reach this guard. That is the stronger
+ * mechanism of the two, and `a flag flip trips the coverage guard` below is what
+ * proves it: put one in here and the flip would stop failing.
+ *
+ * 🔴 branding AND analytics WERE HERE AND ARE NOT ANY MORE — THE-258. THE-257's
+ * table omitted Branding & Domain and Evangelism Analytics while its own §4 gave
+ * no reason for either; both are live and on no flag, so THE-257 named them here
+ * rather than letting them go silently missing, and said adding them back was
+ * one line each. THE-258 took that decision: their ids are now in the component's
+ * Platform & Brand row, so `coverageGuard` REQUIRES them to render and this set
+ * must not name them again. The constant stays because `aichat` still belongs in
+ * it — and because this mechanism is the reason the omission was catchable.
  */
-const EDITORIAL_EXCLUSIONS: ReadonlySet<string> = new Set(['aichat', 'branding', 'analytics']);
+const EDITORIAL_EXCLUSIONS: ReadonlySet<string> = new Set(['aichat']);
 
 /**
  * Every feature the catalogue currently SHOWS is either rendered in the section
