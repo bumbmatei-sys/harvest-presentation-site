@@ -246,14 +246,15 @@ describe('THE-197 — no price data changed', () => {
     // at Small Team, Unlimited is Ministry only, and Campus is attached to all
     // three. THE-197 still moved no price data, which is what this pins.
     //
-    // 🔴 THE-224 REMOVED THE AI ASSISTANT ROW, AND MOVED NO PRICE. The card sold
-    // the member-facing assistant, which is the plan capability `aiChat`,
-    // already included from Small Team up — so it charged $20/mo for something
-    // those plans have. The remaining four are byte-for-byte what they were.
-    // The withdrawn row's own $20/$240 is asserted just below, unchanged, from
-    // the catalogue that still pins it against the live Dodo products: this
-    // stays a no-price-moved test and now says so about five add-ons, not four.
+    // 🔴 THE-224 REMOVED THE AI ASSISTANT ROW AND THE-253 RESTORED IT, AND
+    // NEITHER MOVED A PRICE. The card sold `aiChat`, a capability the plan
+    // included from Small Team up; that inclusion is gone, so the card is back
+    // at the same $20/$240 the catalogue has pinned against the live Dodo
+    // products the whole time. All five rows are byte-for-byte what they were
+    // before the withdrawal, which is exactly what a no-price-moved test should
+    // be able to say after a round trip.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual, planIds: a.planIds }))).toEqual([
+      { name: 'AI Assistant', monthly: 20, annual: 240, planIds: ['plus', 'pro', 'max'] },
       { name: 'Admin seat', monthly: 10, annual: 120, planIds: ['plus', 'pro', 'max'] },
       { name: 'Campus', monthly: 12, annual: 144, planIds: ['plus', 'pro', 'max'] },
       { name: 'Contacts +500', monthly: 15, annual: 180, planIds: ['pro', 'max'] },
@@ -263,7 +264,14 @@ describe('THE-197 — no price data changed', () => {
       monthlyId: 'adn_0NlKtuImtSn7PcdvjnSni', annualId: 'adn_0NlKtw3IOHfv1GGCevNol',
       monthlyCents: 2000, annualCents: 24000,
     });
-    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toBeTruthy();
+    // WAS `toBeTruthy()` — the declaration that let THE-224's withdrawal pass
+    // the catalogue contract. THE-253 restored the card, so the declaration is
+    // gone and the constant is empty; the product is advertised, which is the
+    // stronger state. Asserted rather than deleted, because a declaration
+    // standing beside an advertised card is a contradiction the contract throws
+    // on, and this says which side of it we are on.
+    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toBeUndefined();
+    expect(ADD_ONS.some((a) => a.name === 'AI Assistant')).toBe(true);
   });
 
   it('the cross-repo price contract still throws when the two repos disagree', () => {

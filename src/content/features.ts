@@ -237,7 +237,19 @@ const ALL_CATEGORIES: Category[] = [
     features: [
       {
         id: 'knowledge', name: 'AI Knowledge Base', n: '1',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1, 1],
+        /* 🔴 [0, 0, 0] — NO PLAN INCLUDES IT (THE-253). Was [0, 1, 1]: on Small
+           Team and Ministry, matching the app's `aiKnowledge` cell at the time.
+           That cell is now false on all four tiers and is lifted only by the AI
+           Assistant add-on, so no chip may be lit — a lit chip is this site's
+           way of saying "included in this plan", and it would be the same false
+           claim THE-224 withdrew a card over, in the other direction.
+
+           ⚠️ IT MOVES WITH `aichat` BELOW, ALWAYS. The chat answers ONLY from
+           this knowledge base, so the app grants and revokes the two together.
+           Advertising one as included and the other as an add-on would describe
+           a product that does not exist. */
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 0],
+        tiersNote: 'AI Chat and the AI Knowledge Base are the AI Assistant add-on — $20/mo on top of any paid plan, not part of one. One purchase turns both on for every member of your congregation; it is not billed per person, and buying more than one changes nothing.',
         eyebrow: 'The foundation',
         title: 'Teach it once. Everything downstream speaks in your voice.',
         oneliner: 'Feed in your sermons and teaching notes, and AI Chat, the SEO blog and course drafting all start answering from your ministry — not a generic model.',
@@ -248,7 +260,13 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'aichat', name: 'AI Chat', n: '2',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 1, 1],
+        /* 🔴 [0, 0, 0] — see the note on `knowledge` above; the two move as one.
+           Was [0, 1, 1]. `the-224-ai-assistant-withdrawal.test.ts` pinned that
+           array as the reason the $20 card was redundant on Small Team and
+           Ministry; THE-253 removed the inclusion instead, so the card is honest
+           and this row is the thing that had to change with it. */
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 0],
+        tiersNote: 'AI Chat and the AI Knowledge Base are the AI Assistant add-on — $20/mo on top of any paid plan, not part of one. One purchase turns both on for every member of your congregation; it is not billed per person, and buying more than one changes nothing.',
         eyebrow: 'AI that knows when to stop',
         title: 'The assistant that tells members to go pray instead.',
         oneliner: 'It answers from your church\'s own teaching — and after about ten questions, gently hands the conversation back to God with Scripture and steps to pray.',

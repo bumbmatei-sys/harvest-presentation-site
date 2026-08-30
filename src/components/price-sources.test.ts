@@ -110,13 +110,14 @@ const ALL_PRICE_DIGITS = [...new Set(plans.flatMap((p) => BILLING_TERMS.map((t) 
  * Team's monthly price, and no regex can tell the two apart — they are the same
  * three characters meaning different products.
  *
- * 🔴 `$20` USED TO BE HERE AND NO LONGER IS. THE-222 put Individual at $20 a
- * month while a $20 AI Assistant add-on was advertised, so the plan figure left
- * the sweep. THE-224 withdrew that card (see INTENTIONALLY_UNADVERTISED in
- * Pricing.tsx) and, because this set is DERIVED from `ADD_ONS` rather than
- * listed, $20 came back under the sweep with no edit here. That is the set
- * doing its job in the shrinking direction — worth saying, because every other
- * note in this file records it growing.
+ * 🔴 `$20` HAS NOW LEFT THIS SWEEP TWICE AND REJOINED IT ONCE, and the round
+ * trip is the whole argument for deriving the set instead of listing it.
+ * THE-222 put Individual at $20/mo while a $20 AI Assistant add-on was
+ * advertised, so the plan figure left. THE-224 withdrew that card and $20 came
+ * back. THE-253 restored the card — the app now grants what it sells — and $20
+ * has left again. Three tickets, three corrections, and NOT ONE EDIT to this
+ * file's data: the set is computed from `ADD_ONS`, so it tracked all three on
+ * its own. The count below is what states the current size out loud.
  *
  * ⚠️ THE COLLIDING FIGURE IS NOT LEFT UNGUARDED. Small Team's monthly price is
  * pinned by the cross-repo contract in Pricing.tsx, by FAQ_PLAN_CLAIMS in
@@ -255,29 +256,37 @@ describe('no price literal appears outside the single source', () => {
    * of the nine are still swept.
    */
   it('excludes only the figures that genuinely collide with an add-on price', () => {
-    // 🔴 BACK TO ONE COLLISION — THE-224 SHRANK THIS HOLE RATHER THAN WIDENING
-    // IT. THE-223 had grown it to two: correcting the add-ons against live Dodo
-    // moved Unlimited Contacts to $40 (also Small Team's monthly), and the $20
-    // AI Assistant collided with Individual's monthly. Withdrawing that card
-    // takes $20 out of `ADD_ON_PRICE_DIGITS` — which is derived, so the set
-    // moved on its own — and Individual's monthly price returns to the sweep.
-    // Eight of the nine are swept now, where seven were.
+    /* ⚠️ TWO COLLISIONS AGAIN — THE-253 REOPENED THE ONE THE-224 CLOSED, and
+       this is the assertion that refuses to let that happen quietly.
+     *
+     * THE-223 grew the hole to two: Unlimited Contacts at $40/mo collides with
+     * Small Team's monthly, and the $20 AI Assistant with Individual's.
+     * THE-224's withdrawal shrank it back to one, and this test said so.
+     * Restoring the card puts $20 back into `ADD_ON_PRICE_DIGITS` — derived, so
+     * the set moved on its own — and Individual's monthly leaves the sweep
+     * again. Seven of the nine are swept now, where eight were.
+     *
+     * 🔴 THAT IS A REAL LOSS OF COVERAGE AND IT IS STATED RATHER THAN ABSORBED.
+     * It is acceptable only because both colliding plan figures stay guarded by
+     * the three module-scope contracts asserted below — which is exactly what
+     * the mutation at the end of this test proves, for BOTH tiers. */
     expect(ALL_PRICE_DIGITS).toHaveLength(9);
-    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['40']);
-    expect(PRICE_DIGITS).toHaveLength(8);
-    expect(PRICE_DIGITS).toContain('20');
+    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['20', '40']);
+    expect(PRICE_DIGITS).toHaveLength(7);
+    expect(PRICE_DIGITS).not.toContain('20');
     expect(PRICE_DIGITS).not.toContain('40');
-    // ⚠️ AND THE WITHDRAWN ADD-ON'S OWN PRICE DID NOT MOVE. $20/$240 is still
-    // what Dodo charges and still what DODO_ADD_ON_CATALOG pins; it simply is
-    // not advertised any more, so it no longer shields a plan figure.
+    // ⚠️ AND THE RESTORED ADD-ON'S PRICE DID NOT MOVE. $20/$240 is what Dodo
+    // charges and what DODO_ADD_ON_CATALOG has pinned throughout — advertised,
+    // withdrawn and advertised again, the figure never changed.
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(2000);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(24000);
     // The one dropped is Small Team's monthly price, and it is the only one.
     expect(String(plans.find((p) => p.planId === 'plus')!.price.monthly)).toBe('20');
     expect(String(plans.find((p) => p.planId === 'pro')!.price.monthly)).toBe('40');
-    // ⚠️ NEITHER IS LEFT UNGUARDED — asserted for both, because $20 has only
-    // just rejoined the sweep and the guarantee that made dropping it
-    // acceptable has to still hold. Both are pinned by the cross-repo contract in
+    // ⚠️ NEITHER IS LEFT UNGUARDED — asserted for both, and now load-bearing for
+    // both again: $20 has just left the sweep a second time, so the guarantee
+    // that makes dropping it acceptable is the only thing covering Individual's
+    // monthly price. Both are pinned by the cross-repo contract in
     // Pricing.tsx, by FAQ_PLAN_CLAIMS and by TIER_PRICE_CLAIMS — three
     // module-scope checks that name the tier and fail the prerender. What is
     // given up is a string sweep that could not say which product it had found.

@@ -111,7 +111,14 @@ describe('every add-on price matches live Dodo', () => {
     // ones named in INTENTIONALLY_UNADVERTISED, and no others. An undeclared
     // disappearance fails here exactly as Campus's did, and a declared one that
     // is also advertised fails in the contract itself.
-    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
+    /* ⚠️ THE DECLARED SET IS EMPTY NOW (THE-253). It was `['AI Assistant']` —
+       THE-224's withdrawal — and the assertion below is UNCHANGED in form
+       because it was written derived rather than listed: the page must carry
+       every live add-on except the declared omissions, and with none declared
+       that is all five. The equality is therefore stricter than it has ever
+       been, and it tightened without an edit, which is what the derivation was
+       for. */
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual([]);
     expect(ADD_ONS.map((a) => a.name)).toEqual(
       LIVE_DODO.filter((d) => INTENTIONALLY_UNADVERTISED[d.name] === undefined).map((d) => d.name),
     );
@@ -178,33 +185,41 @@ describe('every add-on price matches live Dodo', () => {
 
 /* ── 2 ─────────────────────────────────────────────────────────────────────── */
 describe('no add-on is advertised below what Dodo charges', () => {
-  it('the AI Assistant quotes no figure at all, because THE-224 withdrew it', () => {
-    /* 🔴 THIS WAS THE SERIOUS HALF OF THE-223 AND IS NOW SATISFIED THE OTHER
-       WAY. The assertion was that the AI Assistant's card quoted at least the
-       $20 Dodo bills — the site had shipped $19 against a $20 charge, which is
-       a promise the checkout breaks. THE-224 withdrew the card, so the page
-       quotes nothing for it, and a figure that is never printed cannot be
-       printed below the charge.
-
-       ⚠️ THE OLD GUARANTEE IS NOT DROPPED, IT MOVED: the undersell check now
-       runs over every advertised add-on in the test below, and the AI
-       Assistant's real price stays pinned against its live products here. What
-       this asserts is the withdrawal itself, on the RENDERED page — no card, no
-       name, neither figure — because that is the claim the ticket makes. */
+  it('🔴 the AI Assistant quotes exactly $20 — THE-223 satisfied the original way', () => {
+    /* 🔴 THIS IS THE SERIOUS HALF OF THE-223, BACK IN ITS ORIGINAL FORM.
+     *
+     * THE-223: the site advertised $19 against a $20 Dodo charge — a promise the
+     * checkout breaks. THE-224 then withdrew the card, and this test became
+     * "quotes no figure at all, because a figure never printed cannot be printed
+     * below the charge", with the real guarantee moved to the loop below.
+     *
+     * THE-253 restores the card, so the ORIGINAL assertion applies again and is
+     * the stronger of the two: the rendered card must quote at least what Dodo
+     * bills. It is asserted here on the rendered page, and the add-on is also
+     * covered by the every-add-on undersell loop below — it is simply back in
+     * `ADVERTISED_LIVE` now, with no edit needed there. */
     const live = LIVE_DODO.find((d) => d.name === 'AI Assistant')!;
-    expect(ADD_ONS.find((a) => a.name === 'AI Assistant')).toBeUndefined();
+    const addOn = ADD_ONS.find((a) => a.name === 'AI Assistant');
+    expect(addOn, 'the AI Assistant is not advertised at all').toBeDefined();
+
+    // 🔴 NEVER BELOW THE CHARGE — the class of error THE-223 exists for.
+    expect(addOn!.monthly).toBeGreaterThanOrEqual(live.monthly);
+    expect(addOn!.annual).toBeGreaterThanOrEqual(live.annual);
+    // And not above it either: this is a restore, not a reprice.
+    expect([addOn!.monthly, addOn!.annual]).toEqual([live.monthly, live.annual]);
 
     const read = words(pageHtml());
-    expect(read, 'the pricing page still names the withdrawn AI Assistant add-on')
-      .not.toMatch(/AI Assistant/i);
+    expect(read, 'the pricing page does not name the AI Assistant add-on')
+      .toMatch(/AI Assistant/i);
     for (const term of BILLING_TERMS) {
       const section = words(sectionHtml(term));
-      expect(section, `the ${term} add-on section still names AI Assistant`)
-        .not.toMatch(/AI Assistant/i);
-      expect(dollars(sectionHtml(term)), `the ${term} add-on section still prints $${live.annual}`)
-        .not.toContain(live.annual);
+      expect(section, `the ${term} add-on section does not name AI Assistant`)
+        .toMatch(/AI Assistant/i);
+      expect(dollars(sectionHtml(term)), `the ${term} add-on section omits $${live.annual}`)
+        .toContain(live.annual);
     }
-    // The retired $19 stays gone, and the real price stays pinned unadvertised.
+    // 🔴 THE RETIRED $19 STAYS GONE. That figure is the defect THE-223 fixed,
+    // and restoring the card is exactly when it could creep back.
     expect(read).not.toMatch(/\$19(?![\d,])/);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(live.monthly * 100);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(live.annual * 100);
@@ -257,17 +272,20 @@ describe('Campus is advertised', () => {
     expect(read).not.toMatch(/every campus|all your campuses|unlimited campuses/i);
   });
 
-  it('nothing else was omitted for the same reason', () => {
-    // The live catalogue is ten products: five add-ons × two terms. Campus was
-    // the only one this site did not advertise BY ACCIDENT — and the AI
-    // Assistant is now the only one it does not advertise ON PURPOSE. Both
-    // halves are pinned, because "four cards" is only correct while the missing
-    // fifth is the declared one.
+  it('nothing is omitted at all any more', () => {
+    /* The live catalogue is ten products: five add-ons × two terms. Campus was
+       the one this site did not advertise BY ACCIDENT (THE-223 fixed it); the AI
+       Assistant was the one it did not advertise ON PURPOSE (THE-224 declared
+       it, THE-253 restored it). Both are on the page now, so the page carries
+       ALL FIVE and the declared set is empty — the strongest state this pair of
+       lists has been in. "Five cards" is only correct while nothing is declared,
+       so both halves stay pinned together. */
     expect(LIVE_DODO).toHaveLength(5);
     expect(Object.keys(DODO_ADD_ON_CATALOG).sort()).toEqual(LIVE_DODO.map((d) => d.name).sort());
-    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
-    expect(ADD_ONS).toHaveLength(4);
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual([]);
+    expect(ADD_ONS).toHaveLength(5);
     expect(ADD_ONS.some((a) => a.name === 'Campus')).toBe(true);
+    expect(ADD_ONS.some((a) => a.name === 'AI Assistant')).toBe(true);
   });
 });
 

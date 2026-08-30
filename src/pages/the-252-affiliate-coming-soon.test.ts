@@ -711,7 +711,17 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
     ['applications',  'THE-112', '78635528ff4b1480'],
     ['docs',          'THE-117', '35a3d3761aec0433'],
     ['website',       'THE-59',  '7372d593d2e142eb'],
-    ['agent',         'THE-58',  '1ce2da25d2a4eab8'],
+    /* ⚠️ REPINNED BY THE-253, AND THE ONLY ONE THAT MOVED. The `agent` entry's
+       `notThis` said AI Chat "is part of the Small Team and Ministry plans at no
+       extra charge" — true when written, false the moment `aiChat` came off
+       every tier. The clause was DROPPED rather than reworded: this page's
+       contract forbids a price and the word "add-on", so the corrected fact
+       cannot be stated here, and the pricing page is where it belongs. The
+       sentence's actual job — distinguishing the shipped member chat from this
+       unbuilt admin agent — is untouched and still asserted in
+       ComingSoonPage.test.ts. Nothing else about the entry changed: same id,
+       same ref, same position, same `today` and `considering`. */
+    ['agent',         'THE-58',  'c80114beb389601e'],
     ['identity',      'THE-118', '508c54cd47b1a10e'],
     ['designations',  'THE-98',  '2ca9b8b2e1cb1ef0'],
   ];
@@ -835,7 +845,7 @@ describe('11 — no price changed and both contracts still throw', () => {
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
-  it('and so are the five add-on prices, the withdrawn one included', () => {
+  it('and so are the five add-on prices, the RESTORED one included', () => {
     expect(Object.fromEntries(
       Object.entries(DODO_ADD_ON_CATALOG).map(([n, p]) => [n, [p.monthlyCents, p.annualCents]]),
     )).toEqual({
@@ -845,7 +855,11 @@ describe('11 — no price changed and both contracts still throw', () => {
       'Contacts +500': [1500, 18000],
       'Unlimited contacts': [4000, 48000],
     });
+    // ⚠️ FIVE ROWS NOW. The AI Assistant returned in THE-253 at the same
+    // $20/$240 the catalogue above has always pinned — a restore, not a
+    // reprice, exactly as its withdrawal was a removal and not one.
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
+      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
       ['Campus', 12, 144],
       ['Contacts +500', 15, 180],

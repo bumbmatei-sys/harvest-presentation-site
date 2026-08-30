@@ -320,13 +320,15 @@ describe('what this change must not have touched', () => {
     // which the section had never listed. The three-term change this test was
     // written for still did not touch them — that is what it guards — so the
     // pin is restated at the corrected values rather than dropped.
-    // 🔴 THE-224 WITHDREW THE AI ASSISTANT CARD, and that is the one row this
-    // pin has lost. It was not a reprice: the card sold the member-facing
-    // assistant, which is the plan capability `aiChat`, already on from Small
-    // Team up. Its $20/$240 is unmoved and still pinned against the live Dodo
-    // products in DODO_ADD_ON_CATALOG — it is simply no longer quoted here.
+    // 🔴 THE-253 PUT THE AI ASSISTANT ROW BACK, AND MOVED NO PRICE. THE-224
+    // withdrew it because it sold `aiChat`, a capability the plan already
+    // included from Small Team up. Both halves of that have been fixed in the
+    // app — PR 394 made the purchase grant the capability, THE-253 took it off
+    // every tier — so the card is honest and is advertised again at exactly the
+    // $20/$240 it was always worth. Five rows, one unchanged set of figures.
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
+      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
       ['Campus', 12, 144],
       ['Contacts +500', 15, 180],
