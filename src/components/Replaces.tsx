@@ -33,14 +33,23 @@ import { CATEGORIES } from '../content/features';
  * CATEGORIES. features.ts puts events, check-in and livestream inside
  * "Community & Engagement"; here they are their own row, because seven items
  * under one label reads as a wall rather than a list. The labels are this
- * file's; the item names are not. */
+ * file's; the item names are not.
+ *
+ * 🔴 PLATFORM & BRAND CARRIES FIVE IDS, AND THE LAST TWO ARE THE POINT — THE-258.
+ * THE-257 listed only webapp, pwa and dashboard. `branding` (Branding & Domain)
+ * and `analytics` (Evangelism Analytics) are live, on no flag, and were left out
+ * with no stated reason — THE-257 named them in that suite's
+ * EDITORIAL_EXCLUSIONS so the gap was visible rather than silent, and this is
+ * the one line each that closes it. White-label branding is the strongest
+ * differentiator the product has, so omitting it understated the plan in the
+ * one place that enumerates it. Only this row changed. */
 const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
   { c: 'Community & Engagement', ids: ['feed', 'groups', 'prayer', 'map'] },
   { c: 'Events & Livestream', ids: ['events', 'checkin', 'livestream'] },
   { c: 'Discipleship & Content', ids: ['bible', 'courses', 'blog', 'aiblog', 'docs'] },
   { c: 'Automation', ids: ['knowledge', 'newsletter', 'autonewsletter', 'forms'] },
   { c: 'Giving & Finance', ids: ['donation', 'fundraising', 'crm', 'accounting'] },
-  { c: 'Platform & Brand', ids: ['webapp', 'pwa', 'dashboard'] },
+  { c: 'Platform & Brand', ids: ['webapp', 'pwa', 'dashboard', 'branding', 'analytics'] },
 ];
 
 /* id → name, off the FILTERED catalogue.
