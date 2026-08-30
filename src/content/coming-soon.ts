@@ -151,7 +151,20 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     title: 'An assistant that does the work, not one that answers questions.',
     oneliner: 'An agent working inside the admin — drafting, filing and chasing across Harvest and the tools a church has already connected.',
     today: 'Admin work is manual. Every newsletter, every follow-up and every record is typed by a person, and nothing in Harvest acts on an admin\'s behalf.',
-    notThis: 'This is not AI Chat, which already ships. AI Chat is for your members: it answers their questions from your own teaching, and it is part of the Small Team and Ministry plans at no extra charge. This one would be for your staff, it would take actions rather than answer questions, and it does not exist.',
+    /* ⚠️ THE PLAN CLAUSE IS GONE, NOT REPLACED — THE-253. This read "...and it
+       is part of the Small Team and Ministry plans at no extra charge", true
+       when written and false the moment `aiChat` came off every tier.
+       🔴 AND THE CORRECTED FACT CANNOT BE STATED HERE. The chat is now a paid
+       add-on, and `comingSoonContract` forbids a price, the word "add-on", and
+       every other purchasability signal on this page — deliberately, because
+       nothing unbuilt may read as buyable. Naming the new arrangement would
+       have meant weakening that guard to describe a feature that is not the
+       subject of this entry.
+       So the clause is dropped and the pricing lives on the pricing page, where
+       it is checked against Dodo. The DISTINCTION this line exists to draw is
+       untouched, and is why the sentence stays at all: AI Chat ships and
+       answers members' questions; this unbuilt agent would act for an admin. */
+    notThis: 'This is not AI Chat, which already ships. AI Chat is for your members: it answers their questions from your own teaching. This one would be for your staff, it would take actions rather than answer questions, and it does not exist.',
     considering: [
       'Acting across the admin surfaces rather than talking about them',
       'Reaching the tools a church has already connected, not just Harvest\'s own data',
@@ -290,9 +303,15 @@ const TIER_WORDS = /\b(Individual|Small Team|Ministry|Forever Free)\b/;
  *
  * 🔴 `today` and `notThis` are EXEMPT FROM THE TIER CHECK ONLY, and the
  * exemption is the point rather than a hole in it. Those two fields describe
- * what ALREADY SHIPS — "branding on the Ministry plan", "AI Chat is part of
- * Small Team and Ministry" — so a plan name in them is a true statement about a
- * live feature, and it is exactly the distinction this page exists to draw.
+ * what ALREADY SHIPS — "branding on the Ministry plan" — so a plan name in them
+ * is a true statement about a live feature, and it is exactly the distinction
+ * this page exists to draw.
+ *
+ * ⚠️ THE SECOND EXAMPLE HERE USED TO BE "AI Chat is part of Small Team and
+ * Ministry", from the `agent` entry's `notThis`. THE-253 made the chat a paid
+ * add-on and that clause was dropped rather than reworded — see the note at
+ * that entry. The exemption is unchanged and still has one live example; it is
+ * narrower in practice than it was, which is the safe direction.
  * Banning the words outright would force both sentences to be vaguer, and
  * vaguer is the one direction this page must never move. They are still held to
  * every FORBIDDEN pattern.

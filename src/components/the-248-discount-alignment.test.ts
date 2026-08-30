@@ -510,7 +510,17 @@ describe('the plan feature matrix and the Dodo product ids are unchanged', () =>
   });
 
   it('add-on availability per tier is untouched', () => {
+    /* ⚠️ THE AI ASSISTANT ROW RETURNED IN THE-253 (see the-224's suite), sold
+       on all three paid tiers exactly as it was before THE-224 withdrew it. The
+       four that were here are byte-for-byte unchanged, which is what this pin
+       is for — a DISCOUNT change may not move an add-on's availability, and it
+       did not.
+       🔴 `plus` IS INCLUDED DELIBERATELY. Individual is the tier where the chat
+       was never on, so it is the tier the add-on was always most clearly FOR;
+       and free is absent for the reason every add-on is — no subscription to
+       attach one to. */
     expect(ADD_ONS.map((a) => [a.name, [...a.planIds]])).toEqual([
+      ['AI Assistant', ['plus', 'pro', 'max']],
       ['Admin seat', ['plus', 'pro', 'max']],
       ['Campus', ['plus', 'pro', 'max']],
       ['Contacts +500', ['pro', 'max']],

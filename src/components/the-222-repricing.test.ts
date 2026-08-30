@@ -163,14 +163,16 @@ describe('the add-on prices are unchanged, and annual is still ×12', () => {
     // figures, and `dodoAddOnCatalogContract` is now what checks them; this
     // stays as the no-regression pin it always was.
     //
-    // 🔴 AND THE-224 REMOVED ONE ROW WITHOUT REPRICING ANYTHING. The AI
-    // Assistant card was withdrawn because it sold a capability the plan
-    // already includes (`aiChat`, on from Small Team up) — not because its
-    // figure was wrong. $20/$240 is exactly what Dodo charges and is still
-    // pinned, unadvertised, in DODO_ADD_ON_CATALOG; the assertion below holds
-    // it at those figures so "a reprice may not move an add-on" keeps covering
-    // the withdrawn one too.
+    // 🔴 AND THE-224 REMOVED ONE ROW WITHOUT REPRICING ANYTHING, then THE-253
+    // PUT IT BACK WITHOUT REPRICING ANYTHING EITHER. The AI Assistant card was
+    // withdrawn because it sold a capability the plan already included
+    // (`aiChat`, on from Small Team up) — never because its figure was wrong —
+    // and it returns now that no plan includes the chat. $20/$240 throughout:
+    // advertised, withdrawn, advertised again, one unchanged pair of numbers.
+    // "A reprice may not move an add-on" has now survived a removal AND a
+    // restore, which is a stronger statement than it could make before.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual }))).toEqual([
+      { name: 'AI Assistant', monthly: 20, annual: 240 },
       { name: 'Admin seat', monthly: 10, annual: 120 },
       { name: 'Campus', monthly: 12, annual: 144 },
       { name: 'Contacts +500', monthly: 15, annual: 180 },

@@ -651,15 +651,24 @@ describe('the in-app AI assistant copy does not describe the shipping member ass
   const agent = COMING_SOON_ITEMS.find((i) => i.id === 'agent')!;
   const agentCopy = [agent.name, agent.eyebrow, agent.title, agent.oneliner, agent.navDesc, ...agent.considering].join(' ');
 
-  it('the shipping assistant is still exactly where it was', () => {
-    /* ⚠️ NOT VACUOUS. `aiChat` is real, ships from Small Team up, and is
-       described on /features/ai-automation with [0, 1, 1] chips — false for
-       Individual, true for Small Team and Ministry, which is the app's own
-       matrix. THE-224 turned on this distinction and it is unchanged here. */
+  it('the shipping assistant is still described, now as the add-on it is', () => {
+    /* ⚠️ NOT VACUOUS, AND THE POINT OF IT IS UNCHANGED. `aiChat` is real and
+       ships; this test exists so the unbuilt admin agent below cannot be read as
+       that shipping feature.
+       WAS `[0, 1, 1]` — false for Individual, true for Small Team and Ministry,
+       which was the app's matrix and which THE-224 turned this distinction on.
+       🔴 IT IS `[0, 0, 0]` NOW (THE-253): no plan includes the chat, because it
+       is sold as the AI Assistant add-on. The feature is no less shipped — what
+       moved is which column it is bought in, and the add-on card on the pricing
+       page is where it is named. */
     const aiChat = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'aichat');
     expect(aiChat, 'the shipping AI Chat feature entry is gone').toBeDefined();
-    expect(aiChat!.tiers).toEqual([0, 1, 1]);
+    expect(aiChat!.tiers).toEqual([0, 0, 0]);
+    expect(aiChat!.tiersNote, 'nothing says where the chat comes from').toMatch(/AI Assistant add-on/i);
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Chat');
+    // 🔴 AND IT IS SOLD ON THE PRICING PAGE, which is the surface that may name
+    // a price. This page still may not — asserted in describe 10 below.
+    expect(ADD_ONS.map((a) => a.name)).toContain('AI Assistant');
   });
 
   it('🔴 the unbuilt one is for ADMINS and it ACTS — the two things the shipping one is not', () => {
@@ -757,19 +766,30 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
 });
 
 /* ── 10 ──────────────────────────────────────────────────────────────────── */
-describe('the withdrawn AI Assistant add-on is not resurrected, and the unadvertised declaration is intact', () => {
-  it('🔴 the declaration THE-224 left behind is untouched', () => {
-    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
-    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toMatch(/aiChat|Small Team/);
+describe('the AI Assistant add-on is sold on the pricing page and nowhere near this one', () => {
+  it('the declaration THE-224 left behind is gone, because the card is back', () => {
+    /* WAS '🔴 the declaration THE-224 left behind is untouched':
+       `INTENTIONALLY_UNADVERTISED` equals `['AI Assistant']` with a reason
+       naming `aiChat` or Small Team. THE-253 restored the card — the app now
+       grants what it sells and no plan includes it — so the omission is over
+       and the constant is empty. The product is still fully described in the
+       catalogue, which never depended on the declaration. */
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual([]);
     expect(DODO_ADD_ON_CATALOG['AI Assistant']).toBeDefined();
+    expect(ADD_ONS.map((a) => a.name)).toContain('AI Assistant');
   });
 
-  it('the add-on catalogue contract still throws on the live product nobody advertises', () => {
-    // 🔴 THE CAMPUS FAILURE, which is the one this change could have broken by
-    // touching the catalogue. Handing the contract an empty omission list is
-    // the declaration removed, and it must still fail by name.
-    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {}))
+  it('🔴 the add-on catalogue contract still throws on a live product nobody advertises', () => {
+    /* 🔴 THE CAMPUS FAILURE, and the check this ticket could have weakened.
+       It used to be exercised by handing the contract an EMPTY omission list
+       while a card was missing. Empty is now the real state and passes, so the
+       failure is provoked by dropping a card instead — and it is armed for all
+       five, where before one was excused. */
+    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})).not.toThrow();
+    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'AI Assistant')))
       .toThrow(/Dodo sells the add-on "AI Assistant"/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Campus')))
+      .toThrow(/Dodo sells the add-on "Campus"/);
   });
 
   it('🔴 the withdrawn card is not sold anywhere on the new page', () => {
@@ -784,12 +804,21 @@ describe('the withdrawn AI Assistant add-on is not resurrected, and the unadvert
     expect(mainText).not.toMatch(/\badd-?on/i);
   });
 
-  it('and a restore attempt still collides with the declaration', () => {
-    const restored: AddOn[] = [
+  it('and a stray DECLARATION now collides with the card, which is the same guard', () => {
+    /* WAS 'a restore attempt still collides with the declaration' — adding an AI
+       Assistant row while the declaration stood. THE-253 performed exactly that
+       restore, so the row is real and the declaration is the synthetic half now.
+       The contradiction the contract refuses is the same one, from either side:
+       a product cannot be advertised and declared unadvertised at once. */
+    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {
+      'AI Assistant': 'left behind after the card came back',
+    })).toThrow(/at the same time/);
+    // A duplicate row is a different defect and still fails by its own name.
+    const doubled: AddOn[] = [
       { name: 'AI Assistant', monthly: 20, annual: 240, blurb: 'x', planIds: ['max'] },
       ...ADD_ONS,
     ];
-    expect(() => dodoAddOnCatalogContract(restored)).toThrow(/at the same time/);
+    expect(() => dodoAddOnCatalogContract(doubled)).toThrow(/AI Assistant/);
   });
 
   it('the coming-soon agent is not an add-on and is not in any add-on table', () => {
@@ -809,7 +838,7 @@ describe('no price changed and both contracts still throw', () => {
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
-  it('all five add-on prices are exactly what they were, the withdrawn one included', () => {
+  it('all five add-on prices are exactly what they were, the RESTORED one included', () => {
     expect(Object.fromEntries(
       Object.entries(DODO_ADD_ON_CATALOG).map(([n, p]) => [n, [p.monthlyCents, p.annualCents]]),
     )).toEqual({
@@ -819,7 +848,11 @@ describe('no price changed and both contracts still throw', () => {
       'Contacts +500': [1500, 18000],
       'Unlimited contacts': [4000, 48000],
     });
+    // ⚠️ FIVE ROWS NOW. The AI Assistant returned in THE-253 at the same
+    // $20/$240 the catalogue above has always pinned — a restore, not a
+    // reprice, exactly as its withdrawal was a removal and not one.
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
+      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
       ['Campus', 12, 144],
       ['Contacts +500', 15, 180],

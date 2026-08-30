@@ -755,8 +755,17 @@ export interface AddOn {
    * `addOnPricingContract` checks it against monthly × ADD_ON_BILLED_MONTHS.
    */
   annual: number;
-  /** Capacity, in the visitor's words. Never a capability claim — an add-on
-   *  raises a limit; it does not add a feature the catalogue doesn't list. */
+  /**
+   * What it buys, in the visitor's words.
+   *
+   * ⚠️ WAS "Never a capability claim — an add-on raises a limit; it does not add
+   * a feature the catalogue doesn't list." That was true of all five add-ons
+   * when it was written, and THE-253 made it false of exactly one: the AI
+   * Assistant lifts `aiChat` and `aiKnowledge` in the app's
+   * `getEffectiveFeatures`. The rule survives in the form that still matters —
+   * a blurb may only claim what the app actually grants — and for the other
+   * four that is still a limit and nothing else.
+   */
   blurb: string;
   /**
    * Which plans can buy it, as `planId`s of `plans`.
@@ -868,40 +877,47 @@ export const DODO_ADD_ON_CATALOG: Record<string, DodoAddOnProduct> = {
    change's to move. What is advertised here is the capacity a church can buy
    today, which is what this section is for. */
 export const ADD_ONS: AddOn[] = [
-  /* 🔴 "AI Assistant" WAS THE FIRST ROW HERE AND IS DELIBERATELY GONE — THE-224.
-     Its omission is declared in `INTENTIONALLY_UNADVERTISED` below, which is
-     what keeps `dodoAddOnCatalogContract`'s unadvertised-product check armed
-     rather than disabled. The card, and why it could not stay:
+  /* 🔴 "AI Assistant" IS BACK, FIRST ROW, AT THE SAME $20/$240 — THE-253.
+     THE-224 withdrew this card and was right to, on the facts as they stood:
 
-       $20/mo · "Turns on the AI assistant for every member of your
-       congregation, in the app — one purchase for the whole plan, not billed
-       per person." · sold on plus, pro and max.
+       "The member-facing assistant is the app's `aiChat`, a PLAN CAPABILITY:
+        false on free and Individual, true on Small Team and Ministry ... So on
+        Small Team and Ministry the card charged $20/mo for something the plan
+        already includes."
 
-     The member-facing assistant is the app's `aiChat`, a PLAN CAPABILITY:
-     false on free and Individual, true on Small Team and Ministry. This site
-     already says so itself — the AI Chat feature entry carries `tiers: [0, 1,
-     1]`. So on Small Team and Ministry the card charged $20/mo for something
-     the plan already includes, which is the false-claim class this project has
-     now fixed seven times.
+     Both halves of that have been fixed in the app, in the order that keeps
+     this page true at every step:
 
-     ⚠️ AND IT WAS NOT SALVAGEABLE BY NARROWING IT TO INDIVIDUAL, which is the
-     one tier where the assistant genuinely is off and the sentence would read
-     true. Buying it does not turn `aiChat` on there either: `getEffectiveFeatures`
-     raises the `aiAssistant` COUNT and nothing else, under the rule stated at
-     its own definition — "an add-on buys capacity, never a feature flag". A
-     card on Individual would be the same false claim with a smaller audience.
-     Making that sale real is a BUILD (an add-on that flips a feature flag, or a
-     token top-up on `queryTokensPerMonth`), and THE-224 deliberately did not
-     build it.
+       1. PR 394 made the purchase GRANT something. `getEffectiveFeatures` now
+          lifts `aiChat` AND `aiKnowledge` when the add-on is held — the BUILD
+          THE-224 named and deliberately did not do ("an add-on that flips a
+          feature flag"). The lift is `||`, so it can never take away what a
+          plan grants.
+       2. THE-253 took `aiChat` and `aiKnowledge` off ALL FOUR TIERS, on founder
+          direction: "NO PLAN HAS ANY AI RAG CHAT. Of course there should be no
+          AI RAG chat in any plan if we sell it as an add-on."
 
-     ⚠️ THE PRICE IS NOT THE DEFECT AND IS UNTOUCHED. $20/$240 is exactly what
-     Dodo charges; `DODO_ADD_ON_CATALOG['AI Assistant']` keeps both figures and
-     both product ids, so the price stays pinned against the live products while
-     nothing on this page quotes it. This is a card removal, not a reprice.
+     So the sentence THE-224 could not make true — on any tier, including the
+     Individual narrowing it considered and rejected — is now true on all three:
+     no plan includes the chat, and this is the only way to get it.
 
-     🔴 THE TWO DODO PRODUCTS ARE STILL LIVE AND STILL ATTACHED TO THE NINE PLAN
-     PRODUCTS, so the in-app add-on surface can still sell this. Detaching or
-     archiving them is a processor change, not a code change — see the PR. */
+     🔴 THIS CARD MUST NOT SHIP BEFORE THAT APP CHANGE MERGES. Until `aiChat`
+     is false on pro and max, this card sells Small Team and Ministry something
+     they already have, which is precisely THE-224's finding.
+
+     ⚠️ THE PRICE IS UNCHANGED AND WAS NEVER THE DEFECT. $20/$240 is what Dodo
+     charges and what `DODO_ADD_ON_CATALOG['AI Assistant']` has held throughout;
+     `dodoAddOnCatalogContract` checks this row against it. Nothing was repriced
+     in either direction.
+
+     ⚠️ THE BLURB CLAIMS A CAPABILITY, WHICH NO OTHER ADD-ON HERE DOES — see the
+     amended note on `AddOn.blurb`. It says "for every member" and "not billed
+     per person" because the app grants a BOOLEAN: one add-on or ten is the same
+     capability, and nothing anywhere counts or enforces a seat. Dodo's own
+     product description says "One additional AI Assistant seat"; this site must
+     not adopt that word, and `the-224-ai-assistant-withdrawal.test.ts` still
+     fails if it does. */
+  { name: 'AI Assistant', monthly: 20, annual: 240, blurb: 'Turns on the AI chat and its knowledge base for every member of your congregation, in the app — one purchase for the whole plan, not billed per person.', planIds: ['plus', 'pro', 'max'] },
   { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
   /* ⚠️ THE BLURB MAY NOT IMPLY A TIER INCLUDES MORE THAN ONE CAMPUS. Every
      paid tier is `maxChurches: 1` in the app's matrix and this add-on is the
@@ -937,12 +953,28 @@ export const ADD_ONS: AddOn[] = [
  * is, not in a commit message nobody will find.
  */
 export const INTENTIONALLY_UNADVERTISED: Record<string, string> = {
-  'AI Assistant':
-    'THE-224 — the member-facing assistant is the plan capability `aiChat`, included from ' +
-    'Small Team up, so the card charged $20/mo for something those plans already have. It ' +
-    'cannot be narrowed to Individual either: an add-on raises a capacity, never a feature ' +
-    'flag, so buying it would not switch the assistant on there. Selling it again means ' +
-    'building an enforced limit first — seats, or a top-up on the monthly query-token cap.',
+  /* 🔴 EMPTY AGAIN, AND THE CONSTANT STAYS — THE-253.
+   *
+   * Its one entry was 'AI Assistant', declaring THE-224's withdrawal in words:
+   * the assistant was the plan capability `aiChat`, included from Small Team up,
+   * so the card charged $20/mo for something those plans already had; and it
+   * could not be narrowed to Individual either, because an add-on raised a
+   * capacity and never a feature flag. It closed by naming the way back —
+   * "Selling it again means building an enforced limit first". That is exactly
+   * what PR 394 and THE-253 built, so the omission is over and the card is
+   * advertised again.
+   *
+   * ⚠️ AN EMPTY OBJECT IS NOT A WEAKER STATE THAN A FULL ONE, and that is the
+   * point of removing the entry rather than editing it. `dodoAddOnCatalogContract`
+   * refuses a live product that is neither advertised nor declared — so with
+   * nothing declared, EVERY live Dodo add-on must now appear on this page, which
+   * is the strictest this contract has ever been. It also refuses an entry whose
+   * product Dodo no longer sells, so a stale excuse cannot outlive its product.
+   *
+   * The constant is kept, exported and still passed to the contract because the
+   * next legitimate omission needs somewhere to be declared IN WORDS — deleting
+   * it would make the next absence indistinguishable from an oversight, which is
+   * the defect that created it (Campus, unadvertised through three repricings). */
 };
 
 /**
