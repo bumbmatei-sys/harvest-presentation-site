@@ -206,7 +206,7 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
   });
 
   it('the affiliate arithmetic uses the real Ministry monthly price and totals correctly', () => {
-    const perChurchMonthly = ministry.price.monthly * 0.15;
+    const perChurchMonthly = ministry.price.monthly * 0.30;
     const fiveChurchesMonthly = Math.round(perChurchMonthly * 5);
     const yearTotal = perChurchMonthly * 5 * 12;
     // Hidden behind AFFILIATE_PROGRAM_ENABLED, so read straight from source.

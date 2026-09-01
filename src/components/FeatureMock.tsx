@@ -972,7 +972,7 @@ const MOCKS: Record<string, React.ReactElement> = {
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
           <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Affiliate</span>
-          <span style={{ fontSize: '9.5px', fontWeight: '700', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '3px 9px', borderRadius: '999px' }}>15% · every plan</span>
+          <span style={{ fontSize: '9.5px', fontWeight: '700', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '3px 9px', borderRadius: '999px' }}>30% · every plan</span>
         </div>
         <div style={{ display: 'flex', gap: '8px', padding: '13px' }}>
           <div style={{ flex: '1', background: 'var(--navy-900)', borderRadius: '12px', padding: '12px' }}>

@@ -39,9 +39,10 @@ import {
  * feature it cannot buy is disappointed. A person who signs a referral link
  * expecting to be paid, and cannot be, has been misled about money.
  *
- * ⚠️ WHAT THE FOUNDER ACTUALLY SAID, in full: "15% for a whole year from each
+ * ⚠️ WHAT THE FOUNDER ACTUALLY SAID, in full: "30% for a whole year from each
  * plan sold through their link." That sentence fixes the RATE, the SPAN and the
- * BASIS, and it fixes nothing else. Everything the copy states is derived from
+ * BASIS, and it fixes nothing else. (THE-269 raised the rate from the 15% this
+ * entry was first written at, 2026-09-01; the span and the basis are unchanged.) Everything the copy states is derived from
  * it; everything it does not settle is named as open in `considering` rather
  * than resolved by invention. The tests below hold both halves — that the one
  * commitment is stated once and unambiguously, and that no second rule was
@@ -224,15 +225,15 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
 });
 
 /* ── 2 ───────────────────────────────────────────────────────────────────── */
-describe('2 — it states 15% for twelve months, in one unambiguous sentence', () => {
+describe('2 — it states 30% for twelve months, in one unambiguous sentence', () => {
   /** The page as sentences, which is the unit the claim has to be true in. */
   const sentences = mainText.split(/(?<=[.!?])\s+/).filter(Boolean);
 
   it('🔴 THE COMMITMENT, VERBATIM — one sentence, and only one', () => {
-    const withRate = sentences.filter((s) => s.includes('15%'));
-    expect(withRate, 'the 15% claim is made in more than one place').toHaveLength(1);
+    const withRate = sentences.filter((s) => s.includes('30%'));
+    expect(withRate, 'the 30% claim is made in more than one place').toHaveLength(1);
     expect(withRate[0]).toBe(
-      'A link you could share, paying you 15% of what a church that joins through it '
+      'A link you could share, paying you 30% of what a church that joins through it '
       + 'actually pays for its plan — every payment it makes in the twelve months from its first.',
     );
     // It is the one-liner, not a stray line the block happens to draw.
@@ -240,11 +241,11 @@ describe('2 — it states 15% for twelve months, in one unambiguous sentence', (
   });
 
   it('the rate, the basis, the span AND the start are all in that one sentence', () => {
-    const s = sentences.find((x) => x.includes('15%'))!;
-    expect(s, 'the rate is missing').toMatch(/\b15%/);
+    const s = sentences.find((x) => x.includes('30%'))!;
+    expect(s, 'the rate is missing').toMatch(/\b30%/);
     expect(s, 'the basis is missing').toMatch(/what a church .* pays for its plan/);
     /* 🔴 AND THE BASIS IS THE AMOUNT ACTUALLY PAID, confirmed by the founder:
-       a church on the yearly term generates 15% of the DISCOUNTED figure, not
+       a church on the yearly term generates 30% of the DISCOUNTED figure, not
        of a list price it never paid. "actually" is what stops "what a church
        pays for its plan" being read back as "the plan's price". */
     expect(s, 'the discounted-amount reading is no longer explicit').toMatch(/actually pays for its plan/);
@@ -263,9 +264,9 @@ describe('2 — it states 15% for twelve months, in one unambiguous sentence', (
   });
 
   it('🔴 no second percentage, and no second duration, anywhere on the page', () => {
-    // A page carrying "15%" once and "10%" somewhere else invites arithmetic
+    // A page carrying "30%" once and "10%" somewhere else invites arithmetic
     // nobody promised. The term-discount figures live on the pricing page.
-    expect(mainText.match(/\d+\s?%/g)).toEqual(['15%']);
+    expect(mainText.match(/\d+\s?%/g)).toEqual(['30%']);
     expect(mainText).not.toMatch(/\b(six|twenty-four|24|18|eighteen)\s+months\b/i);
     expect(mainText).not.toMatch(/\blifetime\b/i);
     expect(mainText).not.toMatch(/\bfor ?ever\b/i);
@@ -273,10 +274,10 @@ describe('2 — it states 15% for twelve months, in one unambiguous sentence', (
 
   it('the number survives the prerender — it is not a client-only string', () => {
     // 🔴 React splits adjacent text nodes with `$<!-- -->`-style comments, so a
-    // raw search for "15%" in the file can miss it. Normalised first.
+    // raw search for "30%" in the file can miss it. Normalised first.
     if (!built) return;
     const prerendered = words(fs.readFileSync(DIST_PAGE, 'utf8'));
-    expect(prerendered).toContain('15% of what a church that joins through it actually pays for its plan');
+    expect(prerendered).toContain('30% of what a church that joins through it actually pays for its plan');
     expect(prerendered).toContain('every payment it makes in the twelve months from its first');
   });
 
@@ -1026,14 +1027,14 @@ describe('13 — the surface being replaced is recorded, and does not contradict
     const src = readSrc('components/Affiliate.tsx');
     // The four claims it makes, quoted so the pull request does not have to be
     // trusted about them.
-    expect(src).toContain('Earn 15% recurring commission on every invoice for their first 12 months.');
-    expect(src).toContain('15% / month, for 12 months');
+    expect(src).toContain('Earn 30% recurring commission on every invoice for their first 12 months.');
+    expect(src).toContain('30% / month, for 12 months');
     expect(src).toContain('Recurring on every invoice for 12 months from signup. If they cancel sooner, commission stops.');
     expect(src).toContain('Become an affiliate');
     expect(src).toContain('https://affiliate.theharvest.app/auth');
     // And the feature entry beside it, which puts a worked example on the page.
     const features = readSrc('content/features.ts');
-    expect(features).toContain('Refer a ministry. Earn 15% for a year.');
+    expect(features).toContain('Refer a ministry. Earn 30% for a year.');
     // ⚠️ Read off SOURCE, not off a render: the entry is behind the flag, so it
     //    reaches no page. The apostrophe is backslash-escaped in the file.
     expect(features).toContain("Trial starts don\\'t count — only converted customers");
@@ -1047,7 +1048,7 @@ describe('13 — the surface being replaced is recorded, and does not contradict
     expect(readSrc('components/Footer.tsx')).toContain('AFFILIATE_PROGRAM_ENABLED ?');
     expect(readSrc('components/catalog.ts')).toContain('AFFILIATE_PROGRAM_ENABLED ?');
     expect(readSrc('content/features.ts')).toContain("...(AFFILIATE_PROGRAM_ENABLED ? [] : ['affiliate'])");
-    expect(readSrc('content/features.ts')).toContain("AFFILIATE_PROGRAM_ENABLED ? ', plus a 15% affiliate program' : ''");
+    expect(readSrc('content/features.ts')).toContain("AFFILIATE_PROGRAM_ENABLED ? ', plus a 30% affiliate program' : ''");
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).not.toContain('Affiliate Program');
   });
 
@@ -1060,8 +1061,8 @@ describe('13 — the surface being replaced is recorded, and does not contradict
     expect(pages.length, 'the build produced no pages to sweep').toBeGreaterThan(5);
     for (const [file, html] of pages) {
       const text = words(html);
-      expect(text.includes('Earn 15% recurring commission'), `${file} renders the old claim`).toBe(false);
-      expect(text.includes('15% / month, for 12 months'), `${file} renders the old rate`).toBe(false);
+      expect(text.includes('Earn 30% recurring commission'), `${file} renders the old claim`).toBe(false);
+      expect(text.includes('30% / month, for 12 months'), `${file} renders the old rate`).toBe(false);
       expect(/\bBecome an affiliate\b/.test(text), `${file} renders the old CTA`).toBe(false);
       expect(/\bEarn while you grow the kingdom\b/.test(text), `${file} renders the old heading`).toBe(false);
     }
