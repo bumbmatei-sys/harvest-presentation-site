@@ -77,14 +77,35 @@ describe('1 — every affiliate surface claims 30%', () => {
     expect(yearTotal.toLocaleString()).toBe('1,440');
   });
 
-  it('no affiliate surface still claims 15%', () => {
-    // Scoped to the files that make the claim. A repo-wide `15%` grep would hit
-    // the quarterly discount badge and the competitor's card rate — see § 4.
-    for (const file of [...new Set(AFFILIATE_RATE_CLAIMS.map(([f]) => f))]) {
-      expect(read(file), `${file} still claims 15%`).not.toMatch(/\b15% (recurring|of|for|·|\/)/);
-    }
-    expect(read('content/coming-soon.ts')).not.toMatch(/\b15%/);
-    expect(read('components/Affiliate.tsx')).not.toMatch(/\b15%/);
+  it('🔴 NO file in the repo still claims a 15% commission — repo-wide sweep', () => {
+    // Walks the whole tree rather than the claims list: a list-shaped sweep is
+    // only as good as its list, and the app-side twin of this test passed while
+    // four real claims were still wrong.
+    //
+    // A bare "15%" grep is useless here — it hits the −15% QUARTERLY DISCOUNT
+    // badge and the competitor's 2.15% card rate (§ 4). What is swept for is a
+    // 15% sitting in a COMMISSION SENTENCE: the two within a few words.
+    const COMMISSION_15 =
+      /(commission|affiliate|refer(?:ral|red|s)?|earns?|pays? you)[^.\n]{0,80}\b15%|\b15%[^.\n]{0,80}(commission|of what|of subscription|of revenue|recurring)/i;
+
+    // This file quotes the old rate to describe the change.
+    const ALLOWED = new Set(['content/the-269-affiliate-rate.test.ts']);
+
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const abs = path.join(dir, entry.name);
+        if (entry.isDirectory()) { walk(abs); continue; }
+        if (!/\.(ts|tsx|md)$/.test(entry.name)) continue;
+        const rel = path.relative(SRC, abs);
+        if (ALLOWED.has(rel)) continue;
+        for (const line of fs.readFileSync(abs, 'utf8').split('\n')) {
+          if (COMMISSION_15.test(line)) offenders.push(`${rel}: ${line.trim().slice(0, 100)}`);
+        }
+      }
+    };
+    walk(SRC);
+    expect(offenders, `these still claim a 15% commission:\n${offenders.join('\n')}`).toEqual([]);
   });
 });
 
