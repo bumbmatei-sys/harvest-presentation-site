@@ -73,12 +73,18 @@ describe('the prerender list', () => {
     expect(prerendered, `/${slug} would ship as an empty shell`).toContain(legalHref(slug));
   });
 
-  it('prerenders 20 pages', () => {
+  it('prerenders 21 pages', () => {
     // 15 before the policies, 18 with them, 19 with /faq, 20 with the Coming
-    // Soon category (THE-247). The number is asserted rather than derived so
-    // that a route silently dropping out of the list is a failure here rather
-    // than a page that quietly stops being crawlable.
-    expect(prerendered).toHaveLength(20);
+    // Soon category (THE-247), 21 with the `rooted` post added by 1917a9a. The
+    // number is asserted rather than derived so that a route silently dropping
+    // out of the list is a failure here rather than a page that quietly stops
+    // being crawlable.
+    //
+    // ⚠️ NOT AN AFFILIATE CHANGE. This count went stale on `main`: CI runs on
+    // `pull_request` only and `main` is unprotected, so the direct blog push
+    // that added the 21st route never ran this suite. Corrected here because
+    // every PR is red until someone does.
+    expect(prerendered).toHaveLength(21);
     expect(new Set(prerendered).size).toBe(prerendered.length);
   });
 

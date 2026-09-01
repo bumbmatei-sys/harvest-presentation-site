@@ -335,7 +335,7 @@ const ALL_CATEGORIES: Category[] = [
     intro: 'Giving, fundraising, a CRM that builds itself, and books that reconcile themselves — with no platform fee at all, on any plan. The money lands in your account, not ours.',
     ctaHeading: 'Keep more of every gift.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: `Branded giving, fundraising campaigns, a donor and member CRM and QuickBooks-synced receipts${AFFILIATE_PROGRAM_ENABLED ? ', plus a 15% affiliate program' : ''} — with 0% platform fee on every donation.`,
+    seo: `Branded giving, fundraising campaigns, a donor and member CRM and QuickBooks-synced receipts${AFFILIATE_PROGRAM_ENABLED ? ', plus a 30% affiliate program' : ''} — with 0% platform fee on every donation.`,
     features: [
       {
         id: 'donation', name: 'Donation Page', n: '1',
@@ -390,7 +390,7 @@ const ALL_CATEGORIES: Category[] = [
         adminLabel: 'For admins', memberLabel: 'For givers',
         crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
       },
-      /* Hidden behind AFFILIATE_PROGRAM_ENABLED. The terms (flat 15%, 12 months
+      /* Hidden behind AFFILIATE_PROGRAM_ENABLED. The terms (flat 30%, 12 months
          from signup, converted customers only) are settled; the payout rail is
          not — subscription billing is moving off Stripe to Dodo Payments, so
          this copy names no processor. Do not put one back in, and do not
@@ -398,11 +398,11 @@ const ALL_CATEGORIES: Category[] = [
       {
         id: 'affiliate', name: 'Affiliate Program', n: '5',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
-        eyebrow: '15% for their first 12 months',
-        title: 'Refer a ministry. Earn 15% for a year.',
-        oneliner: 'A flat 15% of what every church you refer pays, for their first 12 months — tracked automatically and paid out to you, not held as credit.',
-        moment: 'Most SaaS affiliate programs pay once, on the first payment. Harvest pays for a full year — refer five churches on the $80 plan and that’s about $60 a month for twelve months, roughly $720 in total.',
-        admin: ['Flat 15% — every plan, no tiers, no ladder', 'On everything they pay in their first 12 months', 'Trial starts don\'t count — only converted customers', 'Real money paid out to you, never platform credit'],
+        eyebrow: '30% for their first 12 months',
+        title: 'Refer a ministry. Earn 30% for a year.',
+        oneliner: 'A flat 30% of what every church you refer pays, for their first 12 months — tracked automatically and paid out to you, not held as credit.',
+        moment: 'Most SaaS affiliate programs pay once, on the first payment. Harvest pays for a full year — refer five churches on the $80 plan and that’s about $120 a month for twelve months, roughly $1,440 in total.',
+        admin: ['Flat 30% — every plan, no tiers, no ladder', 'On everything they pay in their first 12 months', 'Trial starts don\'t count — only converted customers', 'Real money paid out to you, never platform credit'],
         member: ['A referral link, generated automatically', 'This-month pending & total earnings at a glance', 'Add your payout details whenever — earnings accrue either way'],
         adminLabel: 'For referrers', memberLabel: 'Your dashboard',
         crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'Pricing', href: '/#pricing' }],
