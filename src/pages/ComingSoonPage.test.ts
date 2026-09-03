@@ -448,12 +448,25 @@ describe('the Coming Soon page lists every named item', () => {
       // behind CUSTOM_DOMAIN_ENABLED in the same change. Its own terms are
       // asserted in the-280-custom-domain-coming-soon.test.ts.
       'THE-280',
+      /* 86bbu5q9m — Harvest Scheduler (THE-284), and the FIRST entry whose ref
+         is not a `THE-` number. Not a lapse: that card has no `THE-` id at all,
+         because its `custom_id` is null on the board, so its raw card id is the
+         only name it has. Inventing a number would have put a reference on this
+         page that resolves to nothing, and this file's rule is that nothing
+         here is invented — so the shape widened to admit the id the card
+         actually has. Its own terms are asserted in
+         pages/the-284-harvest-scheduler.test.ts. */
+      '86bbu5q9m',
     ]);
     // THE-115 (a Play Store / App Store listing) was on this page and was
     // pulled at the founder's direction. It must not drift back in.
     expect(COMING_SOON_ITEMS.map((i) => i.ref)).not.toContain('THE-115');
     expect(mainText).not.toMatch(/play store|app store/i);
-    for (const item of COMING_SOON_ITEMS) expect(item.ref).toMatch(/^THE-\d+$/);
+    /* ⚠️ TWO SHAPES SINCE THE-284. See the note beside the `86bbu5q9m` entry
+       above, and BOARD_REF in content/coming-soon.ts: the widening was forced
+       by a card that has no `THE-` id, and it is still a whitelist of two exact
+       forms rather than a relaxation to any string. */
+    for (const item of COMING_SOON_ITEMS) expect(item.ref).toMatch(/^(THE-\d+|86[a-z0-9]{7})$/);
   });
 
   it.each(COMING_SOON_ITEMS.map((i) => [i.name, i] as const))(
@@ -521,6 +534,13 @@ describe('no coming-soon item carries a price, a tier badge or a purchase call t
       '/contact',
       ...CATEGORIES.map((c) => `/features/${c.slug}`),
       ...COMING_SOON_IDS.map((id) => `${COMING_SOON_HREF}#${id}`),
+      /* ⚠️ AND ONE LINK OFF THE PAGE — THE-284. The Harvest Scheduler entry has
+         a page of its own and its block links through to it. Derived from the
+         entries rather than written as a literal, so it appears here only while
+         an entry really claims that page. It is not a purchase: the destination
+         runs the same no-price, no-date, no-tier, no-CTA contract this page
+         does, and carries no route to /#pricing either. */
+      ...COMING_SOON_ITEMS.flatMap((i) => (i.page ? [i.page] : [])),
     ].sort();
     expect(hrefs).toEqual(expected);
   });
@@ -757,8 +777,9 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
   it('the unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     expect(live).toBe(27);
-    // 9 + THE-252's affiliate entry + THE-280's custom-domains entry.
-    expect(CATALOG[0].items).toHaveLength(11);
+    // 9 + THE-252's affiliate entry + THE-280's custom-domains entry
+    // + THE-284's Harvest Scheduler entry.
+    expect(CATALOG[0].items).toHaveLength(12);
     expect(CATALOG[0].items.filter((i) => !i.soon)).toHaveLength(0);
   });
 
@@ -771,7 +792,8 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(38);
+    // 27 live tools + the 12 unbuilt entries this mutation wrongly counts.
+    expect(wrong).toBe(39);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.
@@ -970,10 +992,14 @@ describe('no board link was reintroduced', () => {
     // clickable destination — nothing on the page should send a church to an
     // internal board.
     for (const item of COMING_SOON_ITEMS) {
-      expect(item.ref).toMatch(/^THE-\d+$/);
+      expect(item.ref).toMatch(/^(THE-\d+|86[a-z0-9]{7})$/);
       expect(mainHtml, `${item.ref} is rendered as a link`).not.toContain(`>${item.ref}<`);
     }
     expect(mainText).not.toMatch(/THE-\d+/);
+    /* ⚠️ AND THE RAW CARD-ID FORM IS HELD TO THE SAME RULE. A nine-character id
+       is far easier to paste into copy unnoticed than "THE-280" is, and it is
+       just as much an internal reference. */
+    expect(mainText, 'a raw board card id reached the page').not.toMatch(/\b86[a-z0-9]{7}\b/);
   });
 });
 

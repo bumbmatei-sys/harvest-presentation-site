@@ -25,7 +25,7 @@ import { CUSTOM_DOMAIN_MARKETING_ENABLED } from '../lib/flags';
 import { CATEGORIES, type Category } from '../content/features';
 import {
   COMING_SOON_HREF, COMING_SOON_IDS, COMING_SOON_ITEMS, IN_PROCESS_LABEL, NOT_BUILT_LABEL,
-  comingSoonContract, type SoonItem,
+  SCHEDULER_HREF, comingSoonContract, type SoonItem,
 } from '../content/coming-soon';
 
 /* ─── THE-280 — custom domains go on Coming Soon ──────────────────────────────
@@ -197,10 +197,14 @@ describe('1 — custom domains appear in Coming Soon', () => {
   });
 
   it('🔴 it is the ELEVENTH entry — appended, not inserted', () => {
-    expect(COMING_SOON_IDS).toEqual([
+    /* ⚠️ AND A TWELFTH ARRIVED AFTER IT — THE-284's "Harvest Scheduler", also
+       appended. This entry's own position is what this test is about and it has
+       not moved: still eleventh, still after `affiliate`, still numbered 11. */
+    expect(COMING_SOON_IDS.slice(0, 11)).toEqual([
       'languages', 'services', 'applications', 'docs', 'website',
       'agent', 'identity', 'designations', 'sms', 'affiliate', 'domains',
     ]);
+    expect(COMING_SOON_IDS.slice(11)).toEqual(['scheduler']);
     expect(item().n).toBe('11');
     // Ordinals are derived from position, so appending can never leave a gap.
     expect(COMING_SOON_ITEMS.map((i) => i.n)).toEqual(
@@ -249,15 +253,23 @@ describe('2 — the entry carries no price, date, tier or call to action', () =>
     const iface = /export interface SoonItem \{([\s\S]*?)\n\}/.exec(src);
     expect(iface, 'the SoonItem interface is gone').not.toBeNull();
     const fields = [...iface![1].matchAll(/^\s*(\w+)\??:/gm)].map((m) => m[1]).sort();
+    /* ⚠️ `page` IS THE ONE FIELD ADDED SINCE, at THE-284, and it is not a hole
+       in this guard. It carries a path to another page of unbuilt copy — one
+       that runs the same contract this file's entry does — and it can express
+       neither a tier, nor a price, nor a purchase: `SoonItem` still has nowhere
+       to put any of the three, which is the property this test exists for. The
+       forbidden list below is unchanged and still includes `href` and `to`,
+       the two names a general-purpose link field would have taken. */
     expect(fields).toEqual([
       'considering', 'eyebrow', 'icon', 'id', 'n', 'name', 'navDesc',
-      'notThis', 'oneliner', 'ref', 'title', 'today',
+      'notThis', 'oneliner', 'page', 'ref', 'title', 'today',
     ]);
     for (const forbidden of ['tiers', 'price', 'cta', 'href', 'to', 'plan']) {
       expect(fields, `SoonItem grew a "${forbidden}" field`).not.toContain(forbidden);
     }
-    // And this entry really is only those fields — no extra slipped in beside.
-    expect(Object.keys(item()).sort()).toEqual(fields);
+    /* And this entry really is only those fields — no extra slipped in beside.
+       It sets no `page`, so its own keys are the interface minus that one. */
+    expect(Object.keys(item()).sort()).toEqual(fields.filter((f: string) => f !== 'page'));
   });
 
   it('🔴 no price, and no per-month or per-year figure, anywhere in the entry', () => {
@@ -594,17 +606,25 @@ describe('5 — the nine plan prices are unchanged and the contracts still throw
 /* ── 6 ─────────────────────────────────────────────────────────────────────
    The prerendered page count.                                                */
 describe('6 — the prerendered page count is unchanged', () => {
-  it('blogRoutes() still lists 21 routes', () => {
+  it('adds no route of its own, and the list is the 22 the other suites pin', () => {
     /* 🔴 THE-280 ADDS NO PAGE. The custom-domain entry is a BLOCK on the
        existing /features/coming-soon page, exactly as the SMS and affiliate
-       entries are — it has an in-page anchor, not a route. The same 21 that
-       LegalPage.test.ts and the-278's section 9 both pin. */
-    expect(blogRoutes()).toHaveLength(21);
+       entries are — it has an in-page anchor, not a route.
+
+       ⚠️ THE TOTAL MOVED TO 22 AT THE-284, and this test says the same thing it
+       always did in spite of that: the number is asserted as "everything except
+       the one page THAT ticket added", so it still fails if THIS entry ever
+       grows a route. Repinning it to a bare 22 would have quietly turned a
+       claim about custom domains into a claim about the site's page count. */
+    const routes = blogRoutes();
+    expect(routes).toHaveLength(22);
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(21);
+    expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
-  it.runIf(built)('and the build still emits exactly 21 pages', () => {
+  it.runIf(built)('and the build emits exactly those, one file each', () => {
     const count = distPages().filter(([f]) => f.endsWith(`index.html`)).length;
-    expect(count, `this checkout built ${count} pages, not 21`).toBe(21);
+    expect(count, `this checkout built ${count} pages, not 22`).toBe(22);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {
@@ -649,7 +669,15 @@ describe('7 — the existing entries are undisturbed', () => {
     for (const i of COMING_SOON_ITEMS) {
       expect(mainText, `"${i.id}" stopped rendering`).toContain(words(i.title));
       expect(mainHtml).toContain(`id="${i.id}"`);
-      expect(i.ref, `"${i.id}" has no board reference`).toMatch(/^THE-\d+$/);
+      /* ⚠️ TWO SHAPES SINCE THE-284, and the widening was forced by a real
+         card rather than chosen. Every entry that predates it still carries a
+         `THE-` id; the Harvest Scheduler card has none at all — its `custom_id`
+         is null on the board, so its raw card id is the only name it has.
+         Inventing a `THE-` number would have put a reference on this page that
+         resolves to nothing, and the rule this assertion enforces is that
+         nothing here is invented. Still a whitelist of two exact shapes, not a
+         relaxation to any string — see BOARD_REF in content/coming-soon.ts. */
+      expect(i.ref, `"${i.id}" has no board reference`).toMatch(/^(THE-\d+|86[a-z0-9]{7})$/);
     }
   });
 

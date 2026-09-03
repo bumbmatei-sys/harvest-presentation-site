@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { CATEGORIES, CATEGORY_BY_SLUG, LEGACY_ANCHORS, categoryHref, featureHref } from './features';
 import { CATALOG, slugify } from '../components/catalog';
 import { columnHref, itemHref } from '../components/Nav';
-import { COMING_SOON_HREF, COMING_SOON_IDS, COMING_SOON_NAME } from './coming-soon';
+import {
+  COMING_SOON_HREF, COMING_SOON_IDS, COMING_SOON_ITEMS, COMING_SOON_NAME, SCHEDULER_HREF,
+} from './coming-soon';
 
 /* LEGACY_ANCHORS is the redirect table for every retired /features#<slug> URL —
  * indexed links, the Nav mega-menu, and anything a church has bookmarked. A
@@ -108,8 +110,28 @@ describe('the mega-menu reaches every feature it lists', () => {
       expect(item.soon).toBe(true);
       expect(item.href).toBeDefined();
       const [path, fragment] = item.href!.split('#');
-      expect(path).toBe(COMING_SOON_HREF);
-      expect(COMING_SOON_IDS, `#${fragment} is not a section on the page`).toContain(fragment);
+
+      /* ⚠️ TWO SHAPES SINCE THE-284, and both land on a page that exists.
+         Every entry but one sends the menu to its anchor on
+         /features/coming-soon, where its whole story is. The Harvest Scheduler
+         entry has a page of its own — the founder asked for it by name — so its
+         menu item goes there instead: sending a reader to a one-paragraph
+         anchor when a whole page exists is the worse of the two, and the anchor
+         is still reachable from that page's own jump-to index.
+         🔴 THE CHECK IS STILL A WHITELIST OF DESTINATIONS, not "any href". A
+         menu item pointing anywhere else — a pricing anchor, an outside URL —
+         still fails here. */
+      if (path === SCHEDULER_HREF) {
+        expect(fragment, 'the full page takes no fragment').toBeUndefined();
+        const entry = COMING_SOON_ITEMS.find((i) => i.page === SCHEDULER_HREF);
+        expect(entry, 'no coming-soon entry claims that page').toBeDefined();
+        expect(entry!.name).toBe(item.title);
+        // And it is still on the Coming Soon page too, not moved off it.
+        expect(COMING_SOON_IDS).toContain(entry!.id);
+      } else {
+        expect(path).toBe(COMING_SOON_HREF);
+        expect(COMING_SOON_IDS, `#${fragment} is not a section on the page`).toContain(fragment);
+      }
 
       /* And it is NOT in the redirect table — see the note above.
        *

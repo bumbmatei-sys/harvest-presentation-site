@@ -151,10 +151,49 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'terms/index.html': 'f76fa0f81d8fa7a1d5cdbadfb24416ad7cfea843196bc69b9d0cc3a353ac44ac',
   };
 
-  const BASELINE: Readonly<Record<string, string>> = { ...PRE_TAILWIND, ...THE_280_MOVED };
+  /**
+   * 🔴 THE-284 — the ONE page that moved, and the ONE that was added.
+   *
+   * The Harvest Scheduler went onto the Coming Soon list and got a page of its
+   * own, at the founder's direction. Two consequences, and only two:
+   *
+   *   · features/coming-soon — a twelfth entry, so a twelfth index card and a
+   *     twelfth block. This page is the one the entry renders on, so it is the
+   *     one page whose content legitimately changed.
+   *   · features/harvest-scheduler — the new page. Recorded here rather than
+   *     left out, so it is fingerprinted from its first commit like every other
+   *     page, and a later edit to it shows up as a move rather than as nothing.
+   *
+   * ⚠️ AND THE OTHER TWENTY DID NOT MOVE — not the landing page, not the nav on
+   * any of them. Adding an entry to `COMING_SOON_ITEMS` also adds an item to
+   * `CATALOG`, which is the Features mega-menu on EVERY page; the menu is
+   * rendered behind React state that nothing sets during the prerender, so it
+   * is not in the built markup and no other page saw the change.
+   *
+   * 🔴 THIRTEEN PAGES *DID* MOVE IN AN EARLIER DRAFT OF THIS TICKET, and the
+   * cause is worth recording because it will recur. The new route was written
+   * beside the Coming Soon route, in the middle of the table in src/App.tsx.
+   * React-router derives a route's id from its POSITION when none is given, and
+   * vite-react-ssg serialises those ids into every page as
+   * `window.__staticRouterHydrationData` — so inserting mid-table renumbered
+   * every later route and rewrote /contact, /faq, the three policies and all
+   * seven blog pages, each by a single digit, with no content change at all.
+   * The route is appended above the catch-all instead. See the note in
+   * src/App.tsx: add future routes there too.
+   */
+  const THE_284_MOVED: Readonly<Record<string, string>> = {
+    'features/coming-soon/index.html': '333cf879bbaf80f090e9e8a66d42ec7f01b9380dc7e8718586875ff8bd2852f6',
+  };
+  const THE_284_ADDED: Readonly<Record<string, string>> = {
+    'features/harvest-scheduler/index.html': 'a33341141516f3d5279867a0efdcbc0bb42d6a1b5afd6345e61ed7ed37b49975',
+  };
 
-  /** The same 21 as one number, so an ADDED or DROPPED page is caught too. */
-  const BASELINE_ALL = 'b352d6813b468b885230d8ea3a451d0b74282d1f3409458bdb32fb8a8ed7d1cb';
+  const BASELINE: Readonly<Record<string, string>> = {
+    ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED,
+  };
+
+  /** The same 22 as one number, so an ADDED or DROPPED page is caught too. */
+  const BASELINE_ALL = '8b15b5d49e7263733d714d05f5180ed7cd5e1e0e456c204562b2e30534d39a4a';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -177,7 +216,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(THE_280_MOVED[page], `${page} is listed as moved but did not move`)
         .not.toBe(PRE_TAILWIND[page]);
     }
-    const untouched = Object.keys(PRE_TAILWIND).filter((p) => !(p in THE_280_MOVED));
+    const untouched = Object.keys(PRE_TAILWIND)
+      .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED));
     expect(untouched).toHaveLength(15);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
@@ -186,6 +226,41 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 🔴 And THE-281's page is one of the fifteen — this change did not disturb it.
     expect(untouched, 'THE-280 moved the Giving & Finance page, which is not its to move')
       .toContain('features/giving-finance/index.html');
+  });
+
+  it('🔴 THE-284 moved exactly one page and added exactly one', () => {
+    /* The delta, asserted as a delta — the shape THE-280 established above, and
+       for the same reason: without it a later ticket could add a second
+       override and the suite would still pass, so the SIZE of the change is
+       what is checked, not merely its content.
+
+       ⚠️ THE MOVED PAGE IS THE ONE THE ENTRY RENDERS ON, and nothing else. If a
+       second entry ever appears here, that is either a page this ticket had no
+       business touching or a route inserted mid-table — see the note above. */
+    expect(Object.keys(THE_284_MOVED)).toEqual(['features/coming-soon/index.html']);
+    expect(Object.keys(THE_284_ADDED)).toEqual(['features/harvest-scheduler/index.html']);
+
+    // The moved page really moved, and it moved off THE-280's value, not off
+    // the pre-Tailwind one it had already left.
+    expect(THE_284_MOVED['features/coming-soon/index.html'])
+      .not.toBe(THE_280_MOVED['features/coming-soon/index.html']);
+    // And the added page is genuinely new — no earlier table ever fingerprinted it.
+    for (const page of Object.keys(THE_284_ADDED)) {
+      expect(PRE_TAILWIND[page], `${page} is not a new page`).toBeUndefined();
+      expect(THE_280_MOVED[page], `${page} is not a new page`).toBeUndefined();
+    }
+
+    /* 🔴 AND THE OTHER TWENTY ARE STILL AT THE VALUE THE TABLES ABOVE RECORD.
+       Adding a coming-soon entry also adds a mega-menu item, which is chrome on
+       every page — this is the assertion that says the menu is not in the
+       prerendered markup and no other page came along for the ride. */
+    const others = Object.keys(BASELINE)
+      .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED));
+    expect(others).toHaveLength(20);
+    for (const page of others) {
+      expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
+        .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+    }
   });
 
   const pagesInDist = (): string[] => {
@@ -383,16 +458,18 @@ describe('8 — the nine plan prices are unchanged and the contract still has te
 
 /* ═══ 9 — the prerendered page count ═════════════════════════════════════ */
 describe('9 — the prerender list and the built page count are unchanged', () => {
-  it('blogRoutes() still lists 21 routes', () => {
-    /* The same number LegalPage.test.ts pins. Asserted again here because THIS
-       ticket is the one that could have moved it, by changing what the build
-       does rather than what the route table says. */
-    expect(blogRoutes()).toHaveLength(21);
+  it('blogRoutes() lists 22 routes', () => {
+    /* The same number LegalPage.test.ts pins. Asserted again here because
+       THE-278 was the ticket that could have moved it, by changing what the
+       build does rather than what the route table says — and that claim still
+       holds: the one route added since is THE-284's Harvest Scheduler page,
+       which is a route in the table, not a change to the build. */
+    expect(blogRoutes()).toHaveLength(22);
   });
 
-  it.runIf(built)('and the build emits all 21 of them', () => {
-    /* The list and the build agree: 21 routes in, 21 pages out.
-       ⚠️ ON A win32 CHECKOUT THIS FAILS AT 18, and the failure is correct —
+  it.runIf(built)('and the build emits all 22 of them', () => {
+    /* The list and the build agree: 22 routes in, 22 pages out.
+       ⚠️ ON A win32 CHECKOUT THIS FAILS AT 19, and the failure is correct —
        that build really is missing the three blog posts, for the slugFromPath
        reason noted at the top of this file. Asserted rather than skipped so a
        broken local build is visible instead of self-consistent. */
@@ -405,18 +482,53 @@ describe('9 — the prerender list and the built page count are unchanged', () =
       }
       return n;
     })(DIST);
-    expect(count, `this checkout built ${count} pages, not 21`).toBe(21);
+    expect(count, `this checkout built ${count} pages, not 22`).toBe(22);
   });
 });
 
 /* ═══ 10 — the build configuration is untouched ══════════════════════════ */
 describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identical', () => {
+  /* ⚠️ THE BLOG PLUGIN'S HASH MOVED AT THE-284, AND ONLY ITS HASH.
+   *
+   * `blogRoutes()` and `STATIC_ROUTES` are the prerender list and the sitemap,
+   * and a new page has to be in both — there is no way to add a route without
+   * editing this file, so a pin that could never be repinned would be a pin
+   * against ever adding a page. What the pin is really holding is that the
+   * PLUGIN was not changed: not the parser, not the image measurement, not the
+   * watch graph, not the virtual module. That claim is checked in its own right
+   * two tests below, against the source rather than against a hash.
+   *
+   * 🔴 vercel.json AND vite.config.ts DID NOT MOVE, and those are the two that
+   * matter most here. `base: '/'` is absolute deliberately — a relative base
+   * breaks nested prerendered routes — and `ssgOptions.dirStyle` still nests.
+   * A new page needed neither touched.
+   */
   it.each([
     ['vercel.json', 'b7c29796ec5df5d87332d573d130ea805956078bd5d3753cef537b2ac73a87be'],
     ['vite.config.ts', '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66'],
-    ['build/blog-plugin.ts', 'a7e71d950386dca9db021dbd6a92d3c4719ad92ed9aa4d25b6bc490165820d9d'],
+    ['build/blog-plugin.ts', '9dbc3c6194c838c6f33e7dc36dcf72fe8682ff93266238ca73f097253b51be36'],
   ])('%s is unchanged', (file, hash) => {
     expect(sha(readFileSync(path.join(ROOT, file))), `${file} was modified`).toBe(hash);
+  });
+
+  it('🔴 the blog plugin changed only its route list — the plugin itself is untouched', () => {
+    /* What the hash above used to say on its own. Spelled out against the
+       source so that repinning it for a new route cannot quietly cover an edit
+       to the machinery: the parser, the image measurement, the sitemap shape,
+       the virtual module and the watch graph are all still exactly as they
+       were, and the diff at THE-284 is three lines of route list. */
+    const plugin = read('build/blog-plugin.ts');
+    expect(plugin).toMatch(/export function blogPlugin\(\): Plugin \{/);
+    expect(plugin).toMatch(/const VIRTUAL_ID = 'virtual:blog-content';/);
+    expect(plugin).toMatch(/const SIZE_WARN_BYTES = 400 \* 1024;/);
+    expect(plugin).toMatch(/fs\.writeFileSync\(SITEMAP_FILE, sitemapXml\(posts\), 'utf8'\);/);
+    expect(plugin).toMatch(/for \(const file of postFiles\(\)\) this\.addWatchFile\(file\);/);
+    expect(plugin).toMatch(/\.\.\.readPublishedPosts\(\)\.map\(\(p\) => `\/blog\/\$\{p\.slug\}`\),/);
+    /* And the new route is DERIVED from the content module, not typed as a
+       literal here — the same property every other route in the list has, so
+       the path cannot drift between the router and the prerender list. */
+    expect(plugin).toMatch(/import \{ COMING_SOON_HREF, SCHEDULER_HREF \} from '\.\.\/src\/content\/coming-soon';/);
+    expect(plugin, 'a route path was typed as a literal').not.toContain("'/features/harvest-scheduler'");
   });
 
   it('base is still absolute, and ssgOptions still nests', () => {

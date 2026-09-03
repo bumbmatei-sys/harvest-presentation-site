@@ -51,12 +51,39 @@ export interface SoonItem {
   notThis?: string;
   /** The mega-menu's one-line description. */
   navDesc: string;
+  /** A dedicated page for this entry, where one exists.
+   *
+   *  ⚠️ MOST ENTRIES HAVE NONE, and that is the norm rather than a gap. A
+   *  coming-soon entry is a paragraph about a gap; a page is a lot of copy
+   *  about something that does not exist, which is the riskiest thing this
+   *  site can publish. One entry has one because the founder asked for it by
+   *  name — "create an entire page for this, though you list it in coming soon
+   *  feature section in top bar" — and it carries the same guards the entry
+   *  does, in its own module-scope contract.
+   *
+   *  When set, the mega-menu item points here instead of at the in-page
+   *  anchor, and the block on /features/coming-soon links through. The page's
+   *  own jump-to index still uses the anchor, so the entry stays reachable on
+   *  the page it lives on. */
+  page?: string;
 }
 
 export const COMING_SOON_SLUG = 'coming-soon';
 export const COMING_SOON_NAME = 'Coming Soon';
 export const COMING_SOON_HREF = `/features/${COMING_SOON_SLUG}`;
 export const COMING_SOON_KICKER = 'Not yet';
+
+/* ── The one entry with a page of its own — THE-284 ────────────────────────────
+ *
+ * Its identity lives HERE, beside the category's, rather than in
+ * content/scheduler.ts where the rest of its copy is. Not a preference: the
+ * entry below links to the page, content/scheduler.ts reads this file's
+ * `PURCHASABILITY_PATTERNS` to arm its own contract, and a constant in that
+ * file would make the two import each other. One direction, one spelling of the
+ * path, no cycle. */
+export const SCHEDULER_SLUG = 'harvest-scheduler';
+export const SCHEDULER_NAME = 'Harvest Scheduler';
+export const SCHEDULER_HREF = `/features/${SCHEDULER_SLUG}`;
 
 /** The one sentence the whole page has to carry, restated wherever a visitor
  *  could arrive mid-page. Exported so the page and its tests share one string
@@ -258,6 +285,26 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     notThis: 'This is not your Harvest subdomain, which ships: every church already has yourchurch.theharvest.app and nothing about it changes. Nor is it branding — your name, logo, icon and colour reach your app, your receipts and your certificates on the Ministry plan, and that is untouched. What is missing is only the domain you own yourself.',
     navDesc: 'Point a domain you own at Harvest. Not built yet.',
   },
+  {
+    id: 'scheduler', name: SCHEDULER_NAME, icon: 'calendar-clock', ref: '86bbu5q9m',
+    page: SCHEDULER_HREF,
+    eyebrow: 'One post, every account',
+    title: 'Sunday gets posted six times, from six different phones.',
+    oneliner: 'One place to write a post, put it on a calendar and send it to every account your church runs — and to read what comes back.',
+    today: 'Nothing in Harvest reaches a social account. A volunteer opens each app in turn, pastes the same caption, crops the same picture again, and answers comments wherever they happen to land. Harvest posts to your own community feed and sends your newsletter through your own Mailchimp audience — neither of those is a social account, and nothing in the admin can see a comment left on one.',
+    considering: [
+      'One composer that writes a post once and sends it to every account a church has connected, with the picture and the first comment attached',
+      'A month calendar and a queue, so a team can see what goes out on Sunday before Sunday',
+      'Comments and messages read and answered from inside the admin, rather than in whichever app they landed in',
+      'Reach, impressions and follower counts read beside the post that earned them, instead of screenshotted out of five apps',
+      'Boosting a post, or running a campaign, from the same screen the post was written on',
+      'A dashboard that keeps up on its own, so a post that has gone out or a comment that has arrived shows without anyone refreshing',
+      'Which destinations are worth carrying is a question about what each one costs to reach, not only about who is on it — and it is a decision rather than a list',
+      'It would rest on a posting platform Harvest does not run, which is the part that decides what is possible and what it costs',
+    ],
+    notThis: 'This is not the community feed, which already ships: that is your own audience inside your own app, with no algorithm deciding who sees Sunday\'s post, and none of it changes. Nor is it the newsletter, which sends real email through your own Mailchimp audience. What is missing is the accounts your church runs on somebody else\'s platform, and everything that comes back through them.',
+    navDesc: 'Post to every account from one place. Not built yet.',
+  },
 ];
 
 /** The list as the page renders it, with the index ordinal derived from
@@ -313,8 +360,14 @@ export const soonItemHref = (id: string) => `${COMING_SOON_HREF}#${id}`;
  * claim until something draws it — the precedent is PR 55, where a
  * pure-function test passed while the JSX seam was mutated. */
 
-/** Wording that would make an unbuilt feature read as a purchasable one. */
-const FORBIDDEN: [string, RegExp][] = [
+/** Wording that would make an unbuilt feature read as a purchasable one.
+ *
+ * ⚠️ EXPORTED SINCE THE-284, and exported rather than copied. The Harvest
+ * Scheduler page (content/scheduler.ts) is a whole page about an unbuilt
+ * feature rather than one entry on this one, so it needs the same ban — and a
+ * second hand-kept copy of this list is a list that drifts. One array, two
+ * module-scope contracts, and a pattern added here arms both. */
+export const PURCHASABILITY_PATTERNS: [string, RegExp][] = [
   ['a price', /\$\s?\d/],
   ['a per-month or per-year figure', /\b\d+\s*(\/|per\s)\s*(mo|month|yr|year)\b/i],
   ['an "included in a plan" claim', /\bincluded (in|on|with)\b|\bcomes with your plan\b/i],
@@ -337,6 +390,23 @@ const FORBIDDEN: [string, RegExp][] = [
 /** The plan names, which must never be attached to unbuilt work. */
 const TIER_WORDS = /\b(Individual|Small Team|Ministry|Forever Free)\b/;
 
+/** A board reference, in either of the two forms a card on the Harvest board
+ *  actually has.
+ *
+ * ⚠️ WIDENED AT THE-284, AND WIDENED BECAUSE A REAL CARD DID NOT FIT. This was
+ * `/^THE-\d+$/` and every entry above still matches it. The Harvest Scheduler
+ * card has no `THE-` id at all — its `custom_id` is null on the board, so the
+ * only name it has is its raw card id. The alternatives were both worse than
+ * widening: inventing a `THE-` number would put a reference on this page that
+ * resolves to nothing, and this file's rule is that nothing here is invented
+ * for the page; dropping the reference would make it the one entry that traces
+ * to no card.
+ *
+ * 🔴 IT IS STILL A WHITELIST OF TWO SHAPES, not a relaxation to "any string".
+ * The raw form is pinned to the `86` prefix and the exact nine characters a
+ * card id has, so a slug, a URL or a sentence still throws. */
+const BOARD_REF = /^(THE-\d+|86[a-z0-9]{7})$/;
+
 /**
  * Throws, by name, on any coming-soon entry that could be read as purchasable.
  *
@@ -353,7 +423,7 @@ const TIER_WORDS = /\b(Individual|Small Team|Ministry|Forever Free)\b/;
  * narrower in practice than it was, which is the safe direction.
  * Banning the words outright would force both sentences to be vaguer, and
  * vaguer is the one direction this page must never move. They are still held to
- * every FORBIDDEN pattern.
+ * every PURCHASABILITY_PATTERNS entry.
  */
 export function comingSoonContract(items: readonly SoonItem[]): void {
   for (const item of items) {
@@ -363,7 +433,7 @@ export function comingSoonContract(items: readonly SoonItem[]): void {
     const everything = [...aboutTheUnbuiltThing, item.today, item.notThis ?? '', item.navDesc];
 
     for (const text of everything) {
-      for (const [label, pattern] of FORBIDDEN) {
+      for (const [label, pattern] of PURCHASABILITY_PATTERNS) {
         if (pattern.test(text)) {
           throw new Error(`Coming-soon item "${item.id}" carries ${label}: "${text}"`);
         }
@@ -374,7 +444,7 @@ export function comingSoonContract(items: readonly SoonItem[]): void {
         throw new Error(`Coming-soon item "${item.id}" names a plan tier against unbuilt work: "${text}"`);
       }
     }
-    if (!/^THE-\d+$/.test(item.ref)) {
+    if (!BOARD_REF.test(item.ref)) {
       throw new Error(`Coming-soon item "${item.id}" has no board reference; every entry must trace to an open card.`);
     }
   }
