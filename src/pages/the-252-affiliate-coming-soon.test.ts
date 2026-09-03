@@ -644,7 +644,17 @@ describe('8 — it is legible and distinguishable in all four palettes', () => {
        retired-board-link needle in that file. */
     const MEDIA_QUERY = ['prefers', 'color', 'scheme'].join('-');
     const THEME_ATTR = ['data', 'theme'].join('-');
-    expect(css.match(/:root\s*\{/g), 'a second palette exists').toHaveLength(1);
+    /* ⚠️ TWO :root BLOCKS SINCE THE-278, AND STILL ONE PALETTE — see the same
+       assertion in pages/ComingSoonPage.test.ts. The second block is the shadcn
+       token bridge: aliases of the ramps above it, no colour of its own. What
+       is checked is that invariant rather than the brace count that stood in
+       for it. */
+    const roots = [...css.matchAll(/:root\s*\{([^}]*)\}/g)].map((m) => m[1]);
+    expect(roots.length, 'more than two :root blocks').toBeLessThanOrEqual(2);
+    for (const body of roots.slice(1)) {
+      const literals = body.match(/:\s*(#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|oklch\()/g) ?? [];
+      expect(literals, 'a :root after the first paints a colour — that is a second palette').toEqual([]);
+    }
     expect(css).not.toContain(MEDIA_QUERY);
     expect(css).not.toContain(THEME_ATTR);
   });

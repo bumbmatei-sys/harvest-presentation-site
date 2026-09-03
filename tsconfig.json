@@ -11,6 +11,13 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    /* The `@/` alias the shadcn CLI writes its imports against. TypeScript
+       resolves it here; Vite does not read tsconfig paths, so the two generated
+       components import `cn` by relative path instead — see src/components/ui.
+       Adding a Vite alias would have meant editing vite.config.ts, which this
+       ticket may not touch. */
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
