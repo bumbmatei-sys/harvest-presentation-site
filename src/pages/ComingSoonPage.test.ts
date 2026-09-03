@@ -329,7 +329,21 @@ describe('it is legible and distinguishable in all four palettes', () => {
   ];
 
   it('this repository really does have one palette and no dark mode — the premise, checked', () => {
-    expect(css.match(/:root\s*\{/g), 'more than one :root — a second palette exists').toHaveLength(1);
+    /* ⚠️ TWO :root BLOCKS SINCE THE-278, AND STILL ONE PALETTE. The second is
+       the shadcn token bridge, which spells shadcn's vocabulary as aliases of
+       the ramps declared above it and introduces no colour of its own.
+
+       Counting braces was a proxy for the thing that actually matters, so the
+       thing itself is asserted instead: every declaration in any :root after
+       the first must be a var() alias or a length — never a literal colour. A
+       Classic palette or a dark mode could not be written that way, which makes
+       this stricter than the count it replaces, not looser. */
+    const roots = [...css.matchAll(/:root\s*\{([^}]*)\}/g)].map((m) => m[1]);
+    expect(roots.length, 'more than two :root blocks').toBeLessThanOrEqual(2);
+    for (const body of roots.slice(1)) {
+      const literals = body.match(/:\s*(#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|oklch\()/g) ?? [];
+      expect(literals, 'a :root after the first paints a colour — that is a second palette').toEqual([]);
+    }
     expect(css).not.toMatch(/prefers-color-scheme/);
     expect(css).not.toMatch(/data-theme/);
     const srcFiles = (dir: string): string[] => fs.readdirSync(dir, { withFileTypes: true })

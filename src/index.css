@@ -1,4 +1,67 @@
 /* ============================================================
+   THE-278 — Tailwind v4 + shadcn (base-nova) ride ALONGSIDE the stylesheet
+   below. They do not replace it and they restyle nothing.
+
+   🔴 PREFLIGHT IS DELIBERATELY NOT IMPORTED. Tailwind's base reset strips the
+   margins off every heading and paragraph, unstyles lists, and flattens
+   headings to `font-size: inherit`. This site has no reset of its own beyond
+   `box-sizing` and `body { margin: 0 }`; 42 components lean on browser
+   defaults for the rest, so importing preflight would visibly move every page.
+   Importing theme + utilities alone is the supported v4 way to leave it out.
+
+   ⚠️ AND THE LAYERS ARE WHAT KEEP THE TWO SYSTEMS APART. Both imports are
+   pulled into cascade layers; every rule in the original stylesheet below is
+   UNLAYERED, and unlayered rules beat layered ones at equal specificity
+   regardless of source order. That is what stops a Tailwind utility from
+   winning an argument with a hand-written rule — and, more importantly, what
+   stops Tailwind's own theme defaults from redefining --font-sans,
+   --font-serif, --radius-*, --shadow-*, --ease-* and --leading-*, all of which
+   this file already declares and 70+ call sites already read.
+   ============================================================ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* The bridge. shadcn's component vocabulary, mapped onto ramps that already
+   exist — no new colour is invented here.
+
+   🔴 BOTH HALVES ARE REQUIRED. THE-263 proved in the app repo that a custom
+   property alone mints NO utility: with --muted, --foreground and --border
+   declared in :root, every one of bg-muted, text-foreground and border-input
+   still produced no rule. The declarations live at the foot of this file; these
+   entries are what turn them into utilities. Delete this block and the tokens
+   still resolve, still look right in devtools, and paint nothing.
+
+   `inline` matters too: it makes a utility emit `var(--primary)` directly
+   rather than an indirection, which is what lets v4's color-mix() opacity
+   modifiers — hover:bg-primary/80 — resolve against the Harvest ramp. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* ── THE-278 ends here; everything below is the original stylesheet ── */
+/* ============================================================
    HARVEST DESIGN SYSTEM — global tokens + component styles.
    Ported from the Claude Design handoff (ui_kits/website).
    Fonts (Fraunces + Inter) are loaded from Google Fonts in index.html.
@@ -396,4 +459,106 @@ a:hover { color: var(--brand-active); }
 }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}
+/* ── THE-278: shadcn plain tokens, appended below the original ── */
+/*
+ * Appended rather than prepended, and that position is load-bearing: two of
+ * these names — --accent and --secondary — are ALREADY declared in the block
+ * above (as --sky-500 and --green-500). Declared before it, the originals would
+ * win and base-nova's secondary button would mix a green nobody chose. Declared
+ * here, these win.
+ *
+ * ⚠️ Nothing above is edited, and nothing reads the two originals: `var(--accent)`
+ * and `var(--secondary)` appear ZERO times across every .ts, .tsx, .css and .md
+ * file in the repo. They are unused aliases, so shadowing them cannot move a
+ * pixel — which the built-page fingerprints in the-278-no-regression.test.ts
+ * check rather than assume.
+ *
+ * WHY EACH ONE, with every ratio measured (WCAG 2.1, AA normal text = 4.5:1;
+ * the app's house floor is 5.66):
+ *
+ *   --background   --surface-page   the page ground the site actually paints.
+ *   --foreground   --text-heading   14.25:1 on the above. NOT --text-body: the
+ *                                   app maps foreground to its body ink, but
+ *                                   Harvest's --text-body is warm-brown #8B7355
+ *                                   and measures 4.23 on cream, 4.49 on white
+ *                                   and 3.89 on stone — under AA on all three.
+ *                                   The app's mapping cannot be copied here.
+ *   --card         --surface-card   white; --card-foreground 15.11:1.
+ *   --popover      --surface-card   a popover is a raised card on this site.
+ *   --primary      --gold-500       #C9963A, the same brand gold as the app.
+ *   --primary-fg   --earth          5.69:1. WHITE ON GOLD IS 2.66 AND FAILS —
+ *                                   the app measured 2.51 against its own
+ *                                   ground and rejected it for the same reason.
+ *                                   index.css's --text-on-gold IS white; this
+ *                                   ticket neither touches nor adopts it.
+ *   --secondary    --surface-sunken shadcn's secondary is a quiet button
+ *                                   surface, not a brand colour; --secondary in
+ *                                   Harvest's vocabulary is field green, which
+ *                                   is a different job. 13.09:1 with --earth.
+ *   --muted        --surface-sunken same sunken stone, matching the app.
+ *   --muted-fg     --text-soon      4.66 on muted, 5.07 on background, 5.38 on
+ *                                   card. Clears AA everywhere; UNDER the 5.66
+ *                                   house floor on two of the three grounds.
+ *                                   NOT --text-muted (#A99B84), which this very
+ *                                   file documents at 2.72/2.57/2.36 and calls
+ *                                   a tint rather than text. --text-soon is the
+ *                                   only neutral Harvest owns between that tint
+ *                                   and --earth, so 4.66 is the honest ceiling
+ *                                   without minting a colour.
+ *   --accent       --surface-gold   shadcn's accent is the HOVERED MENU
+ *                                   SURFACE, not the brand accent (Harvest's
+ *                                   --accent is sky). gold-100 is the site's own
+ *                                   warm hover tint; --accent-foreground reads
+ *                                   12.86:1 on it.
+ *   --destructive  --danger         🔴 THE ONE PAIR THAT DOES NOT CLEAR AA:
+ *                                   #C4553B is 4.46 on card and 4.21 on
+ *                                   background. It is the only red the site
+ *                                   owns. The app answered this with a darker
+ *                                   --ink-danger-strong; Harvest's site has no
+ *                                   equivalent and minting one is a colour
+ *                                   decision, not plumbing. Pinned and named in
+ *                                   the test so it stays visible.
+ *   --border       --border-light   the hairline the site already draws.
+ *   --input        --border-strong  a control reads as an edge, not as a card
+ *                                   border — the same call the app made.
+ *   --ring         --gold-600       NOT --gold-500 (2.51 on cream) and NOT
+ *                                   --gold-glow (1.77): a focus ring is a
+ *                                   non-text indicator and WCAG 1.4.11 wants
+ *                                   3:1. --gold-600 is 3.09 on cream and 3.27
+ *                                   on white — the nearest gold on the ramp
+ *                                   that clears it, and still brand gold.
+ *   --radius       14px             MEASURED, not inherited: 14px is the most
+ *                                   common radius on the site's real cards (9
+ *                                   uses) ahead of 12px (3). The app chose 12;
+ *                                   the site does not match it. base-nova's
+ *                                   Card renders rounded-xl, which resolves to
+ *                                   this file's own --radius-xl (16px).
+ */
+:root {
+  --background: var(--surface-page);
+  --foreground: var(--text-heading);
+
+  --card: var(--surface-card);
+  --card-foreground: var(--text-heading);
+  --popover: var(--surface-card);
+  --popover-foreground: var(--text-heading);
+
+  --primary: var(--gold-500);
+  --primary-foreground: var(--earth);
+  --secondary: var(--surface-sunken);
+  --secondary-foreground: var(--text-heading);
+
+  --muted: var(--surface-sunken);
+  --muted-foreground: var(--text-soon);
+  --accent: var(--surface-gold);
+  --accent-foreground: var(--text-heading);
+
+  --destructive: var(--danger);
+
+  --border: var(--border-light);
+  --input: var(--border-strong);
+  --ring: var(--gold-600);
+
+  --radius: 14px;
 }
