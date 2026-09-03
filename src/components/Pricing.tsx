@@ -5,7 +5,7 @@ import { HBtn } from './magic';
 import { I } from './icons';
 import { Kicker, H2, container, softCard } from './shared';
 import { MERCHANT_OF_RECORD_NOTE } from '../content/legal';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 export interface Plan {
   name: string;
@@ -526,7 +526,21 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Contacts', ['500', '150', '500', '2,000']],
     ['Admin accounts', ['1', '2', '5', '15']],
     ['Custom Branding', [false, false, false, T]],
-    ['Custom Domain', [false, false, false, T]],
+    /* 🔴 THE-280 — the Custom Domain ROW is withheld while the app refuses the
+       feature. A `T` in the top column is the plainest possible claim that a
+       church which pays for that tier gets a custom domain, and it cannot work:
+       the provisioning route answers 503 and always pointed at hosting the
+       platform does not pay for. Withheld rather than turned to `false`, because
+       `false` on every tier would read as "we have decided not to offer this"
+       rather than "not yet" — and the Coming Soon entry is where "not yet"
+       belongs.
+       ⚠️ Custom BRANDING keeps its row above, unchanged: separate plan cell in
+       the app, and it ships. NO PRICE, no tier column and no plan is touched
+       here — this is one row of the comparison table, and the row-width check
+       below still sees four cells in every row it renders. */
+    ...(CUSTOM_DOMAIN_MARKETING_ENABLED
+      ? [['Custom Domain', [false, false, false, T]] as [string, Cell[]]]
+      : []),
   ] },
   { grp: 'Community', rows: [
     /* 🔴 TWO ROWS, ONE PRODUCT, ONE ANSWER (THE-205). Both name the church

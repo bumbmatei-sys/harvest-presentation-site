@@ -80,3 +80,49 @@ export const MULTI_CAMPUS_ENABLED = false;
  *  RENDERED OUTPUT that the sold-here / promised-there pair is never both, in
  *  either flag state. */
 export const SMS_MARKETING_ENABLED = false;
+
+/** THE-280 — the CUSTOM DOMAIN marketing, across the whole site.
+ *
+ *  Mirrors the app's `CUSTOM_DOMAIN_ENABLED` (Harvest-agent
+ *  src/lib/custom-domain-feature.ts), which is `false` because the feature has
+ *  NEVER BEEN TESTED: the Vercel subscription that would activate it was never
+ *  bought, so `/api/domains/provision` answers 501 and the fallback writes a
+ *  domain no Vercel project serves — the DNS a church is told to add points
+ *  nowhere and the address never resolves. The two repos cannot share code, so
+ *  they share a name and a value instead, and
+ *  `the-280-custom-domain-coming-soon.test.ts` asserts they agree.
+ *
+ *  🔴 IT RELOCATES RATHER THAN MERELY HIDES — the shape SMS_MARKETING_ENABLED
+ *  and AFFILIATE_PROGRAM_ENABLED already have, and for the same reason. A custom
+ *  domain is currently SOLD: a whole feature entry named "Branding & Domain"
+ *  puts it in a title, a one-liner and four capability bullets, and the
+ *  platform-brand intro, SEO line and PWA bullet each name it again. Hiding that
+ *  silently would leave the site advertising a capability the app now refuses.
+ *  Both halves are this flag:
+ *
+ *    OFF · the `branding` feature keeps its BRANDING claims — name, logo, icon,
+ *          colour, and the receipts and certificates they reach — and loses only
+ *          the DOMAIN half of each: the entry is "Branding", not "Branding &
+ *          Domain", and the four domain sentences are gone;
+ *        · the platform-brand intro and SEO copy stop naming a custom domain;
+ *        · the PWA bullet stops saying Ministry adds one;
+ *        · a "Custom domains" entry APPEARS in Coming Soon (THE-247), where the
+ *          shape itself forbids a price, a tier and a call to action.
+ *    ON  · all of the above reverses, INCLUDING removing the Coming Soon entry.
+ *          🔴 A domain sold on the feature page while this page calls it unbuilt
+ *          would be the same claim made twice, in two tenses.
+ *          `COMING_SOON_ITEMS` filters on this flag for exactly that reason, so
+ *          the flip back stays ONE value.
+ *
+ *  🔴 THE ENTRY IS NOT HIDDEN WHOLE, and that is the distinction that matters.
+ *  `customBranding` and `customDomain` are SEPARATE plan cells in the app and
+ *  only the second is switched off: a church on the top tier still brands its
+ *  app, and its logo still reaches its receipts. Hiding the whole `branding`
+ *  feature would have withdrawn a live, working capability to hide a dead one —
+ *  which is why this flag rewords rather than joining HIDDEN_FEATURE_IDS.
+ *
+ *  ⚠️ THE SUBDOMAIN IS NOT PART OF THIS. Every church is served on
+ *  `<name>.theharvest.app`, that ships, and the copy still says so — in the same
+ *  bullets the domain half left. Conflating the two is the one error that would
+ *  turn this correction into a new false claim. */
+export const CUSTOM_DOMAIN_MARKETING_ENABLED = false;

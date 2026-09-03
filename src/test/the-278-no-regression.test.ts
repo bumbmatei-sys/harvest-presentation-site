@@ -87,7 +87,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    * Retaken on Linux, from the same `npm run build`, at the commit that added
    * the section.
    */
-  const BASELINE: Readonly<Record<string, string>> = {
+  const PRE_TAILWIND: Readonly<Record<string, string>> = {
     'blog/category/harvest-vs/index.html': '39f910d46af70402edd9a5ab8be5338cd577ecaf6e3287b44a1013795689b13d',
     'blog/category/inside-harvest/index.html': '8481746c2169c2dbc063f6137f40d99c4df243a441d8902ad1f73b1d6c9d133f',
     'blog/category/rooted/index.html': '5fbc9f2bc14cd54173b67b0bebe7e759ae329f6106e426d18d7acb80f6061231',
@@ -111,8 +111,82 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'terms/index.html': '11959c4b9eee58ccdc856ee585169d6687427d0da7399d60b282f4a318e968b5',
   };
 
+  /**
+   * 🔴 THE-280 — the SIX pages that moved since, and the only six.
+   *
+   * THE-278's claim is "Tailwind changed nothing", and it still holds: every
+   * page above is the pre-Tailwind fingerprint, and fifteen of the twenty-one
+   * still match it exactly. What moved is what a LATER ticket deliberately
+   * changed — recorded here as an explicit delta rather than by overwriting the
+   * baseline, so a reader can see at a glance which pages a copy change touched
+   * and satisfy themselves that no other page came along for the ride.
+   *
+   * THE-280 hid custom domains: the feature shipped a panel and was never
+   * activated, because the Vercel subscription behind it was never bought, so a
+   * church that saved a domain got DNS records pointing nowhere. The app now
+   * refuses the write path, and the site had to stop selling what the app
+   * refuses. These six pages are exactly the marketing surfaces
+   * `CUSTOM_DOMAIN_MARKETING_ENABLED` gates, one for one:
+   *
+   *   · index            — the "Branding & Domain" caption in the #replaces row
+   *   · pricing          — the Custom Domain comparison-table row, withheld
+   *   · features/platform-brand — the `branding` entry, reworded not withdrawn
+   *   · features/coming-soon    — the new "Custom domains" entry
+   *   · faq, terms       — the two answers that named it as a live capability
+   *
+   * ⚠️ THE PAGE COUNT DID NOT MOVE — still 21, asserted in section 9 and pinned
+   * again by LegalPage.test.ts. No page was added or dropped; six changed
+   * content.
+   *
+   * ⚠️ FLIPPING THE FLAG BACK MOVES THESE SIX AGAIN, and this file will need
+   * repinning when it happens. That is the standing property of a build
+   * fingerprint, not something THE-280 introduced: any copy change moves it.
+   */
+  const THE_280_MOVED: Readonly<Record<string, string>> = {
+    'faq/index.html': '33f593ece1d572f8981dfc0ca141f70c0a4930bf553a8351bcd1da1dc7e3337e',
+    'features/coming-soon/index.html': 'ec7702252d9d99660393a1be499f007f6e23706c20813d8c14431966fa4b1c1f',
+    'features/platform-brand/index.html': '29156da7546b00db679f260ad28f1c0bac745c72731eefdab9140cc9326c00ce',
+    'index.html': '263e63b5ac5f6e4d73964768c2dbab487b336bc8b41d5c99ce0c8edbde0cee4a',
+    'pricing/index.html': '4057fa7b8d185e0e864ca70c7dc35e6dd2d6d38b20841c4050ba2385b1fa8b02',
+    'terms/index.html': 'f76fa0f81d8fa7a1d5cdbadfb24416ad7cfea843196bc69b9d0cc3a353ac44ac',
+  };
+
+  const BASELINE: Readonly<Record<string, string>> = { ...PRE_TAILWIND, ...THE_280_MOVED };
+
   /** The same 21 as one number, so an ADDED or DROPPED page is caught too. */
-  const BASELINE_ALL = '383d4301e413e474722c17158afe04ac68f7804575fca9b72d4d20c9b3e5a632';
+  const BASELINE_ALL = 'b352d6813b468b885230d8ea3a451d0b74282d1f3409458bdb32fb8a8ed7d1cb';
+
+  it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
+    /* The delta, asserted as a delta. Without this, a future ticket could add a
+       seventh override and the suite would still pass — the whole point of
+       recording the move separately is that the SIZE of it is checked too.
+
+       ⚠️ "The other fifteen" are measured against THE TABLE ABOVE, not against
+       the literal pre-Tailwind build, and the distinction now matters: THE-281
+       legitimately retook `features/giving-finance/index.html` in that table when
+       it added the Shareable Giving Page section. That page is not THE-280's and
+       is expected to sit at THE-281's value — which is exactly what this checks,
+       since it is in `untouched` and must equal the table. */
+    expect(Object.keys(THE_280_MOVED).sort()).toEqual([
+      'faq/index.html', 'features/coming-soon/index.html',
+      'features/platform-brand/index.html', 'index.html',
+      'pricing/index.html', 'terms/index.html',
+    ]);
+    for (const page of Object.keys(THE_280_MOVED)) {
+      expect(PRE_TAILWIND[page], `${page} is not a page THE-278 fingerprinted`).toBeDefined();
+      expect(THE_280_MOVED[page], `${page} is listed as moved but did not move`)
+        .not.toBe(PRE_TAILWIND[page]);
+    }
+    const untouched = Object.keys(PRE_TAILWIND).filter((p) => !(p in THE_280_MOVED));
+    expect(untouched).toHaveLength(15);
+    for (const page of untouched) {
+      expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
+        .toBe(PRE_TAILWIND[page]);
+    }
+    // 🔴 And THE-281's page is one of the fifteen — this change did not disturb it.
+    expect(untouched, 'THE-280 moved the Giving & Finance page, which is not its to move')
+      .toContain('features/giving-finance/index.html');
+  });
 
   const pagesInDist = (): string[] => {
     const out: string[] = [];

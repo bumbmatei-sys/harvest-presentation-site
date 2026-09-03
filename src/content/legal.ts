@@ -1,5 +1,5 @@
 import { SITE_ORIGIN } from './post-core';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* The three legal policies, as data.
  *
@@ -275,7 +275,17 @@ const TERMS: LegalDoc = {
       heading: '1. What Harvest is',
       blocks: [
         p('Harvest is software for churches and ministries, delivered over the web and as an installable mobile web app. One subscription gives your ministry its own workspace, and that workspace includes a contact and donor CRM, courses and the full Bible, events and registrations, QR check-in, and an editor for your blog, documents and sermon notes.'),
-        p('Your ministry\'s public presence is the Harvest app itself rather than a separate site you assemble in it. Every workspace gets its own address on theharvest.app, and the Ministry plan adds your own domain, your logo and your brand colour.'),
+        /* 🔴 THE-280 — THESE ARE TERMS, and the rule the SMS bullet below sets
+           applies with more force here: a clause describing a capability a
+           church cannot use is a contractual statement about a service that is
+           not being provided, and this document has already had to be corrected
+           once for describing a website builder that did not exist. The domain
+           clause is WITHHELD rather than reworded — there is nothing true to say
+           about a domain that cannot be pointed. Branding is a separate
+           capability that does ship, so it keeps its clause. */
+        p(CUSTOM_DOMAIN_MARKETING_ENABLED
+          ? 'Your ministry\'s public presence is the Harvest app itself rather than a separate site you assemble in it. Every workspace gets its own address on theharvest.app, and the Ministry plan adds your own domain, your logo and your brand colour.'
+          : 'Your ministry\'s public presence is the Harvest app itself rather than a separate site you assemble in it. Every workspace gets its own address on theharvest.app, and the Ministry plan adds your logo and your brand colour.'),
         p('These terms cover your use of that software and of this website. By creating a workspace, or by using one someone has invited you into, you agree to them.'),
         p('Harvest is a young product built by a small team, and we would rather say what is true than what sounds impressive. Where these terms do not promise something, it is because we are not yet in a position to promise it.'),
       ],

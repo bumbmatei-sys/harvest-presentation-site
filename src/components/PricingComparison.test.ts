@@ -13,7 +13,7 @@ import { Replaces } from './Replaces';
 import { CATEGORIES } from '../content/features';
 import { FAQS } from '../content/faq';
 import { LEGAL_DOCS } from '../content/legal';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* THE-163 — two claims in the plan comparison grid, and everything the change
  * had to leave alone.
@@ -418,7 +418,13 @@ describe('the Forever Free column claims exactly what the tier has', () => {
       ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []),
       'Livestream + Live Giving', 'Check-In System (QR)',
       'Community Groups', 'Event Registration', 'Church Map', 'Custom Branding',
-      'Custom Domain', 'Custom Forms \u2192 CRM', 'Accounting + QuickBooks Sync',
+      // THE-280 \u2014 the Custom Domain row moved behind
+      // CUSTOM_DOMAIN_MARKETING_ENABLED, so with the flag off there is no row
+      // to read. Guarded rather than deleted, exactly as THE-250 guarded the
+      // SMS row above: free never claimed a custom domain, and when the flag
+      // comes back the row it must not claim comes back with it.
+      ...(CUSTOM_DOMAIN_MARKETING_ENABLED ? ['Custom Domain'] : []),
+      'Custom Forms \u2192 CRM', 'Accounting + QuickBooks Sync',
       'Tax Receipts & Giving Statements', 'Sermon Notes \u2192 Livestream',
     ]) {
       expect(claim(row, FREE_COL), `free claims ${row}, which it does not have`).toBe('excluded');

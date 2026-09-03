@@ -13,7 +13,7 @@ import {
   faqPlainText,
   faqPlanMismatches,
 } from './faq';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* What the FAQ says.
  *
@@ -319,14 +319,34 @@ describe('product facts stated in the FAQ', () => {
     expect(text).toMatch(/no bulk tool/i);
   });
 
-  it('puts a custom domain on the top tier only', () => {
-    // Pricing.tsx's comparison rows read [false, false, true] for Custom Domain.
-    // Naming the plan from `plans` rather than as a literal means renaming the
-    // tier cannot leave the FAQ promising a domain to a plan without one.
+  it('answers the custom-domain question by its real state', () => {
+    /* THE-280 — asserted THROUGH the flag, exactly as the SMS half of the
+       messaging answer below is, and for the same reason: both readings are
+       product facts and exactly one is true at a time. While the app refuses
+       provisioning with 503, "On the Ministry plan, yes" is a false claim, so
+       the answer says no and names the address a church does get.
+       The `no page builder` line is unconditional — it did not change. */
     const topTier = plans[plans.length - 1].name;
     const text = answerText(FAQS.find((f) => f.id === 'custom-domain')!);
-    expect(text).toContain(`On the ${topTier} plan, yes`);
     expect(text).toMatch(/no page builder/i);
+
+    if (CUSTOM_DOMAIN_MARKETING_ENABLED) {
+      // Naming the plan from `plans` rather than as a literal means renaming the
+      // tier cannot leave the FAQ promising a domain to a plan without one.
+      expect(text).toContain(`On the ${topTier} plan, yes`);
+    } else {
+      expect(text, 'the FAQ still promises a custom domain')
+        .not.toContain(`On the ${topTier} plan, yes`);
+      expect(text, 'the answer does not say it cannot be done yet').toMatch(/not yet/i);
+      expect(text).toMatch(/cannot point a domain you own at Harvest today/i);
+      // 🔴 And it still answers the buyer's real question — what DO I get? —
+      // rather than only refusing. The subdomain ships and is named.
+      expect(text).toMatch(/your-church\.theharvest\.app/);
+      // Branding is a separate capability that DOES ship on the top tier, and
+      // the answer must not drop it along with the domain.
+      expect(text).toContain(`it does ship on the ${topTier} plan`);
+      expect(text).toMatch(/coming soon/i);
+    }
   });
 
   it('describes bulk email as the customer’s own account, and SMS by its real state', () => {

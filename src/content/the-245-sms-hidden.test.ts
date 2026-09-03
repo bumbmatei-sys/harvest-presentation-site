@@ -242,11 +242,12 @@ describe('4 — the tool count moved, and is still derived', () => {
   it('moved because a LIVE tool was withdrawn, not because an unbuilt one counted', () => {
     const soonGroup = CATALOG.filter((g) => g.href);
     expect(soonGroup).toHaveLength(1);
-    // 9 → 10 at THE-252, which added an "Affiliate referrals" entry. The
-    // literal is a tripwire on the GROUP, not on the count: what this test is
-    // really holding is the line below — every entry in it is `soon`, so a
-    // tenth one moves this number and leaves CATALOG_TOOL_COUNT at 27.
-    expect(soonGroup[0].items).toHaveLength(10);
+    // 9 → 10 at THE-252, which added an "Affiliate referrals" entry, then
+    // 10 → 11 at THE-280, which added "Custom domains". The literal is a
+    // tripwire on the GROUP, not on the count: what this test is really holding
+    // is the line below — every entry in it is `soon`, so an eleventh one moves
+    // this number and leaves CATALOG_TOOL_COUNT at 27.
+    expect(soonGroup[0].items).toHaveLength(11);
     expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon entry is being counted')
       .toHaveLength(0);
   });

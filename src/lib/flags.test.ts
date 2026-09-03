@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED } from './flags';
+import {
+  AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
+} from './flags';
 import { CATALOG, type CatalogGroup } from '../components/catalog';
 import { CATEGORIES, type Category } from '../content/features';
 
@@ -17,6 +19,7 @@ type Flags = {
   AFFILIATE_PROGRAM_ENABLED: boolean;
   MULTI_CAMPUS_ENABLED: boolean;
   SMS_MARKETING_ENABLED: boolean;
+  CUSTOM_DOMAIN_MARKETING_ENABLED: boolean;
 };
 
 /** Re-import the flag-dependent modules with the flags forced to `flags`.
@@ -42,11 +45,22 @@ async function surfacesWith(flags: Flags) {
     soonOrdinals: COMING_SOON_ITEMS.map((i) => i.n),
     categoryProse: cats.flatMap((c) => [c.intro, c.seo]),
     adminBullets: cats.flatMap((c) => c.features.flatMap((f) => f.admin ?? [])),
+    // THE-280 additions — the reword happens in a feature's NAME and in its
+    // member bullets as well as its admin ones, so both are needed to see it.
+    featureNames: cats.flatMap((c) => c.features.map((f) => f.name)),
+    memberBullets: cats.flatMap((c) => c.features.flatMap((f) => f.member ?? [])),
+    soonRefs: COMING_SOON_ITEMS.map((i) => i.ref),
   };
 }
 
-const OFF: Flags = { AFFILIATE_PROGRAM_ENABLED: false, MULTI_CAMPUS_ENABLED: false, SMS_MARKETING_ENABLED: false };
-const ON: Flags = { AFFILIATE_PROGRAM_ENABLED: true, MULTI_CAMPUS_ENABLED: true, SMS_MARKETING_ENABLED: true };
+const OFF: Flags = {
+  AFFILIATE_PROGRAM_ENABLED: false, MULTI_CAMPUS_ENABLED: false, SMS_MARKETING_ENABLED: false,
+  CUSTOM_DOMAIN_MARKETING_ENABLED: false,
+};
+const ON: Flags = {
+  AFFILIATE_PROGRAM_ENABLED: true, MULTI_CAMPUS_ENABLED: true, SMS_MARKETING_ENABLED: true,
+  CUSTOM_DOMAIN_MARKETING_ENABLED: true,
+};
 
 afterEach(() => { vi.doUnmock('./flags'); vi.resetModules(); });
 
@@ -146,6 +160,29 @@ describe('the values this site actually ships', () => {
       .not.toContain('Multi-Campus');
     expect((CATEGORIES as Category[]).flatMap((c) => c.features.map((f) => f.id)))
       .not.toContain('churches');
+  });
+
+  it('🔴 claims no custom domain anywhere a visitor can read — THE-280', () => {
+    // The tripwire for the flag that REWORDS. Turning this on republishes a
+    // capability the app refuses with 503, so make the decision in this file
+    // too, in the same commit.
+    expect(CUSTOM_DOMAIN_MARKETING_ENABLED).toBe(false);
+    const cats = CATEGORIES as Category[];
+    const everySurface = [
+      ...cats.flatMap((c) => [c.intro, c.seo]),
+      ...cats.flatMap((c) => c.features.map((f) => f.name)),
+      ...cats.flatMap((c) => c.features.flatMap((f) => [f.title, f.oneliner])),
+      ...cats.flatMap((c) => c.features.flatMap((f) => [...(f.admin ?? []), ...(f.member ?? [])])),
+      ...(CATALOG as CatalogGroup[]).flatMap((g) => g.items.flatMap((i) => [i.title, i.desc])),
+    ];
+    for (const line of everySurface) {
+      expect(line ?? '', `a live surface claims a custom domain: "${line}"`)
+        .not.toMatch(/\b(custom domain|your own domain|your domain)\b/i);
+    }
+    // And the branding feature it was tangled with is still live and still sold.
+    expect(cats.flatMap((c) => c.features.map((f) => f.id))).toContain('branding');
+    expect((CATALOG as CatalogGroup[]).flatMap((g) => g.items.map((i) => i.title)))
+      .toContain('Custom Branding');
   });
 });
 
@@ -263,5 +300,131 @@ describe('SMS_MARKETING_ENABLED', () => {
     const s = await surfacesWith(ON);
     expect(s.categoryProse.some((l) => /\bSMS\b/.test(l))).toBe(true);
     expect(s.adminBullets.some((b) => /Tags that drive SMS broadcast targeting/.test(b))).toBe(true);
+  });
+});
+
+/* ─── THE-280 — CUSTOM_DOMAIN_MARKETING_ENABLED ───────────────────────────────
+ *
+ * 🔴 THE ONE THAT REWORDS RATHER THAN HIDES, and that is what these tests are
+ * for. AFFILIATE, MULTI_CAMPUS and SMS each withdraw a whole feature section.
+ * This one MUST NOT: `customBranding` and `customDomain` are separate plan cells
+ * in the app and only the second is off, so a church on the top tier still sets
+ * its name, logo, icon and colour and those still reach its receipts and
+ * certificates. Hiding the `branding` feature would have taken down a live,
+ * working capability in order to hide a dead one.
+ *
+ * So the assertions come in pairs: the DOMAIN half of every claim leaves, the
+ * BRANDING half stays, and the derived tool count does not move in either
+ * direction — which is the measurable difference from the SMS flag above.
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('CUSTOM_DOMAIN_MARKETING_ENABLED', () => {
+  /** Anything that reads as "you can point your own domain at Harvest". */
+  const DOMAIN_CLAIM = /\b(custom domain|your own domain|your domain)\b/i;
+
+  it('🔴 the branding feature is REWORDED, never hidden — it survives both settings', async () => {
+    for (const flags of [OFF, ON]) {
+      const s = await surfacesWith(flags);
+      expect(s.featureIds, 'the branding feature was hidden along with the domain')
+        .toContain('branding');
+    }
+    // Only its NAME moves.
+    expect((await surfacesWith(OFF)).featureNames).toContain('Branding');
+    expect((await surfacesWith(OFF)).featureNames).not.toContain('Branding & Domain');
+    expect((await surfacesWith(ON)).featureNames).toContain('Branding & Domain');
+  });
+
+  it('🔴 false takes every domain claim off the feature pages', async () => {
+    const s = await surfacesWith(OFF);
+    for (const line of [...s.categoryProse, ...s.adminBullets, ...s.memberBullets, ...s.featureNames]) {
+      expect(line, `a live feature surface still claims a custom domain: "${line}"`)
+        .not.toMatch(DOMAIN_CLAIM);
+    }
+  });
+
+  it('true puts every one of them back', async () => {
+    // Not vacuous: the claim really is there when the flag is on, in all four
+    // places the reword touches.
+    const s = await surfacesWith(ON);
+    expect(s.featureNames).toContain('Branding & Domain');
+    expect(s.categoryProse.some((l) => DOMAIN_CLAIM.test(l))).toBe(true);
+    expect(s.adminBullets.some((b) => /Custom domain on Ministry: guided DNS \+ live status/.test(b))).toBe(true);
+    expect(s.memberBullets.some((b) => /Your domain in the address bar/.test(b))).toBe(true);
+  });
+
+  it('🔴 the BRANDING claims are untouched in both settings', async () => {
+    // The half that ships. If these moved, the reword had overreached.
+    for (const flags of [OFF, ON]) {
+      const s = await surfacesWith(flags);
+      expect(s.adminBullets, `branding was withdrawn with flag=${flags.CUSTOM_DOMAIN_MARKETING_ENABLED}`)
+        .toContain('Ministry name, logo, square icon & one brand colour');
+      expect(s.adminBullets).toContain('Branding carries onto receipts, certificates & forms');
+      expect(s.memberBullets).toContain('Receipts & certificates on your letterhead');
+      expect(s.memberBullets).toContain('An app that looks like yours, not ours');
+    }
+  });
+
+  it('🔴 the SUBDOMAIN claim survives — it ships, and conflating the two is the risk', async () => {
+    for (const flags of [OFF, ON]) {
+      const s = await surfacesWith(flags);
+      expect(s.memberBullets.some((b) => /your-church\.theharvest\.app/.test(b)),
+        'the subdomain claim was withdrawn with the custom-domain claim').toBe(true);
+      expect(s.adminBullets.some((b) => /Your own subdomain/.test(b))).toBe(true);
+    }
+  });
+
+  it('🔴 false ADDS the Coming Soon entry, and true takes it away again', async () => {
+    // The relocation, both ways — the SMS shape exactly. This is the assertion
+    // that keeps the site from claiming custom domains twice, in two tenses.
+    expect((await surfacesWith(OFF)).soonIds).toContain('domains');
+    expect((await surfacesWith(ON)).soonIds).not.toContain('domains');
+  });
+
+  it('the entry traces to this ticket\'s board card', async () => {
+    const s = await surfacesWith(OFF);
+    expect(s.soonRefs[s.soonIds.indexOf('domains')]).toBe('THE-280');
+  });
+
+  it('the Coming Soon index is renumbered either way — never 1,2,…,10,12', async () => {
+    for (const flags of [OFF, ON]) {
+      const s = await surfacesWith(flags);
+      expect(s.soonOrdinals).toEqual(s.soonIds.map((_, i) => String(i + 1)));
+    }
+  });
+
+  it('🔴 does NOT move the derived tool count, in either direction', async () => {
+    // ⚠️ THE MEASURABLE DIFFERENCE FROM THE SMS FLAG. SMS withdrew a TOOL and
+    // took the count 28 → 27. This flag rewords a tool that stays live, so the
+    // count is identical with it either way — and "N tools in one platform"
+    // still describes what a church can use today.
+    const off = await surfacesWith(OFF);
+    const domainOnly = await surfacesWith({ ...OFF, CUSTOM_DOMAIN_MARKETING_ENABLED: true });
+    expect(off.toolCount).toBe(27);
+    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(27);
+    // The tool is present under both labels, which is why the count holds.
+    expect(off.titles).toContain('Custom Branding');
+    expect(domainOnly.titles).toContain('Custom Branding & Domain');
+  });
+
+  it('🔴 no crosslink or retired slug is broken by the reword', async () => {
+    // The entry keeps its `branding` id, so `#branding` still resolves — the
+    // reason the reword is safe where hiding would not have been.
+    for (const flags of [OFF, ON]) {
+      const s = await surfacesWith(flags);
+      expect(s.crosslinkHrefs, 'the Custom Branding crosslink broke')
+        .toContain('/features/platform-brand#branding');
+      expect(s.LEGACY_ANCHORS['custom-branding-domain'])
+        .toBe('/features/platform-brand#branding');
+    }
+  });
+
+  it('ordinals stay contiguous on the platform page either way', async () => {
+    // Nothing is removed from that page, so nothing renumbers — stated because
+    // a reword that had accidentally dropped the section would show up here.
+    for (const flags of [OFF, ON]) {
+      const s = await surfacesWith(flags);
+      for (const ordinals of s.ordinalsByCategory) {
+        expect(ordinals).toEqual(ordinals.map((_, i) => String(i + 1)));
+      }
+    }
   });
 });

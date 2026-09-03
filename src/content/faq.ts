@@ -1,7 +1,7 @@
 import { ADVERTISED_DISCOUNT_PCT, discountClaim } from '../components/Pricing';
 import { SITE_ORIGIN } from './post-core';
 import { TRIAL_LENGTH_DAYS } from './legal';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /* /faq — the buyer's FAQ, as data.
  *
@@ -241,14 +241,30 @@ export const FAQS: Faq[] = [
       'Data going the other way is a different story — everything in Harvest exports, and it always will. See below.',
     ],
   },
+  /* THE-280 — asked in both tenses, for the reason the SMS answer above is.
+     While custom domains are hidden the honest answer to "can we use our own
+     domain?" is NO, and an answer describing guided DNS and a live status check
+     would be exactly the kind of false claim the note at the top of this file is
+     about — the setting was never activated, so the DNS it handed out pointed
+     nowhere. The question keeps its id and its wording: a buyer asking it
+     deserves an answer either way, and "no, and here is the address you do get"
+     is an answer. Flip CUSTOM_DOMAIN_MARKETING_ENABLED to restore the original
+     three paragraphs verbatim. */
   {
     id: 'custom-domain',
     question: 'Can we use our own domain?',
-    answer: [
-      'On the Ministry plan, yes. Ministry adds your own domain, with guided DNS setup and a live status check, alongside your ministry name, your logo, a square app icon and one brand colour. Your colour is applied before first paint, so members never see a flash of Harvest gold before yours loads, and your branding carries onto the artifacts people keep — donation receipts, PDF certificates, public forms and check-in pages.',
-      'Every workspace on every plan gets its own address on theharvest.app, so you have a public home from the first day whether or not you point a domain at it.',
-      'One thing to be clear about: there is no page builder in Harvest. Your public presence is the Harvest app itself, wearing your name rather than ours.',
-    ],
+    answer: CUSTOM_DOMAIN_MARKETING_ENABLED
+      ? [
+          'On the Ministry plan, yes. Ministry adds your own domain, with guided DNS setup and a live status check, alongside your ministry name, your logo, a square app icon and one brand colour. Your colour is applied before first paint, so members never see a flash of Harvest gold before yours loads, and your branding carries onto the artifacts people keep — donation receipts, PDF certificates, public forms and check-in pages.',
+          'Every workspace on every plan gets its own address on theharvest.app, so you have a public home from the first day whether or not you point a domain at it.',
+          'One thing to be clear about: there is no page builder in Harvest. Your public presence is the Harvest app itself, wearing your name rather than ours.',
+        ]
+      : [
+          'Not yet. You cannot point a domain you own at Harvest today, and we would rather say so here than let you find out after you have paid.',
+          'What every workspace does get, on every plan, is its own address on theharvest.app — your-church.theharvest.app — so you have a public home from the first day. It is yours alone and it does not change.',
+          'Branding is a separate thing and it does ship on the Ministry plan: your ministry name, your logo, a square app icon and one brand colour. Your colour is applied before first paint, so members never see a flash of Harvest gold before yours loads, and your branding carries onto the artifacts people keep — donation receipts, PDF certificates, public forms and check-in pages.',
+          'One thing to be clear about: there is no page builder in Harvest. Your public presence is the Harvest app itself, wearing your name rather than ours. Pointing your own domain at it is on our Coming Soon page with everything else we are not shipping yet.',
+        ],
   },
   {
     id: 'phone-app',
