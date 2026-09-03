@@ -135,9 +135,15 @@ describe('Platform & Brand is complete', () => {
       expect(excluded, `#${id} is still named in EDITORIAL_EXCLUSIONS`).not.toContain(id);
     }
 
-    // 🔴 THE CONSTANT ITSELF STAYS. AI Chat still belongs in it, and the
-    // mechanism is the reason this omission was catchable rather than silent.
-    expect(excluded).toEqual(['aichat']);
+    /* 🔴 THE CONSTANT ITSELF STAYS. AI Chat still belongs in it, and the
+       mechanism is the reason this omission was catchable rather than silent.
+
+       ⚠️ THE-281 added `sharegiving` beside it, for a reason of the same KIND —
+       editorial, not flag-driven — and the assertion is still an exact equality
+       rather than a `toContain`, so a third id cannot be added silently. What
+       this test defends is that `branding` and `analytics` are NOT in here; it
+       has never been a claim that `aichat` is the only entry that may be. */
+    expect(excluded).toEqual(['aichat', 'sharegiving']);
 
     /* And the behavioural half: with the two out of that set, the coverage rule
        now REQUIRES them to render. Run here against the same exclusions, so this
