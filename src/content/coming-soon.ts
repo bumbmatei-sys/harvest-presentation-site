@@ -21,7 +21,9 @@
  * no card, it does not belong on this page. Statuses are the board's own —
  * none of these is In Progress, and the copy must not imply otherwise. */
 
-import { AFFILIATE_PROGRAM_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 export interface SoonItem {
   /** In-page anchor, e.g. /features/coming-soon#languages. */
@@ -137,10 +139,24 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     eyebrow: 'The public site',
     title: 'Harvest is your app. It is not your website.',
     oneliner: 'A church site you could build and edit inside Harvest, drawing on the events, sermons and giving pages already in your account.',
-    today: 'There is no website builder, no page builder and no template gallery. What exists is branding — your domain, logo and colour on the Ministry plan — and editors for your blog, documents and sermon notes. An earlier draft of our own Terms claimed a website builder and had to be corrected; this line is the correction holding.',
+    /* 🔴 THE-280 — TWO DOMAIN CLAIMS CORRECTED HERE, on the page whose whole job
+       is to be the tense that is true. `today` said "What exists is branding —
+       your domain, logo and colour" — a PRESENT-TENSE claim that pointing your
+       own domain at Harvest works, which is exactly what THE-280 establishes it
+       never did. The `considering` bullet below said "the domain a church
+       already points at Harvest", which presupposes the same thing. Both are
+       behind the flag rather than deleted, so the flip back restores this entry
+       whole along with everything else — the file-header contract in
+       lib/flags.ts. The subdomain half of the sentence is untouched and stays
+       true either way. */
+    today: CUSTOM_DOMAIN_MARKETING_ENABLED
+      ? 'There is no website builder, no page builder and no template gallery. What exists is branding — your domain, logo and colour on the Ministry plan — and editors for your blog, documents and sermon notes. An earlier draft of our own Terms claimed a website builder and had to be corrected; this line is the correction holding.'
+      : 'There is no website builder, no page builder and no template gallery. What exists is branding — your logo and colour on the Ministry plan — and editors for your blog, documents and sermon notes. An earlier draft of our own Terms claimed a website builder and had to be corrected; this line is the correction holding.',
     considering: [
       'Pages that read live from your Harvest data, so a service time is not typed in two places',
-      'Publishing to the domain a church already points at Harvest',
+      CUSTOM_DOMAIN_MARKETING_ENABLED
+        ? 'Publishing to the domain a church already points at Harvest'
+        : 'Publishing to whatever address a church reaches Harvest on',
       'This one is furthest out of everything on this page',
     ],
     navDesc: 'A public church site, built in Harvest. Not built yet.',
@@ -227,6 +243,21 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     notThis: 'This is not a cut of anything your church receives. Giving on Harvest carries no platform fee at all on any paid plan, and every gift lands in your church\'s own Stripe account — that ships today and is unchanged. What is described here would come out of what a referred church pays Harvest for its own plan, and would go to whoever referred them.',
     navDesc: 'A share of what your referrals pay. Not built yet.',
   },
+  {
+    id: 'domains', name: 'Custom domains', icon: 'link', ref: 'THE-280',
+    eyebrow: 'An address of your own',
+    title: 'Your app lives at a Harvest address, not one you own.',
+    oneliner: 'A domain you already own pointed at your Harvest app, so a member would read give.yourchurch.org in the address bar rather than an address with ours in it.',
+    today: 'Every church is served on its own Harvest subdomain — yourchurch.theharvest.app — and that address works, is yours alone, and carries your name, logo and colour on the Ministry plan. What does not work is pointing a domain you own at it. The setting was there and was never switched on behind the scenes, so a church that saved a domain was shown DNS records that pointed nowhere and verification never finished. Anything already saved is still saved; the panel that offered it is what came down.',
+    considering: [
+      'Root domains and subdomains of them alike — yourchurch.org and give.yourchurch.org need different DNS records, and a church should not have to know which',
+      'The exact records generated from what was entered rather than one fixed example, because the wrong record type silently never verifies',
+      'A verification state a church can read, so a domain part-way through pointing says so instead of looking finished',
+      'It rests on hosting the platform does not pay for yet, which is the whole reason the panel came down rather than being left to fail quietly',
+    ],
+    notThis: 'This is not your Harvest subdomain, which ships: every church already has yourchurch.theharvest.app and nothing about it changes. Nor is it branding — your name, logo, icon and colour reach your app, your receipts and your certificates on the Ministry plan, and that is untouched. What is missing is only the domain you own yourself.',
+    navDesc: 'Point a domain you own at Harvest. Not built yet.',
+  },
 ];
 
 /** The list as the page renders it, with the index ordinal derived from
@@ -249,6 +280,14 @@ export const COMING_SOON_ITEMS: SoonItem[] = ITEMS
      landing page, unbuilt here — which is exactly what the `sms` filter above
      exists to prevent. One flag, one tense, either way it is set. */
   .filter((item) => item.id !== 'affiliate' || !AFFILIATE_PROGRAM_ENABLED)
+  /* 🔴 THE-280 — the custom-domain entry is here on the SAME TERMS as the two
+     above. CUSTOM_DOMAIN_MARKETING_ENABLED rewords a live feature entry that
+     sells a custom domain in its name, its title, its one-liner and four of its
+     capability bullets, plus the platform-brand intro, the SEO line and the PWA
+     bullet. Turning that flag on while this entry still stood would put the same
+     capability on the site twice, in two tenses — sold there, unbuilt here. One
+     flag, one tense, either way it is set. */
+  .filter((item) => item.id !== 'domains' || !CUSTOM_DOMAIN_MARKETING_ENABLED)
   .map((item, i) => ({ ...item, n: String(i + 1) }));
 
 /** Ids, for the tests and for anchor resolution. */

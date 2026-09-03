@@ -33,7 +33,7 @@ import {
 
 const docs = LEGAL_DOCS.map((d) => [d.slug, d] as const);
 const terms = LEGAL_DOCS.find((d) => d.slug === 'terms')!;
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 const text = (doc: LegalDoc) => plainText(doc);
 
@@ -304,12 +304,27 @@ describe('product facts stated in the policies', () => {
   it('describes the branded app, which exists, rather than a builder, which does not', () => {
     const body = text(terms);
     expect(body).toMatch(/public presence is the harvest app itself/i);
-    // Branding and a custom domain are the top tier only — Pricing.tsx's
-    // comparison rows read [false, false, true]. Naming the plan from `plans`
-    // rather than as a literal means renaming the tier cannot leave the Terms
-    // promising branding to a plan that does not include it.
+    // Branding is the top tier only — Pricing.tsx's comparison rows read
+    // [false, false, false, true]. Naming the plan from `plans` rather than as a
+    // literal means renaming the tier cannot leave the Terms promising branding
+    // to a plan that does not include it.
     const topTier = plans[plans.length - 1].name;
-    expect(body).toContain(`the ${topTier} plan adds your own domain`);
+    // 🔴 THE-280 — asserted THROUGH the flag, because the clause is a
+    // contractual statement and exactly one version of it is true at a time.
+    // The BRANDING half is unconditional: it ships either way, and a correction
+    // that took it out with the domain would have understated the tier.
+    expect(body, 'the Terms stopped promising branding on the top tier')
+      .toContain(`the ${topTier} plan adds your`);
+    expect(body).toMatch(/your brand colour/i);
+    if (CUSTOM_DOMAIN_MARKETING_ENABLED) {
+      expect(body).toContain(`the ${topTier} plan adds your own domain`);
+    } else {
+      expect(body, 'the Terms still promise a domain that cannot be pointed')
+        .not.toMatch(/your own domain/i);
+      // And the address a church DOES get is still stated, so removing the
+      // clause did not leave the section vaguer than it was.
+      expect(body).toMatch(/its own address on theharvest\.app/i);
+    }
   });
 
   it('describes the services a church connects itself, and only those', () => {
@@ -701,8 +716,19 @@ describe('what the analytics disclosure must not have touched', () => {
     // diff was read: exactly one list item was REMOVED, no clause reworded, no
     // price touched, and the surrounding paragraphs are byte-identical. The
     // REFUND hash below is unchanged again, which is the same control holding.
+    //
+    // 🔴 AND AGAIN AT THE-280, for the same reason as THE-245. §1 said "the
+    // Ministry plan adds your own domain, your logo and your brand colour" —
+    // and a custom domain cannot be pointed at Harvest: the provisioning route
+    // answers 503 and always rested on hosting the platform does not pay for.
+    // In a contract that is a statement about a service not being provided. The
+    // diff was read: exactly ONE CLAUSE was removed from one sentence in §1
+    // ("your own domain, "), the logo and brand-colour claims are untouched
+    // because branding does ship, no other clause was reworded, no price was
+    // touched, and every other paragraph is byte-identical. The REFUND hash
+    // below is unchanged for the third time, which is the same control holding.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('42bbc084fc48a5f790d06d36b84fc70abfce17e9828005eb2f37d578532143fc');
+      .toBe('04a5b733fc639b9ca695374cd836ff9810c047205acbf0b9863e5937f6f44f61');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
   });
@@ -880,8 +906,11 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // `plainText` walks title, standfirst and sections only, so adding
     // `updated` cannot move these — which is the proof that it did not.
     const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
+    // 🔴 Terms hash moved at THE-280 — one clause out of §1, for the reason
+    // recorded in full on the THE-198 block above. Kept in step deliberately:
+    // the two sites pin the same document and must not disagree about it.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('42bbc084fc48a5f790d06d36b84fc70abfce17e9828005eb2f37d578532143fc');
+      .toBe('04a5b733fc639b9ca695374cd836ff9810c047205acbf0b9863e5937f6f44f61');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
     // And neither was restated as revised.

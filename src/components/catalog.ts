@@ -3,7 +3,10 @@
    Each item links to its section on the category page it belongs to; that mapping
    lives in content/features.ts, keyed by `slugify(title)`. */
 
-import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
+  SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 import { COMING_SOON_HREF, COMING_SOON_ITEMS, COMING_SOON_KICKER, COMING_SOON_NAME, soonItemHref } from '../content/coming-soon';
 
 export const slugify = (s: string) =>
@@ -120,7 +123,18 @@ export const CATALOG: CatalogGroup[] = [
       item('monitor', 'Web App', 'A fast, branded web app your whole ministry can use anywhere.'),
       item('smartphone', 'Mobile App (PWA)', 'Installable on iOS & Android — no app store required.'),
       item('layout-dashboard', 'Admin Dashboard', 'Full control over members, content, branding and analytics.'),
-      item('palette', 'Custom Branding & Domain', 'White-label everything — your brand, your domain, your platform.'),
+      /* THE-280 — REWORDED, NOT WITHDRAWN, and that is deliberate. Custom
+         BRANDING ships and this tool is live, so removing the item would move
+         CATALOG_TOOL_COUNT and understate what a church can use today. Only the
+         domain half of the label and blurb is behind the flag.
+         ⚠️ The title feeds `slugify(title)` → the crosslink map in
+         content/features.ts, whose `custom-branding-domain` key is a RETIRED
+         slug kept for indexed links. Both spellings resolve there, so the
+         reworded label still lands on #branding. */
+      item('palette', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
+        CUSTOM_DOMAIN_MARKETING_ENABLED
+          ? 'White-label everything — your brand, your domain, your platform.'
+          : 'White-label everything — your name, your logo, your colour.'),
       // Hidden FEATURE entry — see the ⚠️ note on the `churches` feature entry.
       // The add-on itself is live and is advertised in Pricing.tsx's ADD_ONS at
       // its real Dodo price; this entry is the tool-catalogue treatment, which

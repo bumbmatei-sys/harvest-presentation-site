@@ -6,6 +6,7 @@ import { AnimatedText, HBtn } from '../components/magic';
 import { FeatureBlock } from '../components/FeatureBlock';
 import { SiteCTA } from '../components/SiteCTA';
 import { CATEGORY_BY_SLUG, categoryHref, type Category } from '../content/features';
+import { CUSTOM_DOMAIN_MARKETING_ENABLED } from '../lib/flags';
 
 /* One page per feature category — /features/community-engagement and friends.
    Ported from the Claude Design handoff (one .dc.html per category); the shared
@@ -166,7 +167,20 @@ function CategoryBand({ slug }: { slug: string }) {
         kicker="The whole point"
         kickerColor="var(--gold-400)"
         heading="Nobody knows it's Harvest. That's the idea."
-        body="Your members install an app with your name and icon, visit your domain, and keep receipts on your letterhead. Your volunteers see only their part. The platform disappears — what's left is your ministry."
+        /* 🔴 THE-280 — "visit your domain" was a PRESENT-TENSE claim that
+           pointing a domain you own at Harvest works, in the one band on this
+           page written as what a member already experiences. It never worked:
+           the Vercel subscription behind it was never bought, so the DNS a
+           church was handed pointed nowhere.
+
+           ⚠️ THE ONLY CLAIM REMOVED IS THAT ONE. The name, the icon and the
+           receipts on your letterhead all ship on the Ministry plan and are
+           untouched — this band still says the platform disappears, because it
+           does. Behind the flag rather than deleted, per the "nothing is
+           deleted" contract at the top of lib/flags.ts. */
+        body={CUSTOM_DOMAIN_MARKETING_ENABLED
+          ? "Your members install an app with your name and icon, visit your domain, and keep receipts on your letterhead. Your volunteers see only their part. The platform disappears — what's left is your ministry."
+          : "Your members install an app with your name and icon, and keep receipts on your letterhead. Your volunteers see only their part. The platform disappears — what's left is your ministry."}
       />
     );
   }

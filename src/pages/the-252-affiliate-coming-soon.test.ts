@@ -23,7 +23,7 @@ import {
   type AddOn,
   type Plan,
 } from '../components/Pricing';
-import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
+import { AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED } from '../lib/flags';
 import {
   COMING_SOON_HREF, COMING_SOON_IDS, COMING_SOON_ITEMS, IN_PROCESS_LABEL, NOT_BUILT_LABEL,
   comingSoonContract, type SoonItem,
@@ -195,11 +195,20 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
   });
 
   it('🔴 it is the TENTH entry, not the seventh — the ticket\'s count, checked', () => {
-    expect(COMING_SOON_ITEMS).toHaveLength(10);
-    expect(COMING_SOON_IDS).toEqual([
+    /* ⚠️ THE-280 APPENDED AN ELEVENTH, "Custom domains", behind
+       CUSTOM_DOMAIN_MARKETING_ENABLED. THE-252's claim is about where the
+       AFFILIATE entry sits, and that is untouched: it is still the tenth, still
+       last among the entries that predate THE-280. The tail is written as a
+       flag-derived list rather than repinned to 11, so this reads correctly in
+       EITHER flag state — which is also what proves THE-280 appended rather
+       than reordered. */
+    const AFTER_252 = [
       'languages', 'services', 'applications', 'docs', 'website',
       'agent', 'identity', 'designations', 'sms', 'affiliate',
-    ]);
+    ];
+    expect(COMING_SOON_ITEMS).toHaveLength(CUSTOM_DOMAIN_MARKETING_ENABLED ? 10 : 11);
+    expect(COMING_SOON_IDS).toEqual(
+      CUSTOM_DOMAIN_MARKETING_ENABLED ? AFTER_252 : [...AFTER_252, 'domains']);
     // Ordinals are derived from position, so appending can never leave a gap.
     expect(COMING_SOON_ITEMS.map((i) => i.n)).toEqual(
       COMING_SOON_ITEMS.map((_, i) => String(i + 1)));
@@ -215,7 +224,11 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
        re-importing under a mock, which lib/flags.test.ts already does. */
     expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
     const src = readSrc('content/coming-soon.ts');
-    expect(src).toContain("import { AFFILIATE_PROGRAM_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags'");
+    /* ⚠️ MATCHED AS A NAMED IMPORT rather than as one exact line — THE-280 added
+       CUSTOM_DOMAIN_MARKETING_ENABLED to this import and wrapped it across
+       lines. What THE-252 needs to hold is that the filter below reads the
+       affiliate flag from `lib/flags`, and that is what this says. */
+    expect(src).toMatch(/import \{[\s\S]*?\bAFFILIATE_PROGRAM_ENABLED\b[\s\S]*?\} from '\.\.\/lib\/flags'/);
     expect(src).toMatch(
       /\.filter\(\(item\) => item\.id !== 'affiliate' \|\| !AFFILIATE_PROGRAM_ENABLED\)/);
     // And the filter runs BEFORE the renumber, or removing it leaves 1..9, 11.
@@ -721,7 +734,28 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
     ['services',      'THE-122', 'e000f9db23e650b5'],
     ['applications',  'THE-112', '78635528ff4b1480'],
     ['docs',          'THE-117', '35a3d3761aec0433'],
-    ['website',       'THE-59',  '7372d593d2e142eb'],
+    /* 🔴 REPINNED BY THE-280, AND FLAG-DEPENDENT — the second entry ever to move
+       here, and it moved for the reason this page exists.
+
+       Its `today` claimed, in the PRESENT TENSE, that "what exists is branding —
+       your domain, logo and colour", and one `considering` bullet spoke of "the
+       domain a church already points at Harvest". Both presuppose that pointing
+       your own domain at Harvest works. THE-280 establishes it never did: the
+       Vercel subscription behind it was never bought, so the DNS a church was
+       shown pointed nowhere. A false present-tense claim, on the one page whose
+       whole job is to be the tense that is true.
+
+       🔴 THE FLAG-ON DIGEST IS THE ORIGINAL, CHARACTER FOR CHARACTER — the value
+       THE-252 pinned before THE-280 existed. That is the strongest available
+       proof that this is a reversible GATE and not an edit: flip
+       CUSTOM_DOMAIN_MARKETING_ENABLED and the entry returns byte-identical to
+       what it was, exactly as lib/flags.ts's "nothing is deleted" contract
+       promises. The subdomain half of the sentence is untouched in both states.
+
+       ⚠️ Neither branch is a wildcard: both are pinned, so a later edit to
+       EITHER wording still fails here. */
+    ['website',       'THE-59',
+      CUSTOM_DOMAIN_MARKETING_ENABLED ? '7372d593d2e142eb' : 'b73dcd35217ba8a1'],
     /* ⚠️ REPINNED BY THE-253, AND THE ONLY ONE THAT MOVED. The `agent` entry's
        `notThis` said AI Chat "is part of the Small Team and Ministry plans at no
        extra charge" — true when written, false the moment `aiChat` came off
@@ -761,7 +795,13 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
       'languages', 'services', 'applications', 'docs', 'website',
       'agent', 'identity', 'designations', 'sms',
     ]);
-    expect(COMING_SOON_ITEMS[COMING_SOON_ITEMS.length - 1].id).toBe('affiliate');
+    /* The affiliate entry is last among everything that predates THE-280, which
+       appended "Custom domains" after it. Written as an index from the front
+       rather than from the end, so it still says "APPENDED, not reordered" in
+       either flag state. */
+    expect(COMING_SOON_ITEMS[9].id).toBe('affiliate');
+    expect(COMING_SOON_ITEMS[COMING_SOON_ITEMS.length - 1].id)
+      .toBe(CUSTOM_DOMAIN_MARKETING_ENABLED ? 'affiliate' : 'domains');
     // Their ordinals are untouched, which is the visible half of "not reordered".
     expect(COMING_SOON_ITEMS.slice(0, 9).map((i) => i.n))
       .toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
@@ -822,7 +862,10 @@ describe('10 — the tool count is unchanged and still derived', () => {
   it('🔴 the affiliate entry contributes nothing to it', () => {
     const soonGroup = CATALOG.filter((g) => g.href);
     expect(soonGroup).toHaveLength(1);
-    expect(soonGroup[0].items).toHaveLength(10);
+    // 10 after THE-252, 11 after THE-280 appended "Custom domains". The count is
+    // a tripwire on the GROUP; the guarantee is the line below — every entry in
+    // it is `soon`, so a further one still leaves CATALOG_TOOL_COUNT at 27.
+    expect(soonGroup[0].items).toHaveLength(CUSTOM_DOMAIN_MARKETING_ENABLED ? 10 : 11);
     expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon entry is being counted')
       .toHaveLength(0);
     const affiliateTool = soonGroup[0].items.find((i) => i.title === 'Affiliate referrals');

@@ -6,7 +6,10 @@
    LEGACY_ANCHORS maps the retired /features#<slug> anchors onto their new home
    so old deep links, the Nav mega-menu and indexed URLs all keep working. */
 
-import { AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
+  SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 import { plans } from '../components/Pricing';
 
 export interface Crosslink { label: string; href: string }
@@ -415,10 +418,15 @@ const ALL_CATEGORIES: Category[] = [
     heroBg: 'linear-gradient(180deg,#0C1526 0%,#0C1526 30%,#16294a 50%,#2f4f7a 66%,#6BA8DD 82%,#cadff1 92%,var(--cream) 100%)',
     headline: 'Built on Harvest.\nBranded as yours.',
     headWidth: 960, introWidth: 660,
-    intro: 'An installable app with your name and icon, an admin dashboard where every volunteer sees only their part, your own domain — and the number that matters most: how many said yes to Jesus.',
+    /* THE-280 — the category intro and SEO line each named a custom domain as
+       something a church gets today. Behind the flag rather than deleted, per
+       the "nothing is deleted" contract in lib/flags.ts. */
+    intro: CUSTOM_DOMAIN_MARKETING_ENABLED
+      ? 'An installable app with your name and icon, an admin dashboard where every volunteer sees only their part, your own domain — and the number that matters most: how many said yes to Jesus.'
+      : 'An installable app with your name and icon, an admin dashboard where every volunteer sees only their part — and the number that matters most: how many said yes to Jesus.',
     ctaHeading: 'Your ministry, on your own foundation.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: `A branded web app, an installable mobile PWA, a permissioned admin dashboard, your own domain${MULTI_CAMPUS_ENABLED ? ', additional campuses' : ''} and evangelism analytics.`,
+    seo: `A branded web app, an installable mobile PWA, a permissioned admin dashboard${CUSTOM_DOMAIN_MARKETING_ENABLED ? ', your own domain' : ''}${MULTI_CAMPUS_ENABLED ? ', additional campuses' : ''} and evangelism analytics.`,
     dark: true,
     features: [
       {
@@ -428,7 +436,9 @@ const ALL_CATEGORIES: Category[] = [
         title: 'Your church app opens in any browser.',
         oneliner: 'One app, web and mobile, on any device — no App Store review, no update cycle. You ship it and everyone has it.',
         moment: 'Every shareable link — a post, a sermon article, an event, a campaign — opens for anyone with no account. That\'s how a member\'s share reaches someone who\'s never heard of your church.',
-        admin: ['Your own subdomain, or your own domain on Ministry', 'Tabs appear only when there’s something behind them', 'A real desktop layout, not a stretched phone view', 'Every request scoped to your tenant, in security rules'],
+        // THE-280 — the subdomain half is true and stays; only the custom-domain
+        // half of this bullet is behind the flag.
+        admin: [CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Your own subdomain, or your own domain on Ministry' : 'Your own subdomain, on every plan', 'Tabs appear only when there’s something behind them', 'A real desktop layout, not a stretched phone view', 'Every request scoped to your tenant, in security rules'],
         member: ['Opens in any browser, any device', 'Public post, event, giving & form pages need no login', 'A logged-out visitor never touches member data', 'No install, no store, no waiting'],
         crosslinks: [{ label: 'Mobile App', href: '/features/platform-brand#pwa' }, { label: 'Community Feed', href: '/features/community-engagement#feed' }],
       },
@@ -441,7 +451,7 @@ const ALL_CATEGORIES: Category[] = [
         oneliner: 'Members install your app to their home screen on every plan, Forever Free included. On Ministry it carries your name, icon and colour; on every other plan it installs with Harvest branding.',
         moment: 'Most “white-label” apps stop at the logo inside the app. On Ministry, Harvest carries your brand into the operating system itself — the install manifest is built per tenant, and even Apple\'s Add to Home Screen shows your icon, not a generic screenshot.',
         admin: ['Installable PWA & push notifications on every plan, via FCM', 'Your name, colour & icon in the install manifest on Ministry', 'A separate square app icon for the home-screen slot', 'iOS handled correctly via apple-touch-icon'],
-        member: ['Installs like any app — no store, no account', 'Everyone gets your-church.theharvest.app; Ministry adds a custom domain', 'Your branding on Ministry; Harvest’s on every other plan', 'Launches standalone; cached content reads on a weak signal'],
+        member: ['Installs like any app — no store, no account', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Everyone gets your-church.theharvest.app; Ministry adds a custom domain' : 'Everyone gets your-church.theharvest.app', 'Your branding on Ministry; Harvest’s on every other plan', 'Launches standalone; cached content reads on a weak signal'],
         crosslinks: [{ label: 'Custom Branding', href: '/features/platform-brand#branding' }, { label: 'Web App', href: '/features/platform-brand#webapp' }],
       },
       {
@@ -457,14 +467,28 @@ const ALL_CATEGORIES: Category[] = [
         crosslinks: [{ label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Evangelism Analytics', href: '/features/platform-brand#analytics' }],
       },
       {
-        id: 'branding', name: 'Branding & Domain', n: '4',
+        /* 🔴 THE-280 — THE ENTRY THAT SOLD IT MOST DIRECTLY, and the one that
+           must NOT be hidden whole. `customBranding` and `customDomain` are
+           separate plan cells in the app and only the second is switched off: a
+           church on this tier still sets its name, logo, icon and colour, and
+           those still reach its receipts, certificates and forms. So this entry
+           is REWORDED, not withdrawn — hiding it would have taken down a live,
+           working capability to hide a dead one.
+           `tiers` is untouched: branding is still this tier's, and the entry's
+           id stays `branding`, so every crosslink and retired slug pointing at
+           `#branding` still lands. */
+        id: 'branding', name: CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Branding & Domain' : 'Branding', n: '4',
         accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1],
         eyebrow: 'Nobody knows it\'s Harvest',
-        title: 'Your name, logo, colour — and your own domain.',
-        oneliner: 'Set your ministry name, logo, square icon and brand colour once, and point your own domain at it. The platform goes invisible.',
+        title: CUSTOM_DOMAIN_MARKETING_ENABLED
+          ? 'Your name, logo, colour — and your own domain.'
+          : 'Your name, your logo, your colour.',
+        oneliner: CUSTOM_DOMAIN_MARKETING_ENABLED
+          ? 'Set your ministry name, logo, square icon and brand colour once, and point your own domain at it. The platform goes invisible.'
+          : 'Set your ministry name, logo, square icon and brand colour once, and the platform goes invisible.',
         moment: 'Your colour is injected server-side, before first paint — no flash of Harvest gold before yours loads. And it reaches the artifacts people keep: PDF certificates, donation receipts, public forms and check-in pages all carry your identity.',
-        admin: ['Ministry name, logo, square icon & one brand colour', 'Colour applied before first paint — no branding flash', 'Custom domain on Ministry: guided DNS + live status', 'Branding carries onto receipts, certificates & forms'],
-        member: ['An app that looks like yours, not ours', 'Your domain in the address bar', 'Receipts & certificates on your letterhead', 'Branding and your own domain on Ministry'],
+        admin: ['Ministry name, logo, square icon & one brand colour', 'Colour applied before first paint — no branding flash', ...(CUSTOM_DOMAIN_MARKETING_ENABLED ? ['Custom domain on Ministry: guided DNS + live status'] : []), 'Branding carries onto receipts, certificates & forms'],
+        member: ['An app that looks like yours, not ours', ...(CUSTOM_DOMAIN_MARKETING_ENABLED ? ['Your domain in the address bar'] : []), 'Receipts & certificates on your letterhead', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Branding and your own domain on Ministry' : 'Your branding on Ministry'],
         adminLabel: 'Make it yours', memberLabel: 'What people see',
         crosslinks: [{ label: 'Mobile App', href: '/features/platform-brand#pwa' }, { label: 'Multi-Campus', href: '/features/platform-brand#churches' }],
       },
@@ -632,6 +656,14 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   'web-app': '/features/platform-brand#webapp',
   'mobile-app-pwa': '/features/platform-brand#pwa',
   'admin-dashboard': '/features/platform-brand#dashboard',
+  // THE-280 — BOTH LABELS ARE MAPPED, which is the same treatment
+  // `unlimited-churches` / `multi-campus` and the two affiliate slugs already
+  // get. The mega-menu item is "Custom Branding" while custom domains are
+  // hidden and "Custom Branding & Domain" when they are not, and the menu
+  // resolves its own destination through `slugify(title)` — so a single mapping
+  // would send one of the two spellings to the fallback. The section id is
+  // `branding` either way, so both land on the same anchor.
+  'custom-branding': '/features/platform-brand#branding',
   'custom-branding-domain': '/features/platform-brand#branding',
   // Retired label — the section is now "Multi-Campus", because every plan
   // includes one campus and extras are a paid add-on, not an unlimited

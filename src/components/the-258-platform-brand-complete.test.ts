@@ -7,8 +7,25 @@ import { formatMonthlyHeadline, plans } from './Pricing';
 import { CATEGORIES, type Category } from '../content/features';
 import { COMING_SOON_ITEMS } from '../content/coming-soon';
 import {
-  AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED, SMS_MARKETING_ENABLED,
+  AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
+  SMS_MARKETING_ENABLED,
 } from '../lib/flags';
+
+/* 🔴 THE-280 — the branding feature's CAPTION is now flag-dependent, so this
+   suite reads it from the flag rather than from a literal.
+
+   THE-280 hid custom domains: the app's provisioning route refuses and the
+   feature was never activated, so `features.ts` drops the domain half of this
+   entry's name — "Branding & Domain" while `CUSTOM_DOMAIN_MARKETING_ENABLED`,
+   "Branding" while it is off. The entry itself is NOT hidden and its `tiers` are
+   untouched: custom BRANDING ships, and withdrawing it to hide a dead capability
+   is exactly what THE-280 refused to do.
+
+   ⚠️ Derived rather than re-pinned, so this passes in EITHER flag state — the
+   shape `the-250-sms-pricing-removed.test.ts` already uses. What THE-258 exists
+   to hold is that the row reads FIVE items and that its captions match the
+   catalogue verbatim; both still hold, under whichever caption the flag selects. */
+const BRANDING_CAPTION = CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Branding & Domain' : 'Branding';
 
 /* THE-258 — the two Platform & Brand features THE-257 left out.
  *
@@ -105,9 +122,9 @@ describe('Platform & Brand is complete', () => {
        is ever renamed there, this fails by name instead of the section quietly
        advertising a feature under a caption the product does not use. */
     const byId = featureById(CATEGORIES);
-    expect(byId.get('branding')?.name).toBe('Branding & Domain');
+    expect(byId.get('branding')?.name).toBe(BRANDING_CAPTION);
     expect(byId.get('analytics')?.name).toBe('Evangelism Analytics');
-    expect(row!.items).toContain('Branding & Domain');
+    expect(row!.items).toContain(BRANDING_CAPTION);
     expect(row!.items).toContain('Evangelism Analytics');
 
     // And they are genuinely unflagged: present in the flag-FILTERED export,
@@ -221,7 +238,7 @@ describe('what THE-258 did not touch', () => {
       expect(movedText).not.toContain('$63.34');  // the live figure did not survive the move
       // The five-item row is still five items under the moved price — the two
       // changes are independent, which is the point of doing both here.
-      expect(movedText).toContain('Branding & Domain');
+      expect(movedText).toContain(BRANDING_CAPTION);
       expect(movedText).toContain('Evangelism Analytics');
     } finally {
       vi.doUnmock('./Pricing');
@@ -275,6 +292,9 @@ describe('what THE-258 did not touch', () => {
     expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
     expect(SMS_MARKETING_ENABLED).toBe(false);
     expect(MULTI_CAMPUS_ENABLED).toBe(false);
+    // THE-280's flag joined them, also off. It is not THE-258's, and THE-258
+    // still sets none — the claim this test makes is unchanged.
+    expect(CUSTOM_DOMAIN_MARKETING_ENABLED).toBe(false);
 
     // Neither added feature is gated by anything: no flag names them, and both
     // survive into the filtered catalogue.
@@ -285,6 +305,10 @@ describe('what THE-258 did not touch', () => {
       ['AFFILIATE_PROGRAM_ENABLED', 'false'],
       ['MULTI_CAMPUS_ENABLED', 'false'],
       ['SMS_MARKETING_ENABLED', 'false'],
+      // 🔴 THE-280 added the fourth, at false. Listed rather than loosened to a
+      // subset check: the point of this assertion is that a flag cannot appear
+      // or flip unnoticed, and naming the new one keeps that exact.
+      ['CUSTOM_DOMAIN_MARKETING_ENABLED', 'false'],
     ]);
 
     /* Coming Soon is not this ticket's either — THE-252 put the affiliate

@@ -173,7 +173,13 @@ describe('2 — SMS appears only in Coming Soon, and carries no price or tier ba
     }
     // …and the Coming Soon entry is filtered by the SAME flag, the other way up.
     expect(comingSoon).toMatch(/item\.id !== 'sms' \|\| !SMS_MARKETING_ENABLED/);
-    expect(pricing).toContain("import { SMS_MARKETING_ENABLED } from '../lib/flags'");
+    /* ⚠️ MATCHED AS A NAMED IMPORT, not as one exact line — THE-280 added
+       CUSTOM_DOMAIN_MARKETING_ENABLED alongside it when the Custom Domain
+       comparison row went behind its own flag. The claim here is that Pricing.tsx
+       reads the SMS flag from `lib/flags`, and that is what the pattern says; the
+       "no second SMS flag was invented" half is held by the next test, which is
+       where that guarantee actually lives. */
+    expect(pricing).toMatch(/import \{[^}]*\bSMS_MARKETING_ENABLED\b[^}]*\} from '\.\.\/lib\/flags'/);
   });
 
   it('🔴 one switch — no second flag was invented on either side', () => {
