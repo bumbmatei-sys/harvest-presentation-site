@@ -188,6 +188,33 @@ const SKETCHES: Record<string, React.ReactElement> = {
       <Panel label="Amount"><span style={{ ...dashed(7), height: 22 }} /></Panel>
     </div>
   ),
+  /* A month grid with three cells spoken for, and a queue beneath it.
+     🔴 NO PLATFORM MARK, AND NO CAPTION NAMING ONE. The obvious drawing for a
+     scheduler is a row of recognisable logos down the side of a calendar, and
+     every one of those is a third party's trademark drawn into markup that
+     ships under Harvest's name — the thing board card 86bbrgp08 exists to
+     stop. The destinations are named in prose on the page itself, with marks
+     hotlinked and `alt=""`; the sketch draws only the SHAPE — some days have
+     something on them, and a queue holds the order. */
+  scheduler: (
+    <div style={col}>
+      <Panel label="Month">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3 }}>
+          {Array.from({ length: 21 }, (_, i) => (
+            <span key={i} style={{ ...dashed(3), height: 12, background: [3, 9, 16].includes(i) ? INK_SOFT : 'transparent' }} />
+          ))}
+        </div>
+      </Panel>
+      <Panel label="Queue">
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={row}>
+            <span style={{ ...dashed(4), width: 22, height: 12, flexShrink: 0 }} />
+            <Bar w={`${74 - i * 15}%`} />
+          </div>
+        ))}
+      </Panel>
+    </div>
+  ),
   /* 🔴 A LINK, A CHURCH, AND A SPAN OF MONTHS — and deliberately NOT an earnings
      screen. The obvious drawing for an affiliate programme is a dashboard: a
      balance, a this-month figure, a chart climbing. Every one of those is a

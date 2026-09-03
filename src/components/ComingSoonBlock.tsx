@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
 import { SoonMock, SoonIcon, SKETCH_GROUND } from './SoonMock';
 import { IN_PROCESS_LABEL, NOT_BUILT_LABEL, type SoonItem } from '../content/coming-soon';
@@ -92,6 +93,24 @@ export function ComingSoonBlock({ item }: { item: SoonItem }) {
               </div>
 
               <StatusRow item={item} />
+
+              {/* 🔴 A LINK, NOT A BUTTON — THE-284. The five live category
+                  pages put an <HBtn> here and it points at /#pricing; the
+                  primary button is the shape this site uses to sell, so an
+                  unbuilt item must not get one. This is a plain text link to
+                  more of the same honest copy, on the one entry that has a
+                  page of its own, and it is the only outbound link any block
+                  on this page renders. */}
+              {item.page && (
+                <div style={{ marginTop: 18 }}>
+                  <Link
+                    to={item.page}
+                    style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: INK, textDecoration: 'underline', textUnderlineOffset: 3 }}
+                  >
+                    {`See the whole of ${item.name} →`}
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* ---- Concept sketch (see the header comment in SoonMock.tsx) ---- */}

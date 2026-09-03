@@ -95,10 +95,18 @@ const integrations: [string, string | null][] = [
   ['Mailchimp', 'mailchimp'],
 ];
 
-/* Kept for the integrations row, which is the only caller left — the per-row
-   competitor logos it also served are gone. Its third parameter (an explicit
-   favicon domain, for "Planning Center Check-Ins") went with them. */
-const logoUrl = (slug: string | null, name: string) =>
+/* Kept for the integrations row, which was for a while the only caller left —
+   the per-row competitor logos it also served are gone. Its third parameter (an
+   explicit favicon domain, for "Planning Center Check-Ins") went with them.
+
+   ⚠️ EXPORTED AT THE-284, which gave it a second caller: the Harvest Scheduler
+   page draws a mark beside each destination it would post to. 🔴 REUSED RATHER
+   THAN VENDORED — board card 86bbrgp08 records why no third-party logo file is
+   committed to this repo: shipping somebody else's trademark with no licence,
+   on a page under Harvest's name. Both callers hotlink, both pass `alt=""`, and
+   both hide the image on error, so a blocked CDN degrades to the name in text
+   rather than to a broken frame. */
+export const logoUrl = (slug: string | null, name: string) =>
   slug
     ? `https://cdn.simpleicons.org/${slug}`
     : `https://www.google.com/s2/favicons?domain=${name.toLowerCase().replace(/[^a-z]/g, '')}.com&sz=64`;

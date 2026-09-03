@@ -7,6 +7,7 @@ import {
   Calculator, ReceiptText, Link, ShieldCheck, MessageSquareText, Zap, Sparkles,
   Crown, Inbox, Building2, MessageSquare, Lock, Youtube, Instagram, ChevronDown,
   Sun, Share2, UserCheck, Monitor, Star, Circle, MapPin, ArrowDownToLine, Play,
+  CalendarClock, Megaphone, ListChecks, Image,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -71,6 +72,13 @@ const NAME_MAP: Record<string, LucideIcon> = {
   'map-pin': MapPin,
   'arrow-down-to-line': ArrowDownToLine,
   play: Play,
+  // THE-284 — the Harvest Scheduler page and its coming-soon entry. Added
+  // rather than reused: an unknown name falls back to `Circle` silently, so a
+  // near-miss ships a blank dot instead of failing.
+  'calendar-clock': CalendarClock,
+  megaphone: Megaphone,
+  'list-checks': ListChecks,
+  image: Image,
 };
 
 /** Name-based icon, e.g. <L name="arrow-right" size={16} color="currentColor" />. */

@@ -9,12 +9,13 @@ import { ScrollManager } from './components/ScrollManager';
 import { Landing } from './pages/Landing';
 import { CategoryPage } from './pages/CategoryPage';
 import { ComingSoonPage } from './pages/ComingSoonPage';
+import { SchedulerPage } from './pages/SchedulerPage';
 import { FeaturesRedirect } from './pages/FeaturesRedirect';
 import { ContactPage } from './pages/ContactPage';
 import { LegalPage } from './pages/LegalPage';
 import { FaqPage } from './pages/FaqPage';
 import { CATEGORIES, categoryHref } from './content/features';
-import { COMING_SOON_HREF } from './content/coming-soon';
+import { COMING_SOON_HREF, SCHEDULER_HREF } from './content/coming-soon';
 import { LEGAL_DOCS, legalHref } from './content/legal';
 import { FAQ_HREF } from './content/faq';
 import { BlogIndex } from './pages/BlogIndex';
@@ -73,6 +74,28 @@ export const routes: RouteRecord[] = [
       // static "category" segment above the dynamic one.
       { path: '/blog/category/:key', element: <BlogCategory /> },
       { path: '/blog/:slug', element: <BlogPost /> },
+      /* THE-284 — the one Coming Soon entry with a page of its own. Not a
+         CategoryPage: a `Feature` carries `tiers` and this has no tier, and
+         CategoryPage's hero and close both sell a trial. See the header comment
+         in src/pages/SchedulerPage.tsx.
+
+         🔴 APPENDED HERE RATHER THAN BESIDE COMING_SOON_HREF, WHERE IT READS
+         BETTER, AND THE REASON IS NOT COSMETIC. React-router derives a route's
+         id from its POSITION when none is given — `0-9`, `0-10` — and
+         vite-react-ssg serialises those ids into every prerendered page as
+         `window.__staticRouterHydrationData`. Inserting a route mid-table
+         therefore renumbers every route after it and rewrites the markup of
+         thirteen pages this ticket does not touch: /contact, /faq, the three
+         policies and all seven blog pages each changed by a single digit.
+         Appending leaves every existing id alone, so the only prerendered
+         pages that move are the ones whose CONTENT actually moved. The
+         catch-all below is renumbered and nothing is prerendered through it.
+
+         ⚠️ SO ADD FUTURE ROUTES HERE TOO, above the catch-all. A route added
+         in the middle is not wrong — it is a thirteen-page diff that hides the
+         one page that really changed, which is the whole thing
+         src/test/the-278-no-regression.test.ts exists to keep visible. */
+      { path: SCHEDULER_HREF, element: <SchedulerPage /> },
       { path: '*', element: <Landing /> },
     ],
   },

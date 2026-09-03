@@ -62,8 +62,14 @@ export const CATALOG: CatalogGroup[] = [
     // Derived from content/coming-soon.ts so the menu and the page cannot
     // disagree about what is on the list — the failure that a second hand-kept
     // array would eventually produce.
+    /* `i.page ?? soonItemHref(i.id)` — THE-284. Every entry but one has no
+       page of its own, so the menu sends a visitor to its anchor on
+       /features/coming-soon, which is where its whole story is. The one entry
+       that HAS a page goes there instead: sending a reader to a one-paragraph
+       anchor when a page exists is the worse of the two, and the anchor stays
+       reachable from that page's own jump-to index either way. */
     items: COMING_SOON_ITEMS.map((i) => ({
-      icon: i.icon, title: i.name, desc: i.navDesc, soon: true, href: soonItemHref(i.id),
+      icon: i.icon, title: i.name, desc: i.navDesc, soon: true, href: i.page ?? soonItemHref(i.id),
     })),
   },
   {

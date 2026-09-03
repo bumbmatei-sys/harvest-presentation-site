@@ -206,9 +206,15 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
       'languages', 'services', 'applications', 'docs', 'website',
       'agent', 'identity', 'designations', 'sms', 'affiliate',
     ];
-    expect(COMING_SOON_ITEMS).toHaveLength(CUSTOM_DOMAIN_MARKETING_ENABLED ? 10 : 11);
-    expect(COMING_SOON_IDS).toEqual(
-      CUSTOM_DOMAIN_MARKETING_ENABLED ? AFTER_252 : [...AFTER_252, 'domains']);
+    /* ⚠️ AND `scheduler` AFTER IT — THE-284, appended in its turn. The tail is
+       still written as a flag-derived list rather than repinned to a number, so
+       this still reads correctly in EITHER flag state, and the AFFILIATE entry
+       this suite is about is still the tenth either way. Two appends since, and
+       neither reordered anything before it — which is exactly what the ordinal
+       assertion below is checking. */
+    const TAIL = CUSTOM_DOMAIN_MARKETING_ENABLED ? ['scheduler'] : ['domains', 'scheduler'];
+    expect(COMING_SOON_ITEMS).toHaveLength(AFTER_252.length + TAIL.length);
+    expect(COMING_SOON_IDS).toEqual([...AFTER_252, ...TAIL]);
     // Ordinals are derived from position, so appending can never leave a gap.
     expect(COMING_SOON_ITEMS.map((i) => i.n)).toEqual(
       COMING_SOON_ITEMS.map((_, i) => String(i + 1)));
@@ -796,12 +802,14 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
       'agent', 'identity', 'designations', 'sms',
     ]);
     /* The affiliate entry is last among everything that predates THE-280, which
-       appended "Custom domains" after it. Written as an index from the front
-       rather than from the end, so it still says "APPENDED, not reordered" in
-       either flag state. */
+       appended "Custom domains" after it, and THE-284, which appended "Harvest
+       Scheduler" after that. Written as an index from the FRONT rather than
+       from the end, so it still says "APPENDED, not reordered" however many
+       entries arrive later and in either flag state — which is the whole
+       property, and the reason the tail is not pinned to one id. */
     expect(COMING_SOON_ITEMS[9].id).toBe('affiliate');
-    expect(COMING_SOON_ITEMS[COMING_SOON_ITEMS.length - 1].id)
-      .toBe(CUSTOM_DOMAIN_MARKETING_ENABLED ? 'affiliate' : 'domains');
+    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(10))
+      .toEqual(CUSTOM_DOMAIN_MARKETING_ENABLED ? ['scheduler'] : ['domains', 'scheduler']);
     // Their ordinals are untouched, which is the visible half of "not reordered".
     expect(COMING_SOON_ITEMS.slice(0, 9).map((i) => i.n))
       .toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
@@ -862,10 +870,11 @@ describe('10 — the tool count is unchanged and still derived', () => {
   it('🔴 the affiliate entry contributes nothing to it', () => {
     const soonGroup = CATALOG.filter((g) => g.href);
     expect(soonGroup).toHaveLength(1);
-    // 10 after THE-252, 11 after THE-280 appended "Custom domains". The count is
-    // a tripwire on the GROUP; the guarantee is the line below — every entry in
-    // it is `soon`, so a further one still leaves CATALOG_TOOL_COUNT at 27.
-    expect(soonGroup[0].items).toHaveLength(CUSTOM_DOMAIN_MARKETING_ENABLED ? 10 : 11);
+    // 10 after THE-252, 11 after THE-280 appended "Custom domains", 12 after
+    // THE-284 appended "Harvest Scheduler". The count is a tripwire on the
+    // GROUP; the guarantee is the line below — every entry in it is `soon`, so
+    // a further one still leaves CATALOG_TOOL_COUNT at 27.
+    expect(soonGroup[0].items).toHaveLength(CUSTOM_DOMAIN_MARKETING_ENABLED ? 11 : 12);
     expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon entry is being counted')
       .toHaveLength(0);
     const affiliateTool = soonGroup[0].items.find((i) => i.title === 'Affiliate referrals');
