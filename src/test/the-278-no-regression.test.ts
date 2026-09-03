@@ -67,6 +67,25 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    * 15876ff — before a line of this ticket existed, on the same Linux runner
    * that builds production. Not a sample: all 21, so a moved page has nowhere
    * to hide.
+   *
+   * ─── 🔴 ONE ENTRY HAS MOVED SINCE, AND ON PURPOSE — THE-281 ────────────────
+   *
+   * `features/giving-finance/index.html` now carries a sixth section, the
+   * Shareable Giving Page feature. THE-281 added it to content/features.ts, so
+   * the page it renders on legitimately changed and its fingerprint had to be
+   * retaken; `BASELINE_ALL` moved with it, since it is the same 21 pages hashed
+   * as one number.
+   *
+   * ⚠️ THE OTHER TWENTY DID NOT MOVE, and that is the assertion that still
+   * matters. This table's job was never "no page may ever change" — a content
+   * site whose pages cannot change is a site nobody can edit. Its job is that a
+   * change is DELIBERATE and SCOPED: THE-278 proved installing Tailwind moved
+   * nothing, and this run proves adding one feature moved exactly the one page
+   * that feature is on. A second entry changing in the same commit would have
+   * been the bug, and it would still have failed here.
+   *
+   * Retaken on Linux, from the same `npm run build`, at the commit that added
+   * the section.
    */
   const PRE_TAILWIND: Readonly<Record<string, string>> = {
     'blog/category/harvest-vs/index.html': '39f910d46af70402edd9a5ab8be5338cd577ecaf6e3287b44a1013795689b13d',
@@ -82,7 +101,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'features/coming-soon/index.html': '81bae956e72ca69a50ebc3cea88306df5e63818e6ee64b62635eba1a4f41614c',
     'features/community-engagement/index.html': 'fbd2b0a883c5af11db5a498d876e2affb0c5574b67d984ec8f422aaff74ceb4f',
     'features/discipleship-content/index.html': '25170dd7a85ecacdebc18257ac6b3b46334e839ff9cb6dcee006cc2a7484790d',
-    'features/giving-finance/index.html': '3aa49a11c6c95fedf18b9d58c7845562836ed775b6561edda32c291b5f1bd952',
+    'features/giving-finance/index.html': '7e502fcb4984e07bc3cd01671f10eb498ad609671a5f0d2b39f9eeeb03dac3cd',
     'features/index.html': 'efd67e4a5a2e891cd580496ddd78dbac5b4fbcdf550d4557a70fbed2fd3e11a0',
     'features/platform-brand/index.html': '05d5604e150dd512963c76b63159dcbceacf231cde46f598be295ed6da6e261d',
     'index.html': '8e5a076696ccb2927d189fa30ddaabffb374860b2bbb2eded503e20fc2f79101',
@@ -135,12 +154,19 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
   const BASELINE: Readonly<Record<string, string>> = { ...PRE_TAILWIND, ...THE_280_MOVED };
 
   /** The same 21 as one number, so an ADDED or DROPPED page is caught too. */
-  const BASELINE_ALL = 'b090b8f5914eb07521cdd8731ebedf6206a31aaea8c65aacc406b4fea7a841c0';
+  const BASELINE_ALL = 'b352d6813b468b885230d8ea3a451d0b74282d1f3409458bdb32fb8a8ed7d1cb';
 
-  it('🔴 THE-280 moved exactly six pages, and the other fifteen are still pre-Tailwind', () => {
+  it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
        seventh override and the suite would still pass — the whole point of
-       recording the move separately is that the SIZE of it is checked too. */
+       recording the move separately is that the SIZE of it is checked too.
+
+       ⚠️ "The other fifteen" are measured against THE TABLE ABOVE, not against
+       the literal pre-Tailwind build, and the distinction now matters: THE-281
+       legitimately retook `features/giving-finance/index.html` in that table when
+       it added the Shareable Giving Page section. That page is not THE-280's and
+       is expected to sit at THE-281's value — which is exactly what this checks,
+       since it is in `untouched` and must equal the table. */
     expect(Object.keys(THE_280_MOVED).sort()).toEqual([
       'faq/index.html', 'features/coming-soon/index.html',
       'features/platform-brand/index.html', 'index.html',
@@ -154,9 +180,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     const untouched = Object.keys(PRE_TAILWIND).filter((p) => !(p in THE_280_MOVED));
     expect(untouched).toHaveLength(15);
     for (const page of untouched) {
-      expect(BASELINE[page], `${page} drifted off its pre-Tailwind fingerprint`)
+      expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
         .toBe(PRE_TAILWIND[page]);
     }
+    // 🔴 And THE-281's page is one of the fifteen — this change did not disturb it.
+    expect(untouched, 'THE-280 moved the Giving & Finance page, which is not its to move')
+      .toContain('features/giving-finance/index.html');
   });
 
   const pagesInDist = (): string[] => {
