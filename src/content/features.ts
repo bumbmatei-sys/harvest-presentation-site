@@ -349,7 +349,41 @@ const ALL_CATEGORIES: Category[] = [
         crosslinks: [{ label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Fundraising', href: '/features/giving-finance#fundraising' }, { label: 'Text-to-Give', href: '/features/ai-automation#sms' }],
       },
       {
-        id: 'fundraising', name: 'Fundraising', n: '2',
+        /* THE-281 — the share button on the Donations screen.
+
+           🔴 TIERS ARE `features.fundraising`, VERIFIED AGAINST THE APP, NOT
+           GUESSED. The button lives on the admin Donations screen, and that
+           screen is gated in AdminDashboard.tsx by
+           `canDonations = planAllows(features?.fundraising) && canSettings`.
+           `fundraising` is false on Forever Free and true on plus / pro / max,
+           so the three plans this array addresses — Individual, Small Team,
+           Ministry — all carry it, and [1, 1, 1] is the true claim.
+
+           ⚠️ NOTE `planAllows`, NOT `navAllows`. Free does not get a walled
+           Donations tab either; it has no donate page by decision. That is why
+           the copy below says "on every paid plan" and never "on every plan" —
+           the free tier genuinely does not have this, and Forever Free is a
+           real, sold tier on this site.
+
+           ⚠️ NOT A DUPLICATE OF `donation` ABOVE. That entry is the STRIPE
+           giving page — card gifts, receipts, destination charges. This is the
+           surface that hands that page's address to a congregation, and it
+           carries the church's OWN payment links (PayPal, Cash App, Venmo,
+           Zelle, Revolut, Wise), which Stripe is not in at all. The two are
+           adjacent on purpose and describe different things. */
+        id: 'sharegiving', name: 'Shareable Giving Page', n: '2',
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
+        eyebrow: 'Sunday morning, from the platform',
+        title: 'Put your giving page on the screen, in one tap.',
+        oneliner: 'Share the page that carries every way your church takes a gift — as a link, a native share sheet, or a QR code big enough to read from the back row.',
+        moment: 'The offering is announced and nobody knows the link. One tap puts a QR on the screen at the front of the room — and the page behind it already lists every account your church actually uses.',
+        admin: ['Share to any app from your phone\u2019s own share sheet', 'Copy the page and every payment link in one press', 'A downloadable QR code for the screen, a flyer or a bulletin', 'Every link is re-checked against its provider before it is shared'],
+        member: ['One page with every way to give, however they prefer', 'Opens with no login, on any phone', 'Taps straight through to PayPal, Cash App, Venmo, Revolut or Wise', 'Scan the QR from a seat and give before the song ends'],
+        adminLabel: 'For admins', memberLabel: 'For members',
+        crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'Fundraising', href: '/features/giving-finance#fundraising' }],
+      },
+      {
+        id: 'fundraising', name: 'Fundraising', n: '3',
         accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
         eyebrow: 'A building fund isn\'t a GoFundMe',
         title: 'A live progress bar — or pledges to track.',

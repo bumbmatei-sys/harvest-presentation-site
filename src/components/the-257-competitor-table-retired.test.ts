@@ -76,6 +76,18 @@ const featureById = (categories: readonly Category[]) =>
  *            Deliberately NOT keyed off the app's `aiChat` plan cells, which
  *            still say otherwise while THE-253 is in flight.
  *
+ *   sharegiving · THE-281. It is live, unflagged and on all three plans, so it
+ *            is NOT excluded for any of the reasons a flag would give. It is
+ *            excluded editorially: every other item in this section is a
+ *            product a church would otherwise buy a subscription for, and this
+ *            is a share button and a QR code ON the Donation Page, which is
+ *            already the first item in the very same row. Listing it beside
+ *            "CRM" and "Accounting + QuickBooks" would size it as a peer of
+ *            those, which overstates it — and this section's whole remaining
+ *            job, after THE-257 took the competitor table out, is to be a claim
+ *            the company will defend. It has its own section on the Giving &
+ *            Finance page, which is where a capability of this size belongs.
+ *
  * ⚠️ SMS AND AFFILIATE ARE NOT IN HERE AND NEVER WERE. They are excluded by
  * FLAG — SMS_MARKETING_ENABLED and AFFILIATE_PROGRAM_ENABLED keep them out of
  * `CATEGORIES` entirely, so they never reach this guard. That is the stronger
@@ -91,7 +103,7 @@ const featureById = (categories: readonly Category[]) =>
  * must not name them again. The constant stays because `aichat` still belongs in
  * it — and because this mechanism is the reason the omission was catchable.
  */
-const EDITORIAL_EXCLUSIONS: ReadonlySet<string> = new Set(['aichat']);
+const EDITORIAL_EXCLUSIONS: ReadonlySet<string> = new Set(['aichat', 'sharegiving']);
 
 /**
  * Every feature the catalogue currently SHOWS is either rendered in the section
