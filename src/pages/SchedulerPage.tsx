@@ -5,12 +5,13 @@ import { Reveal } from '../components/effects';
 import { AnimatedText, HBtn } from '../components/magic';
 import { L } from '../components/icons';
 import { SoonMock, SKETCH_GROUND } from '../components/SoonMock';
+import { FeatureBlock } from '../components/FeatureBlock';
 import { logoUrl } from '../components/Replaces';
 import {
   COMING_SOON_HREF, COMING_SOON_NAME, IN_PROCESS_LABEL, NOT_BUILT_LABEL,
 } from '../content/coming-soon';
 import {
-  AD_NETWORKS, CAPABILITIES, PLATFORMS, POST_OPTIONS, SCHEDULER_HREF, SCHEDULER_NAME,
+  AD_NETWORKS, CAPABILITY_BLOCKS, PLATFORMS, POST_OPTIONS, SCHEDULER_HREF, SCHEDULER_NAME,
   SCHEDULER_NOTICE, type Destination,
 } from '../content/scheduler';
 
@@ -151,48 +152,44 @@ function Hero() {
 }
 
 // ---------- What it would do ----------
+/* ─── 🔴 THE-293 — SIX BLOCKS, NOT SIX COPIES OF ONE CARD ─────────────────────
+ *
+ * Founder: "the harvest scheduler is horrible. I want for each feature to be
+ * presented as the other category pages with a small design."
+ *
+ * What stood here was a `repeat(auto-fit, minmax(268px, 1fr))` grid of six
+ * cards that differed only in their icon and their words — which is why the
+ * page read as a specification while /features/giving-finance and its four
+ * siblings read as designed. THE-284 built it that way on a defensible
+ * argument: components/SoonMock.tsx says in its own docblock that borrowing the
+ * live vignette frame would be "a picture of something that does not exist".
+ *
+ * ⚠️ THE FOUNDER HAS NOW OVERRULED THAT, and the resolution is narrower than
+ * "ignore it". What the argument was really protecting is the DISCLAIMER, not
+ * the grey box: the frame had to say what it was in its own markup, so a
+ * cropped screenshot of it could not read as a shipped screen. It still does —
+ * `unbuilt` puts "Concept — nothing built" in the tab where a live block says
+ * "Harvest", and turns the ticks into the dashed squares that mean "not
+ * included" everywhere else on this site.
+ *
+ * 🔴 AND IT IS THE REAL `FeatureBlock`, not a copy of it. A lookalike drifts
+ * from the original within a ticket or two, and "looks like the other category
+ * pages" would then quietly stop being true. What `unbuilt` suppresses is the
+ * three things that would be false here — plan chips, crosslinks and ticks —
+ * and nothing else; see the docblock on the component. */
 function Capabilities() {
   return (
-    <section style={SECTION}>
-      <div style={WRAP}>
+    <section style={{ ...SECTION, paddingLeft: 0, paddingRight: 0 }}>
+      <div style={{ ...WRAP, padding: '0 20px' }}>
         <SectionHead
           kicker="What it would do"
           heading="Six things, and every one of them is somebody's Sunday afternoon."
           body="Written as what a person in a church office would do, not as the machinery underneath it — nobody in a church calls an interface that has no screen."
         />
-        {/* `auto-fit` with a 268px minimum: three tracks at 1140px, two in the
-            middle, one on a phone, and it can never lay a track narrower than
-            its minimum — so the grid reflows without a media query and without
-            a rule in index.css. */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(268px, 1fr))', gap: 'clamp(14px, 1.8vw, 22px)' }}>
-          {CAPABILITIES.map((c, i) => (
-            <Reveal key={c.id} delay={60 + i * 50} y={18}>
-              <div id={c.id} style={{
-                height: '100%', scrollMarginTop: 104, background: '#fff', borderRadius: 22,
-                border: '1px solid rgba(45,37,25,0.09)', padding: 'clamp(20px, 2.4vw, 28px)',
-              }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40,
-                  borderRadius: 12, background: 'var(--surface-soon)', border: `1px dashed ${INK_SOFT}`, color: INK,
-                }}>
-                  <L name={c.icon} size={20} color="currentColor" />
-                </span>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: '1.36rem', lineHeight: 1.2, letterSpacing: '-0.015em', color: 'var(--navy-900)', margin: '16px 0 0' }}>{c.title}</h3>
-                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.97rem', lineHeight: 1.6, color: 'var(--text-body)', margin: '12px 0 0' }}>{c.body}</p>
-                <ul style={{ listStyle: 'none', margin: '18px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
-                  {c.bullets.map((b) => (
-                    <li key={b} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                      {/* Not a tick — a tick would mean "you get this". The same
-                          dashed square ComingSoonBlock's list uses. */}
-                      <span aria-hidden="true" style={{ width: 11, height: 11, marginTop: 5, flexShrink: 0, border: `1px dashed ${INK_SOFT}`, borderRadius: 3 }} />
-                      <span style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--text-body)' }}>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+      </div>
+      {/* The same stack, gap and rhythm CategoryPage lays its blocks out in. */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 30px)' }}>
+        {CAPABILITY_BLOCKS.map((c) => <FeatureBlock key={c.id} feature={c} unbuilt />)}
       </div>
     </section>
   );

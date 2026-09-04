@@ -198,6 +198,48 @@ export const FEATURE_ICONS: Record<string, React.ReactElement> = {
       <path d="M7 14v3M12 9v8M17 5v12" />
     </svg>
   ),
+  /* ── THE-293 — the six Harvest Scheduler capabilities ──────────────────────
+     Prefixed, because `analytics` above is already taken by the Evangelism
+     Analytics vignette on /features/platform-brand. Same geometry as every icon
+     in this file: a 24 viewBox, 1.8 stroke, round caps. */
+  'scheduler-publishing': (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="17" rx="2.5" />
+      <path d="M3 9h18M8 2v4M16 2v4" />
+      <path d="m9 14.5 2 2 4-4" />
+    </svg>
+  ),
+  'scheduler-analytics': (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 20V4" />
+      <path d="M4 20h16" />
+      <path d="M8 20v-6M13 20v-10M18 20v-4" />
+    </svg>
+  ),
+  'scheduler-messaging': (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12h5l2 3h4l2-3h5" />
+      <path d="M5.5 5h13l2.5 7v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5l2.5-7Z" />
+    </svg>
+  ),
+  'scheduler-comments': (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 14H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      <path d="M11 10h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-3l-3 3v-3h-2a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
+    </svg>
+  ),
+  'scheduler-ads': (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1Z" />
+      <path d="M17.5 9a3.5 3.5 0 0 1 0 6" />
+      <path d="M7 14v5h3" />
+    </svg>
+  ),
+  'scheduler-live': (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />
+    </svg>
+  ),
 };
 
 /* The one interactive vignette — clicking a channel or DM swaps the thread,
@@ -299,6 +341,86 @@ function GroupsMock() {
     </div>
   );
 }
+
+/* ── THE-293 — the six Harvest Scheduler vignettes ──────────────────────────
+ *
+ * 🔴 THE FOUNDER, VERBATIM: "the harvest scheduler is horrible. I want for each
+ * feature to be presented as the other category pages with a small design."
+ * Every other unbuilt thing on this site gets one grey wireframe from
+ * SoonMock; the scheduler page drew ONE of those and then repeated a plain card
+ * six times, so its six capabilities were visually identical to each other and
+ * to nothing else. These six are what the other category pages have: a still
+ * life of the surface the capability would be, one per capability.
+ *
+ * ⚠️ SAME IDIOM AS EVERY VIGNETTE ABOVE, DELIBERATELY. White card on the
+ * `rgba(45,37,25,0.08)` hairline, sixteen-pixel radius, a header row with a
+ * pill, eleven-and-a-half-point labels, colour from the ramps in index.css and
+ * nowhere else. Nothing new was invented here — the point of the ticket is that
+ * this page stops looking like an exception.
+ *
+ * ─── 🔴 AND THE THREE THINGS THAT MAKE THEM DIFFERENT ANYWAY ────────────────
+ *
+ *   · NOT ONE DIGIT IN ANY VISIBLE STRING. The vignettes above are full of
+ *     them — 142 decisions, 1,204 members, a payout. Those are a church's own
+ *     sample data on pages about shipped work. On this page a figure is a rate
+ *     a church could believe, and the founder's instruction on the provider's
+ *     meters was "They don't need to know that", so
+ *     pages/the-284-harvest-scheduler.test.ts asserts the rendered page carries
+ *     no bare figure AT ALL. What an analytics panel would print as a number,
+ *     these draw as a bar or a line.
+ *   · NO IMAGE, LOCAL OR HOTLINKED. Board card 86bbrgp08: no third-party mark
+ *     ships under Harvest's name. The page's nine destination chips are the
+ *     only marks on it and they are counted — a tenth `loading="lazy"` fails.
+ *     Connected accounts are drawn as unlabelled swatches instead.
+ *   · NO PLATFORM IS NAMED IN A VIGNETTE. The nine are named once, in prose, in
+ *     the section that exists to say the list is a decision. A name inside a
+ *     picture of a screen is a claim about what is already connected. */
+
+const soonCard: React.CSSProperties = {
+  background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden',
+};
+const soonHead: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px',
+  padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)',
+};
+const soonTitle: React.CSSProperties = { fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' };
+const soonLabel: React.CSSProperties = {
+  fontSize: '9px', fontWeight: '700', letterSpacing: '0.09em', textTransform: 'uppercase', color: 'var(--text-muted)',
+};
+const soonPill = (color: string, background: string): React.CSSProperties => ({
+  fontSize: '9.5px', fontWeight: '700', color, background, padding: '3px 9px', borderRadius: '999px', whiteSpace: 'nowrap',
+});
+const soonRow: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '8px' };
+
+/** The accounts a post would go to, as swatches. No mark, no name — see the
+ *  third note above. Decorative, so it is hidden from a screen reader: the
+ *  block's own prose already says what it stands for. */
+const accountSwatches = (n: number, on = n) => (
+  <span style={{ display: 'inline-flex', gap: '4px' }} aria-hidden="true">
+    {Array.from({ length: n }, (_, i) => (
+      <span
+        key={i}
+        style={{
+          width: '18px', height: '18px', borderRadius: '6px', flexShrink: 0,
+          background: i < on ? 'var(--navy-900)' : 'var(--stone-200)',
+          border: i < on ? 'none' : '1px solid rgba(45,37,25,0.08)',
+        }}
+      />
+    ))}
+  </span>
+);
+
+/** A labelled progress bar. The figure it would carry lives in the WIDTH, which
+ *  is a style attribute rather than text — the whole reason an analytics
+ *  vignette is possible on a page that may print no number. */
+const soonBar = (label: string, width: string, fill: string) => (
+  <div key={label} style={{ ...soonRow, fontSize: '11px' }}>
+    <span style={{ flex: '0 0 34%', color: 'var(--navy-800)' }}>{label}</span>
+    <span style={{ flex: '1', height: '7px', borderRadius: '999px', background: 'var(--stone-100)', overflow: 'hidden' }}>
+      <span style={{ display: 'block', width, height: '100%', background: fill }} />
+    </span>
+  </div>
+);
 
 const MOCKS: Record<string, React.ReactElement> = {
   feed: (
@@ -1206,6 +1328,233 @@ const MOCKS: Record<string, React.ReactElement> = {
               <span style={{ display: 'block', width: '34%', height: '100%', background: 'var(--sky-500)' }} />
             </span>
             <span style={{ color: 'var(--text-muted)' }}>128</span>
+          </div>
+        </div>
+      </div>
+    </>
+  ),
+  /* 1 · Scheduling and publishing — the composer, mid-write. What a person in a
+     church office is actually looking at: one caption, the accounts it goes to,
+     the first comment queued behind it, and when it leaves. */
+  'scheduler-publishing': (
+    <>
+      <div style={soonCard}>
+        <div style={soonHead}>
+          <span style={soonTitle}>New post</span>
+          <span style={soonPill('var(--gold-700)', 'var(--gold-100)')}>Queued</span>
+        </div>
+        <div style={{ padding: '12px 13px' }}>
+          <p style={{ fontSize: '12.5px', lineHeight: '1.45', color: 'var(--earth)', margin: '0 0 11px' }}>
+            Baptisms this Sunday, straight after both services. Bring a towel and bring a friend.
+          </p>
+          <div style={{ display: 'flex', gap: '5px', marginBottom: '12px' }} aria-hidden="true">
+            <span style={{ flex: '1', aspectRatio: '4 / 3', borderRadius: '9px', background: 'var(--stone-200)' }} />
+            <span style={{ flex: '1', aspectRatio: '4 / 3', borderRadius: '9px', background: 'var(--stone-100)' }} />
+          </div>
+          <div style={{ ...soonRow, justifyContent: 'space-between', marginBottom: '10px' }}>
+            <span style={soonLabel}>Goes to</span>
+            {accountSwatches(6, 4)}
+          </div>
+          <div style={{ border: '1px solid rgba(45,37,25,0.1)', borderRadius: '10px', padding: '8px 10px', marginBottom: '10px' }}>
+            <div style={{ ...soonLabel, marginBottom: '4px' }}>First comment</div>
+            <div style={{ fontSize: '10.5px', color: 'var(--sky-700)' }}>The link, rather than lost in the caption</div>
+          </div>
+          <div style={{ ...soonRow, justifyContent: 'space-between' }}>
+            <span style={{ ...soonRow, gap: '6px', fontSize: '10.5px', color: 'var(--text-muted)' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" />
+              </svg>
+              Sunday, before the first service
+            </span>
+            <span style={soonPill('#fff', 'var(--navy-900)')}>In the queue</span>
+          </div>
+        </div>
+      </div>
+    </>
+  ),
+  /* 2 · Analytics — reach and engagement beside the post that earned them.
+     🔴 EVERY FIGURE IS A LENGTH, NOT A LABEL. A reach panel is the single most
+     natural place on this page for a number to reappear, and a number here is
+     one a church would take as a promise about what a post will do. So the bars
+     carry their values in `width` and the follower line is a polyline: the
+     shape of the claim without the claim. */
+  'scheduler-analytics': (
+    <>
+      <div style={soonCard}>
+        <div style={soonHead}>
+          <span style={soonTitle}>Last Sunday's post</span>
+          <span style={soonPill('var(--sky-700)', 'var(--sky-100)')}>Every account</span>
+        </div>
+        <div style={{ padding: '13px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
+          {soonBar('Impressions', '84%', 'var(--sky-500)')}
+          {soonBar('Reach', '61%', 'var(--sky-500)')}
+          {soonBar('Engagement', '38%', 'var(--gold-500)')}
+        </div>
+        <div style={{ margin: '0 13px 13px', background: 'var(--stone-100)', borderRadius: '12px', padding: '11px 12px' }}>
+          <div style={{ ...soonRow, justifyContent: 'space-between', marginBottom: '8px' }}>
+            <span style={soonLabel}>Followers</span>
+            <span style={{ fontSize: '10px', fontWeight: '600', color: 'var(--green-700)' }}>Climbing</span>
+          </div>
+          <svg viewBox="0 0 120 30" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '30px' }} aria-hidden="true">
+            <polyline points="0,26 20,23 40,24 60,17 80,14 100,9 120,5" fill="none" stroke="var(--green-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+    </>
+  ),
+  /* 3 · Messages — the inbox, and a reply going back out as the church rather
+     than from whoever happened to have the password. */
+  'scheduler-messaging': (
+    <>
+      <div style={soonCard}>
+        <div style={soonHead}>
+          <span style={soonTitle}>Messages</span>
+          <span style={soonPill('var(--gold-700)', 'var(--gold-100)')}>Waiting</span>
+        </div>
+        <div style={{ padding: '9px 8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          {[
+            ['Rachel', 'What time does the morning service start?', true],
+            ['Daniel', 'Is there parking anywhere near the hall?', false],
+            ['Priya', 'Could I bring my mum along on Sunday?', false],
+          ].map(([who, said, unread], i) => (
+            <div key={who as string} style={{ ...soonRow, gap: '8px', padding: '7px 8px', borderRadius: '9px', background: i === 0 ? 'var(--stone-100)' : 'transparent' }}>
+              <span aria-hidden="true" style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, background: 'var(--stone-200)' }} />
+              <span style={{ flex: '1', minWidth: '0' }}>
+                <span style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>{who as string}</span>
+                <span style={{ display: 'block', fontSize: '10.5px', color: 'var(--text-body)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{said as string}</span>
+              </span>
+              {unread ? unreadDot : null}
+            </div>
+          ))}
+        </div>
+        <div style={{ margin: '0 13px 13px' }}>
+          <div style={{ fontSize: '11px', lineHeight: '1.4', borderRadius: '10px', padding: '7px 9px', background: 'var(--navy-900)', color: '#fff', maxWidth: '84%', marginLeft: 'auto' }}>
+            Half past ten, and there is plenty of parking behind the hall.
+          </div>
+          <div style={{ ...soonRow, gap: '6px', border: '1px solid rgba(45,37,25,0.1)', borderRadius: '9px', padding: '7px 10px', marginTop: '8px', fontSize: '10.5px', color: 'var(--text-muted)' }}>
+            Replying as Grace Chapel
+          </div>
+        </div>
+      </div>
+    </>
+  ),
+  /* 4 · Comments and reviews — two tabs on one list, because the difference
+     between them is where they were left, not what the office does about them. */
+  'scheduler-comments': (
+    <>
+      <div style={soonCard}>
+        <div style={{ display: 'flex', gap: '5px', padding: '11px 13px 0' }}>
+          <span style={soonPill('#fff', 'var(--navy-900)')}>Comments</span>
+          <span style={{ fontSize: '9.5px', fontWeight: '600', color: 'var(--text-muted)', padding: '3px 9px' }}>Reviews</span>
+        </div>
+        <div style={{ padding: '12px 13px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
+          <div style={{ border: '1px solid rgba(45,37,25,0.08)', borderRadius: '12px', padding: '10px 11px' }}>
+            <div style={{ ...soonRow, gap: '7px', marginBottom: '6px' }}>
+              <span aria-hidden="true" style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, background: 'var(--stone-200)' }} />
+              <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>Tom</span>
+              <span style={{ marginLeft: 'auto', ...soonLabel }}>On the baptism post</span>
+            </div>
+            <p style={{ fontSize: '11.5px', lineHeight: '1.45', color: 'var(--earth)', margin: '0 0 8px' }}>
+              Are visitors welcome, or is it just for members?
+            </p>
+            <div style={{ ...soonRow, gap: '6px', border: '1px solid rgba(45,37,25,0.1)', borderRadius: '9px', padding: '6px 9px', fontSize: '10.5px', color: 'var(--text-muted)' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 17H7A4 4 0 0 1 7 9h10" /><path d="m14 6 3 3-3 3" />
+              </svg>
+              Reply where it was left
+            </div>
+          </div>
+          <div style={{ background: 'var(--stone-100)', borderRadius: '12px', padding: '10px 11px' }}>
+            <div style={{ ...soonRow, gap: '6px', marginBottom: '5px' }}>
+              <span style={{ ...soonRow, gap: '2px', color: 'var(--gold-500)' }} aria-hidden="true">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <svg key={i} width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.6 6.2 6.4.5-4.9 4.2 1.5 6.1L12 16.8 6.4 20l1.5-6.1L3 9.7l6.4-.5L12 3Z" /></svg>
+                ))}
+              </span>
+              <span style={{ ...soonLabel, marginLeft: 'auto' }}>A review of your church</span>
+            </div>
+            <p style={{ fontSize: '11.5px', lineHeight: '1.45', color: 'var(--earth)', margin: '0' }}>
+              Warmest welcome we have had anywhere. Someone found us a seat.
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  ),
+  /* 5 · Ads — boosting the post that is already working, from the screen it was
+     written on.
+     ⚠️ NO BUDGET FIELD, AND THAT IS THE POINT OF THE DRAWING. A boost panel
+     without an amount looks incomplete until you remember what an amount on
+     this page would be: a figure a church has not been quoted, for a feature
+     with no price. What it draws instead is the DECISION — which post, who it
+     would reach, and where it would run. */
+  'scheduler-ads': (
+    <>
+      <div style={soonCard}>
+        <div style={soonHead}>
+          <span style={soonTitle}>Boost this post</span>
+          <span style={soonPill('var(--text-muted)', 'var(--stone-100)')}>Draft</span>
+        </div>
+        <div style={{ padding: '12px 13px' }}>
+          <div style={{ ...soonRow, gap: '9px', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '11px', padding: '8px 9px', marginBottom: '12px' }}>
+            <span aria-hidden="true" style={{ width: '34px', height: '34px', borderRadius: '8px', flexShrink: 0, background: 'var(--stone-200)' }} />
+            <span style={{ flex: '1', minWidth: '0' }}>
+              <span style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>Easter services</span>
+              <span style={{ display: 'block', fontSize: '10px', color: 'var(--green-700)' }}>Doing well on its own</span>
+            </span>
+          </div>
+          <div style={{ ...soonLabel, marginBottom: '7px' }}>Who it would reach</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '13px' }}>
+            <span style={soonPill('var(--navy-900)', 'var(--gold-100)')}>Near the church</span>
+            <span style={soonPill('var(--navy-900)', 'var(--gold-100)')}>Families</span>
+            <span style={soonPill('var(--text-muted)', 'var(--stone-100)')}>Students</span>
+          </div>
+          <div style={{ ...soonRow, justifyContent: 'space-between' }}>
+            <span style={soonLabel}>Where it would run</span>
+            {accountSwatches(3, 2)}
+          </div>
+          <div style={{ marginTop: '11px', paddingTop: '10px', borderTop: '1px solid rgba(45,37,25,0.07)', ...soonRow, justifyContent: 'space-between', fontSize: '10.5px', color: 'var(--text-muted)' }}>
+            <span>Or build a campaign instead</span>
+            <span aria-hidden="true" style={{ color: 'var(--navy-900)', fontWeight: '700' }}>→</span>
+          </div>
+        </div>
+      </div>
+    </>
+  ),
+  /* 6 · Live updates — the capability the founder's own list calls webhooks.
+     ⚠️ THE WORD IS NOWHERE HERE, AND THAT IS THE-284's DECISION KEPT RATHER
+     THAN A NEW ONE. A church admin never registers a callback; what a church
+     SEES is a screen that already knows. So the vignette is an activity strip:
+     a post that went out, a comment that landed, and — the one that matters —
+     something that failed saying so at the time rather than on Monday. */
+  'scheduler-live': (
+    <>
+      <div style={soonCard}>
+        <div style={soonHead}>
+          <span style={soonTitle}>Activity</span>
+          <span style={{ ...soonRow, gap: '5px', ...soonPill('var(--green-700)', 'var(--green-100)') }}>
+            <span aria-hidden="true" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green-500)' }} />
+            Keeping up
+          </span>
+        </div>
+        <div style={{ padding: '10px 13px 13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {[
+            ['var(--green-700)', 'var(--green-100)', 'Your Sunday post went out', 'just now'],
+            ['var(--sky-700)', 'var(--sky-100)', 'A comment arrived on the baptism post', 'moments ago'],
+            ['var(--sky-700)', 'var(--sky-100)', 'Someone sent the church a message', 'moments ago'],
+          ].map(([fg, bg, what, when]) => (
+            <div key={what} style={{ ...soonRow, gap: '8px' }}>
+              <span aria-hidden="true" style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, background: bg, border: `1px solid ${fg}` }} />
+              <span style={{ flex: '1', fontSize: '11px', color: 'var(--earth)' }}>{what}</span>
+              <span style={{ fontSize: '9.5px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{when}</span>
+            </div>
+          ))}
+          <div style={{ ...soonRow, gap: '8px', background: 'var(--gold-100)', border: '1px solid var(--gold-200)', borderRadius: '10px', padding: '8px 9px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold-700)" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}>
+              <path d="M12 8v5M12 17h.01" /><circle cx="12" cy="12" r="9" />
+            </svg>
+            <span style={{ flex: '1', fontSize: '11px', color: 'var(--earth)' }}>One post did not send</span>
+            <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--gold-700)' }}>Try again</span>
           </div>
         </div>
       </div>

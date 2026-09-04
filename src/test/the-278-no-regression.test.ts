@@ -188,12 +188,41 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'features/harvest-scheduler/index.html': 'a33341141516f3d5279867a0efdcbc0bb42d6a1b5afd6345e61ed7ed37b49975',
   };
 
+  /**
+   * 🔴 THE-293 — the ONE page that moved, and nothing was added or dropped.
+   *
+   * The founder's verdict on the page THE-284 shipped was "the harvest
+   * scheduler is horrible. I want for each feature to be presented as the other
+   * category pages with a small design." Its six capabilities were six
+   * identical grey cards; they are now six `FeatureBlock`s, each with a vignette
+   * of its own in components/FeatureMock.tsx — the same component and the same
+   * gallery the five live category pages draw from.
+   *
+   * ⚠️ THE PAGE COUNT DID NOT MOVE, and could not have: no route was added. The
+   * note in src/App.tsx about appending above the catch-all is about a route
+   * this ticket never needed — THE-284's early draft renumbered thirteen pages
+   * by inserting one mid-table, and the reason nothing of the sort appears in
+   * this table is that no route was touched at all.
+   *
+   * 🔴 AND THE FIVE LIVE CATEGORY PAGES DID NOT MOVE EITHER, which is the
+   * assertion that was genuinely at risk. Drawing the capabilities through the
+   * REAL `FeatureBlock` meant editing a component that /features/ai-automation
+   * and its four siblings all render four times each. The new behaviour is
+   * behind an `unbuilt` prop that defaults to false, so their markup is
+   * byte-identical — and "byte-identical" is this table's word, not a reviewer's
+   * impression. A component edit that leaked would show up here as five more
+   * entries, and there are none.
+   */
+  const THE_293_MOVED: Readonly<Record<string, string>> = {
+    'features/harvest-scheduler/index.html': '615acfc0897c2a6c8f16a4c81cee2bf2b232c75fb9efd54f6cff4722597034a9',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
-    ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED,
+    ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too. */
-  const BASELINE_ALL = '8b15b5d49e7263733d714d05f5180ed7cd5e1e0e456c204562b2e30534d39a4a';
+  const BASELINE_ALL = 'b7dc6e6766fbd218fe58a39197c87e71bb272e65410f1822c14b531f917a14d9';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -260,6 +289,42 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
         .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+    }
+  });
+
+  it('🔴 THE-293 moved exactly one page, and added and dropped none', () => {
+    /* The delta, asserted as a delta — the shape THE-280 and THE-284 both used,
+       and the one that actually catches the failure this ticket was most likely
+       to cause. Redesigning the scheduler page meant editing FeatureBlock, which
+       every live category page renders; if that edit had changed any of them,
+       this table would need five more entries and this assertion would say so. */
+    expect(Object.keys(THE_293_MOVED)).toEqual(['features/harvest-scheduler/index.html']);
+
+    // It moved off the value THE-284 pinned when it added the page, not off
+    // some earlier one — this page has existed for exactly one prior ticket.
+    expect(THE_293_MOVED['features/harvest-scheduler/index.html'])
+      .not.toBe(THE_284_ADDED['features/harvest-scheduler/index.html']);
+
+    /* 🔴 AND THE FIVE LIVE CATEGORY PAGES ARE STILL AT THEIR RECORDED VALUES.
+       Named one by one rather than counted, because "the others did not move" is
+       satisfied by a table that quietly lost a row. These five are the pages
+       that render FeatureBlock, and they are the specific risk this ticket ran. */
+    for (const page of [
+      'features/ai-automation/index.html', 'features/community-engagement/index.html',
+      'features/discipleship-content/index.html', 'features/giving-finance/index.html',
+      'features/platform-brand/index.html',
+    ]) {
+      expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
+        .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+    }
+
+    // Nothing added, nothing dropped: the same 22 keys THE-284 left behind.
+    expect(Object.keys(BASELINE)).toHaveLength(22);
+    const others = Object.keys(BASELINE).filter((p) => !(p in THE_293_MOVED));
+    expect(others).toHaveLength(21);
+    for (const page of others) {
+      expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
+        .toBe(THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
   });
 

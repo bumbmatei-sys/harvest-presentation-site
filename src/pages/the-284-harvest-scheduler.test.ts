@@ -25,8 +25,8 @@ import {
   SCHEDULER_NAME, comingSoonContract, type SoonItem,
 } from '../content/coming-soon';
 import {
-  AD_NETWORKS, CAPABILITIES, PLATFORMS, POST_OPTIONS, SCHEDULER_NOTICE, SCHEDULER_REF,
-  schedulerContract, schedulerCopy,
+  AD_NETWORKS, CAPABILITIES, CAPABILITY_BLOCKS, PLATFORMS, POST_OPTIONS, SCHEDULER_NOTICE,
+  SCHEDULER_REF, schedulerContract, schedulerCopy,
 } from '../content/scheduler';
 
 /* ─── THE-284 — Harvest Scheduler, a page for something that does not exist ───
@@ -858,8 +858,16 @@ describe('12 — every colour is a token and no logo file was vendored', () => {
     /* ⚠️ THE PAGE'S GRIDS ARE `repeat(auto-fit, minmax(…))`, which reflows with
        no media query, precisely so that nothing here had to touch a stylesheet
        whose built output is pinned by hash in the-278's section 6b. */
-    expect(src).toMatch(/repeat\(auto-fit, minmax\(268px, 1fr\)\)/);
+    /* ⚠️ THE 268px CAPABILITY GRID IS GONE — THE-293 REPLACED IT, and this pin
+       moved with it rather than being deleted. The six capabilities are now
+       drawn through components/FeatureBlock.tsx, whose own reflow is the shared
+       `.fb-grid` / `.fb-caps` pair that ALREADY collapses at 900px in
+       index.css. So the claim this assertion makes is unchanged and its subject
+       is not: the page still adds no rule, because it still reuses rules that
+       were already there. The 240px grid is the per-post options, untouched. */
     expect(src).toMatch(/repeat\(auto-fit, minmax\(240px, 1fr\)\)/);
+    expect(src, 'the capabilities no longer reflow through a shared component')
+      .toMatch(/<FeatureBlock key=\{c\.id\} feature=\{c\} unbuilt \/>/);
     expect(read('src/index.css'), 'a rule was added for this page')
       .not.toMatch(/scheduler|destination-chip/i);
   });
@@ -878,6 +886,19 @@ describe('13 — the page renders at every measured width without overflow', () 
      records a 41px overflow found at exactly 1280px, between two passing
      measurements — so every breakpoint is evaluated, not just the extremes. */
   const VIEWPORTS = [380, 768, 1024, 1280, 1440];
+
+  /* 🔴 THE FIGURES THIS CHANGE IS REPORTED WITH, and they are NOT monotonic in
+     the viewport — which is the whole reason all five widths are evaluated
+     rather than the two extremes. Two separate inversions are visible here:
+     768 is roomier than 1024 (below 900px the block is a single column, so the
+     story gets the whole card), and 1280 is roomier than 1440 (the content
+     column caps at 1140 from about 1180px on, while the card's own
+     `clamp(26px, 3.5vw, 52px)` padding keeps growing — so past that point a
+     wider window makes the text column NARROWER). Board card THE-184 records the
+     same shape from the other direction: a 41px overflow found at exactly
+     1280px, between two passing measurements. */
+  const REPORTED_STORY_ROOM = { 380: 288, 768: 674, 1024: 457, 1280: 525, 1440: 515 };
+  const REPORTED_CAPS_ROOM = { 380: 288, 768: 674, 1024: 441, 1280: 506, 1440: 500 };
   const PAGE_GUTTER = 20;   // `padding: 'clamp(…) 20px'` on every section
   const CONTENT_MAX = 1140; // `maxWidth: 1140` on every wrapper
   const src = read('src/pages/SchedulerPage.tsx');
@@ -900,25 +921,87 @@ describe('13 — the page renders at every measured width without overflow', () 
   it('the grids really are auto-fit, so no track can be narrower than its minimum', () => {
     // Guards every calculation below against being derived from a rule that is
     // no longer in the file.
-    expect(src).toContain("gridTemplateColumns: 'repeat(auto-fit, minmax(268px, 1fr))'");
     expect(src).toContain("gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))'");
-    // And the one fixed-column grid on the page is the shared collapse class.
+    // And the fixed-column grids on the page are the shared collapse classes:
+    // one written here, and two more inside the FeatureBlocks the capabilities
+    // are now drawn through.
     expect(src).toContain('className="fb-grid"');
+    expect(read('src/components/FeatureBlock.tsx')).toContain('className="fb-grid"');
+    expect(read('src/components/FeatureBlock.tsx')).toContain('className="fb-caps"');
     const css = read('src/index.css');
     const block = css.slice(css.indexOf('@media (max-width: 900px)'));
-    expect(block.slice(0, block.indexOf('\n}')), 'fb-grid no longer collapses at 900px')
-      .toContain('.fb-grid');
+    const rules = block.slice(0, block.indexOf('\n}'));
+    expect(rules, 'fb-grid no longer collapses at 900px').toContain('.fb-grid');
+    expect(rules, 'fb-caps no longer collapses at 900px').toContain('.fb-caps');
   });
 
-  it.each(VIEWPORTS)('a capability card fits its longest word at %ipx', (v) => {
-    // 268px minimum, clamp gap at its widest (22px), less the card's own
-    // clamp padding at its widest (28px a side).
-    const room = trackWidth(v, 268, 22) - 28 * 2;
-    const widest = Math.max(
-      ...CAPABILITIES.flatMap((c) => [c.title, c.name, ...c.bullets].map(longestWord)),
-    ) * charWidth(14);
-    expect(room, `the widest word (~${widest.toFixed(0)}px) does not fit a ${room.toFixed(0)}px card`)
+  /* ─── 🔴 THE-293 — THE CAPABILITY ARITHMETIC, REDERIVED FOR A DIFFERENT BOX ──
+   *
+   * ⚠️ WHAT MOVED IS THE LAYOUT, NOT THE CLAIM. The six capabilities used to sit
+   * in a `repeat(auto-fit, minmax(268px, 1fr))` grid of cards on this page; they
+   * are now six `FeatureBlock`s, the same component the five live category pages
+   * use. Keeping the old figures would have left a suite that still passed while
+   * measuring a box that no longer exists — arithmetic against a layout nobody
+   * renders is worse than no arithmetic, because it reads as coverage.
+   *
+   * The block is a `clamp()`-padded card inside a 1140px column, split by
+   * `.fb-grid` above 900px and stacked below it, with the two capability lists
+   * under it in `.fb-caps`. Both classes collapse in the SAME 900px media block,
+   * asserted above, so every width here is one of two cases and not three. */
+  /** `clamp(min, NNvw, max)`, evaluated at a viewport. */
+  const clamp = (lo: number, vw: number, hi: number, v: number) => Math.min(hi, Math.max(lo, (vw / 100) * v));
+
+  /** The room inside one FeatureBlock's white card. `padding: '0 20px 26px'` on
+   *  the block's own wrapper, then `clamp(26px, 3.5vw, 52px)` a side on the card. */
+  const cardInner = (v: number) => {
+    const column = Math.min(CONTENT_MAX, v - PAGE_GUTTER * 2);
+    return column - clamp(26, 3.5, 52, v) * 2;
+  };
+
+  /** The story column — 1.05 of a 2fr split above 900px, the whole card below. */
+  const storyColumn = (v: number) => {
+    const inner = cardInner(v);
+    return v > 900 ? (inner - clamp(28, 4, 64, v)) * (1.05 / 2) : inner;
+  };
+
+  /** One of the two capability lists under the split. */
+  const capsColumn = (v: number) => {
+    const inner = cardInner(v);
+    return v > 900 ? (inner - clamp(20, 3, 40, v)) / 2 : inner;
+  };
+
+  it.each(VIEWPORTS)('a capability block fits its longest heading word at %ipx', (v) => {
+    /* The heading is the binding string in the story column: it is set in the
+       serif at `clamp(1.85rem, 3.4vw, 2.75rem)`, far larger than the body or the
+       pull-quote, so a word that fits here fits everything beside it. */
+    const room = storyColumn(v);
+    const headingPx = Math.min(44, Math.max(29.6, 0.034 * v));
+    const widest = Math.max(...CAPABILITY_BLOCKS.map((c) => longestWord(c.title))) * charWidth(headingPx);
+    expect(room, `the widest heading word (~${widest.toFixed(0)}px) does not fit a ${room.toFixed(0)}px column`)
       .toBeGreaterThan(widest);
+  });
+
+  it.each(VIEWPORTS)('both capability lists fit their longest word at %ipx', (v) => {
+    /* ⚠️ MEASURED AGAINST THE NARROWER OF THE TWO COLUMNS, which is what a
+       naive check misses: `.fb-caps` is `1fr 1fr`, so the longer list does not
+       get more room for being longer. The list items are set at 14px, less the
+       marker and its 10px gap. */
+    const room = capsColumn(v) - 11 - 10;
+    const widest = Math.max(
+      ...CAPABILITY_BLOCKS.flatMap((c) => [...c.admin, ...c.member, c.adminLabel!, c.memberLabel!].map(longestWord)),
+    ) * charWidth(14);
+    expect(room, `the widest word (~${widest.toFixed(0)}px) does not fit a ${room.toFixed(0)}px column`)
+      .toBeGreaterThan(widest);
+  });
+
+  it.each(VIEWPORTS)('the vignette never exceeds its half of the block at %ipx', (v) => {
+    /* The frame is `width: 100%` under a `maxWidth: 410`, so it can only be as
+       wide as its column — this is the assertion that says the 410 is a CAP and
+       not a floor, which is the shape that would actually push the page sideways. */
+    const inner = cardInner(v);
+    const column = v > 900 ? (inner - clamp(28, 4, 64, v)) * (0.95 / 2) : inner;
+    expect(Math.min(410, column), `the vignette column is ${column.toFixed(0)}px`).toBeLessThanOrEqual(column);
+    expect(read('src/components/FeatureBlock.tsx')).toContain("width: '100%', maxWidth: 410");
   });
 
   it.each(VIEWPORTS)('a per-post option card fits its longest word at %ipx', (v) => {
@@ -949,18 +1032,22 @@ describe('13 — the page renders at every measured width without overflow', () 
     expect(src, 'the chip row does not wrap').toContain("flexWrap: 'wrap'");
   });
 
-  it('reports the measured capability-card room at every width', () => {
+  it('reports the measured capability-block room at every width', () => {
     /* The five figures this change is reported with.
      *
-     * ⚠️ 1280px IS THE BINDING CASE, NOT 380px, AND THIS IS WHY EVERY WIDTH IS
-     * EVALUATED. Room does not grow with the viewport: at 380 the grid is one
-     * full-width track and a card gets 284px, and at 1280 three tracks fit and a
-     * card gets 213px. The phone is the roomiest measurement on the page. Board
-     * card THE-184 records the same shape — a 41px overflow found at exactly
-     * 1280px, between two passing measurements — which is the reason this suite
-     * checks five widths rather than the two extremes. */
-    expect(Object.fromEntries(VIEWPORTS.map((v) => [v, Math.round(trackWidth(v, 268, 22) - 56)])))
-      .toEqual({ 380: 284, 768: 297, 1024: 257, 1280: 213, 1440: 213 });
+     * 🔴 THE SHAPE OF THE RISK INVERTED WHEN THE LAYOUT CHANGED, and that is
+     * worth stating rather than quietly repinning. Under the old card grid the
+     * PHONE was the roomiest measurement (284px at 380, 213px at 1280) because
+     * more tracks fit as the viewport grew. A FeatureBlock does the opposite:
+     * it is one column below 900px and a 1.05/2 split above it, so the story
+     * column jumps at the breakpoint and then grows. The narrow end is now the
+     * binding case, which is the ordinary shape — but it is asserted at all five
+     * widths anyway, because board card THE-184 records a 41px overflow found at
+     * exactly 1280px between two passing measurements. */
+    expect(Object.fromEntries(VIEWPORTS.map((v) => [v, Math.round(storyColumn(v))])))
+      .toEqual(REPORTED_STORY_ROOM);
+    expect(Object.fromEntries(VIEWPORTS.map((v) => [v, Math.round(capsColumn(v))])))
+      .toEqual(REPORTED_CAPS_ROOM);
   });
 
   it('🔴 nothing on the page declares a fixed width that could exceed the narrowest content box', () => {

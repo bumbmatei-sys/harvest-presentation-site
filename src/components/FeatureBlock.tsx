@@ -21,14 +21,23 @@ const check = (
   </svg>
 );
 
-function CapList({ label, items, accent }: { label: string; items: string[]; accent: string }) {
+/* 🔴 A TICK MEANS "YOU GET THIS", which is true on a category page and false on
+   a page about work nobody has built. The unbuilt variant swaps it for the
+   dashed square ComingSoonBlock and SoonMock already use for the same idea — a
+   vocabulary a reader of this site has been taught elsewhere, rather than a new
+   one invented here. */
+const notYet = (
+  <span aria-hidden="true" style={{ width: 11, height: 11, marginTop: 5, flexShrink: 0, border: '1px dashed var(--text-soon-soft)', borderRadius: 3 }} />
+);
+
+function CapList({ label, items, accent, unbuilt }: { label: string; items: string[]; accent: string; unbuilt?: boolean }) {
   return (
     <div>
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: accent, marginBottom: 14 }}>{label}</div>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
         {items.map((cap) => (
           <li key={cap} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            {check}
+            {unbuilt ? notYet : check}
             <span style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--text-body)' }}>{cap}</span>
           </li>
         ))}
@@ -73,7 +82,48 @@ function PlanChips({ tiers, note, accent }: { tiers: number[]; note?: string; ac
   );
 }
 
-export function FeatureBlock({ feature }: { feature: Feature }) {
+/**
+ * What `FeatureBlock` actually reads. `Feature` satisfies it, so every category
+ * page passes one unchanged — but the two fields a live feature must have and an
+ * unbuilt one cannot are optional here: `n` is the ordinal a jump-to index
+ * prints, and `tiers` is plan availability, which is a claim nothing on
+ * /features/harvest-scheduler is allowed to make.
+ */
+export type FeatureBlockData = Omit<Feature, 'n' | 'tiers'> & { n?: string; tiers?: number[] };
+
+/**
+ * One feature, drawn the way the five live category pages draw one.
+ *
+ * ─── 🔴 THE-293 — `unbuilt`, AND WHY IT IS A FLAG RATHER THAN A SECOND COMPONENT
+ *
+ * The founder's complaint about /features/harvest-scheduler was that its six
+ * capabilities were six identical grey cards while "the other category pages"
+ * give each feature a design of its own. The fix is to draw them through THIS
+ * component — a lookalike would drift from it within a ticket or two, which is
+ * the whole reason the category pages share one block in the first place.
+ *
+ * ⚠️ WHAT THE FLAG TURNS OFF IS THE SALES FURNITURE, AND ONLY THAT. Three
+ * things on a live block are claims an unbuilt feature cannot make, and each is
+ * forbidden by a test that predates this one:
+ *
+ *   · PLAN CHIPS name the four tiers and are headed "Available on" — a tier
+ *     claim and an availability claim, both of which `schedulerContract` throws
+ *     on at module scope.
+ *   · CROSSLINKS are routes, and the scheduler page's outbound links are pinned
+ *     to exactly two — /contact and the Coming Soon list.
+ *   · THE TICK means "you get this". It becomes the dashed square instead.
+ *
+ * And one thing it turns ON: the vignette's tab label, which reads "Harvest" on
+ * a live page because that is the app you are looking at. On an unbuilt one it
+ * says so instead, in the markup, so the disclaimer travels with the picture
+ * rather than sitting in a caption somebody can crop away — the property
+ * SoonMock's frame already had and this must not lose.
+ *
+ * ⚠️ DEFAULT OFF, so the five live category pages render byte-for-byte what
+ * they rendered before. That is asserted, not assumed: the-278's fingerprint
+ * table pins all five.
+ */
+export function FeatureBlock({ feature, unbuilt = false }: { feature: FeatureBlockData; unbuilt?: boolean }) {
   const { accent, accentBg } = feature;
   return (
     <div id={feature.id} style={{ scrollMarginTop: 104 }}>
@@ -101,7 +151,9 @@ export function FeatureBlock({ feature }: { feature: Feature }) {
                 <p style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontStyle: 'italic', fontSize: 'clamp(1.3rem, 2vw, 1.65rem)', lineHeight: 1.32, letterSpacing: '-0.01em', color: 'var(--navy-900)', margin: 0 }}>{feature.moment}</p>
               </div>
 
-              <PlanChips tiers={feature.tiers} note={feature.tiersNote} accent={accent} />
+              {!unbuilt && feature.tiers && (
+                <PlanChips tiers={feature.tiers} note={feature.tiersNote} accent={accent} />
+              )}
             </div>
 
             {/* ---- Vignette ---- */}
@@ -110,7 +162,7 @@ export function FeatureBlock({ feature }: { feature: Feature }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderBottom: '1px solid rgba(45,37,25,0.07)', background: 'var(--cream)' }}>
                   <span style={{ width: 9, height: 9, borderRadius: '50%', background: accent, flexShrink: 0 }} />
                   <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, fontWeight: 700, color: 'var(--navy-900)' }}>{feature.name}</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600 }}>Harvest</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600 }}>{unbuilt ? 'Concept — nothing built' : 'Harvest'}</span>
                 </div>
                 <div style={{ padding: '15px 16px 18px', background: 'var(--stone-100)' }}>
                   <FeatureMock id={feature.id} />
@@ -121,11 +173,11 @@ export function FeatureBlock({ feature }: { feature: Feature }) {
 
           {/* ---- What each side gets ---- */}
           <div className="fb-caps" style={{ marginTop: 'clamp(30px, 4vw, 52px)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(20px, 3vw, 40px)' }}>
-            <CapList label={feature.adminLabel || 'For admins'} items={feature.admin} accent={accent} />
-            <CapList label={feature.memberLabel || 'For members'} items={feature.member} accent={accent} />
+            <CapList label={feature.adminLabel || 'For admins'} items={feature.admin} accent={accent} unbuilt={unbuilt} />
+            <CapList label={feature.memberLabel || 'For members'} items={feature.member} accent={accent} unbuilt={unbuilt} />
           </div>
 
-          {feature.crosslinks && feature.crosslinks.length > 0 && (
+          {!unbuilt && feature.crosslinks && feature.crosslinks.length > 0 && (
             <div style={{ marginTop: 22, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text-muted)' }}>Works with</span>
               {feature.crosslinks.map((cl) => (
