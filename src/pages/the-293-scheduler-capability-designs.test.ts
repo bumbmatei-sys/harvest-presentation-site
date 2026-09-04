@@ -621,24 +621,46 @@ describe('14 — no colour is hardcoded and no logo file was vendored', () => {
        vignettes that predate this ticket are not this ticket's to repaint, and a
        whole-file scan would either fail on them or be weakened to nothing.
      *
-     * 🔴 TWO REGIONS, NOT ONE, AND THE FIRST DRAFT OF THIS TEST GOT IT WRONG.
-     * The helpers sit ABOVE `const MOCKS` and the six entries sit at the END of
-     * it, so a single slice from the helper comment to the end of file swept
-     * every pre-existing vignette too — and reported thirteen hardcoded colours
-     * that belong to other people's tickets. Sliced as the two disjoint regions
-     * this change actually wrote, it measures this change. */
+     * 🔴 THREE REGIONS, AND TWO EARLIER DRAFTS OF THIS TEST SLICED THEM WRONG —
+     * both times by over-reaching into other people's vignettes rather than by
+     * missing their own, which is the direction that reports a false failure
+     * instead of a false pass. What this change wrote is in three separate
+     * places, and they are not contiguous:
+     *
+     *   · six icons, at the END of `FEATURE_ICONS` near the top of the file
+     *   · the shared helpers, immediately ABOVE `const MOCKS`
+     *   · the six vignettes, at the END of `MOCKS`
+     *
+     * ⚠️ THE SIX ARE FOUND *AFTER* `const MOCKS`, WHICH IS THE WHOLE TRICK. The
+     * icons and the vignettes are keyed by the SAME six strings, so a bare
+     * `indexOf("'scheduler-publishing': (")` matches the ICON at the top of the
+     * file, and a slice running from there swept all twenty-nine pre-existing
+     * vignettes — it reported `#C4553B` and a dozen others, none of them this
+     * ticket's to answer for. Searching from `const MOCKS` onwards is what makes
+     * the two occurrences distinguishable. */
     const mock = read('src/components/FeatureMock.tsx');
+    const iconsStart = mock.indexOf('  /* ── THE-293 — the six Harvest Scheduler capabilities');
+    const iconsEnd = mock.indexOf('\n};\n', iconsStart);
     const helperStart = mock.indexOf('/* ── THE-293 — the six Harvest Scheduler vignettes');
-    const helperEnd = mock.indexOf('const MOCKS: Record<string, React.ReactElement> = {');
-    const sixStart = mock.indexOf("  'scheduler-publishing': (");
+    const mocksStart = mock.indexOf('const MOCKS: Record<string, React.ReactElement> = {');
+    const sixStart = mock.indexOf("  'scheduler-publishing': (", mocksStart);
     const sixEnd = mock.indexOf('export function FeatureMock(');
     for (const [label, at, to] of [
-      ['the helpers', helperStart, helperEnd], ['the six vignettes', sixStart, sixEnd],
+      ['the icons', iconsStart, iconsEnd],
+      ['the helpers', helperStart, mocksStart],
+      ['the six vignettes', sixStart, sixEnd],
     ] as [string, number, number][]) {
       expect(at, `${label} region of FeatureMock is gone`).toBeGreaterThan(0);
       expect(to, `${label} region of FeatureMock is gone`).toBeGreaterThan(at);
     }
-    const mine = mock.slice(helperStart, helperEnd) + mock.slice(sixStart, sixEnd);
+    /* 🔴 AND THE SIX-VIGNETTE REGION REALLY IS THE SECOND OCCURRENCE, not the
+       first. Without this the slice could silently collapse back onto the icons
+       and pass by measuring the wrong thing. */
+    expect(sixStart, 'the six vignettes were not found inside MOCKS').toBeGreaterThan(mocksStart);
+    expect(mock.indexOf("  'scheduler-publishing': (")).toBeLessThan(mocksStart);
+    const mine = mock.slice(iconsStart, iconsEnd)
+      + mock.slice(helperStart, mocksStart)
+      + mock.slice(sixStart, sixEnd);
     /* ⚠️ AND THE REGIONS ARE PROVED NON-EMPTY AND COMPLETE, so a slice that
        silently collapsed would not pass by measuring nothing. */
     expect(mine.length).toBeGreaterThan(4000);
