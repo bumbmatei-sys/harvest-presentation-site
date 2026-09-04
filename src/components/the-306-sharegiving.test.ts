@@ -329,11 +329,21 @@ describe('6 — each mark is unmodified and within its clear-space', () => {
    * for that one rather than a mangled mark." It fired for all six.
    *
    * A mark may only ship here if it came from that provider's OWN brand-assets
-   * page. Every one of the six domains is refused by this environment's egress
-   * policy — paypal.com, cash.app, venmo.com, zellepay.com, revolut.com and
-   * wise.com each answer 403 to CONNECT — so not one could be sourced, and a
-   * logo redrawn from recollection is exactly the mangled mark the rule
-   * forbids, on a money surface, under a church's name.
+   * page.
+   *
+   * 🔴 AND THE REASON IS NOT THE ONE THE-306 WROTE. THE-306 ran in a sandbox
+   * that refused all six providers' domains and concluded the marks could not
+   * be FETCHED. THE-307 re-ran it with open egress: all six hosts answer, and
+   * the marks still cannot ship, because four providers' published terms
+   * prohibit this use outright (Zelle — written permission required, personal
+   * non-commercial licence only; Wise — "any use not specifically permitted is
+   * strictly prohibited"; Revolut — no grant published at all; PayPal — the
+   * self-serve route is a merchant-acceptance licence Harvest has no claim to,
+   * and the press kit is editorial), Cash App publishes no usage terms to rely
+   * on, and Venmo permits only its WORDMARK, which with its mandated
+   * clear-space (half the logo height, a quarter minimum) does not fit a 30px
+   * circle. A logo redrawn from recollection is exactly the mangled mark the
+   * rule forbids, on a money surface, under a church's name.
    *
    * ⚠️ SO THESE ASSERTIONS ARE THE INVERSE OF WHAT THEY WOULD BE WITH ARTWORK.
    * "Unmodified" and "within clear-space" are properties of a mark, and there is
@@ -343,10 +353,10 @@ describe('6 — each mark is unmodified and within its clear-space', () => {
    * typeface is Harvest's own drawing, so no clear-space, minimum-size or
    * do-not-modify rule attaches to it. There is nothing to crop.
    *
-   * 🔵 WHEN A FOLLOW-UP VENDORS THE REAL SIX into `logos/`, from the six brand
-   * centres and with a source URL recorded per file, these three assertions are
-   * the ones to replace — with per-file provenance and a clear-space check
-   * against each provider's published minimum.
+   * 🔴 A FOLLOW-UP CANNOT SIMPLY VENDOR THE SIX. THE-307 attempted precisely
+   * that and was stopped by the terms above, not by the network. These three
+   * assertions become replaceable only for a provider that has granted written
+   * permission — and then only for that one.
    */
   const html = mockHtml(SHARE_ID);
 
@@ -373,14 +383,45 @@ describe('6 — each mark is unmodified and within its clear-space', () => {
   it('🔴 the reason is recorded in the file, not just in a pull request', () => {
     /* A future reader looking at six grey circles will reasonably assume they
        are a placeholder somebody forgot. The docblock is what tells them it is a
-       decision, names the blocked hosts, and says how to replace it properly. */
+       decision, names every provider's terms, and says what would actually
+       unblock it. */
     const mock = src('./FeatureMock.tsx');
     expect(mock).toContain('THE SIX CIRCLES CARRY MONOGRAMS, NOT MARKS');
-    expect(mock).toContain('403 to CONNECT');
     for (const host of ['paypal.com', 'cash.app', 'venmo.com',
                         'zellepay.com', 'revolut.com', 'wise.com']) {
-      expect(mock, `${host} is not recorded as blocked`).toContain(host);
+      expect(mock, `${host} is not named in the record`).toContain(host);
     }
+  });
+
+  it('🔴 the record is the LICENSING one, and cannot silently revert to "blocked"', () => {
+    /* THE-307's whole product is this paragraph. If a later hand restores
+       THE-306's fetch-failure story, somebody will re-run the fetch, find the
+       hosts answer, and ship six marks nobody is licensed to ship. So the file
+       must state that egress was NOT the blocker, and must carry a per-provider
+       terms reason — one line each, for all six. */
+    const mock = src('./FeatureMock.tsx');
+    expect(mock).toContain('THE-306 RECORDED THE WRONG REASON');
+    expect(mock).toContain('The blocker was never the network');
+    expect(mock).toContain('DO NOT RE-OPEN THIS AS A FETCHING PROBLEM');
+
+    /* The stale claim itself must be gone: THE-306 asserted all six answer 403
+       to CONNECT, and they do not. */
+    expect(mock).not.toContain('403 to CONNECT');
+
+    /* One reason per provider, each naming the term that actually blocks it. */
+    for (const [provider, term] of [
+      ['PayPal', 'MERCHANT payment-button builder'],
+      ['Cash App', 'is a PRESS resources page and publishes'],
+      ['Venmo', 'reserved for the Venmo social identity'],
+      ['Zelle', 'express permission by Network Operator in writing'],
+      ['Revolut', 'we own all the intellectual property'],
+      ['Wise', 'Any use not specifically permitted is strictly'],
+    ] as const) {
+      expect(mock, `${provider}'s blocking term is not recorded`).toContain(term);
+    }
+
+    /* And the route out is written permission, not a second fetch attempt. */
+    expect(mock).toContain('WRITTEN PERMISSION');
   });
 });
 
@@ -502,9 +543,13 @@ describe('9 — no colour is hardcoded except the provider brand colours', () =>
     /* A provider's brand colour inside its own circle WOULD have been legitimate
        — it is DATA identifying a third party, not a token, on the same footing
        as the app's `tint`/`ink`. The exemption goes unused: a hex value is a
-       brand asset like any other, and with every brand centre unreachable
-       (section 6) six unverified colours would assert six brand identities as
-       confidently as six wrong glyphs. The circles use the ramps instead. */
+       brand asset like any other. THE-307 found exactly one of the six published
+       officially — Venmo's light-ground blue, in the same kit whose mark
+       Venmo does not license here (section 6) — so taking the colour while
+       dropping the mark asserts the identity with none of the terms attached.
+       The other five are published nowhere this site may read. Six colours,
+       five unverified, would assert six brand identities as confidently as six
+       wrong glyphs. The circles use the ramps instead. */
     const html = mockHtml(SHARE_ID);
     const hexes = (html.match(/#[0-9a-fA-F]{3,8}\b/g) ?? []).map((h) => h.toLowerCase());
     /* `#fff` is the card ground every vignette in this file uses literally, and
