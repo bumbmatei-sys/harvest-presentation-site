@@ -130,6 +130,17 @@ export const FEATURE_ICONS: Record<string, React.ReactElement> = {
       <path d="M3.2 6.6C2.5 9 4 11.5 12 17c8-5.5 9.5-8 8.8-10.4" />
     </svg>
   ),
+  /* THE-306 — the share-sheet arrow, matching the `share` entry this feature
+     gets in the mega-menu. `FEATURE_ICONS[feature.id]` is read by FeatureBlock
+     for the badge beside the eyebrow; with no entry it rendered an empty
+     coloured square, which was half of what made this section look unfinished. */
+  sharegiving: (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v13" />
+      <path d="m8 7 4-4 4 4" />
+      <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+    </svg>
+  ),
   fundraising: (
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 20h18" />
@@ -420,6 +431,102 @@ const soonBar = (label: string, width: string, fill: string) => (
       <span style={{ display: 'block', width, height: '100%', background: fill }} />
     </span>
   </div>
+);
+
+/* ── THE-306 — the Shareable Giving Page vignette, and its six circles ───────
+ *
+ * 🔴 THE FOUNDER, VERBATIM: "is horrible." The `sharegiving` feature shipped in
+ * THE-281 with copy but no entry here, so `FeatureBlock` drew its frame around
+ * nothing — a titled grey box on a page where its five neighbours each get a
+ * still life of the surface. And, verbatim on what to draw: "i want to see in
+ * that shareable design the donation form and put the logo of the shareable
+ * links one next to the other under it in circles."
+ *
+ * ⚠️ MODELLED ON `donation`, the vignette directly above it in this file and
+ * the section directly above it on /features/giving-finance. Same white card on
+ * the `rgba(45,37,25,0.08)` hairline, same sixteen-pixel radius, same header
+ * row at 11px/13px with a 12px/700 navy title, same 13px body, same three-chip
+ * amount row with the middle one selected, same navy give button. Nothing new
+ * was invented: the entire point of the ticket is that this section stops
+ * looking like the exception on its own page.
+ *
+ * 🔴 AND THE ONE WAY IT DIFFERS FROM `donation`, WHICH IS THE FEATURE ITSELF.
+ * That entry is the STRIPE giving page — card gifts, one destination. This is
+ * the page a church SHARES, and what makes it worth sharing is that it also
+ * carries the church's own direct accounts. So the card form is compact, the
+ * amounts differ from its neighbour's so two adjacent pictures do not read as
+ * one duplicated twice, and beneath it sits the row the founder asked for.
+ *
+ * ─── 🔴 THE SIX CIRCLES CARRY MONOGRAMS, NOT MARKS. READ THIS BEFORE "FIXING" IT.
+ *
+ * The ticket's own escape hatch, verbatim: "Report any provider whose terms you
+ * could not satisfy, and use a neutral fallback for that one rather than a
+ * mangled mark." It fired for all six.
+ *
+ * A third party's mark may only ship here if it came from that party's OWN
+ * brand-assets page — not an aggregator, not a scrape, not redrawn from memory.
+ * Every one of the six providers' domains is refused by this environment's
+ * egress policy (paypal.com, cash.app, venmo.com, zellepay.com, revolut.com and
+ * wise.com all answer 403 to CONNECT), so not one mark could be sourced, and a
+ * logo drawn from recollection is precisely the mangled mark the rule forbids —
+ * on a money surface, under a church's name, where a wrong glyph implies an
+ * endorsement that does not exist.
+ *
+ * ⚠️ SO THE MARK IS ABSENT AND THE NAME IS PRESENT. Each circle carries the
+ * provider's initial set in this site's own type, with the provider's name in
+ * words beneath it. Naming a service you interoperate with is ordinary
+ * nominative use and needs no licence; a monogram in Harvest's own typeface is
+ * Harvest's own drawing, so no clear-space, minimum-size or do-not-modify rule
+ * applies to it — there is no mark to crop. This is the same reasoning, and the
+ * same shape, as the app repo's `ProviderMark`.
+ *
+ * 🔵 A FOLLOW-UP MAY REPLACE THESE WITH REAL MARKS, and should do it by
+ * vendoring six files into `logos/` from the six brand centres, the way
+ * `logos/instagram.svg` and the two Google marks were vendored, recording the
+ * source URL per file. It is not a code change here beyond swapping the
+ * monogram for an <img>.
+ *
+ * ⚠️ NO COLOUR IS HARDCODED IN THIS VIGNETTE — not even a brand colour. A
+ * provider's brand colour would have been legitimate as DATA rather than a
+ * token, on the same footing as the app's `tint`/`ink`, but a hex value is a
+ * brand asset like any other and none could be sourced from an official page
+ * either. Six unverified colours would assert six brand identities as
+ * confidently as six wrong glyphs. The circles use the ramps in index.css. */
+
+/** The providers the shared giving page taps through to, in the order
+ *  content/features.ts records them.
+ *
+ *  🔴 EXACTLY THE SIX THIS SITE ALREADY CLAIMS, and adding a seventh is the
+ *  mutation the-306's suite exists to catch. Five are named in the feature's
+ *  own member bullet ("Taps straight through to PayPal, Cash App, Venmo,
+ *  Revolut or Wise"); Zelle is the sixth, named in the block comment on the
+ *  `sharegiving` entry in content/features.ts that records what the app
+ *  actually carries. The bullet is prose and reads as a sample; that comment is
+ *  the list. Nothing here may name a rail the app does not support. */
+export const SHARE_GIVING_PROVIDERS: readonly { name: string; monogram: string }[] = [
+  { name: 'PayPal', monogram: 'P' },
+  { name: 'Cash App', monogram: 'C' },
+  { name: 'Venmo', monogram: 'V' },
+  { name: 'Zelle', monogram: 'Z' },
+  { name: 'Revolut', monogram: 'R' },
+  { name: 'Wise', monogram: 'W' },
+];
+
+/** One share affordance, as a pill. The three of them are the feature's three
+ *  admin bullets — share sheet, copy, QR — and they are why no QR is DRAWN
+ *  here: `checkin` above already owns the full-size QR picture on this site,
+ *  and repeating it would make two vignettes look alike to solve a ticket about
+ *  a vignette that looks like nothing. */
+const shareChip = (label: string) => (
+  <span
+    key={label}
+    style={{
+      fontSize: '9px', fontWeight: '700', letterSpacing: '0.04em', color: 'var(--gold-700)',
+      background: 'var(--gold-100)', padding: '3px 7px', borderRadius: '999px', whiteSpace: 'nowrap',
+    }}
+  >
+    {label}
+  </span>
 );
 
 const MOCKS: Record<string, React.ReactElement> = {
@@ -975,6 +1082,61 @@ const MOCKS: Record<string, React.ReactElement> = {
               <path d="m9 12 2 2 4-4" />
             </svg>
             <span style={{ fontSize: '10.5px', lineHeight: '1.4', color: 'var(--green-700)', fontWeight: '600' }}>Lands straight in your church's Stripe account — never ours.</span>
+          </div>
+        </div>
+      </div>
+    </>
+  ),
+  sharegiving: (
+    <>
+      <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
+        {/* Header — the shared page's own title, and the three ways it travels. */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Give to Grace Chapel</span>
+          <span style={{ display: 'inline-flex', gap: '4px' }}>
+            {['Share', 'Copy', 'QR'].map(shareChip)}
+          </span>
+        </div>
+        <div style={{ padding: '13px' }}>
+          {/* The donation form — the `donation` vignette's own idiom, compacted. */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
+            <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--navy-800)', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '8px 0' }}>$30</div>
+            <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#fff', background: 'var(--gold-500)', borderRadius: '9px', padding: '8px 0', boxShadow: '0 4px 12px rgba(201,150,58,0.35)' }}>$60</div>
+            <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--navy-800)', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '8px 0' }}>$150</div>
+          </div>
+          <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', borderRadius: '9px', padding: '9px', marginTop: '9px' }}>Give $60 by card</div>
+
+          {/* ── and beneath it, the circles ──────────────────────────────────
+              🔴 SIX FRACTIONAL COLUMNS, NOT SIX FIXED WIDTHS. `repeat(6, 1fr)`
+              divides whatever width the cell has, so the row stays one row at
+              every breakpoint the founder asked for it to be one — and cannot
+              overflow, because a fractional column has no intrinsic width to
+              overflow WITH. The 30px circle is the only fixed dimension and it
+              fits the narrowest column this frame ever produces; the name below
+              wraps inside its own column rather than widening it, which is why
+              "Cash App" sets on two lines on a phone and one on a desktop. */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '13px 0 10px' }}>
+            <span style={{ height: '1px', flex: '1', background: 'rgba(45,37,25,0.08)' }} />
+            <span style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '0.09em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Or give directly</span>
+            <span style={{ height: '1px', flex: '1', background: 'rgba(45,37,25,0.08)' }} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px' }}>
+            {SHARE_GIVING_PROVIDERS.map((p) => (
+              <span key={p.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', minWidth: '0' }}>
+                <span
+                  style={{
+                    width: '30px', height: '30px', borderRadius: '50%', flexShrink: '0',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'var(--stone-100)', border: '1px solid rgba(45,37,25,0.10)',
+                    fontSize: '12px', fontWeight: '700', color: 'var(--navy-800)',
+                  }}
+                  aria-hidden="true"
+                >
+                  {p.monogram}
+                </span>
+                <span style={{ fontSize: '8.5px', lineHeight: '1.2', textAlign: 'center', color: 'var(--text-muted)', overflowWrap: 'break-word', minWidth: '0' }}>{p.name}</span>
+              </span>
+            ))}
           </div>
         </div>
       </div>

@@ -384,7 +384,8 @@ describe('THE-180 — Community Groups names its tier floor', () => {
   it('the tool count is unchanged at its derived value', () => {
     // CATALOG is untouched — this change only added a tiersNote to one entry
     // in content/features.ts.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

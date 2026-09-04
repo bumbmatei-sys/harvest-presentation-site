@@ -637,8 +637,9 @@ describe('8 — the entry traces to its board card and reaches the page', () => 
     const tool = soonGroup.items.find((i) => i.title === SCHEDULER_NAME);
     expect(tool, 'the entry is missing from the catalogue').toBeDefined();
     expect(tool!.soon, '🔴 it would be counted as a live tool').toBe(true);
-    // The derived "N tools in one platform" figure is untouched at 27.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // The derived "N tools in one platform" figure is untouched BY THIS ENTRY.
+    // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(soonGroup.items.filter((i) => !i.soon)).toHaveLength(0);
   });
 

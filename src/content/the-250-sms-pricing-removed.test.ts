@@ -290,8 +290,9 @@ describe('4 — both cross-repo contracts still throw when the repos disagree', 
 /* ── 5 ─────────────────────────────────────────────────────────────────────
    🔴 The tool count is still derived, and no price moved.                    */
 describe('5 — the tool count is still derived, and no price changed', () => {
-  it('🔴 CATALOG_TOOL_COUNT is 27, and still a REDUCE over CATALOG', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+  it('🔴 CATALOG_TOOL_COUNT is 28, and still a REDUCE over CATALOG', () => {
+    // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     // Derived, not restated: recompute it here and demand agreement.
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),

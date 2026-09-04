@@ -257,9 +257,58 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'features/index.html': '2e40c4060f6f9cbc22957bcca3de4626cfe483a03b63fa76ecec79c5b45d958e',
   };
 
+  /**
+   * 🔴 THE-306 — the THREE pages that moved, and why two of them are not a leak.
+   *
+   * The Shareable Giving Page shipped in THE-281 with copy and no picture: no
+   * entry in components/FeatureMock.tsx, so `FeatureBlock` drew its frame around
+   * an empty panel, and no `FEATURE_ICONS` entry, so the badge beside its
+   * eyebrow was an empty coloured square. The founder, on the live page: "is
+   * horrible." It also had no row in components/catalog.ts, so it was
+   * unreachable from the Features mega-menu.
+   *
+   *   · features/giving-finance — the page the feature's section is on, and the
+   *     only page any of the new MARKUP renders on. Its diff is 59 lines added
+   *     and NONE removed: the icon svg, and the vignette inside the frame that
+   *     was already there.
+   *
+   * ─── 🔴 AND THE OTHER TWO, WHICH ARE ONE CHARACTER EACH ────────────────────
+   *
+   *   · index, pricing — both render `Features.tsx`'s footnote, "N tools across
+   *     community, discipleship, giving and AI". N is `CATALOG_TOOL_COUNT`, a
+   *     reduce over the catalogue, and adding a live tool to the menu moves it
+   *     27 → 28. Each page's normalised diff is exactly one line, and the only
+   *     difference on it is that digit.
+   *
+   * ⚠️ THIS IS THE DERIVED FIGURE WORKING, NOT A COMPONENT LEAKING. The count
+   * is deliberately not written down anywhere — the alternative is a hardcoded
+   * number that goes stale, which is precisely the defect THE-306 also fixed
+   * (catalog.ts said "the count is unchanged at 28" while the menu rendered
+   * "27 tools in one platform"). A ticket that adds a tool and moves NO page
+   * would mean the figure had stopped being derived.
+   *
+   * ⚠️ THE MEGA-MENU ITSELF STILL MOVES NOTHING, which is the reassurance
+   * THE-284's note above gives for the same reason: the menu renders behind
+   * React state that nothing sets during the prerender, so the new row is not
+   * in the built markup of any page. Only the footnote's digit is.
+   *
+   * 🔴 AND THE OTHER NINETEEN DID NOT MOVE. FeatureMock.tsx is rendered four to
+   * six times by each of the five live category pages plus the scheduler page;
+   * an edit that reached past the one new key would have shown up here as more
+   * entries, and there are none.
+   *
+   * Regenerated from a fresh `npm run build` on Linux, the same procedure the
+   * note on THE_301_MOVED describes.
+   */
+  const THE_306_MOVED: Readonly<Record<string, string>> = {
+    'features/giving-finance/index.html': 'e4cf1fe453ae1a4d8d6fdc3dc61314e90ebc61e340e1627368fb355de7d5f628',
+    'index.html': '8c0c767b0a0c6b32ba0f6bdde5c90348bdfdbfc30b00390b5fb6fd707bf8dafc',
+    'pricing/index.html': '8c098797fa914689605a65bb54b040e67fa6b8f1ec6447143e6fe018808abc01',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
-    ...THE_301_MOVED,
+    ...THE_301_MOVED, ...THE_306_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -269,7 +318,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  tables above are what say that; this says only that the SET is what the
    *  tables claim. Retaken at THE-301 from the same build as the two entries
    *  above; the previous value was b7dc6e6766fbd218fe58a39197c87e71bb272e65410f1822c14b531f917a14d9. */
-  const BASELINE_ALL = 'a4979c6f74bdac6820390730a2e09ff41f7357584db63e40ec7d4a97aff13a8f';
+  const BASELINE_ALL = 'a68cec2fd49851b3a960679733f94bc1ef1944bbc19f5bb6c7f2bbebeb13793c';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -298,17 +347,31 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        THE-301's own delta test below — the same way `features/coming-soon` left
        this loop when THE-284 legitimately moved it. What this loop measures is
        and always was "pages no LATER ticket has claimed are still at THE-278's
-       value", and it still measures exactly that. */
+       value", and it still measures exactly that.
+       ⚠️ AND THE_306_MOVED JOINS IT TOO, on identical terms: the giving page,
+       the landing page and pricing are asserted against THE_306_MOVED in
+       THE-306's own delta test below. Thirteen becomes twelve — only the giving
+       page is new to this exclusion list, since `index` and `pricing` were
+       already THE-280's. */
     const untouched = Object.keys(PRE_TAILWIND)
-      .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED) && !(p in THE_301_MOVED));
-    expect(untouched).toHaveLength(13);
+      .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED) && !(p in THE_301_MOVED)
+        && !(p in THE_306_MOVED));
+    expect(untouched).toHaveLength(12);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
         .toBe(PRE_TAILWIND[page]);
     }
-    // 🔴 And THE-281's page is one of the fifteen — this change did not disturb it.
-    expect(untouched, 'THE-280 moved the Giving & Finance page, which is not its to move')
-      .toContain('features/giving-finance/index.html');
+    /* 🔴 And THE-281's page is still not THE-280's to have moved.
+       ⚠️ IT LEFT `untouched` AT THE-306, which drew the Shareable Giving Page's
+       vignette on it — so the check moves from "it is in the untouched list" to
+       "the ticket that moved it was THE-306, and its value is THE-306's". The
+       property is the same one: THE-280 did not touch this page, and if it ever
+       did, its hash would have to appear in THE_280_MOVED and this would fail. */
+    const giving = 'features/giving-finance/index.html';
+    expect(untouched).not.toContain(giving);
+    expect(THE_280_MOVED[giving], 'THE-280 moved the Giving & Finance page, which is not its to move')
+      .toBeUndefined();
+    expect(BASELINE[giving]).toBe(THE_306_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -339,10 +402,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        prerendered markup and no other page came along for the ride. */
     /* ⚠️ AND THE_301_MOVED IS EXCLUDED HERE FOR THE SAME REASON as in THE-280's
        loop above — its two pages are asserted against THE_301_MOVED in THE-301's
-       own delta test, not dropped. */
+       own delta test, not dropped. THE_306_MOVED's three are excluded on the
+       same terms and asserted in THE-306's, so eighteen becomes fifteen. */
     const others = Object.keys(BASELINE)
-      .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED) && !(p in THE_301_MOVED));
-    expect(others).toHaveLength(18);
+      .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED) && !(p in THE_301_MOVED)
+        && !(p in THE_306_MOVED));
+    expect(others).toHaveLength(15);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
         .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -365,20 +430,30 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     /* 🔴 AND THE FIVE LIVE CATEGORY PAGES ARE STILL AT THEIR RECORDED VALUES.
        Named one by one rather than counted, because "the others did not move" is
        satisfied by a table that quietly lost a row. These five are the pages
-       that render FeatureBlock, and they are the specific risk this ticket ran. */
+       that render FeatureBlock, and they are the specific risk this ticket ran.
+
+       ⚠️ `features/giving-finance` NOW RESOLVES THROUGH THE_306_MOVED, and the
+       assertion is unweakened by that. THE-306 added the Shareable Giving Page's
+       vignette to the very component this loop exists to police, so that page
+       has a LATER recorded value; the other four still resolve to THE-278's,
+       which is what says THE-293's `unbuilt` flag stayed default-off and its
+       edit did not leak. A leak from EITHER ticket still moves four pages that
+       have no later entry to hide behind. */
     for (const page of [
       'features/ai-automation/index.html', 'features/community-engagement/index.html',
       'features/discipleship-content/index.html', 'features/giving-finance/index.html',
       'features/platform-brand/index.html',
     ]) {
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
     // Nothing added, nothing dropped: the same 22 keys THE-284 left behind.
     expect(Object.keys(BASELINE)).toHaveLength(22);
-    const others = Object.keys(BASELINE).filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED));
-    expect(others).toHaveLength(19);
+    const others = Object.keys(BASELINE)
+      .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED));
+    // 🔵 Twenty until THE-301 took two out of the list and THE-306 three more.
+    expect(others).toHaveLength(16);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
         .toBe(THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -407,8 +482,9 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        byte, against the tables above rather than against a count. This is the
        assertion that says the two blocks are confined to the two pages that
        render them: nothing they touch is shared, so nothing else may move. */
-    const others = Object.keys(BASELINE).filter((p) => !(p in THE_301_MOVED));
-    expect(others).toHaveLength(20);
+    const others = Object.keys(BASELINE)
+      .filter((p) => !(p in THE_301_MOVED) && !(p in THE_306_MOVED));
+    expect(others).toHaveLength(17);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-301 had no business moving it`)
         .toBe(THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page]
@@ -434,6 +510,52 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
   it.runIf(comparable).each(Object.keys(BASELINE))('%s renders exactly as it did before', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
     expect(actual, `${page} moved — Tailwind changed an existing page`).toBe(BASELINE[page]);
+  });
+
+  it('🔴 THE-306 moved exactly three pages, and added and dropped none', () => {
+    /* The delta, asserted as a delta — the shape THE-280, THE-284, THE-293 and
+       THE-301 each used. NAMED rather than counted, which matters more here
+       than in any of those: `FeatureMock.tsx` is rendered by all six feature
+       pages and `catalog.ts` feeds the mega-menu on all twenty-two, so a leak
+       had two broad routes out of this ticket and both would surface as a
+       fourth entry. */
+    expect(Object.keys(THE_306_MOVED).sort()).toEqual([
+      'features/giving-finance/index.html', 'index.html', 'pricing/index.html',
+    ]);
+
+    /* Each really moved, and off the value the tables above record for it
+       rather than off some stale earlier one. `index` and `pricing` were last
+       taken by THE-280; the giving page by THE-281, inside PRE_TAILWIND. */
+    for (const page of Object.keys(THE_306_MOVED)) {
+      expect(PRE_TAILWIND[page], `${page} is not a page THE-278 fingerprinted`).toBeDefined();
+      expect(THE_301_MOVED[page], `${page} is not THE-301's to have moved`).toBeUndefined();
+      expect(THE_306_MOVED[page], `${page} is listed as moved but did not move`)
+        .not.toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+    }
+
+    /* 🔴 AND THE OTHER NINETEEN ARE STILL AT THEIR RECORDED VALUES — byte for
+       byte, against the tables above rather than against a count. In
+       particular the four OTHER live category pages and the scheduler page,
+       which render the very component this ticket edited: a `FeatureMock` edit
+       that reached past the one new key, or a `FeatureBlock` change made to
+       accommodate it, would move all five and could not pass this. */
+    const untouched = Object.keys(BASELINE).filter((p) => !(p in THE_306_MOVED));
+    expect(untouched).toHaveLength(19);
+    for (const page of ['features/ai-automation/index.html',
+                        'features/community-engagement/index.html',
+                        'features/discipleship-content/index.html',
+                        'features/platform-brand/index.html',
+                        'features/harvest-scheduler/index.html']) {
+      expect(untouched, `${page} must be among the pages that did not move`).toContain(page);
+    }
+    for (const page of untouched) {
+      expect(BASELINE[page], `${page} moved, and THE-306 had no business moving it`)
+        .toBe(THE_301_MOVED[page] ?? THE_293_MOVED[page] ?? THE_284_ADDED[page]
+          ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+    }
+
+    // Nothing added, nothing dropped: still the same 22 keys.
+    expect(Object.keys(BASELINE)).toHaveLength(22);
   });
 
   it.runIf(comparable)('and the whole set matches as one number', () => {

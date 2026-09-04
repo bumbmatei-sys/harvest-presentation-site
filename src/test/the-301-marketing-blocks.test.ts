@@ -314,8 +314,20 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
    * working rather than a bug. This ticket did not go near it.
    */
   const PINNED: Readonly<Record<string, string>> = {
-    // 6 — no pricing section was touched.
-    'src/components/Pricing.tsx': 'd0d574f081d1134b9b8b4408915447f3730eeb5449efc74408909557a222a42b',
+    /* 6 — no pricing section was touched.
+       🔵 REPINNED AT THE-306, and ONLY the two comments that quoted the tool
+       count. THE-306 found that catalog.ts said "the count is unchanged at 28"
+       while the mega-menu footer rendered "27 tools in one platform" — the
+       figure had been 27 since THE-245 and three prose comments still said 28,
+       two of them in THIS file. Correcting them here rather than leaving them
+       is the whole point of that half of the ticket; leaving them would have
+       replaced one stale pair with another, since adding the Shareable Giving
+       Page row moves the flag's pair from 28/27 to 29/28.
+       ⚠️ NOT ONE PRICE, CELL, ROW OR ADD-ON MOVED — the previous hash was
+       d0d574f0…, and `planPriceContract` still throws at module scope if this
+       repo and the app disagree on any of the nine, which is the guard that
+       makes a claim about this file's prices checkable rather than asserted. */
+    'src/components/Pricing.tsx': 'f0aee586b3fa891fa2ec7870da5053edb1b9b58d3e616c0cd84161525ecf9f16',
     // 7 — the CLI did not overwrite button or card. It writes theme-scoped ui
     // components (`mist-card` → src/components/ui/card.tsx) for any block that
     // pulls one, which is why both adopted blocks were chosen from the 28 in

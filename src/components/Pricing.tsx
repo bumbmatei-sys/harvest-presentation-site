@@ -602,8 +602,10 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
        ⚠️ Neither this row nor the Individual card's line feeds CATALOG_TOOL_COUNT
        — that is a reduce over CATALOG in components/catalog.ts, where the SMS
        tool has its own gate on the same flag (which is what moves the count
-       between a derived 28 and a derived 27). A row and a catalogue entry are
-       different objects; do not hardcode the count to "fix" one from the other. */
+       between a derived 29 and a derived 28 — the pair was 28/27 until THE-306
+       added the Shareable Giving Page to the Giving & Finance column). A row and
+       a catalogue entry are different objects; do not hardcode the count to
+       "fix" one from the other. */
     ...(SMS_MARKETING_ENABLED
       ? [['SMS (bring your own Twilio)', [false, T, T, T]] as [string, Cell[]]]
       : []),
@@ -887,8 +889,8 @@ export const DODO_ADD_ON_CATALOG: Record<string, DodoAddOnProduct> = {
    🔴 `MULTI_CAMPUS_ENABLED` STAYS FALSE, and that is not a contradiction. That
    flag gates the multi-campus FEATURE marketing — the features.ts section and
    the catalogue's Multi-Campus tool entry — not this add-on. Flipping it would
-   add a tool to CATALOG_TOOL_COUNT, which is a derived 28 and not this
-   change's to move. What is advertised here is the capacity a church can buy
+   add a tool to CATALOG_TOOL_COUNT, which is a derived 28 (27 until THE-306
+   added the Shareable Giving Page) and not this change's to move. What is advertised here is the capacity a church can buy
    today, which is what this section is for. */
 export const ADD_ONS: AddOn[] = [
   /* 🔴 "AI Assistant" IS BACK, FIRST ROW, AT THE SAME $20/$240 — THE-253.
