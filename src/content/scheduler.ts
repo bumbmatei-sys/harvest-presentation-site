@@ -60,6 +60,9 @@
  * own — rather than by its name. */
 
 import { PURCHASABILITY_PATTERNS, SCHEDULER_HREF, SCHEDULER_NAME, SCHEDULER_SLUG } from './coming-soon';
+/* Type-only, so nothing is imported at run time and no cycle can form: this
+   module is read by content/features.ts's neighbours, not the other way round. */
+import type { Feature } from './features';
 
 /* Re-exported so the page and its tests read one module rather than two. The
    path itself is declared in content/coming-soon.ts — see the note there for
@@ -120,6 +123,35 @@ export interface Capability {
   body: string;
   /** What it would cover. Not ticks — see the note in ComingSoonBlock.tsx. */
   bullets: string[];
+
+  /* ── THE-293 — what a FeatureBlock needs beyond the card ──────────────────
+   *
+   * 🔴 THE FOUNDER'S COMPLAINT, VERBATIM: "the harvest scheduler is horrible. I
+   * want for each feature to be presented as the other category pages with a
+   * small design." A live category page gives every feature an eyebrow, a
+   * pull-quote and two columns of detail beside its own vignette; a card gives
+   * it a heading, a paragraph and a list. The four fields below are the
+   * difference, and they exist so the six capabilities can be drawn through the
+   * SAME component the category pages use rather than through a lookalike.
+   *
+   * ⚠️ EVERY ONE OF THEM IS SWEPT. They join `schedulerCopy()` below, so the
+   * module-scope contract reads them exactly as it reads the rest — a price, a
+   * date or a tier in a pull-quote fails the prerender, not merely a test. */
+
+  /** The small uppercase label above the heading. */
+  eyebrow: string;
+  /** The one italic line the block is really about. In the conditional, like
+   *  everything else here: it describes a Sunday that does not happen yet. */
+  moment: string;
+  /** The heading over `bullets` — per capability, because "For admins" is wrong
+   *  on a capability whose whole point is what a visitor experiences. */
+  bulletsLabel: string;
+  /** The second column, and the reason there is one: `bullets` says what the
+   *  church office would DO, and this says what the church would NOTICE. A
+   *  category page carries both, and a page carrying only the first reads as a
+   *  specification rather than as a feature. */
+  outcomeLabel: string;
+  outcome: string[];
 }
 
 export const CAPABILITIES: readonly Capability[] = [
@@ -133,6 +165,15 @@ export const CAPABILITIES: readonly Capability[] = [
       'A month calendar you can look at, and a queue that keeps the order',
       'Pictures and video uploaded once and reused across the accounts that take them',
     ],
+    eyebrow: 'Scheduling and publishing',
+    moment: 'Sunday would already be written before Saturday evening ends.',
+    bulletsLabel: 'What the office would do',
+    outcomeLabel: 'What your church would notice',
+    outcome: [
+      'One announcement, waiting wherever they already look',
+      'The link in the first comment rather than buried in a caption',
+      'Nothing posted twice, and nothing quietly missed',
+    ],
   },
   {
     id: 'analytics', icon: 'chart-column', name: 'Analytics',
@@ -142,6 +183,15 @@ export const CAPABILITIES: readonly Capability[] = [
       'Impressions and reach on the post they belong to',
       'Engagement counted the same way across every account',
       'Follower numbers tracked over time rather than checked by memory',
+    ],
+    eyebrow: 'Analytics',
+    moment: 'You would stop guessing which invitation actually did the work.',
+    bulletsLabel: 'What the office would see',
+    outcomeLabel: 'What it would settle',
+    outcome: [
+      'Which invitation travelled, and which one sank without trace',
+      'Whether the account is growing or standing still',
+      'One screen to look at on a Monday rather than five',
     ],
   },
   {
@@ -153,6 +203,15 @@ export const CAPABILITIES: readonly Capability[] = [
       'Replies sent from the church account, not a volunteer\'s phone',
       'The conversation kept where the rest of your admin work happens',
     ],
+    eyebrow: 'Messages',
+    moment: 'The question about service times would get an answer from the church.',
+    bulletsLabel: 'What the office would do',
+    outcomeLabel: 'What a visitor would get',
+    outcome: [
+      'A reply from the church rather than from somebody\'s own account',
+      'An answer while the question still matters to them',
+      'The same voice, whoever happens to be on duty that week',
+    ],
   },
   {
     id: 'comments', icon: 'message-square', name: 'Comments & reviews',
@@ -162,6 +221,15 @@ export const CAPABILITIES: readonly Capability[] = [
       'Comments on every account, in one list',
       'Replies posted back to the account the comment was left on',
       'Reviews of your church read and answered in the same place',
+    ],
+    eyebrow: 'Comments and reviews',
+    moment: 'A question asked on Sunday evening would be answered on Sunday evening.',
+    bulletsLabel: 'What the office would do',
+    outcomeLabel: 'What it would change',
+    outcome: [
+      'A comment answered rather than left sitting under a post',
+      'A review of your church read by somebody able to respond',
+      'One list to work through instead of an app for each account',
     ],
   },
   {
@@ -173,6 +241,15 @@ export const CAPABILITIES: readonly Capability[] = [
       'Build a campaign rather than only promoting a single post',
       'Run it on the networks your church already reaches people on',
     ],
+    eyebrow: 'Ads',
+    moment: 'The Easter invitation would reach past the people who already follow you.',
+    bulletsLabel: 'What the office would do',
+    outcomeLabel: 'What it would mean',
+    outcome: [
+      'An invitation that reaches beyond the people already following',
+      'Money put behind the post that was working anyway',
+      'One screen to write it on and one decision to back it',
+    ],
   },
   {
     id: 'live', icon: 'zap', name: 'Live updates',
@@ -183,8 +260,61 @@ export const CAPABILITIES: readonly Capability[] = [
       'A new comment or message appears as it lands',
       'Something that failed to send says so at the time, not on Monday',
     ],
+    eyebrow: 'Live updates',
+    moment: 'The screen would already know, before anyone thought to refresh it.',
+    bulletsLabel: 'What the office would see',
+    outcomeLabel: 'What it would prevent',
+    outcome: [
+      'A post that failed noticed at the time rather than on Monday',
+      'A message seen while somebody is still waiting on it',
+      'A team that can trust the screen in front of them',
+    ],
   },
 ];
+
+/* ── THE-293 — the six, shaped for the component the category pages use ──────
+ *
+ * 🔴 THE PREFIX IS LOAD-BEARING. `FeatureMock` is keyed by feature id and it
+ * ALREADY has an `analytics` entry — the Evangelism Analytics vignette on
+ * /features/platform-brand, a dashboard full of real figures. An unprefixed id
+ * here would have drawn that vignette, on a page whose whole guarantee is that
+ * it prints no figure at all. The prefix keeps the six in their own namespace,
+ * and the ids are in-page anchors, so it is visible in the URL rather than
+ * hidden.
+ *
+ * ⚠️ GREY, NOT A CATEGORY TINT. The five live category pages each open in their
+ * own colour and everything unbuilt is grey — the rule THE-284 set and this
+ * change keeps. What is in colour is the VIGNETTE, which is the part the
+ * founder asked for; the block's own chrome stays on the two `--text-soon`
+ * tokens, so the page still reads as unbuilt at a glance.
+ *
+ * ⚠️ NO `tiers` AND NO `crosslinks`, and neither is an oversight. Plan chips
+ * name the four tiers, and a crosslink is a route this page is not allowed to
+ * offer — the page's outbound links are pinned to exactly two. `FeatureBlock`
+ * is passed `unbuilt`, which is what suppresses both. */
+/** The namespace the six block ids sit in. Also their in-page anchors. */
+export const CAPABILITY_ID_PREFIX = 'scheduler-';
+
+export const CAPABILITY_BLOCKS: readonly Feature[] = CAPABILITIES.map((c) => ({
+  id: `${CAPABILITY_ID_PREFIX}${c.id}`,
+  name: c.name,
+  /* The ordinal a category page prints in its jump-to index. There is no index
+     on this page and nothing renders it — and it is empty rather than a number
+     because a digit anywhere near this page is one careless edit from being
+     read as a rate. */
+  n: '',
+  accent: 'var(--text-soon)',
+  accentBg: 'var(--surface-soon)',
+  tiers: [],
+  eyebrow: c.eyebrow,
+  title: c.title,
+  oneliner: c.body,
+  moment: c.moment,
+  admin: [...c.bullets],
+  member: [...c.outcome],
+  adminLabel: c.bulletsLabel,
+  memberLabel: c.outcomeLabel,
+}));
 
 /* ── Per-post options ─────────────────────────────────────────────────────── */
 
@@ -233,7 +363,14 @@ export function schedulerCopy(): string[] {
     SCHEDULER_NAME, SCHEDULER_NOTICE,
     ...PLATFORMS.map((p) => p.name),
     ...AD_NETWORKS.map((a) => a.name),
-    ...CAPABILITIES.flatMap((c) => [c.name, c.title, c.body, ...c.bullets]),
+    /* ⚠️ THE-293's FOUR NEW FIELDS ARE SWEPT TOO. A pull-quote is the most
+       quotable line on a block and the easiest place for "start your free
+       trial" to reappear; leaving `moment` out of this list would have made it
+       the one string on the page the contract could not see. */
+    ...CAPABILITIES.flatMap((c) => [
+      c.name, c.title, c.body, ...c.bullets,
+      c.eyebrow, c.moment, c.bulletsLabel, c.outcomeLabel, ...c.outcome,
+    ]),
     ...POST_OPTIONS.flatMap((o) => [o.title, o.body]),
   ];
 }
