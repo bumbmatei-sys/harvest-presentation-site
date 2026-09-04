@@ -4,6 +4,10 @@ import { Clouds, Reveal } from '../components/effects';
 import { Particles, AnimatedText, HBtn } from '../components/magic';
 import { Kicker, container, softCard, SKY } from '../components/shared';
 import { L } from '../components/icons';
+import { ContentLeads } from '../components/content-1';
+import { CATEGORIES, categoryHref } from '../content/features';
+import { FAQ_HREF, FAQ_STANDFIRST } from '../content/faq';
+import { COMING_SOON_HREF, NOT_BUILT_NOTICE } from '../content/coming-soon';
 
 /* /contact — a minimal general-enquiry form for the public marketing site.
    Reuses the landing design language (SKY header band + Clouds + Particles,
@@ -11,7 +15,22 @@ import { L } from '../components/icons';
 
    Posts name/email/message to the app's public /api/contact route (cross-origin,
    theharvest.site → theharvest.app), which writes into platform_inbox and emails
-   the team. No faith questions — this is a general enquiry. */
+   the team. No faith questions — this is a general enquiry.
+
+   🔴 THE-301 — AND IT NO LONGER ENDS ON THE FORM. The page was a header band
+   and a card, and then nothing: a visitor whose question the site has already
+   answered in public had exactly one way out of it, which was to type the
+   question and wait. The closing band is Tailark's `veil-content-1`,
+   re-tokenised onto this site's ramps (see components/content-1.tsx), and it
+   carries three routes that already exist — the FAQ, the live capabilities, and
+   the page that says what is NOT built.
+
+   ⚠️ NOT A CTA BAND. SiteCTA/FinalCTA sell a trial; this is somebody who
+   already has a question, so what sits here is three links and no button. And
+   the three sentences are FAQ_STANDFIRST, the first category's own `seo` line
+   and NOT_BUILT_NOTICE, imported rather than retyped — a contact page is the
+   worst place on the site to invent a commitment, so nothing here promises a
+   reply time or a person. */
 
 const CONTACT_ENDPOINT = 'https://theharvest.app/api/contact';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -204,6 +223,19 @@ export function ContactPage() {
           </div>
         </Reveal>
       </section>
+
+      <ContentLeads
+        heading="Or find it without asking"
+        items={[
+          { term: 'Read the FAQ.', detail: FAQ_STANDFIRST, to: FAQ_HREF },
+          {
+            term: `Browse ${CATEGORIES[0].name}.`,
+            detail: CATEGORIES[0].seo,
+            to: categoryHref(CATEGORIES[0].slug),
+          },
+          { term: 'See what is not built.', detail: NOT_BUILT_NOTICE, to: COMING_SOON_HREF },
+        ]}
+      />
     </main>
   );
 }

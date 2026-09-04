@@ -217,12 +217,59 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'features/harvest-scheduler/index.html': '615acfc0897c2a6c8f16a4c81cee2bf2b232c75fb9efd54f6cff4722597034a9',
   };
 
-  const BASELINE: Readonly<Record<string, string>> = {
-    ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
+  /**
+   * 🔴 THE-301 — the TWO pages that moved, and nothing was added or dropped.
+   *
+   * Two Tailark marketing blocks were adopted onto the site's own ramps, one
+   * per page, and these are the only two surfaces either of them renders on:
+   *
+   *   · features        — the no-JS fallback under <Navigate>. It was an <h1>,
+   *     one sentence and five unlabelled pills, and it built to 11.34 KiB
+   *     against 80–128 KiB for every other page. It is now `veil-content-3`,
+   *     listing the five categories with the catalogue's own `seo` line under
+   *     each. The redirect itself, the noindex,follow and the canonical are
+   *     untouched — only what renders underneath changed.
+   *   · contact         — the page was a header band and a form card and then
+   *     nothing. `veil-content-1` closes it on three routes that already exist.
+   *
+   * ⚠️ THE PAGE COUNT DID NOT MOVE, and could not have: no route was added, so
+   * the note in src/App.tsx about appending above the catch-all never came into
+   * play. Still 22, asserted in section 9 and again by LegalPage.test.ts.
+   *
+   * 🔴 AND NO SHARED COMPONENT WAS TOUCHED, which is the assertion that was
+   * genuinely at risk here. Both blocks are new files; neither page's edit
+   * reaches Nav, Footer, FeatureBlock or anything else the other twenty pages
+   * render. A leak would show up below as a third entry, and there is none.
+   *
+   * ⚠️ WHERE THESE HASHES CAME FROM. Regenerated from a fresh `npm run build`,
+   * not copied out of a CI log. A win32 checkout normally builds a DIFFERENT
+   * site — 19 pages, for the `slugFromPath` reason at the top of this file — so
+   * the build they were taken from had that one function made
+   * platform-agnostic for the duration, which is a no-op on POSIX and therefore
+   * produces exactly the tree Linux produces. That was verified before these
+   * values were trusted: the same procedure applied to pristine `main`
+   * reproduces every entry in the three tables above AND the previous
+   * BASELINE_ALL, b7dc6e67…, exactly. The temporary change is not in this
+   * branch; src/content/post-core.ts is untouched.
+   */
+  const THE_301_MOVED: Readonly<Record<string, string>> = {
+    'contact/index.html': '1068a25dfeab69aa441daadda1b67ee31475463900a23252aa63bf4f3d61861d',
+    'features/index.html': '2e40c4060f6f9cbc22957bcca3de4626cfe483a03b63fa76ecec79c5b45d958e',
   };
 
-  /** The same 22 as one number, so an ADDED or DROPPED page is caught too. */
-  const BASELINE_ALL = 'b7dc6e6766fbd218fe58a39197c87e71bb272e65410f1822c14b531f917a14d9';
+  const BASELINE: Readonly<Record<string, string>> = {
+    ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
+    ...THE_301_MOVED,
+  };
+
+  /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
+   *
+   *  ⚠️ THIS MOVES WHENEVER ANY PAGE MOVES — it is one hash over all 22, so it
+   *  is not evidence about WHICH page changed and never was. The per-page
+   *  tables above are what say that; this says only that the SET is what the
+   *  tables claim. Retaken at THE-301 from the same build as the two entries
+   *  above; the previous value was b7dc6e6766fbd218fe58a39197c87e71bb272e65410f1822c14b531f917a14d9. */
+  const BASELINE_ALL = 'a4979c6f74bdac6820390730a2e09ff41f7357584db63e40ec7d4a97aff13a8f';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -245,9 +292,16 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(THE_280_MOVED[page], `${page} is listed as moved but did not move`)
         .not.toBe(PRE_TAILWIND[page]);
     }
+    /* ⚠️ THE_301_MOVED JOINS THE EXCLUSION LIST, and "fifteen" becomes
+       thirteen. Nothing is dropped from the assertion by that: `contact` and
+       `features` are still checked byte for byte, against THE_301_MOVED, in
+       THE-301's own delta test below — the same way `features/coming-soon` left
+       this loop when THE-284 legitimately moved it. What this loop measures is
+       and always was "pages no LATER ticket has claimed are still at THE-278's
+       value", and it still measures exactly that. */
     const untouched = Object.keys(PRE_TAILWIND)
-      .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED));
-    expect(untouched).toHaveLength(15);
+      .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED) && !(p in THE_301_MOVED));
+    expect(untouched).toHaveLength(13);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
         .toBe(PRE_TAILWIND[page]);
@@ -283,9 +337,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        Adding a coming-soon entry also adds a mega-menu item, which is chrome on
        every page — this is the assertion that says the menu is not in the
        prerendered markup and no other page came along for the ride. */
+    /* ⚠️ AND THE_301_MOVED IS EXCLUDED HERE FOR THE SAME REASON as in THE-280's
+       loop above — its two pages are asserted against THE_301_MOVED in THE-301's
+       own delta test, not dropped. */
     const others = Object.keys(BASELINE)
-      .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED));
-    expect(others).toHaveLength(20);
+      .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED) && !(p in THE_301_MOVED));
+    expect(others).toHaveLength(18);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
         .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -320,12 +377,46 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
     // Nothing added, nothing dropped: the same 22 keys THE-284 left behind.
     expect(Object.keys(BASELINE)).toHaveLength(22);
-    const others = Object.keys(BASELINE).filter((p) => !(p in THE_293_MOVED));
-    expect(others).toHaveLength(21);
+    const others = Object.keys(BASELINE).filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED));
+    expect(others).toHaveLength(19);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
         .toBe(THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
+  });
+
+  it('🔴 THE-301 moved exactly two pages, and added and dropped none', () => {
+    /* The delta, asserted as a delta — the shape THE-280, THE-284 and THE-293
+       each used, and the one that catches the failure this ticket could have
+       caused. Two blocks went onto two pages; if a third page had moved, that
+       would mean a block or a shared component leaked onto a surface nobody
+       chose, and it would need a third entry here to pass. */
+    expect(Object.keys(THE_301_MOVED).sort()).toEqual(['contact/index.html', 'features/index.html']);
+
+    /* Both really moved, and they moved off the value the tables above record
+       for them rather than off some stale earlier one. Neither page has been
+       touched since THE-278 fingerprinted it, so that value is PRE_TAILWIND's. */
+    for (const page of Object.keys(THE_301_MOVED)) {
+      expect(PRE_TAILWIND[page], `${page} is not a page THE-278 fingerprinted`).toBeDefined();
+      expect(THE_280_MOVED[page], `${page} is not THE-280's to have moved`).toBeUndefined();
+      expect(THE_301_MOVED[page], `${page} is listed as moved but did not move`)
+        .not.toBe(PRE_TAILWIND[page]);
+    }
+
+    /* 🔴 AND THE OTHER TWENTY ARE STILL AT THEIR RECORDED VALUES — byte for
+       byte, against the tables above rather than against a count. This is the
+       assertion that says the two blocks are confined to the two pages that
+       render them: nothing they touch is shared, so nothing else may move. */
+    const others = Object.keys(BASELINE).filter((p) => !(p in THE_301_MOVED));
+    expect(others).toHaveLength(20);
+    for (const page of others) {
+      expect(BASELINE[page], `${page} moved, and THE-301 had no business moving it`)
+        .toBe(THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page]
+          ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+    }
+
+    // Nothing added, nothing dropped: still the same 22 keys.
+    expect(Object.keys(BASELINE)).toHaveLength(22);
   });
 
   const pagesInDist = (): string[] => {

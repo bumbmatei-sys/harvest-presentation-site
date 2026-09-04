@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Head } from 'vite-react-ssg';
-import { container } from '../components/shared';
+import { ContentSection, categoryItem } from '../components/content-3';
 import { CATEGORIES, LEGACY_ANCHORS, categoryHref } from '../content/features';
 
 /* /features used to be a single page listing every tool. It is now five category
@@ -10,7 +10,22 @@ import { CATEGORIES, LEGACY_ANCHORS, categoryHref } from '../content/features';
    first category. Kept as a route (rather than a host redirect) because the
    fragment never reaches the server — the mapping has to happen in the browser.
 
-   The rendered body is the no-JS fallback: a plain list of the five pages. */
+   The rendered body is the no-JS fallback: a plain list of the five pages.
+
+   🔴 THE-301 — THE FALLBACK IS NOW A TAILARK BLOCK, and the reason is that it
+   was the thinnest thing on the site. It was an <h1>, one sentence, and five
+   unlabelled pills; it built to 11.34 KiB against 80–128 KiB for every other
+   page, and the reader it exists for — no JavaScript, or a crawler following
+   the noindex,follow — got five names and nothing to choose between them. The
+   block is `veil-content-3`, re-tokenised onto this site's ramps; the whole of
+   why, and what each of Tailark's four colour references became, is in the head
+   of components/content-3.tsx.
+
+   ⚠️ THE REDIRECT IS UNTOUCHED. <Navigate> still runs first and still forwards
+   on the same LEGACY_ANCHORS mapping, the Head block still says
+   noindex,follow, and the canonical still points at the first category. Only
+   what renders underneath changed — and it changed from five links to the same
+   five links with the catalogue's own description under each. */
 
 export function FeaturesRedirect() {
   const { hash } = useLocation();
@@ -25,23 +40,17 @@ export function FeaturesRedirect() {
         <link rel="canonical" href={`https://theharvest.site${categoryHref(CATEGORIES[0].slug)}`} />
       </Head>
       <Navigate to={target} replace />
-      <section style={{ background: 'var(--cream)', padding: '160px 0 100px' }}>
-        <div style={{ ...container, maxWidth: 720, textAlign: 'center' }}>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', color: 'var(--navy-900)', margin: 0 }}>Features</h1>
-          <p style={{ color: 'var(--text-body)', margin: '14px 0 26px' }}>Every tool now lives on its own page.</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
-            {CATEGORIES.map((c) => (
-              <Link
-                key={c.slug}
-                to={categoryHref(c.slug)}
-                style={{ fontSize: 14, fontWeight: 600, color: 'var(--navy-900)', background: '#fff', border: '1px solid rgba(45,37,25,0.1)', borderRadius: 999, padding: '10px 18px', textDecoration: 'none' }}
-              >
-                {c.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Clears the fixed nav. The block sets its own vertical rhythm from
+          --section-y; what it cannot know is that 110px of this page is behind
+          a fixed header. */}
+      <div style={{ background: 'var(--cream)', paddingTop: 'clamp(112px, 13vw, 150px)' }}>
+        <ContentSection
+          headingAs="h1"
+          heading="Features"
+          standfirst="Every tool now lives on its own page."
+          items={CATEGORIES.map(categoryItem)}
+        />
+      </div>
     </main>
   );
 }
