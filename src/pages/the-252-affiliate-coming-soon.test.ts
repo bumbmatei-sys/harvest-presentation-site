@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { ComingSoonPage } from './ComingSoonPage';
 import { ComingSoonBlock } from '../components/ComingSoonBlock';
 import { FeatureMenuColumns } from '../components/Nav';
-import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
+import { CATALOG, CATALOG_TOOL_COUNT, COMING_SOON_MENU_ITEMS } from '../components/catalog';
 import {
   ADD_ONS,
   ADD_ON_BILLED_MONTHS,
@@ -186,12 +186,26 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
     expect(labels).toHaveLength(COMING_SOON_ITEMS.length);
   });
 
-  it('reaches both mega-menus, derived from the same array rather than kept twice', () => {
-    expect(CATALOG[0].items.map((i) => i.title)).toEqual(COMING_SOON_ITEMS.map((i) => i.name));
+  /* ⚠️ NARROWED BY THE-297, AND NOT BECAUSE OF ANYTHING ABOUT THE AFFILIATE
+     PROGRAMME. The Coming Soon column used to list every entry, so "reaches both
+     mega-menus" came free; it now lists four and a "see all" row, and this entry
+     is not one of the four — components/catalog.ts names the four and argues the
+     rejection of this one explicitly. THE-252's own guarantee is untouched: the
+     flag hides the SOLD tense, and the unbuilt tense is published in its place,
+     on the page, anchored, one click from either menu. That is what this pins. */
+  it('is reachable from both mega-menus, and what they DO list is derived not kept twice', () => {
+    expect(CATALOG[0].items.map((i) => i.title)).toEqual(COMING_SOON_MENU_ITEMS.map((i) => i.name));
     for (const [where, html] of [['desktop', desktopMenu], ['mobile', mobileMenu]] as const) {
-      expect(words(html), `the ${where} menu does not list the entry`).toContain('Affiliate referrals');
+      expect(html, `the ${where} menu has no route to the coming-soon page`)
+        .toContain(`href="${COMING_SOON_HREF}"`);
     }
-    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_ITEMS.length);
+    // The entry is on the page the menu leads to, whether or not it is shortlisted.
+    expect(COMING_SOON_ITEMS.map((i) => i.name)).toContain('Affiliate referrals');
+    if (COMING_SOON_MENU_ITEMS.some((i) => i.name === 'Affiliate referrals')) {
+      for (const html of [desktopMenu, mobileMenu]) expect(words(html)).toContain('Affiliate referrals');
+    }
+    // Every row the menu does show is badged SOON, in the markup not just the data.
+    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_MENU_ITEMS.length);
   });
 
   it('🔴 it is the TENTH entry, not the seventh — the ticket\'s count, checked', () => {
@@ -874,21 +888,30 @@ describe('10 — the tool count is unchanged and still derived', () => {
     // THE-284 appended "Harvest Scheduler". The count is a tripwire on the
     // GROUP; the guarantee is the line below — every entry in it is `soon`, so
     // a further one still leaves CATALOG_TOOL_COUNT at 27.
-    expect(soonGroup[0].items).toHaveLength(CUSTOM_DOMAIN_MARKETING_ENABLED ? 11 : 12);
+    /* ⚠️ THE-297 made the column a shortlist, so the group's length is now the
+       shortlist's and this entry may not be in it — absent, it contributes
+       nothing a fortiori. The guarantee below is the one that always held and
+       still does: every row in the group is `soon`, so CATALOG_TOOL_COUNT stays
+       at 27 no matter which entries the column shows. */
+    expect(soonGroup[0].items).toHaveLength(COMING_SOON_MENU_ITEMS.length);
     expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon entry is being counted')
       .toHaveLength(0);
     const affiliateTool = soonGroup[0].items.find((i) => i.title === 'Affiliate referrals');
-    expect(affiliateTool, 'the entry is missing from the catalogue').toBeDefined();
-    expect(affiliateTool!.soon, '🔴 the affiliate entry would be counted as a live tool').toBe(true);
+    if (affiliateTool) {
+      expect(affiliateTool.soon, '🔴 the affiliate entry would be counted as a live tool').toBe(true);
+    }
   });
 
   it('🔴 and it WOULD have moved the count if it lost its soon flag — by mutation', () => {
-    // The tripwire, proved rather than asserted.
+    /* The tripwire, proved rather than asserted. Mutating the whole group rather
+       than the affiliate row alone, because since THE-297 that row may not be in
+       the shortlist — and the claim being proved is about the group's `soon`
+       flags carrying the count, which is what it always was. */
     const withoutFlag = CATALOG.map((g) => (g.href
-      ? { ...g, items: g.items.map((it) => (it.title === 'Affiliate referrals' ? { ...it, soon: false } : it)) }
+      ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) }
       : g));
     const wrong = withoutFlag.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(28);
+    expect(wrong).toBe(27 + COMING_SOON_MENU_ITEMS.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
   });
 

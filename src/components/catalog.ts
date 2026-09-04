@@ -7,7 +7,10 @@ import {
   AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
   SMS_MARKETING_ENABLED,
 } from '../lib/flags';
-import { COMING_SOON_HREF, COMING_SOON_ITEMS, COMING_SOON_KICKER, COMING_SOON_NAME, soonItemHref } from '../content/coming-soon';
+import {
+  COMING_SOON_HREF, COMING_SOON_ITEMS, COMING_SOON_KICKER, COMING_SOON_NAME, SCHEDULER_HREF,
+  soonItemHref, type SoonItem,
+} from '../content/coming-soon';
 
 export const slugify = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -31,10 +34,109 @@ export interface CatalogGroup {
   /** Explicit destination for the column header, same reason as CatalogItem. */
   href?: string;
   items: CatalogItem[];
+  /** Set only when `items` is a TRUNCATION of the group rather than the whole of
+   *  it — the "see all" row the menu draws under the last item.
+   *
+   *  🔴 NAVIGATION, NOT A CALL TO ACTION. It is a link to a page that already
+   *  exists, styled in the group's own tint with no button ground, because the
+   *  one group that sets it is the unbuilt one and a button there would be the
+   *  sales furniture /features/coming-soon exists to not have. */
+  more?: { label: string; href: string };
 }
 
 const item = (icon: string, title: string, desc: string, soon = false): CatalogItem =>
   ({ icon, title, desc, soon });
+
+/* ── The Coming Soon column is a SHORTLIST — THE-297 ──────────────────────────
+ *
+ * 🔴 FOUR OF THE TWELVE, NOT ALL TWELVE. The founder: "in marketing site at
+ * features the coming soon section is too long. Make harvest scheduler first
+ * then 3 more under then a see all button." The column carried every entry in
+ * `COMING_SOON_ITEMS` — twelve rows against seven in the longest live category,
+ * and on the phone twelve rows of unbuilt work standing between a visitor and
+ * the five categories of shipped work below it.
+ *
+ * 🔴 THE CUT IS HERE, AND ONLY HERE. `CATALOG` is the mega-menu's model and
+ * nothing else: pages/ComingSoonPage.tsx reads `COMING_SOON_ITEMS` straight from
+ * content/coming-soon.ts and never goes through this file, so a truncation
+ * written here CANNOT reach the page. That is the structural half of the
+ * requirement — the full page keeps all twelve because there is no code path by
+ * which this constant could shorten it. Putting the cut in ComingSoonBlock or in
+ * the page instead would have truncated the only surface that must not be.
+ *
+ * It also lands in the data rather than in the renderer for the reason
+ * `FeatureMenuColumns` is one component rather than two: desktop and mobile map
+ * the same array in the same pass, so the column cannot end up four long on one
+ * and twelve on the other.
+ *
+ * WHICH FOUR, AND WHY THESE.
+ *
+ *  · The scheduler leads, at the founder's explicit direction. It is picked out
+ *    by `page` rather than by id — an id goes quietly stale on a rename, and the
+ *    entry with a page of its own is unambiguous either way.
+ *
+ *  · The other three are named here, deliberately, rather than sliced off the
+ *    top of the list. ⚠️ THE LIST'S ORDER IS NOT A RANKING: entries are
+ *    APPENDED as their board cards open — the-280's suite pins exactly that,
+ *    "the ELEVENTH entry, appended, not inserted" — so its first three are its
+ *    oldest, which is seniority, not importance. Taking a slice would have
+ *    dressed an accident of chronology up as an editorial choice.
+ *
+ *    The three are the broadest MINISTRY capabilities on the list: a
+ *    congregation reading Harvest in its own language, a team planning Sunday,
+ *    and applications handled inside the platform. Those are the gaps a church
+ *    weighing this software would want named before it commits.
+ *
+ *    ⚠️ THE TICKET SUGGESTED sms, affiliate AND domains — the three with the
+ *    most work behind them — and this rejects that suggestion, which the ticket
+ *    invited ("a judgement, not an instruction"). Two reasons. Affiliate
+ *    referrals is a partner revenue programme, not something a church does with
+ *    its congregation, and it is thin next to service planning for one of four
+ *    church-facing slots; custom domains and text-to-give are platform plumbing
+ *    beside it. And those three are the entries gated by SMS_MARKETING_ENABLED,
+ *    AFFILIATE_PROGRAM_ENABLED and CUSTOM_DOMAIN_MARKETING_ENABLED, which exist
+ *    to REMOVE them the moment they ship — a shortlist built from the entries
+ *    most likely to leave the list is the one most likely to go stale.
+ *
+ *    🔴 The cost is named rather than hidden: those three entries are no longer
+ *    LISTED in the menu, and three suites asserted that they were. They are
+ *    still published, still anchored, and still one click away through the
+ *    column header and the "see all" row, which is what those suites now pin.
+ *
+ * FLAG-RESILIENT, AND STILL DERIVED. `FEATURED` is a preference, not a promise:
+ * it is intersected with `COMING_SOON_ITEMS`, so an entry a flag has removed
+ * cannot leave a menu row pointing at an anchor the page no longer renders, and
+ * the column is topped back up to four from what remains. Nothing here is a
+ * second copy of an entry's name, icon or link — those are read from the list,
+ * for the reason the full column read them. */
+export const COMING_SOON_MENU_COUNT = 4;
+
+/** The one entry with a page of its own — see above on why `page` and not an id. */
+const leadsTheColumn = (i: SoonItem) => i.page === SCHEDULER_HREF;
+
+/** The three that follow it, in the order they are shown. */
+const FEATURED: readonly string[] = ['languages', 'services', 'applications'];
+
+const rank = (i: SoonItem) => {
+  if (leadsTheColumn(i)) return -1;
+  const at = FEATURED.indexOf(i.id);
+  // Anything unfeatured sorts after every featured entry, keeping list order
+  // among itself — it only ever appears if a flag has removed a featured one.
+  return at === -1 ? FEATURED.length : at;
+};
+
+export const COMING_SOON_MENU_ITEMS: SoonItem[] = COMING_SOON_ITEMS
+  .map((item, i) => ({ item, i }))
+  .sort((a, b) => rank(a.item) - rank(b.item) || a.i - b.i)
+  .map(({ item }) => item)
+  .slice(0, COMING_SOON_MENU_COUNT);
+
+/** The "see all" row's label. The count is read from the list rather than
+ *  written down, for the same reason every other number on this page is: the
+ *  three feature flags can change it, and a menu that promises twelve and
+ *  delivers eleven is the small false claim this file spends its comments
+ *  avoiding. */
+export const COMING_SOON_MORE_LABEL = `See all ${COMING_SOON_ITEMS.length}`;
 
 export const CATALOG: CatalogGroup[] = [
   /* 🔴 FIRST DELIBERATELY, and first is a strong claim on attention: this is
@@ -48,6 +150,11 @@ export const CATALOG: CatalogGroup[] = [
      --gold-600, --gold-700 and --navy-600. This one carries --text-soon, and
      the difference is the whole point: every other category is a capability a
      church can use today.
+
+     ⚠️ THE COLUMN IS FOUR LONG, NOT TWELVE — THE-297. `items` is a shortlist and
+     `more` is the "see all" row that carries the rest; both are derived from
+     `COMING_SOON_ITEMS` a few lines above. The page still renders all twelve,
+     and cannot stop: it does not read this file.
 
      ⚠️ EVERY ITEM IS `soon: true`, WHICH IS LOAD-BEARING, NOT DECORATION.
      CATALOG_TOOL_COUNT is a derived count of everything NOT marked soon, and it
@@ -68,9 +175,13 @@ export const CATALOG: CatalogGroup[] = [
        that HAS a page goes there instead: sending a reader to a one-paragraph
        anchor when a page exists is the worse of the two, and the anchor stays
        reachable from that page's own jump-to index either way. */
-    items: COMING_SOON_ITEMS.map((i) => ({
+    /* 🔴 THE-297 — the SHORTLIST, not the whole list. See the block above this
+       constant for which four and why, and for why the cut can only ever reach
+       the menu. `more` below carries the rest. */
+    items: COMING_SOON_MENU_ITEMS.map((i) => ({
       icon: i.icon, title: i.name, desc: i.navDesc, soon: true, href: i.page ?? soonItemHref(i.id),
     })),
+    more: { label: COMING_SOON_MORE_LABEL, href: COMING_SOON_HREF },
   },
   {
     name: 'Community & Engagement', kicker: 'Belong', tint: 'var(--sky-600)', bg: 'var(--sky-100)',

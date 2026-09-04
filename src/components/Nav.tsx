@@ -121,6 +121,40 @@ export function FeatureMenuColumns({ variant, onNavigate = () => {} }:
                 {it.soon && <span style={soonPill}>SOON</span>}
               </Link>
             ))}
+            {g.more && (
+              /* 🔴 THE-297 — the "see all" row, drawn only for a group whose
+                 `items` are a shortlist. Today that is Coming Soon and only it.
+
+                 NAVIGATION, NOT A CALL TO ACTION. A plain link in the group's
+                 own tint, no button ground and no arrow-shaped urgency: it goes
+                 to /features/coming-soon, a page that deliberately closes with a
+                 note instead of the trial band. Giving it a filled ground would
+                 make the one unbuilt column the loudest thing in a menu of
+                 shipped work.
+
+                 44px MINIMUM. The items above it are a pointer-first mega-menu
+                 at their inherited density; this row is new, so it is built to
+                 the tap-target floor in both variants rather than matching them
+                 down to it. */
+              <Link
+                to={g.more.href}
+                role={desktop ? 'menuitem' : undefined}
+                onClick={onNavigate}
+                style={{
+                  display: 'flex', alignItems: 'center', minHeight: 44,
+                  borderRadius: 9, textDecoration: 'none', color: g.tint,
+                  fontWeight: 700, letterSpacing: '0.02em',
+                  borderTop: `1px dashed ${g.tint}`, marginTop: 6,
+                  ...(desktop
+                    ? { gap: 8, padding: '0 8px', margin: '6px -8px 0', fontSize: 12.5 }
+                    : { gap: 9, padding: '0 6px', fontSize: 13.5 }),
+                }}
+                onMouseEnter={desktop ? (e) => { e.currentTarget.style.background = 'var(--stone-100)'; } : undefined}
+                onMouseLeave={desktop ? (e) => { e.currentTarget.style.background = 'transparent'; } : undefined}
+              >
+                <span>{g.more.label}</span>
+              </Link>
+            )}
           </div>
         </div>
       ))}

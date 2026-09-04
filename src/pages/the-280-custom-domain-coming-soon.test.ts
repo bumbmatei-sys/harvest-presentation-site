@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { ComingSoonPage } from './ComingSoonPage';
 import { ComingSoonBlock } from '../components/ComingSoonBlock';
 import { FeatureMenuColumns } from '../components/Nav';
-import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
+import { CATALOG, CATALOG_TOOL_COUNT, COMING_SOON_MENU_ITEMS } from '../components/catalog';
 import {
   ADD_ONS,
   DODO_ADD_ON_CATALOG,
@@ -188,11 +188,27 @@ describe('1 — custom domains appear in Coming Soon', () => {
     expect(blockText.indexOf(NOT_BUILT_LABEL)).toBeLessThan(blockText.indexOf(IN_PROCESS_LABEL));
   });
 
-  it('reaches both mega-menus, derived from the same array rather than kept twice', () => {
+  /* ⚠️ NARROWED BY THE-297, AND THE REASON IS NOT ABOUT CUSTOM DOMAINS. The
+     Coming Soon column used to list every entry, so "reaches both mega-menus"
+     came free; it now lists four and a "see all" row, and this entry is not one
+     of the four (components/catalog.ts says which four and why). What this
+     suite is actually for — the flag hides the SOLD tense, and the unbuilt tense
+     is published in its place — is untouched: the entry is still on the page,
+     still anchored, still in `COMING_SOON_ITEMS`, and still reachable from both
+     menus in one click. That is what this now pins, per variant, rather than a
+     row that no longer exists. */
+  it('is reachable from both mega-menus, through the column that leads to its page', () => {
     for (const [variant, html] of [['desktop', desktopMenu], ['mobile', mobileMenu]] as const) {
-      expect(words(html), `the ${variant} menu does not list it`).toContain('Custom domains');
-      expect(html, `the ${variant} menu does not link to it`)
-        .toContain(`${COMING_SOON_HREF}#domains`);
+      expect(html, `the ${variant} menu has no route to the coming-soon page`)
+        .toContain(`href="${COMING_SOON_HREF}"`);
+      // Whether it is shortlisted or not, the page it lands on carries its anchor.
+      expect(mainHtml, 'the entry has no anchor to arrive at').toContain('id="domains"');
+    }
+    // And if it IS one of the shortlisted four, it is linked by name.
+    if (COMING_SOON_MENU_ITEMS.some((i) => i.id === 'domains')) {
+      for (const html of [desktopMenu, mobileMenu]) {
+        expect(html).toContain(`${COMING_SOON_HREF}#domains`);
+      }
     }
   });
 
@@ -698,13 +714,19 @@ describe('7 — the existing entries are undisturbed', () => {
   it('🔴 and the new entry contributes nothing to it', () => {
     const soonGroup = CATALOG.filter((g) => g.href);
     expect(soonGroup).toHaveLength(1);
+    /* ⚠️ SINCE THE-297 the column is a shortlist, so this entry may not be in the
+       catalogue at all — an entry that is absent contributes nothing a fortiori.
+       The invariant that has to hold either way, and does: nothing in this group
+       is ever countable as a live tool, and the count does not move. */
     const tool = soonGroup[0].items.find((i) => i.title === 'Custom domains');
-    expect(tool, 'the entry is missing from the catalogue').toBeDefined();
-    expect(tool!.soon, '🔴 the custom-domains entry would be counted as a live tool').toBe(true);
-    // By mutation: it WOULD have moved the count without its flag.
+    if (tool) expect(tool.soon, '🔴 the custom-domains entry would be counted as a live tool').toBe(true);
+    expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon row is countable').toHaveLength(0);
+    // By mutation: it WOULD have moved the count if the group ever went uncounted.
     const without = CATALOG.map((g) => (g.href
-      ? { ...g, items: g.items.map((it) => (it.title === 'Custom domains' ? { ...it, soon: false } : it)) }
+      ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) }
       : g));
-    expect(without.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0)).toBe(28);
+    const wrong = without.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
+    expect(wrong).toBe(27 + soonGroup[0].items.length);
+    expect(wrong).toBeGreaterThan(27);
   });
 });
