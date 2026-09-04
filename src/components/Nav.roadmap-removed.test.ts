@@ -22,7 +22,7 @@ import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
  * The same link lived in the app's member Profile and is removed there in the
  * same change.
  *
- * 🔴 `CATALOG_TOOL_COUNT` MUST NOT MOVE BY ACCIDENT. It is 27 and it is DERIVED — a reduce
+ * 🔴 `CATALOG_TOOL_COUNT` MUST NOT MOVE BY ACCIDENT. It is 28 and it is DERIVED — a reduce
  * over `CATALOG` excluding `soon` items — and the nav imports it for the
  * mega-menu footer. If removing a nav link changed that number, the edit went
  * through `catalog.ts`, which is the wrong structure entirely; the last block
@@ -87,13 +87,14 @@ describe('no Roadmap link renders on the site', () => {
 });
 
 describe('the tool count is unchanged at its derived value', () => {
-  it('🔴 CATALOG_TOOL_COUNT is 27, and still derived from CATALOG', () => {
+  it('🔴 CATALOG_TOOL_COUNT is 28, and still derived from CATALOG', () => {
     // 28 → 27 at THE-245: the SMS Automation tool left the live catalogue with
     // the feature, and the Coming Soon entry that replaced it is `soon`, so it
     // adds nothing back. The figure is quoted to visitors as "N tools in one
     // platform" — a tool a church cannot use is not one of them. Derived is the
     // property that matters and it is asserted below, not the literal.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

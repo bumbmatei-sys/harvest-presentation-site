@@ -7,7 +7,7 @@ import {
   Calculator, ReceiptText, Link, ShieldCheck, MessageSquareText, Zap, Sparkles,
   Crown, Inbox, Building2, MessageSquare, Lock, Youtube, Instagram, ChevronDown,
   Sun, Share2, UserCheck, Monitor, Star, Circle, MapPin, ArrowDownToLine, Play,
-  CalendarClock, Megaphone, ListChecks, Image,
+  CalendarClock, Megaphone, ListChecks, Image, Share,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -79,6 +79,13 @@ const NAME_MAP: Record<string, LucideIcon> = {
   megaphone: Megaphone,
   'list-checks': ListChecks,
   image: Image,
+  /* THE-306 — the Shareable Giving Page's mega-menu entry. Lucide's `Share` is
+     the share-sheet arrow, which is the feature ("your phone's own share
+     sheet"); `share-2` is the three-node graph already spoken for by the
+     Affiliate Program item, and `qr-code` by Check-In. Registered rather than
+     reused, for the reason on THE-284's three above: an unknown name falls back
+     to `Circle` silently, so a near-miss ships a blank dot instead of failing. */
+  share: Share,
 };
 
 /** Name-based icon, e.g. <L name="arrow-right" size={16} color="currentColor" />. */

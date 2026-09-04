@@ -675,6 +675,16 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   'custom-forms-crm': '/features/ai-automation#forms',
   'custom-forms': '/features/ai-automation#forms',
   'donation-page': '/features/giving-finance#donation',
+  /* THE-306 — NOT a retired anchor, and the one entry in this table that never
+     was one. The mega-menu resolves its own destination through
+     `slugify(title)` (see `itemHref` in components/Nav.tsx), so this table is
+     also the LIVE menu's routing table, and a title with no row here falls back
+     silently to the first category page. `Shareable Giving Page` slugifies to
+     this, and its section is `#sharegiving` on the giving page.
+     ⚠️ THE-306 ADDED NOTHING ELSE TO content/features.ts. The `sharegiving`
+     entry's copy, bullets, tiers and tiersNote are byte-identical to THE-281's,
+     and the-306-sharegiving.test.ts asserts that rather than trusting it. */
+  'shareable-giving-page': '/features/giving-finance#sharegiving',
   'fundraising': '/features/giving-finance#fundraising',
   'crm-donors-members': '/features/giving-finance#crm',
   'crm': '/features/giving-finance#crm',

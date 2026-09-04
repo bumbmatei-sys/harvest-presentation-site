@@ -256,10 +256,13 @@ describe('Campus', () => {
   it('the multi-campus FEATURE marketing stays behind its flag', () => {
     // The add-on being buyable did not un-hide the feature-page section or the
     // catalogue's Multi-Campus tool entry. Those are a separate decision, and
-    // flipping the flag would also move CATALOG_TOOL_COUNT off its derived 27.
+    // flipping the flag would also move CATALOG_TOOL_COUNT off its derived 28.
     expect(MULTI_CAMPUS_ENABLED).toBe(false);
     expect(CATALOG.flatMap((g) => g.items.map((i) => i.title))).not.toContain('Multi-Campus');
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 in THE-306: the Shareable Giving Page, a live unflagged
+    // tool, joined the Giving & Finance column. Nothing about THIS ticket's
+    // subject moved it.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
   });
 });
 
@@ -351,7 +354,10 @@ describe('what this change must not have touched', () => {
   it('the tool count is unchanged at its derived value', () => {
     // Add-ons are capacity, not tools. Nothing about them may inflate the
     // "N tools in one platform" figure.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 in THE-306: the Shareable Giving Page, a live unflagged
+    // tool, joined the Giving & Finance column. Nothing about THIS ticket's
+    // subject moved it.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

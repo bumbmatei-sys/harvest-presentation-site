@@ -737,7 +737,8 @@ describe('what the analytics disclosure must not have touched', () => {
     // The prices the Terms quote still match the cards that sell them, and the
     // catalogue count the pricing page renders is untouched.
     expect(tierPriceMismatches(plans)).toEqual([]);
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
@@ -950,7 +951,8 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
   /* 11 — nothing commercial moved. */
   it('no price or tool count changed', () => {
     expect(tierPriceMismatches(plans)).toEqual([]);
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',

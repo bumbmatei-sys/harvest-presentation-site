@@ -251,7 +251,8 @@ describe('the catalogue is a different object from the grid', () => {
     // different things; deleting the entry instead of the row would leave the
     // grid still making the claim AND quietly drop the "N tools in one platform"
     // figure the Nav and the features page advertise.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

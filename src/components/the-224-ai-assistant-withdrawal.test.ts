@@ -390,11 +390,14 @@ describe('no price changed', () => {
 
 /* ── 5 ─────────────────────────────────────────────────────────────────────── */
 describe('the tool count is unchanged at its derived value', () => {
-  it('is 27, and is still computed from the catalogue rather than written down', () => {
+  it('is 28, and is still computed from the catalogue rather than written down', () => {
     // 🔴 AN ADD-ON IS NOT A TOOL. Withdrawing a card from the pricing page must
     // not touch the mega-menu's count, and the two are separate structures —
     // this is what proves the removal did not reach across.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 in THE-306: the Shareable Giving Page, a live unflagged
+    // tool, joined the Giving & Finance column. Nothing about THIS ticket's
+    // subject moved it.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );

@@ -169,7 +169,10 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
       expect(g.items.length, `"${g.name}" lost rows`).toBeGreaterThan(4);
     }
     // The tools claim is untouched: nothing here is countable.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // 🔵 27 → 28 in THE-306: the Shareable Giving Page, a live unflagged
+    // tool, joined the Giving & Finance column. Nothing about THIS ticket's
+    // subject moved it.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(soonGroup.items.filter((i) => !i.soon)).toHaveLength(0);
   });
 });

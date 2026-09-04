@@ -697,13 +697,17 @@ describe('7 — the existing entries are undisturbed', () => {
     }
   });
 
-  it('🔴 the derived tool count did not move — 27, still a reduce', () => {
+  it('🔴 the derived tool count did not move — still a reduce', () => {
     /* ⚠️ THE MEASURABLE DIFFERENCE FROM THE SMS FLAG. THE-245 withdrew a live
        TOOL and took the count 28 → 27. This ticket rewords a tool that stays
        live — "Custom Branding & Domain" becomes "Custom Branding" — so the count
        is unchanged, and "N tools in one platform" still describes what a church
        can use today. */
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    /* 🔵 THE ABSOLUTE IS 28 SINCE THE-306, which added the Shareable Giving
+       Page row. That is not this ticket moving it — the property asserted here
+       is that the DOMAIN rewording moves nothing, which lib/flags.test.ts
+       proves by flipping the flag and comparing. */
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -726,7 +730,7 @@ describe('7 — the existing entries are undisturbed', () => {
       ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) }
       : g));
     const wrong = without.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(27 + soonGroup[0].items.length);
-    expect(wrong).toBeGreaterThan(27);
+    expect(wrong).toBe(28 + soonGroup[0].items.length);
+    expect(wrong).toBeGreaterThan(28);
   });
 });

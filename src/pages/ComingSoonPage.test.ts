@@ -769,7 +769,7 @@ describe('the in-app AI assistant copy does not describe the shipping member ass
 
 /* ── 9 ───────────────────────────────────────────────────────────────────── */
 describe('the tool count is derived, and the unbuilt entries never touch it', () => {
-  it('🔴 CATALOG_TOOL_COUNT is 27, and still a reduce over CATALOG', () => {
+  it('🔴 CATALOG_TOOL_COUNT is 28, and still a reduce over CATALOG', () => {
     // The figure is a claim about what EXISTS, quoted to visitors as "N tools
     // in one platform". Nine unbuilt features must not move it.
     //
@@ -777,9 +777,15 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     // because a LIVE tool was withdrawn — SMS Automation left the catalogue
     // when the feature was hidden — not because a coming-soon entry started
     // counting. The entry that replaced it is `soon` and adds nothing back,
-    // which is exactly what the next test proves. Advertising 28 tools with
-    // only 27 usable would be the same class of false claim as a stale price.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    // which is exactly what the next test proves. Advertising a tool a church
+    // cannot use would be the same class of false claim as a stale price.
+    //
+    // 🔵 27 → 28 AT THE-306, and the direction is the point there too: a LIVE
+    // tool ARRIVED in the menu. The Shareable Giving Page shipped in THE-281
+    // with a section on /features/giving-finance and no row in the catalogue,
+    // so it was a tool a church could use that the figure did not count and
+    // the navigation could not reach. Still no coming-soon entry involved.
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -787,7 +793,7 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
 
   it('the unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(live).toBe(27);
+    expect(live).toBe(28);
     /* ⚠️ FOUR SINCE THE-297, not twelve: the column is a shortlist plus a "see
        all" row. The number that matters here is unchanged — none of them counts
        as a tool — and shortening the column could only ever have LOWERED a
@@ -807,15 +813,15 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    // 27 live tools + the 4 unbuilt entries this mutation wrongly counts.
-    expect(wrong).toBe(31);
-    expect(wrong).toBe(27 + CATALOG[0].items.length);
+    // 28 live tools + the 4 unbuilt entries this mutation wrongly counts.
+    expect(wrong).toBe(32);
+    expect(wrong).toBe(28 + CATALOG[0].items.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.
     const oneLost = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it, j) => (j === 0 ? { ...it, soon: false } : it)) } : g));
-    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(28);
+    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(29);
   });
 
   it('the nav still quotes the derived figure', () => {

@@ -136,7 +136,7 @@ describe('MULTI_CAMPUS_ENABLED', () => {
    THE-223 that is no longer the same thing as the Campus add-on, which is live
    in Dodo and IS advertised, on the pricing page where a buyable capacity
    belongs. Flipping this flag publishes a feature-page section and a catalogue
-   tool entry, and moves CATALOG_TOOL_COUNT off its derived 27.
+   tool entry, and moves CATALOG_TOOL_COUNT off its derived value.
 
    So the shipped values are pinned. This is a tripwire, not a change-detector:
    these literals are the same idiom as EXPECTED_ANNUAL_MONTHLY in Pricing.tsx —
@@ -242,10 +242,12 @@ describe('SMS_MARKETING_ENABLED', () => {
     // and call the total SMS's. This pair differs in one boolean.
     const off = await surfacesWith(OFF);
     const smsOnly = await surfacesWith({ ...OFF, SMS_MARKETING_ENABLED: true });
-    expect(off.toolCount, 'the shipped count').toBe(27);
-    expect(smsOnly.toolCount, 'the count before SMS was withdrawn').toBe(28);
+    // 🔵 28/29 since THE-306 added the Shareable Giving Page row; the DELTA of
+    // one is what this test is about, and it is asserted below.
+    expect(off.toolCount, 'the shipped count').toBe(28);
+    expect(smsOnly.toolCount, 'the count before SMS was withdrawn').toBe(29);
     // The Coming Soon entry contributes nothing in either direction — that is
-    // what makes 27 an honest count rather than a hidden 28.
+    // what makes the shipped figure honest rather than one tool too high.
     expect(smsOnly.toolCount - off.toolCount).toBe(1);
     expect(smsOnly.soonIds).not.toContain('sms');
     expect(off.soonIds).toContain('sms');
@@ -393,13 +395,15 @@ describe('CUSTOM_DOMAIN_MARKETING_ENABLED', () => {
 
   it('🔴 does NOT move the derived tool count, in either direction', async () => {
     // ⚠️ THE MEASURABLE DIFFERENCE FROM THE SMS FLAG. SMS withdrew a TOOL and
-    // took the count 28 → 27. This flag rewords a tool that stays live, so the
+    // took the count down by one. This flag rewords a tool that stays live, so the
     // count is identical with it either way — and "N tools in one platform"
     // still describes what a church can use today.
     const off = await surfacesWith(OFF);
     const domainOnly = await surfacesWith({ ...OFF, CUSTOM_DOMAIN_MARKETING_ENABLED: true });
-    expect(off.toolCount).toBe(27);
-    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(27);
+    // 🔵 28 since THE-306 added the Shareable Giving Page row. The property
+    // here is the EQUALITY of the two, which is unaffected.
+    expect(off.toolCount).toBe(28);
+    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(28);
     // The tool is present under both labels, which is why the count holds.
     expect(off.titles).toContain('Custom Branding');
     expect(domainOnly.titles).toContain('Custom Branding & Domain');

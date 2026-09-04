@@ -160,8 +160,23 @@ export const CATALOG: CatalogGroup[] = [
      CATALOG_TOOL_COUNT is a derived count of everything NOT marked soon, and it
      is quoted to visitors as "N tools in one platform". Advertising eight
      unbuilt features as tools in the platform would be the same false claim as
-     a stale price. The count is unchanged at 28; the assertion lives in
-     pages/ComingSoonPage.test.ts and in two older suites that already pin it. */
+     a stale price.
+
+     🔴 THE COUNT IS 28, AND THIS LINE SAID 28 WHILE THE MENU RENDERED 27 —
+     THE-306. It was written when the derived figure really was 28 and was never
+     retaken after THE-245 withdrew SMS Automation, which took it to 27; the
+     comment on that very entry said "from 28 to 27" the whole time, so this
+     file disagreed with itself AND with its own rendered footer. (That comment
+     no longer quotes an absolute pair either, for the same reason.)
+     THE-306 adds the Shareable Giving Page, a live and unflagged tool, which
+     takes the derived figure 27 → 28 — so the number here is right again for a
+     new reason, and is now the DERIVED one rather than a remembered one.
+
+     ⚠️ Never restate it from memory. It is `CATALOG_TOOL_COUNT` at the foot of
+     this file; the assertions live in components/the-297-coming-soon-shortlist,
+     components/the-224-ai-assistant-withdrawal and components/PricingAddOns
+     (twice), and components/the-306-sharegiving.test.ts pins the three — the
+     figure, this comment and the assertions — against each other. */
   {
     name: COMING_SOON_NAME, kicker: COMING_SOON_KICKER,
     tint: 'var(--text-soon)', bg: 'var(--surface-soon)',
@@ -212,13 +227,19 @@ export const CATALOG: CatalogGroup[] = [
       item('message-square', 'AI Chat', "A contextual assistant for members — your ministry's voice, not a generic bot."),
       item('mail', 'Newsletter', 'Write a newsletter and send it through your own Mailchimp audience.'),
       item('sparkles', 'Automated Newsletter', 'AI drafts a newsletter from a month of your own Instagram posts.'),
-      // Hidden FEATURE entry — THE-245. 🔴 This is the one that moves the
-      // count: CATALOG_TOOL_COUNT is a derived tally of everything NOT marked
-      // `soon`, so withdrawing this tool takes it from 28 to 27. That is the
+      // Hidden FEATURE entry — THE-245. 🔴 This is one of the two things that
+      // move the count: CATALOG_TOOL_COUNT is a derived tally of everything NOT
+      // marked `soon`, so withdrawing this tool takes one off it. That is the
       // correct direction — the figure is quoted to visitors as "N tools in one
       // platform", and a tool a church cannot use is not one of them. The SMS
       // entry that appears in the Coming Soon column above is `soon: true` and
-      // contributes nothing, which is what keeps 27 honest rather than 28.
+      // contributes nothing, which is what keeps the figure honest.
+      // ⚠️ THE ABSOLUTE PAIR IS NOT WRITTEN HERE ANY MORE — THE-306. It read
+      // "from 28 to 27", which was true when THE-245 wrote it and became a
+      // second stale figure the moment a LIVE tool was added or removed
+      // anywhere else in this file. It is now 29 → 28, and would go stale
+      // again. The only figure worth quoting is the derived one, so this
+      // comment names the DIRECTION and CATALOG_TOOL_COUNT names the value.
       ...(SMS_MARKETING_ENABLED ? [item('message-square-text', 'SMS Automation', 'Twilio-powered SMS flows for follow-up, reminders and care.')] : []),
       item('clipboard-list', 'Custom Forms → CRM', 'Build forms that feed straight into your CRM pipeline.'),
     ],
@@ -227,6 +248,19 @@ export const CATALOG: CatalogGroup[] = [
     name: 'Giving & Finance', kicker: 'Steward', tint: 'var(--gold-700)', bg: 'var(--gold-100)',
     items: [
       item('hand-heart', 'Donation Page', 'Beautiful branded giving with a 0% platform fee — you keep every dollar.'),
+      /* THE-306 — the entry this column was MISSING. The founder, with a
+         screenshot of the open mega-menu: "this feature doesnt appear in the
+         feature section in top header bar." `sharegiving` shipped in THE-281
+         with a section on this column's own category page and no row here, so a
+         live, paid feature was unreachable from the navigation.
+
+         ⚠️ IT IS NOT `soon`, so it MOVES CATALOG_TOOL_COUNT — 27 → 28. That is
+         the correct direction: the figure counts tools a church can use today
+         and this is one. See the note on the constant at the foot of this file.
+         ⚠️ The title feeds `slugify(title)` → `shareable-giving-page`, which
+         must resolve in content/features.ts's LEGACY_ANCHOR_TARGETS or the row
+         falls back to the first category page. It is mapped there. */
+      item('share', 'Shareable Giving Page', 'Share every way your church takes a gift — as a link, a share sheet or a QR code.'),
       item('trending-up', 'Fundraising', 'Run campaigns with goals, progress and updates for your community.'),
       item('contact', 'CRM (Donors & Members)', 'A full relationship manager for donors and members.'),
       item('calculator', 'Accounting + QuickBooks', 'Accounting tools with QuickBooks sync to keep the books clean.'),

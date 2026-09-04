@@ -60,7 +60,7 @@ import {
  *   · There were NINE entries before this change, not six. Six were named by
  *     the founder (THE-247), two more were found on the board, and THE-245
  *     relocated SMS into the page. This one is the TENTH.
- *   · CATALOG_TOOL_COUNT is 27, not 28. It moved 28 → 27 at THE-245 when the
+ *   · CATALOG_TOOL_COUNT is not what the ticket said. It moved 28 → 27 at THE-245 when the
  *     SMS Automation TOOL left the live catalogue. It is unchanged by this
  *     ticket, in the only way that matters: still 27, still a reduce.
  *
@@ -865,13 +865,17 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
 
 /* ── 10 ──────────────────────────────────────────────────────────────────── */
 describe('10 — the tool count is unchanged and still derived', () => {
-  it('🔴 CATALOG_TOOL_COUNT is 27 — and 27, not 28, is the correct figure', () => {
+  it('🔴 CATALOG_TOOL_COUNT is the DERIVED figure, not the one the ticket named', () => {
     /* ⚠️ THE TICKET SAID 28. It was 28 until THE-245, which withdrew the SMS
        Automation TOOL from the live catalogue and took the count to 27. The
        claim is quoted to visitors as "N tools in one platform", so the figure
        has to describe what a church can use today. This change does not move
        it, which is the property that matters. */
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    /* 🔵 AND IT IS 28 AGAIN SINCE THE-306 — the Shareable Giving Page row, a
+       live tool that had no menu entry. The lesson of this note survives the
+       change and is the reason it is written this way: quote the derived
+       figure, never a remembered one. */
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -887,12 +891,12 @@ describe('10 — the tool count is unchanged and still derived', () => {
     // 10 after THE-252, 11 after THE-280 appended "Custom domains", 12 after
     // THE-284 appended "Harvest Scheduler". The count is a tripwire on the
     // GROUP; the guarantee is the line below — every entry in it is `soon`, so
-    // a further one still leaves CATALOG_TOOL_COUNT at 27.
+    // a further one still leaves CATALOG_TOOL_COUNT where it is.
     /* ⚠️ THE-297 made the column a shortlist, so the group's length is now the
        shortlist's and this entry may not be in it — absent, it contributes
        nothing a fortiori. The guarantee below is the one that always held and
        still does: every row in the group is `soon`, so CATALOG_TOOL_COUNT stays
-       at 27 no matter which entries the column shows. */
+       where it is no matter which entries the column shows. */
     expect(soonGroup[0].items).toHaveLength(COMING_SOON_MENU_ITEMS.length);
     expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon entry is being counted')
       .toHaveLength(0);
@@ -911,7 +915,7 @@ describe('10 — the tool count is unchanged and still derived', () => {
       ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) }
       : g));
     const wrong = withoutFlag.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(27 + COMING_SOON_MENU_ITEMS.length);
+    expect(wrong).toBe(28 + COMING_SOON_MENU_ITEMS.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
   });
 

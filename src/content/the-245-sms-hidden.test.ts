@@ -228,8 +228,12 @@ describe('3 — SMS is in Coming Soon, and claims nothing there', () => {
 /* ── 4 ─────────────────────────────────────────────────────────────────────
    The derived tool count.                                                    */
 describe('4 — the tool count moved, and is still derived', () => {
-  it('🔴 is 27, computed by a reduce over CATALOG and never written down', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+  it('🔴 is 28, computed by a reduce over CATALOG and never written down', () => {
+    /* 🔵 THE-306 took it 27 → 28 by adding the Shareable Giving Page row. This
+       suite's subject is the SMS withdrawal that took it 28 → 27; that delta is
+       still measured, below and in lib/flags.test.ts, by flipping the flag
+       rather than by this absolute. */
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -249,7 +253,7 @@ describe('4 — the tool count moved, and is still derived', () => {
        entries themselves are untouched: content/coming-soon.ts still carries
        twelve and the page still renders twelve. What this test is really
        holding is the line below — every row in the group is `soon`, so however
-       many the column shows, CATALOG_TOOL_COUNT stays at 27. */
+       many the column shows, CATALOG_TOOL_COUNT stays where it is. */
     expect(soonGroup[0].items).toHaveLength(COMING_SOON_MENU_ITEMS.length);
     expect(soonGroup[0].items.length).toBeLessThan(COMING_SOON_ITEMS.length);
     expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon entry is being counted')
