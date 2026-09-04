@@ -8,7 +8,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { ComingSoonPage } from './ComingSoonPage';
 import { FeatureMenuColumns, Nav } from '../components/Nav';
-import { CATALOG, CATALOG_TOOL_COUNT, slugify } from '../components/catalog';
+import { CATALOG, CATALOG_TOOL_COUNT, COMING_SOON_MENU_ITEMS, slugify } from '../components/catalog';
 import {
   ADD_ONS,
   ADD_ON_BILLED_MONTHS,
@@ -484,15 +484,26 @@ describe('the Coming Soon page lists every named item', () => {
     },
   );
 
-  it('the mega-menu lists the same eight, derived rather than kept twice', () => {
-    expect(CATALOG[0].items.map((i) => i.title)).toEqual(COMING_SOON_ITEMS.map((i) => i.name));
+  /* ⚠️ REWRITTEN BY THE-297, NOT WEAKENED. This asserted that the menu listed
+     EVERY entry. It now lists four of them and a "see all" row, at the founder's
+     direction, so the claim it can still make — and the one that mattered — is
+     that what the menu does show is DERIVED from this file rather than kept in a
+     second hand-written array. The four-and-only-four shape, the lead, and the
+     page's undiminished twelve are pinned in
+     components/the-297-coming-soon-shortlist.test.ts. */
+  it('the mega-menu lists a shortlist of the same list, derived rather than kept twice', () => {
+    const shown = CATALOG[0].items.map((i) => i.title);
+    // A subset, in the shortlist's order, and every one of them a real entry.
+    expect(shown).toEqual(COMING_SOON_MENU_ITEMS.map((i) => i.name));
+    const names = COMING_SOON_ITEMS.map((i) => i.name);
+    for (const title of shown) expect(names, `"${title}" is not an entry on the page`).toContain(title);
     for (const item of CATALOG[0].items) {
       for (const [where, html] of [['desktop', desktopMenu], ['mobile', mobileMenu]] as const) {
         expect(words(html), `the ${where} menu does not list "${item.title}"`).toContain(item.title);
       }
     }
     // And each is badged SOON in the menu itself, not only in the data.
-    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_ITEMS.length);
+    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_MENU_ITEMS.length);
   });
 
   it('and the page says up front that none of it exists', () => {
@@ -777,23 +788,28 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
   it('the unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     expect(live).toBe(27);
-    // 9 + THE-252's affiliate entry + THE-280's custom-domains entry
-    // + THE-284's Harvest Scheduler entry.
-    expect(CATALOG[0].items).toHaveLength(12);
+    /* ⚠️ FOUR SINCE THE-297, not twelve: the column is a shortlist plus a "see
+       all" row. The number that matters here is unchanged — none of them counts
+       as a tool — and shortening the column could only ever have LOWERED a
+       count of unbuilt entries, never raised it. The page still renders all
+       twelve; that is pinned in test 5 above and in the THE-297 suite. */
+    expect(CATALOG[0].items).toHaveLength(4);
+    expect(CATALOG[0].items).toHaveLength(COMING_SOON_MENU_ITEMS.length);
     expect(CATALOG[0].items.filter((i) => !i.soon)).toHaveLength(0);
   });
 
   it('🔴 and it WOULD have moved if a single entry lost its soon flag — by mutation', () => {
     // The tripwire, proved rather than asserted. Without `soon`, the count runs
-    // to 38 and the site starts advertising eleven tools it does not have —
-    // three of which, SMS, the affiliate programme and custom domains, it would
-    // be advertising for the second time, in the tense it already withdrew them
-    // from.
+    // to 31 and the site starts advertising four tools it does not have — one of
+    // which, the Harvest Scheduler, THE-297 has just moved to the top of the
+    // column, so the mutation would advertise the most prominent unbuilt thing
+    // on the site as shipped.
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    // 27 live tools + the 12 unbuilt entries this mutation wrongly counts.
-    expect(wrong).toBe(39);
+    // 27 live tools + the 4 unbuilt entries this mutation wrongly counts.
+    expect(wrong).toBe(31);
+    expect(wrong).toBe(27 + CATALOG[0].items.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.
