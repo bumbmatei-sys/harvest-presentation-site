@@ -465,12 +465,56 @@ const soonBar = (label: string, width: string, fill: string) => (
  *
  * A third party's mark may only ship here if it came from that party's OWN
  * brand-assets page — not an aggregator, not a scrape, not redrawn from memory.
- * Every one of the six providers' domains is refused by this environment's
- * egress policy (paypal.com, cash.app, venmo.com, zellepay.com, revolut.com and
- * wise.com all answer 403 to CONNECT), so not one mark could be sourced, and a
- * logo drawn from recollection is precisely the mangled mark the rule forbids —
- * on a money surface, under a church's name, where a wrong glyph implies an
- * endorsement that does not exist.
+ *
+ * 🔴 THE-306 RECORDED THE WRONG REASON, AND THE-307 CORRECTED IT. THE-306 was
+ * run in a sandbox whose egress policy refused all six providers' domains, so
+ * it concluded the marks merely COULD NOT BE FETCHED and that a follow-up with
+ * network access would finish the job. THE-307 re-ran the whole thing on a
+ * machine with open egress. All six hosts answer — paypal.com, cash.app,
+ * venmo.com, zellepay.com, revolut.com and wise.com every one of them reachable
+ * — and the marks STILL cannot ship. The blocker was never the network. It is
+ * the providers' own published terms, which THE-307 read in full:
+ *
+ *   · PayPal — the Logo Center (paypal.com/us/webapps/mpp/logo-center) now
+ *     redirects to a MERCHANT payment-button builder, and that licence runs to
+ *     sites that ACCEPT PayPal, which Harvest does not. The only self-serve
+ *     marks are on newsroom.paypal-corp.com/media-resources, offered "to
+ *     support your story" — press/editorial use, not a marketing page — and
+ *     that kit ships black, white and monogram only, so there is no full-colour
+ *     PayPal mark to place in a coloured circle even if the licence fitted.
+ *   · Cash App — cash.app/press/assets is a PRESS resources page and publishes
+ *     no usage terms at all, so no licence covering this use can be confirmed.
+ *     Unconfirmed is not permitted.
+ *   · Venmo — venmo.com/about/brand is the one genuinely public, self-serve kit
+ *     of the six, and it is the one that fails hardest on geometry: "The V
+ *     monogram is reserved for the Venmo social identity. Don't use the V
+ *     monogram in place of the primary Venmo logo when using outside of social
+ *     media." The only permitted mark here is the WORDMARK, whose clear-space
+ *     rule is half the logo height (a quarter minimum) — and a wordmark plus
+ *     that clear space does not fit a 30px circle. The same page also forbids
+ *     the wordmark in-line within a block of text.
+ *   · Zelle — zelle.com/legal/site-terms-use grants a licence "for personal,
+ *     non-commercial purposes only" and permits display of its Material only
+ *     "if you are granted express permission by Network Operator in writing".
+ *     Early Warning "reserves the right to take action … by enforcing proper
+ *     usage of its brand assets". There is no public brand-assets page at all.
+ *   · Revolut — revolut.com/legal/terms: "we own all the intellectual property
+ *     in our products (for example, the content in our app and on our website,
+ *     our logo and card designs)." No brand-assets page exists; revolut.com/news
+ *     offers a press mailbox and nothing else. No published grant to rely on.
+ *   · Wise — wise.com/help/articles/79CxCv9Qj1r7mDPJuIwUA3/wise-intellectual-
+ *     property: branding is "the exclusive property of Wise and its licensors",
+ *     the only licence granted is a personal one to CUSTOMERS which expressly
+ *     "doesn't extend to products or services not provided by Wise", and the
+ *     article closes "Any use not specifically permitted is strictly
+ *     prohibited."
+ *
+ * ⚠️ SO FOUR PROVIDERS AFFIRMATIVELY PROHIBIT THIS USE, one publishes no terms
+ * to rely on, and the sixth permits only a mark that cannot fit the circle. A
+ * logo drawn from recollection is the mangled mark the rule forbids — on a
+ * money surface, under a church's name, where a wrong glyph implies an
+ * endorsement that does not exist. Six initials are more honest than six
+ * approximations, and than three marks beside three initials.
  *
  * ⚠️ SO THE MARK IS ABSENT AND THE NAME IS PRESENT. Each circle carries the
  * provider's initial set in this site's own type, with the provider's name in
@@ -480,18 +524,29 @@ const soonBar = (label: string, width: string, fill: string) => (
  * applies to it — there is no mark to crop. This is the same reasoning, and the
  * same shape, as the app repo's `ProviderMark`.
  *
- * 🔵 A FOLLOW-UP MAY REPLACE THESE WITH REAL MARKS, and should do it by
- * vendoring six files into `logos/` from the six brand centres, the way
- * `logos/instagram.svg` and the two Google marks were vendored, recording the
- * source URL per file. It is not a code change here beyond swapping the
- * monogram for an <img>.
+ * 🔴 DO NOT RE-OPEN THIS AS A FETCHING PROBLEM. THE-306 left a note saying a
+ * follow-up need only vendor six files into `logos/` the way `instagram.svg`
+ * and the two Google marks were vendored; THE-307 tried exactly that and found
+ * the note was written from the wrong diagnosis. Reachability is not the gate
+ * and never was. The only thing that would unblock a mark is WRITTEN PERMISSION
+ * from that provider — venmo-logo@paypal.com, ip@wise.com, press@cash.app,
+ * media@revolut.com, and Zelle's Network Operator via Early Warning. Until a
+ * grant exists in writing for a given provider, that circle keeps its initial.
+ * Whether to pursue those grants is the founder's call, not a follow-up's.
  *
  * ⚠️ NO COLOUR IS HARDCODED IN THIS VIGNETTE — not even a brand colour. A
  * provider's brand colour would have been legitimate as DATA rather than a
- * token, on the same footing as the app's `tint`/`ink`, but a hex value is a
- * brand asset like any other and none could be sourced from an official page
- * either. Six unverified colours would assert six brand identities as
- * confidently as six wrong glyphs. The circles use the ramps in index.css. */
+ * token, on the same footing as the app's `tint`/`ink`. The exemption still
+ * goes unused, and THE-307 sharpened why. Exactly ONE of the six colours is
+ * published on an official page — Venmo's light-ground blue, given in that
+ * kit as a Pantone/hex pair, deliberately NOT restated here because a hex in
+ * this file is a hardcoded colour whatever comment surrounds it — and it is
+ * published as part of the same brand kit whose mark Venmo does not license for
+ * this use, so taking the colour while dropping the mark asserts the identity
+ * with none of the terms attached. The other five are not published anywhere
+ * this site may read. A hex value is a brand asset like any other: six colours,
+ * five of them unverified, would assert six brand identities as confidently as
+ * six wrong glyphs. The circles use the ramps in index.css. */
 
 /** The providers the shared giving page taps through to, in the order
  *  content/features.ts records them.
