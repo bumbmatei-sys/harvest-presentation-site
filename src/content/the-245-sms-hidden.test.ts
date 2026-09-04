@@ -10,7 +10,7 @@ import {
   ADD_ONS, ComparisonTable, addOnPricingContract, dodoAddOnCatalogContract,
   planPriceContract, plans, DODO_ADD_ON_CATALOG, type Plan,
 } from '../components/Pricing';
-import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
+import { CATALOG, CATALOG_TOOL_COUNT, COMING_SOON_MENU_ITEMS } from '../components/catalog';
 import { CATEGORIES, LEGACY_ANCHORS } from './features';
 import { COMING_SOON_ITEMS, comingSoonContract } from './coming-soon';
 import { FAQS, answerText, faqPlainText } from './faq';
@@ -242,13 +242,16 @@ describe('4 — the tool count moved, and is still derived', () => {
   it('moved because a LIVE tool was withdrawn, not because an unbuilt one counted', () => {
     const soonGroup = CATALOG.filter((g) => g.href);
     expect(soonGroup).toHaveLength(1);
-    // 9 → 10 at THE-252, which added an "Affiliate referrals" entry, then
-    // 10 → 11 at THE-280, which added "Custom domains", then 11 → 12 at
-    // THE-284, which added "Harvest Scheduler". The literal is a tripwire on
-    // the GROUP, not on the count: what this test is really holding is the line
-    // below — every entry in it is `soon`, so a thirteenth one moves this
-    // number and leaves CATALOG_TOOL_COUNT at 27.
-    expect(soonGroup[0].items).toHaveLength(12);
+    /* 9 → 10 at THE-252, which added an "Affiliate referrals" entry, then
+       10 → 11 at THE-280, which added "Custom domains", then 11 → 12 at
+       THE-284, which added "Harvest Scheduler" — and then 12 → 4 at THE-297,
+       which made the COLUMN a shortlist of the list rather than all of it. The
+       entries themselves are untouched: content/coming-soon.ts still carries
+       twelve and the page still renders twelve. What this test is really
+       holding is the line below — every row in the group is `soon`, so however
+       many the column shows, CATALOG_TOOL_COUNT stays at 27. */
+    expect(soonGroup[0].items).toHaveLength(COMING_SOON_MENU_ITEMS.length);
+    expect(soonGroup[0].items.length).toBeLessThan(COMING_SOON_ITEMS.length);
     expect(soonGroup[0].items.filter((i) => !i.soon), 'a coming-soon entry is being counted')
       .toHaveLength(0);
   });
