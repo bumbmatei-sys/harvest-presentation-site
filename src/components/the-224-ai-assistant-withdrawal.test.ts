@@ -397,7 +397,9 @@ describe('the tool count is unchanged at its derived value', () => {
     // 🔵 27 → 28 in THE-306: the Shareable Giving Page, a live unflagged
     // tool, joined the Giving & Finance column. Nothing about THIS ticket's
     // subject moved it.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );

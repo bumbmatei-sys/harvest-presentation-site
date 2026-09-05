@@ -429,12 +429,12 @@ describe('the Coming Soon page lists every named item', () => {
     expect(COMING_SOON_ITEMS.map((i) => i.ref)).toEqual([
       'THE-123', 'THE-122', 'THE-112', 'THE-117', 'THE-59', 'THE-58',
       'THE-118', 'THE-98',
-      // THE-245 — SMS & Text-to-Give, the ninth and the only RELOCATED one:
-      // every entry above describes work that was never built, this one
-      // describes work that shipped, was found untested, and was withdrawn from
-      // sale before it could be marketed. Its ref is the card that withdrew it,
-      // which is the open card that now owns the gap.
-      'THE-245',
+      // ⚠️ THE-245's SMS ENTRY LEFT THIS LIST AT THE-314. It was the only
+      // RELOCATED one — every other entry describes work that was never built,
+      // while that one described work that shipped, was found untested and was
+      // withdrawn from sale before it could be marketed. THE-314 finished that
+      // story: SMS was rebuilt on a new provider, made Ministry-only and put
+      // back on sale, so the gap it named is closed and the entry filters out.
       // THE-97 — the affiliate programme (THE-252). The SECOND relocated entry,
       // and it traces to the card that owns the gap rather than to the ticket
       // that wrote the copy: THE-97 is the open "decide where payouts originate"
@@ -785,7 +785,9 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     // with a section on /features/giving-finance and no row in the catalogue,
     // so it was a tool a church could use that the figure did not count and
     // the navigation could not reach. Still no coming-soon entry involved.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -793,12 +795,14 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
 
   it('the unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(live).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on.
+    expect(live).toBe(29);
     /* ⚠️ FOUR SINCE THE-297, not twelve: the column is a shortlist plus a "see
        all" row. The number that matters here is unchanged — none of them counts
        as a tool — and shortening the column could only ever have LOWERED a
-       count of unbuilt entries, never raised it. The page still renders all
-       twelve; that is pinned in test 5 above and in the THE-297 suite. */
+       count of unbuilt entries, never raised it. The page still renders all of
+       them; that is pinned in test 5 above and in the THE-297 suite.
+       🔵 Eleven of them since THE-314 took SMS off the list. */
     expect(CATALOG[0].items).toHaveLength(4);
     expect(CATALOG[0].items).toHaveLength(COMING_SOON_MENU_ITEMS.length);
     expect(CATALOG[0].items.filter((i) => !i.soon)).toHaveLength(0);
@@ -813,15 +817,20 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    // 28 live tools + the 4 unbuilt entries this mutation wrongly counts.
-    expect(wrong).toBe(32);
-    expect(wrong).toBe(28 + CATALOG[0].items.length);
+    // 🔵 29 live tools since THE-314 + the 4 unbuilt entries this mutation
+    // wrongly counts.
+    expect(wrong).toBe(33);
+    // 🔵 29 since THE-314 turned SMS back on — this is the derived count plus
+    // the coming-soon rows the mutation wrongly counts.
+    expect(wrong).toBe(29 + CATALOG[0].items.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.
     const oneLost = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it, j) => (j === 0 ? { ...it, soon: false } : it)) } : g));
-    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(29);
+    // 🔵 30 since THE-314: the derived 29 plus the single entry this mutation
+    // wrongly un-flags.
+    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(30);
   });
 
   it('the nav still quotes the derived figure', () => {

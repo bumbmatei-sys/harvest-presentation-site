@@ -102,7 +102,10 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
     expect(soonGroup.items).toHaveLength(4);
     // And that is genuinely a truncation of a longer list, not a shrunken list.
     expect(COMING_SOON_ITEMS.length).toBeGreaterThan(soonGroup.items.length);
-    expect(COMING_SOON_ITEMS).toHaveLength(12);
+    // 🔵 ELEVEN since THE-314: SMS left Coming Soon when it went live on the
+    // pricing page. `COMING_SOON_ITEMS` filters on SMS_MARKETING_ENABLED so the
+    // two can never both be true.
+    expect(COMING_SOON_ITEMS).toHaveLength(11);
   });
 
   it('🔴 Harvest Scheduler is FIRST, and is the entry with a page of its own', () => {
@@ -155,7 +158,9 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
   it('the eight it no longer lists are still published, just not in the menu', () => {
     const hidden = COMING_SOON_ITEMS.filter(
       (i) => !COMING_SOON_MENU_ITEMS.some((m) => m.id === i.id));
-    expect(hidden).toHaveLength(8);
+    // 🔵 SEVEN since THE-314 — SMS left the published list entirely, so it is
+    // neither in the menu shortlist nor among the entries the menu omits.
+    expect(hidden).toHaveLength(7);
     for (const item of hidden) {
       expect(words(desktopMenu), `"${item.name}" is still in the menu`).not.toContain(item.name);
       // …and is on the page the "see all" row leads to.
@@ -172,7 +177,9 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
     // 🔵 27 → 28 in THE-306: the Shareable Giving Page, a live unflagged
     // tool, joined the Giving & Finance column. Nothing about THIS ticket's
     // subject moved it.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(soonGroup.items.filter((i) => !i.soon)).toHaveLength(0);
   });
 });
@@ -195,9 +202,12 @@ describe('2 — a "see all" control links to the full coming-soon page', () => {
 
   it('it counts the whole list, derived rather than written down', () => {
     expect(COMING_SOON_MORE_LABEL).toBe(`See all ${COMING_SOON_ITEMS.length}`);
-    expect(COMING_SOON_MORE_LABEL).toBe('See all 12');
-    // Not a literal in the source — a flag can move the count.
-    expect(readSrc('components/catalog.ts')).not.toMatch(/See all 12/);
+    // 🔵 Eleven since THE-314 took SMS off the list. The point of this test is
+    // the line ABOVE — the label is derived — and this absolute is what proves
+    // the derivation is not comparing the label to itself.
+    expect(COMING_SOON_MORE_LABEL).toBe('See all 11');
+    // Not a literal in the source — a flag can move the count, and one just did.
+    expect(readSrc('components/catalog.ts')).not.toMatch(/See all \d+/);
   });
 
   it('🔴 it is NAVIGATION, not a call to action — no trial, no price, no urgency', () => {
@@ -225,9 +235,12 @@ describe('2 — a "see all" control links to the full coming-soon page', () => {
 
 /* ── 3 ─────────────────────────────────────────────────────────────────────
    🔴 The truncation is SECTION-ONLY.                                        */
-describe('3 — the full page still shows ALL 12 entries', () => {
+describe('3 — the full page still shows ALL of the entries', () => {
   it('🔴 every entry renders on the page, by name', () => {
-    expect(COMING_SOON_ITEMS).toHaveLength(12);
+    // 🔵 ELEVEN since THE-314: SMS left Coming Soon when it went live on the
+    // pricing page. `COMING_SOON_ITEMS` filters on SMS_MARKETING_ENABLED so the
+    // two can never both be true.
+    expect(COMING_SOON_ITEMS).toHaveLength(11);
     for (const item of COMING_SOON_ITEMS) {
       expect(pageText, `"${item.name}" is missing from the page`).toContain(item.name);
     }
@@ -406,7 +419,9 @@ describe('7 — no SoonItem was added or removed, and every ref is intact', () =
   it('🔴 still twelve entries, with the ids the page shipped with', () => {
     expect(COMING_SOON_ITEMS.map((i) => i.id)).toEqual([
       'languages', 'services', 'applications', 'docs', 'website', 'agent',
-      'identity', 'designations', 'sms', 'affiliate', 'domains', 'scheduler',
+      // 🔵 'sms' LEFT THIS LIST AT THE-314 — it is sold on the pricing page now,
+      // and an entry here as well would be the same claim in two tenses.
+      'identity', 'designations', 'affiliate', 'domains', 'scheduler',
     ]);
   });
 
@@ -521,7 +536,8 @@ describe('10 — no page changed its built HTML except the ones this PR touches'
     for (const item of COMING_SOON_ITEMS) {
       expect(text, `"${item.name}" is missing from the built page`).toContain(item.name);
     }
-    expect(text.split(NOT_BUILT_LABEL).length - 1).toBe(12);
+    // 🔵 Eleven since THE-314 — see the note on COMING_SOON_ITEMS above.
+    expect(text.split(NOT_BUILT_LABEL).length - 1).toBe(11);
   });
 
   it.runIf(built)('and no OTHER built page grew a coming-soon entry', () => {

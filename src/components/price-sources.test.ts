@@ -336,8 +336,11 @@ describe('the plan feature matrix is unchanged', () => {
 // the wrong baseline the moment the switch flips back.
     expect(plans.find((p) => p.planId === 'plus')!.features).toEqual([
       '150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
+      // 🔴 THE-314 — the SMS line MOVED CARDS as well as changing its name. It
+      // was 'SMS (bring your own Twilio)' on INDIVIDUAL while a church held its
+      // own carrier account; Harvest resells now and SMS is Ministry-only, so
+      // the line is on the Ministry card and Individual carries none.
       'CRM (Donors & Members)',
-      ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []),
       'Donation page & Fundraising',
     ]);
     expect(plans.find((p) => p.planId === 'pro')!.features).toEqual([
@@ -347,7 +350,11 @@ describe('the plan feature matrix is unchanged', () => {
     expect(plans.find((p) => p.planId === 'max')!.features).toEqual([
       'Everything in Small Team', '2,000 contacts · 15 admins', '15 courses',
       'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter',
-      'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks',
+      'Custom Forms → CRM', 'Tax Receipts & Statements',
+      // 🔴 THE-314 — SMS arrived HERE, on Ministry, having left the Individual
+      // card above. Harvest resells now and the founder's call is Ministry only.
+      ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
+      'Accounting + QuickBooks',
     ]);
   });
 

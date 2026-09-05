@@ -244,8 +244,13 @@ describe('SMS_MARKETING_ENABLED', () => {
     const smsOnly = await surfacesWith({ ...OFF, SMS_MARKETING_ENABLED: true });
     // 🔵 28/29 since THE-306 added the Shareable Giving Page row; the DELTA of
     // one is what this test is about, and it is asserted below.
-    expect(off.toolCount, 'the shipped count').toBe(28);
-    expect(smsOnly.toolCount, 'the count before SMS was withdrawn').toBe(29);
+    //
+    // ⚠️ THE LABELS SWAPPED SIDES AT THE-314, and the numbers did not. `OFF`
+    // forces every flag false, so it is a synthetic state rather than what
+    // ships — and what ships is now the SMS-on side, at 29. The pair still
+    // isolates the one boolean; only which half is the live product changed.
+    expect(off.toolCount, 'the count with SMS withheld').toBe(28);
+    expect(smsOnly.toolCount, 'the shipped count, with SMS live').toBe(29);
     // The Coming Soon entry contributes nothing in either direction — that is
     // what makes the shipped figure honest rather than one tool too high.
     expect(smsOnly.toolCount - off.toolCount).toBe(1);
@@ -400,8 +405,9 @@ describe('CUSTOM_DOMAIN_MARKETING_ENABLED', () => {
     // still describes what a church can use today.
     const off = await surfacesWith(OFF);
     const domainOnly = await surfacesWith({ ...OFF, CUSTOM_DOMAIN_MARKETING_ENABLED: true });
-    // 🔵 28 since THE-306 added the Shareable Giving Page row. The property
-    // here is the EQUALITY of the two, which is unaffected.
+    // 🔵 28 in this synthetic all-flags-off state since THE-306 added the
+    // Shareable Giving Page row. The property here is the EQUALITY of the two,
+    // which is unaffected by THE-314 turning SMS back on.
     expect(off.toolCount).toBe(28);
     expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(28);
     // The tool is present under both labels, which is why the count holds.

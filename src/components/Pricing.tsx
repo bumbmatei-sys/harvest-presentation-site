@@ -184,20 +184,31 @@ const FREE_TIER_PLAN_ID = 'free';
 // planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
 // Anything else here deep-links signup to a plan the app cannot resolve.
 //
-// 🔴 Individual's 'SMS (bring your own Twilio)' line is now behind
-// SMS_MARKETING_ENABLED — THE-245, finished in THE-250. The app refuses every
-// send with a 503 while its own SMS_FEATURE_ENABLED is false, so this line was
-// selling a capability the product will not perform. SMS moved to Coming Soon
-// ("SMS & Text-to-Give") instead of vanishing.
+// 🔴 SMS IS BACK, AND IT MOVED CARDS — THE-314.
 //
-// ⚠️ GATED, NOT DELETED, and that is the whole point of the flag: flipping one
-// value has to bring back EVERY SMS surface and simultaneously drop the Coming
-// Soon entry, or the same claim gets made twice in two tenses. See the matching
-// note on the Automation group in COMPARISON below. No price changed here.
+// It was 'SMS (bring your own Twilio)' on INDIVIDUAL, then withheld entirely by
+// SMS_MARKETING_ENABLED (THE-245/THE-250) because the app refused every send
+// with a 503. The switch is on again, and two things about the claim changed
+// while it was away:
+//
+//   · WHOSE ACCOUNT. Harvest no longer asks a church to bring its own carrier
+//     account — it RESELLS on one account of its own, buys the church a number
+//     and bills for what is sent. So the parenthetical is gone: there is no
+//     third-party login a church has ever heard of, and naming one would send
+//     an admin looking for something that does not exist.
+//   · WHICH TIER. SMS is Ministry only. It is on the MINISTRY card below, not
+//     Individual's, and the comparison row moved with it — see the note in
+//     COMPARISON. A line on the Individual card would be the exact class of
+//     false claim this page has been corrected for six times, because the app
+//     answers an Individual tenant with an upgrade wall.
+//
+// ⚠️ STILL GATED, NOT HARDCODED: flipping SMS_MARKETING_ENABLED back off has to
+// remove EVERY SMS surface and simultaneously restore the Coming Soon entry, or
+// the same claim gets made twice in two tenses. No price changed here.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []), 'Donation page & Fundraising'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
   { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', 'Accounting + QuickBooks'] },
+  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), 'Accounting + QuickBooks'] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
@@ -579,35 +590,40 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Automation', rows: [
     ['Newsletter', [false, false, T, T]],
     ['Automated Newsletter', [false, false, false, T]],
-    /* 🔴 The SMS row is behind SMS_MARKETING_ENABLED (THE-245, finished in
-       THE-250). This grid asserted ['SMS (bring your own Twilio)',
-       [false, T, T, T]] — SMS included on all three paid tiers — while the app
-       refused every send with a 503. That is the site selling a capability the
-       product will not perform, the exact failure this page has been corrected
-       for six times.
+    /* 🔴 THE SMS ROW IS BACK, AND ITS CELLS MOVED — THE-314.
+       It read ['SMS (bring your own Twilio)', [false, T, T, T]] — included on
+       all three paid tiers — while the app refused every send with a 503. That
+       was the site selling a capability the product would not perform, the
+       exact failure this page has been corrected for six times.
 
-       ⚠️ THIS IS A RELOCATION, NOT A RETRACTION. SMS now has a Coming Soon entry
-       ("SMS & Text-to-Give"), where the `SoonItem` shape has nowhere to put a
-       price, a tier or a call to action. A row HERE and an entry THERE would be
-       the same claim in two tenses — so the two are one switch: this row
-       appears exactly when `COMING_SOON_ITEMS` filters that entry out, and the
-       `the-250-sms-pricing-removed.test.ts` suite asserts the pair can never
-       both be present, in either flag state.
+       ⚠️ BOTH HALVES OF THE CLAIM CHANGED WHILE IT WAS WITHHELD, and the second
+       is the one that matters here:
 
-       GATED, NOT DELETED, per the contract at the top of lib/flags.ts: every
-       hidden marketing surface stays in the tree behind its boolean so restoring
-       it is a one-line change. Deleting the row would have made the flip back a
-       hunt through git history for wording and cell values.
+         · The name lost its vendor. Harvest RESELLS on one account of its own
+           rather than asking a church to bring a carrier account, so there is
+           no third-party login to name.
+         · 🔴 THE TIERS ARE NOW MINISTRY ONLY — [false, false, false, T], not
+           [false, T, T, T]. The app's `smsAutomation` is true on `max` alone,
+           and an Individual or Small Team tenant that opens /admin/sms meets an
+           upgrade wall. A T in either of those columns would be this grid
+           promising a capability the app refuses, which is precisely what the
+           six corrections were about. `the-314-sms-live.test.ts` verifies these
+           cells AGAINST the app's published plan catalogue rather than
+           restating them, so the two repos cannot drift.
 
-       ⚠️ Neither this row nor the Individual card's line feeds CATALOG_TOOL_COUNT
-       — that is a reduce over CATALOG in components/catalog.ts, where the SMS
-       tool has its own gate on the same flag (which is what moves the count
-       between a derived 29 and a derived 28 — the pair was 28/27 until THE-306
-       added the Shareable Giving Page to the Giving & Finance column). A row and
-       a catalogue entry are different objects; do not hardcode the count to
-       "fix" one from the other. */
+       STILL GATED, NOT HARDCODED, per the contract at the top of lib/flags.ts:
+       this row appears exactly when `COMING_SOON_ITEMS` filters the SMS entry
+       out, so a row HERE and an entry THERE can never both exist.
+
+       ⚠️ Neither this row nor a plan card's line feeds CATALOG_TOOL_COUNT — that
+       is a reduce over CATALOG in components/catalog.ts, where the SMS tool has
+       its own gate on the same flag (which is what moves the count between a
+       derived 29 and a derived 28 — the pair was 28/27 until THE-306 added the
+       Shareable Giving Page to the Giving & Finance column). A row and a
+       catalogue entry are different objects; do not hardcode the count to "fix"
+       one from the other. */
     ...(SMS_MARKETING_ENABLED
-      ? [['SMS (bring your own Twilio)', [false, T, T, T]] as [string, Cell[]]]
+      ? [['SMS & Text-to-Give', [false, false, false, T]] as [string, Cell[]]]
       : []),
     ['Custom Forms → CRM', [false, false, false, T]],
   ] },

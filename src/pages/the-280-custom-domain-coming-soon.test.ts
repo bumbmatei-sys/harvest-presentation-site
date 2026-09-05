@@ -212,16 +212,24 @@ describe('1 — custom domains appear in Coming Soon', () => {
     }
   });
 
-  it('🔴 it is the ELEVENTH entry — appended, not inserted', () => {
-    /* ⚠️ AND A TWELFTH ARRIVED AFTER IT — THE-284's "Harvest Scheduler", also
-       appended. This entry's own position is what this test is about and it has
-       not moved: still eleventh, still after `affiliate`, still numbered 11. */
-    expect(COMING_SOON_IDS.slice(0, 11)).toEqual([
+  it('🔴 it is the TENTH entry — appended, not inserted', () => {
+    /* ⚠️ AND AN ELEVENTH ARRIVED AFTER IT — THE-284's "Harvest Scheduler", also
+       appended. This entry's own position is what this test is about, and it is
+       still after `affiliate` and still last but one.
+
+       🔵 TENTH SINCE THE-314, not eleventh: the SMS entry that sat ahead of it
+       left the list when SMS went live, so everything after it shifted up by
+       one. A REMOVAL moving a later entry is not a reorder — the ids below are
+       still in their original relative order, which is what this test is for. */
+    expect(COMING_SOON_IDS.slice(0, 10)).toEqual([
       'languages', 'services', 'applications', 'docs', 'website',
-      'agent', 'identity', 'designations', 'sms', 'affiliate', 'domains',
+      // 🔵 'sms' LEFT THE LIST AT THE-314, which turned SMS_MARKETING_ENABLED on:
+      // it is sold on the pricing page now, and `COMING_SOON_ITEMS` filters it out
+      // so the same claim is never made in two tenses.
+      'agent', 'identity', 'designations', 'affiliate', 'domains',
     ]);
-    expect(COMING_SOON_IDS.slice(11)).toEqual(['scheduler']);
-    expect(item().n).toBe('11');
+    expect(COMING_SOON_IDS.slice(10)).toEqual(['scheduler']);
+    expect(item().n).toBe('10');
     // Ordinals are derived from position, so appending can never leave a gap.
     expect(COMING_SOON_ITEMS.map((i) => i.n)).toEqual(
       COMING_SOON_ITEMS.map((_, i) => String(i + 1)));
@@ -658,12 +666,17 @@ describe('6 — the prerendered page count is unchanged', () => {
    The ten entries that were already there are unchanged.                     */
 describe('7 — the existing entries are undisturbed', () => {
   it('🔴 nothing was reordered, and nothing was dropped', () => {
-    expect(COMING_SOON_IDS.slice(0, 10)).toEqual([
+    expect(COMING_SOON_IDS.slice(0, 9)).toEqual([
       'languages', 'services', 'applications', 'docs', 'website',
-      'agent', 'identity', 'designations', 'sms', 'affiliate',
+      // 🔵 'sms' LEFT THE LIST AT THE-314, which turned SMS_MARKETING_ENABLED on:
+      // it is sold on the pricing page now, and `COMING_SOON_ITEMS` filters it out
+      // so the same claim is never made in two tenses. Nine entries precede
+      // `domains` where ten did; their relative ORDER is untouched, which is
+      // what this test is about.
+      'agent', 'identity', 'designations', 'affiliate',
     ]);
-    expect(COMING_SOON_ITEMS.slice(0, 10).map((i) => i.n))
-      .toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
+    expect(COMING_SOON_ITEMS.slice(0, 9).map((i) => i.n))
+      .toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
   });
 
   it('🔴 the ONE existing entry this ticket edits is `website`, and only its domain claims', () => {
@@ -707,7 +720,9 @@ describe('7 — the existing entries are undisturbed', () => {
        Page row. That is not this ticket moving it — the property asserted here
        is that the DOMAIN rewording moves nothing, which lib/flags.test.ts
        proves by flipping the flag and comparing. */
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -730,7 +745,9 @@ describe('7 — the existing entries are undisturbed', () => {
       ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) }
       : g));
     const wrong = without.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(28 + soonGroup[0].items.length);
+    // 🔵 29 since THE-314 turned SMS back on — this is the derived count plus
+    // the coming-soon rows the mutation wrongly counts.
+    expect(wrong).toBe(29 + soonGroup[0].items.length);
     expect(wrong).toBeGreaterThan(28);
   });
 });

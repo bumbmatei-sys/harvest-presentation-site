@@ -18,23 +18,35 @@ import { LEGAL_DOCS, plainText } from './legal';
 import { SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /**
- * THE-245 — the marketing site makes no SMS claim, and the two pricing
- * contracts still have teeth.
+ * THE-245 / THE-314 — the marketing site's SMS claim, and the two pricing
+ * contracts that still have teeth.
  *
- * ─── Why this file exists ────────────────────────────────────────────────────
+ * ─── 🔴 REVERSED BY THE-314, NOT DELETED ─────────────────────────────────────
  *
- * The app hid SMS because it is untested and about to be marketed. The site is
- * the advert, so the two have to agree: a product that cannot text and a
- * pricing card that sells texting are the same failure this site has already
- * been corrected for six times, and the seventh would be the one a buyer paid
- * for.
+ * THE-245 hid SMS because the app could not text, and this file asserted the
+ * silence: no tool, no feature section, no FAQ claim, no Terms clause, and one
+ * Coming Soon entry that claimed nothing. THE-314 turned the app's SMS back on,
+ * so the site's half turns with it — and the assertions turn with THAT, because
+ * the property they guard has never been "the site says nothing about SMS". It
+ * is "THE SITE AND THE APP SAY THE SAME THING", which is the failure this site
+ * has been corrected for six times and would have been a seventh in either
+ * direction.
  *
- * ⚠️ THIS IS NOT A RETRACTION — IT IS A RELOCATION, and that is what makes it
- * harder than the affiliate and multi-campus flags. SMS is SOLD today. Taking
- * it off the pricing card without saying anything would leave a hole; leaving
- * it on while the app refuses would be a lie. So it moves to Coming Soon, where
- * the `SoonItem` shape has nowhere to put a price, a tier or a call to action.
- * Both halves have to land together, and the tests below check both.
+ * ⚠️ WHAT CAME BACK IS NOT WHAT LEFT, and both differences are load-bearing:
+ *
+ *   · NOT BRING-YOUR-OWN, AND NO CARRIER NAMED. Every surface said a church
+ *     would connect its own Twilio account and negotiate its own rate. Harvest
+ *     RESELLS now — it buys the number and bills for what is sent — so the copy
+ *     came back REWORDED. Twilio also left the integrations row, which lists
+ *     services a church connects itself.
+ *   · 🔴 MINISTRY ONLY. The comparison row is [false, false, false, T] and the
+ *     feature entry's `tiers` is [0, 0, 1]. §7 VERIFIES that against the app's
+ *     own published plan catalogue rather than restating it here, because a
+ *     tier claim that outruns the app is exactly the class of bug above.
+ *
+ * The relocation machinery is unchanged and still asserted in both directions:
+ * SMS live on the pricing page and SMS promised on Coming Soon would be the
+ * same claim in two tenses, so `COMING_SOON_ITEMS` filters on the one flag.
  *
  * ⚠️ Assertions are on RENDERED OUTPUT wherever a claim is drawn — the built
  * page for Coming Soon, the rendered comparison table for the grid — because
@@ -58,9 +70,11 @@ const visibleText = (html: string) =>
 /* ── 1 ─────────────────────────────────────────────────────────────────────
    The switch, and that it agrees with the app.                               */
 describe('1 — one switch, and the two repos agree', () => {
-  it('SMS_MARKETING_ENABLED is a single exported boolean, currently false', () => {
-    expect(SMS_MARKETING_ENABLED).toBe(false);
-    expect(readSrc('lib/flags.ts')).toMatch(/export const SMS_MARKETING_ENABLED = false;/);
+  it('🔴 SMS_MARKETING_ENABLED is a single exported boolean, currently TRUE', () => {
+    expect(SMS_MARKETING_ENABLED).toBe(true);
+    expect(readSrc('lib/flags.ts')).toMatch(/export const SMS_MARKETING_ENABLED = true;/);
+    // Still ONE declaration. The value moved; the "one switch" property did not.
+    expect(readSrc('lib/flags.ts').match(/SMS_MARKETING_ENABLED = /g)).toHaveLength(1);
   });
 
   it('names the app constant it mirrors, so the pair is findable from either side', () => {
@@ -74,154 +88,177 @@ describe('1 — one switch, and the two repos agree', () => {
 
 /* ── 2 ─────────────────────────────────────────────────────────────────────
    🔴 No SMS claim on the marketing site.                                     */
-describe('2 — no SMS claim survives, in any surface that sells', () => {
-  it('the mega-menu catalogue lists no SMS tool', () => {
+describe('2 — the SMS claim is back, and it names no carrier anywhere', () => {
+  it('🔴 the mega-menu catalogue lists the SMS tool again — without a vendor', () => {
     const live = CATALOG.filter((g) => !g.href);
-    for (const group of live) {
-      for (const item of group.items) {
-        expect(`${item.title} ${item.desc}`, `"${item.title}" still sells SMS`)
-          .not.toMatch(/\bSMS\b|\bTwilio\b|text-to-give/i);
+    const items = live.flatMap((g) => g.items);
+    const sms = items.find((i) => /\bSMS\b/.test(i.title));
+    expect(sms, 'the SMS tool is missing from the live catalogue').toBeDefined();
+    // 🔴 The description read "Twilio-powered SMS flows…". A church holds no
+    // carrier account now, so naming one describes a relationship it does not
+    // have and sends an admin looking for a login that does not exist.
+    for (const item of items) {
+      expect(`${item.title} ${item.desc}`, `"${item.title}" names a carrier`)
+        .not.toMatch(/\bTwilio\b/i);
+    }
+  });
+
+  it('🔴 the feature section is back, and no bullet names a carrier', () => {
+    const withSms = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
+    expect(withSms, 'the SMS feature section is missing').toBeDefined();
+    for (const c of CATEGORIES) {
+      for (const f of c.features) {
+        const prose = [f.name, f.eyebrow, f.title, f.oneliner, f.moment,
+          ...(f.admin ?? []), ...(f.member ?? [])].join(' ');
+        expect(prose, `"${f.name}" names a carrier`).not.toMatch(/\bTwilio\b/i);
       }
     }
   });
 
-  it('no feature section, bullet, crosslink or blurb names SMS', () => {
+  it('🔴 every #sms crosslink now resolves, rather than pointing at nothing', () => {
+    // The mirror of the old assertion. While the section was hidden a crosslink
+    // to it was a dead anchor and had to be removed; with the section rendering
+    // again, a crosslink to it must LAND.
+    const ids = new Set(CATEGORIES.flatMap((c) => c.features.map((f) => f.id)));
     for (const c of CATEGORIES) {
-      expect(`${c.intro} ${c.seo}`, `the ${c.name} blurb names SMS`).not.toMatch(/\bSMS\b/);
       for (const f of c.features) {
-        expect(f.id, 'the SMS feature section still renders').not.toBe('sms');
-        const prose = [f.name, f.eyebrow, f.title, f.oneliner, f.moment,
-          ...(f.admin ?? []), ...(f.member ?? [])].join(' ');
-        expect(prose, `"${f.name}" still names SMS`).not.toMatch(/\bSMS\b|\bTwilio\b/i);
         for (const cl of f.crosslinks ?? []) {
-          expect(cl.href, `"${f.name}" crosslinks a hidden section`).not.toMatch(/#sms$/);
-          expect(cl.label, `"${f.name}" crosslinks Text-to-Give`).not.toMatch(/text-to-give/i);
+          const anchor = /#([\w-]+)$/.exec(cl.href)?.[1];
+          if (!anchor) continue;
+          expect(ids.has(anchor), `"${f.name}" crosslinks #${anchor}, which renders nothing`).toBe(true);
         }
       }
     }
-  });
-
-  it('no indexed link lands on a dead #sms anchor', () => {
     for (const [slug, href] of Object.entries(LEGACY_ANCHORS)) {
-      expect(href, `the "${slug}" redirect still carries #sms`).not.toMatch(/#sms$/);
+      const anchor = /#([\w-]+)$/.exec(href)?.[1];
+      if (anchor) expect(ids.has(anchor), `the "${slug}" redirect lands on a dead #${anchor}`).toBe(true);
     }
   });
 
-  it('🔴 the FAQ says plainly that Harvest does not text, rather than falling silent', () => {
-    // Silence is not honesty here: a buyer asking "does it text?" who gets an
-    // answer about email only would reasonably read the omission as a yes.
+  it('🔴 the FAQ describes SMS as it actually works — resold, Ministry, STOP honoured', () => {
+    // ⚠️ REVERSED. It said "Harvest does not send SMS" while the app refused,
+    // and before that "bring-your-own Twilio… Harvest does not resell messages
+    // and takes no margin on them". Both are now false in opposite directions,
+    // and the second is the more dangerous: Harvest IS the reseller.
     const messaging = answerText(FAQS.find((f) => f.id === 'messaging')!);
-    expect(messaging).toMatch(/harvest does not send sms/i);
-    expect(faqPlainText()).not.toMatch(/bring-your-own twilio/i);
-    expect(faqPlainText()).not.toMatch(/billed to you by twilio/i);
+    expect(messaging, 'the FAQ still says Harvest cannot text').not.toMatch(/harvest does not send sms/i);
+    expect(messaging, 'the FAQ still claims Harvest does not resell').not.toMatch(/does not resell/i);
+    expect(messaging, 'the FAQ does not name the tier').toMatch(/ministry plan/i);
+    expect(messaging, 'the FAQ does not mention STOP').toMatch(/\bSTOP\b/);
+    expect(faqPlainText(), 'the FAQ still names a carrier').not.toMatch(/twilio/i);
   });
 
-  it('🔴 the Terms and the Privacy Policy make no Twilio claim', () => {
-    // Contracts, not copy: a clause describing a connection a church cannot
-    // make is a promise about a service that is not being provided.
+  it('🔴 the Terms and the Privacy Policy name no carrier, and claim no connection', () => {
+    // Contracts, not copy. The Terms bullet said SMS was a service a church
+    // CONNECTS ITSELF — true of bring-your-own, false of reselling — so it is
+    // gone rather than reworded. What replaces it is a legal ticket's wording,
+    // not this one's: removing a false clause needs no lawyer, adding a true
+    // one does. The privacy notice says where a text actually goes, because a
+    // privacy notice owes a data flow and that flow changed.
     const terms = plainText(LEGAL_DOCS.find((d) => d.slug === 'terms')!);
     const privacy = plainText(LEGAL_DOCS.find((d) => d.slug === 'privacy')!);
     expect(terms).not.toMatch(/twilio/i);
-    expect(terms).not.toMatch(/\bSMS\b/);
     expect(privacy).not.toMatch(/twilio/i);
-    expect(privacy).not.toMatch(/\bSMS\b/);
+    // 🔴 The Terms must not describe SMS as something a church connects itself.
+    expect(terms, 'the Terms still list SMS among services a church connects')
+      .not.toMatch(/SMS is bring-your-own/i);
+    expect(privacy, 'the privacy notice does not say where a text goes')
+      .toMatch(/messaging provider/i);
+    expect(privacy, 'the privacy notice still puts the carrier under the church\'s agreement')
+      .not.toMatch(/own twilio account/i);
     // …and what did not change is still there.
     expect(terms).toMatch(/your own mailchimp account/i);
     expect(privacy).toMatch(/mailchimp/i);
   });
 
-  it('no blog post advertises it either', () => {
+  it('no blog post names a carrier', () => {
     const dir = path.join(ROOT, 'src/content/posts');
     for (const file of fs.readdirSync(dir)) {
       const body = fs.readFileSync(path.join(dir, file), 'utf8');
-      expect(body, `${file} advertises SMS`).not.toMatch(/\bSMS\b|\bTwilio\b|text-to-give/i);
+      expect(body, `${file} names a carrier`).not.toMatch(/\bTwilio\b/i);
     }
   });
 });
 
 /* ── 3 ─────────────────────────────────────────────────────────────────────
-   🔴 The relocation — RENDERED, on the built page.                           */
-describe('3 — SMS is in Coming Soon, and claims nothing there', () => {
+   🔴 The relocation, now running the other way — RENDERED, on the built page. */
+describe('3 — SMS has LEFT Coming Soon, and the entry survives behind the flag', () => {
   const DIST = path.join(ROOT, 'dist', 'features', 'coming-soon', 'index.html');
   const built = fs.existsSync(DIST);
 
-  it('appears as an entry, under the name the site used to sell it by', () => {
-    // Named for findability: a church that read "SMS & Text-to-Give" on the
-    // features page finds the same words on the page that explains its absence.
-    const sms = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
-    expect(sms, 'SMS is not on the Coming Soon page').toBeDefined();
-    expect(sms!.name).toBe('SMS & Text-to-Give');
-    expect(sms!.ref).toMatch(/^THE-\d+$/);
+  it('🔴 is not an entry any more — it is sold on the pricing page instead', () => {
+    // ⚠️ THE ASSERTION FLIPPED, THE MECHANISM DID NOT. `COMING_SOON_ITEMS`
+    // filters on SMS_MARKETING_ENABLED, so the entry leaves in the same motion
+    // that puts the row on the comparison grid. SMS sold in one place and called
+    // unbuilt in another would be the same claim in two tenses, which is the
+    // whole reason the two are one switch.
+    expect(COMING_SOON_ITEMS.find((i) => i.id === 'sms'), 'SMS is sold AND promised')
+      .toBeUndefined();
   });
 
-  it.runIf(built)('🔴 renders in full on the built page', () => {
+  it('🔴 the entry is FILTERED, not deleted — the flip back is still one value', () => {
+    // The contract at the top of lib/flags.ts: nothing is deleted to hide it.
+    // The definition is still in content/coming-soon.ts, so turning the flag off
+    // restores the entry without a hunt through git history for its wording.
+    const src = readSrc('content/coming-soon.ts');
+    expect(src, 'the SMS entry was deleted rather than filtered')
+      .toContain("id: 'sms', name: 'SMS & Text-to-Give'");
+    expect(src, 'the entry is no longer gated on the flag').toContain('SMS_MARKETING_ENABLED');
+    // 🔴 And its copy was rewritten off bring-your-own at the same time. An
+    // unrendered file is swept for a carrier name exactly like a rendered one,
+    // and the description would be false in either flag state now.
+    expect(src, 'the withheld entry still describes a carrier account').not.toMatch(/twilio/i);
+  });
+
+  it.runIf(built)('🔴 does not render on the built Coming Soon page', () => {
     const html = fs.readFileSync(DIST, 'utf8');
     const text = visibleText(html);
-    const sms = COMING_SOON_ITEMS.find((i) => i.id === 'sms')!;
-    expect(text, 'the name is missing').toContain('SMS & Text-to-Give');
-    expect(text, 'the "today" paragraph is missing').toContain(sms.today.slice(0, 60));
-    expect(html, 'the in-page anchor is missing').toContain('id="sms"');
-    // The muted treatment every other entry carries, not a live one.
+    expect(text, 'the built page still promises SMS').not.toContain('SMS & Text-to-Give');
+    expect(html, 'the built page still carries the SMS anchor').not.toContain('id="sms"');
+    // The page itself still works, with its other entries — the withdrawal took
+    // one entry and not the page.
     expect(text).toContain('Not built yet');
+    expect(COMING_SOON_ITEMS.length).toBeGreaterThan(5);
   });
 
-  it.runIf(built)('🔴 claims nothing — no price, no tier, no call to action', () => {
-    const html = fs.readFileSync(DIST, 'utf8');
-    const sms = COMING_SOON_ITEMS.find((i) => i.id === 'sms')!;
-    // Every field, for the money and purchase patterns.
-    const everything = [sms.name, sms.eyebrow, sms.title, sms.oneliner, sms.today,
-      sms.notThis ?? '', ...sms.considering, sms.navDesc].join(' ');
-    expect(everything).not.toMatch(/\$\s?\d/);
-    expect(everything).not.toMatch(/\bincluded (in|on|with)\b/i);
-    expect(everything).not.toMatch(/\b(buy|purchase|subscribe|start (your |a )?(free )?trial|upgrade now|get started)\b/i);
-
-    // 🔴 TIER WORDS ARE CHECKED ON THE UNBUILT FIELDS ONLY, which mirrors the
-    // contract's own split rather than being stricter than it. `today` and
-    // `notThis` describe what ALREADY SHIPS — this entry's `notThis` says AI
-    // Chat and the newsletter are part of Small Team and Ministry — so a plan
-    // name there is a true statement about a live feature, and it is exactly
-    // the distinction the page exists to draw. Banning the words outright would
-    // force both sentences vaguer, which is the one direction this page must
-    // never move.
-    const aboutTheUnbuiltThing = [sms.name, sms.eyebrow, sms.title, sms.oneliner,
-      ...sms.considering].join(' ');
-    expect(aboutTheUnbuiltThing).not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
-    // And the page BODY still refuses to sell — the contract's own rules,
-    // re-run over the copy that now includes this entry.
-    //
-    // ⚠️ SCOPED TO <main>, as pages/ComingSoonPage.test.ts scopes its own
-    // checks. Everything outside it is chrome shared with every route, and the
-    // site-wide nav carries a trial CTA on all of them; asserting over the
-    // whole document would fail on the header rather than on this page.
+  it('🔴 the entry it left behind would still claim nothing, if the flag went back', () => {
+    // The `SoonItem` shape is what guarantees that, and the contract still runs
+    // over the filtered list. Asserted on the DEFINITION rather than the
+    // filtered export, so the guarantee survives the entry being invisible.
     expect(() => comingSoonContract(COMING_SOON_ITEMS)).not.toThrow();
-    const main = /<main[^>]*>([\s\S]*)<\/main>/.exec(html);
-    expect(main, 'the page rendered no <main>').not.toBeNull();
-    expect(visibleText(main![1]), 'the page body sells a trial')
-      .not.toMatch(/start free trial/i);
+    const src = readSrc('content/coming-soon.ts');
+    const entry = /id: 'sms',[\s\S]*?navDesc: '[^']*',/.exec(src);
+    expect(entry, 'the SMS entry could not be read back').not.toBeNull();
+    expect(entry![0], 'the withheld entry grew a price').not.toMatch(/\$\s?\d/);
+    expect(entry![0], 'the withheld entry grew a call to action')
+      .not.toMatch(/\b(buy|purchase|subscribe|upgrade now|get started)\b/i);
+
+    // 🔴 TIER WORDS ARE CHECKED ON THE UNBUILT FIELDS ONLY, mirroring the
+    // contract's own split rather than being stricter than it. `today` and
+    // `notThis` describe what ALREADY SHIPS — this entry's `notThis` says the
+    // newsletter is part of Small Team and Ministry — so a plan name there is a
+    // true statement about a live feature, and it is exactly the distinction
+    // the page exists to draw. Banning the words outright would force both
+    // sentences vaguer, which is the one direction this page must never move.
+    const aboutTheUnbuiltThing = [
+      /id: 'sms',[\s\S]*?today:/.exec(entry![0])?.[0] ?? '',
+      /considering: \[[\s\S]*?\],/.exec(entry![0])?.[0] ?? '',
+    ].join(' ');
+    expect(aboutTheUnbuiltThing.length, 'the entry fields could not be read back')
+      .toBeGreaterThan(100);
+    expect(aboutTheUnbuiltThing, 'the withheld entry grew a tier')
+      .not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
   });
 
-  it('🔴 says what a church has TODAY, so the gap is named rather than implied', () => {
-    // The honest half of every entry, and the one that answers the giving
-    // question: a church reading this must not be left wondering how anyone
-    // gives right now.
-    const sms = COMING_SOON_ITEMS.find((i) => i.id === 'sms')!;
-    expect(sms.today.length).toBeGreaterThan(60);
-    expect(sms.today).toMatch(/nothing in harvest sends a text/i);
-    expect(sms.today, 'the giving path a church has today is not named')
-      .toMatch(/donation page/i);
-  });
-
-  it('🔴 covers Text-to-Give in the SAME entry, and says why', () => {
-    // ONE entry, not two. Text-to-Give is inbound SMS end to end, so there is
-    // no configuration in which it arrives without SMS — two entries would
-    // imply it could. The name carries both so a church searching for either
-    // word finds it.
-    const sms = COMING_SOON_ITEMS.find((i) => i.id === 'sms')!;
+  it('🔴 Text-to-Give came back in the SAME breath as SMS, never on its own', () => {
+    // ONE capability, in both directions. Text-to-Give is inbound SMS end to
+    // end, so there is no configuration in which it ships without SMS — a
+    // separate entry, or a separate feature section, would imply there is.
+    const features = CATEGORIES.flatMap((c) => c.features);
+    const sms = features.find((f) => f.id === 'sms')!;
     expect(sms.name).toContain('Text-to-Give');
-    expect(sms.oneliner, 'the giving half is not described').toMatch(/keyword/i);
-    expect(COMING_SOON_ITEMS.filter((i) => /text-to-give/i.test(i.name))).toHaveLength(1);
-    // And it is not duplicated as a giving entry of its own.
-    expect(COMING_SOON_ITEMS.map((i) => i.id).filter((id) => id === 'sms')).toHaveLength(1);
+    expect(features.filter((f) => /text-to-give/i.test(f.name))).toHaveLength(1);
+    expect(COMING_SOON_ITEMS.filter((i) => /text-to-give/i.test(i.name))).toHaveLength(0);
   });
 });
 
@@ -233,7 +270,9 @@ describe('4 — the tool count moved, and is still derived', () => {
        suite's subject is the SMS withdrawal that took it 28 → 27; that delta is
        still measured, below and in lib/flags.test.ts, by flipping the flag
        rather than by this absolute. */
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -349,15 +388,27 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
     //
     // The claim is therefore about RENDERED OUTPUT, not about source text —
     // which is what the STOP condition was ever about.
-    const cards = plans.flatMap((p) => p.features).join(' ');
-    expect(cards, 'a pricing card claims SMS again').not.toMatch(/\bSMS\b/i);
+    // ⚠️ REVERSED BY THE-314, AND THE CLAIM IS STILL ABOUT RENDERED OUTPUT
+    // rather than source text — which is what the STOP condition was ever
+    // about. THE-250 handed the pricing surfaces over; THE-314 turned them back
+    // on, ON ONE TIER, and the assertion follows the product.
+    const ministry = plans.find((p) => p.planId === 'max')!;
+    expect(ministry.features.join(' '), 'the Ministry card does not claim SMS')
+      .toMatch(/\bSMS\b/);
+    for (const lower of ['plus', 'pro']) {
+      const card = plans.find((p) => p.planId === lower)!;
+      expect(card.features.join(' '), `the ${card.name} card claims SMS it cannot use`)
+        .not.toMatch(/\bSMS\b/i);
+    }
     const grid = visibleText(render(React.createElement(ComparisonTable)));
-    expect(grid, 'the comparison grid claims SMS again').not.toMatch(/\bSMS\b/i);
-    // And the source still HOLDS it, behind the one flag, ready to come back.
+    expect(grid, 'the comparison grid does not carry the SMS row').toMatch(/\bSMS\b/);
+    // Still GATED rather than hardcoded, so the flip back stays one value.
     const pricing = readSrc('components/Pricing.tsx');
-    expect(pricing, 'the SMS line was deleted rather than gated')
-      .toContain("'SMS (bring your own Twilio)'");
-    expect(pricing).toContain('SMS_MARKETING_ENABLED');
+    expect(pricing, 'the SMS line was hardcoded rather than gated')
+      .toContain('SMS_MARKETING_ENABLED ? [\'SMS & Text-to-Give\']');
+    // 🔴 And the vendor is gone from the label a visitor reads.
+    expect(visibleText(render(React.createElement(ComparisonTable))), 'the grid names a carrier')
+      .not.toMatch(/twilio/i);
   });
 });
 

@@ -357,8 +357,20 @@ describe('product facts stated in the FAQ', () => {
     expect(text).toMatch(/your own mailchimp account/i);
 
     if (SMS_MARKETING_ENABLED) {
-      expect(text).toMatch(/bring-your-own twilio/i);
-      expect(text).toMatch(/billed to you by twilio at their rates/i);
+      // ⚠️ THE-314 REPLACED THE BRING-YOUR-OWN READING. This branch asserted
+      // "bring-your-own Twilio… billed to you by Twilio at their rates", which
+      // was the truth while a church held the carrier account. Harvest RESELLS
+      // now — it buys the number and bills for what is sent — so the old wording
+      // would be a false statement about who charges whom, on the one answer a
+      // buyer reads to find out.
+      expect(text, 'the FAQ still describes bring-your-own').not.toMatch(/twilio/i);
+      expect(text, 'the FAQ does not name the tier that has SMS').toMatch(/ministry plan/i);
+      expect(text, 'the FAQ does not say the number comes from Harvest')
+        .toMatch(/phone number from inside harvest/i);
+      expect(text, 'the FAQ does not tell a buyer STOP is honoured').toMatch(/\bSTOP\b/);
+      // The cost warning survives the model change — it is the reason this
+      // answer exists, and it is truer now that Harvest meters the send.
+      expect(text).toMatch(/before you send/i);
     } else {
       // 🔴 The answer must SAY SO rather than fall silent. A buyer asking
       // "does it text?" who gets an answer about email only would reasonably

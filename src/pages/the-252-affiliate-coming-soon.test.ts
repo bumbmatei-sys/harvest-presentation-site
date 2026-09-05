@@ -208,7 +208,7 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
     expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_MENU_ITEMS.length);
   });
 
-  it('🔴 it is the TENTH entry, not the seventh — the ticket\'s count, checked', () => {
+  it('🔴 it is the NINTH entry, not the seventh — the ticket\'s count, checked', () => {
     /* ⚠️ THE-280 APPENDED AN ELEVENTH, "Custom domains", behind
        CUSTOM_DOMAIN_MARKETING_ENABLED. THE-252's claim is about where the
        AFFILIATE entry sits, and that is untouched: it is still the tenth, still
@@ -218,7 +218,10 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
        than reordered. */
     const AFTER_252 = [
       'languages', 'services', 'applications', 'docs', 'website',
-      'agent', 'identity', 'designations', 'sms', 'affiliate',
+      // 🔵 'sms' LEFT THE LIST AT THE-314, which turned SMS_MARKETING_ENABLED on:
+      // it is sold on the pricing page now, and `COMING_SOON_ITEMS` filters it out
+      // so the same claim is never made in two tenses.
+      'agent', 'identity', 'designations', 'affiliate',
     ];
     /* ⚠️ AND `scheduler` AFTER IT — THE-284, appended in its turn. The tail is
        still written as a flag-derived list rather than repinned to a number, so
@@ -232,7 +235,12 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
     // Ordinals are derived from position, so appending can never leave a gap.
     expect(COMING_SOON_ITEMS.map((i) => i.n)).toEqual(
       COMING_SOON_ITEMS.map((_, i) => String(i + 1)));
-    expect(item().n).toBe('10');
+    // 🔵 NINTH SINCE THE-314, not tenth. SMS sat ahead of it and left the list
+    // when it went live, so everything after it shifted up by one. That is a
+    // REMOVAL moving a later entry, which is different from a reorder — the ids
+    // above are still in their original relative order, and that is what this
+    // assertion has always been about.
+    expect(item().n).toBe('9');
   });
 
   it('🔴 and it leaves again the moment the programme is advertised as live', () => {
@@ -800,20 +808,28 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
     }
   });
 
-  it('the SMS entry is still present, still ninth, and still on its own flag', () => {
-    const sms = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
-    expect(sms, 'the SMS entry was dropped').toBeDefined();
-    expect(sms!.ref).toBe('THE-245');
-    expect(sms!.n).toBe('9');
-    expect(COMING_SOON_ITEMS.indexOf(sms!)).toBe(8);
+  it('🔴 the SMS entry has LEFT the list, and its filter is still the reason', () => {
+    // ⚠️ REVERSED AT THE-314, and it is the same one filter doing it. THE-252
+    // asserted SMS was still present and ninth, because THE-245 had put it on
+    // this page. THE-314 turned SMS_MARKETING_ENABLED on, so the filter now
+    // removes it — which is the half of the relocation that stops the site
+    // selling SMS on one page while calling it unbuilt on another.
+    expect(COMING_SOON_ITEMS.find((i) => i.id === 'sms'), 'SMS is sold AND promised')
+      .toBeUndefined();
+    // The filter is unchanged, and it is what makes the flip one value.
     expect(readSrc('content/coming-soon.ts'))
       .toContain(".filter((item) => item.id !== 'sms' || !SMS_MARKETING_ENABLED)");
+    // And the entry itself is still in the source, ready to come back.
+    expect(readSrc('content/coming-soon.ts')).toContain("id: 'sms', name: 'SMS & Text-to-Give'");
   });
 
   it('🔴 nothing was reordered — the new entry was APPENDED', () => {
-    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(0, 9)).toEqual([
+    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(0, 8)).toEqual([
       'languages', 'services', 'applications', 'docs', 'website',
-      'agent', 'identity', 'designations', 'sms',
+      // 🔵 'sms' LEFT THE LIST AT THE-314, which turned SMS_MARKETING_ENABLED on:
+      // it is sold on the pricing page now, and `COMING_SOON_ITEMS` filters it out
+      // so the same claim is never made in two tenses.
+      'agent', 'identity', 'designations',
     ]);
     /* The affiliate entry is last among everything that predates THE-280, which
        appended "Custom domains" after it, and THE-284, which appended "Harvest
@@ -821,12 +837,14 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
        from the end, so it still says "APPENDED, not reordered" however many
        entries arrive later and in either flag state — which is the whole
        property, and the reason the tail is not pinned to one id. */
-    expect(COMING_SOON_ITEMS[9].id).toBe('affiliate');
-    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(10))
+    // 🔵 Index 8 since THE-314 removed the SMS entry that sat ahead of it.
+    expect(COMING_SOON_ITEMS[8].id).toBe('affiliate');
+    // 🔵 From index 9 since THE-314 removed the SMS entry ahead of them.
+    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(9))
       .toEqual(CUSTOM_DOMAIN_MARKETING_ENABLED ? ['scheduler'] : ['domains', 'scheduler']);
     // Their ordinals are untouched, which is the visible half of "not reordered".
-    expect(COMING_SOON_ITEMS.slice(0, 9).map((i) => i.n))
-      .toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    expect(COMING_SOON_ITEMS.slice(0, 8).map((i) => i.n))
+      .toEqual(['1', '2', '3', '4', '5', '6', '7', '8']);
   });
 
   it('and every one of them still renders on the page', () => {
@@ -875,7 +893,9 @@ describe('10 — the tool count is unchanged and still derived', () => {
        live tool that had no menu entry. The lesson of this note survives the
        change and is the reason it is written this way: quote the derived
        figure, never a remembered one. */
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -915,7 +935,9 @@ describe('10 — the tool count is unchanged and still derived', () => {
       ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) }
       : g));
     const wrong = withoutFlag.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    expect(wrong).toBe(28 + COMING_SOON_MENU_ITEMS.length);
+    // 🔵 29 since THE-314 turned SMS back on — this is the derived count plus
+    // the coming-soon rows the mutation wrongly counts.
+    expect(wrong).toBe(29 + COMING_SOON_MENU_ITEMS.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
   });
 
