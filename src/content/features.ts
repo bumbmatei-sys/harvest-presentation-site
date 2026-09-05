@@ -307,13 +307,27 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'sms', name: 'SMS & Text-to-Give', n: '5',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
-        eyebrow: 'Your Twilio, your rates',
+        // 🔴 MINISTRY ONLY — THE-314. It was [1, 1, 1] when SMS was
+        // bring-your-own and the app's plan cell gated nothing. Harvest resells
+        // now and pays for every message, so `smsAutomation` is true on `max`
+        // alone and an Individual or Small Team tenant meets an upgrade wall on
+        // /admin/sms. A 1 in either of the first two columns would be this page
+        // promising a capability the app refuses — the exact class of bug this
+        // site has already corrected six times, and the reason
+        // `the-314-sms-live.test.ts` VERIFIES this array against the app's
+        // published plan catalogue rather than restating it.
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1],
+        // ⚠️ The eyebrow read "Your Twilio, your rates" — bring-your-own, where
+        // a church held the carrier account and negotiated its own per-message
+        // price. It holds neither now: Harvest buys the number, sends on its own
+        // account and bills for it, so the old line named a relationship that no
+        // longer exists and a rate nobody negotiates.
+        eyebrow: 'A number of your own',
         title: 'Text the whole church — and let them give with a word.',
-        oneliner: 'Send a broadcast to members, donors or any tag with a live cost counter — and let anyone give by texting one keyword to your number.',
-        moment: '“Text GIVE to your church\'s number” on the closing slide is one of the most effective giving paths there is — and it works the moment you set it up.',
-        admin: ['Broadcast to all members, donors, or a tag', 'Live SMS segment counter — see cost before you send', 'Recipient preview with an exact count', 'Check-in thank-you texts sent automatically'],
-        member: ['Text a keyword, get your giving link instantly', 'A thank-you text after checking in', 'No spam — non-matching texts get no reply'],
+        oneliner: 'Get a phone number from inside Harvest, send a broadcast to members, donors or any tag with a live cost counter — and let anyone give by texting one keyword to that number.',
+        moment: '“Text GIVE to your church\'s number” on the closing slide is one of the most effective giving paths there is — and the number comes from inside Harvest, so there is no carrier account to open first.',
+        admin: ['Buy your number from inside Harvest — no separate account to set up', 'Broadcast to all members, donors, or a tag', 'Live SMS segment counter — see cost before you send', 'Recipient preview with an exact count', 'Check-in thank-you texts sent automatically'],
+        member: ['Text a keyword, get your giving link instantly', 'A thank-you text after checking in', 'Reply STOP and the texts stop', 'No spam — non-matching texts get no reply'],
         crosslinks: [{ label: 'Text-to-Give', href: '/features/giving-finance#donation' }, { label: 'CRM tags', href: '/features/giving-finance#crm' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }],
       },
       {

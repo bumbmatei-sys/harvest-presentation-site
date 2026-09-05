@@ -335,15 +335,28 @@ describe('product facts stated in the policies', () => {
     expect(terms).toMatch(/your own mailchimp account/i);
     expect(terms).toMatch(/your own stripe account/i);
 
-    if (SMS_MARKETING_ENABLED) {
-      expect(terms).toMatch(/bring-your-own twilio/i);
-    } else {
-      // 🔴 No Twilio clause at all while the feature is hidden. A contract that
-      // describes a connection a church cannot make is a promise about a
-      // service that is not being provided.
-      expect(terms).not.toMatch(/twilio/i);
-      expect(terms).not.toMatch(/\bsms\b/i);
-    }
+    // 🔴 NO SMS CLAUSE IN THIS SECTION, IN EITHER FLAG STATE — and the two
+    // states reach that answer for different reasons, which is why this is no
+    // longer written as a branch.
+    //
+    // While SMS was hidden (THE-245): a contract describing a connection a
+    // church cannot make is a promise about a service that is not provided.
+    //
+    // Now that SMS ships (THE-314): a church connects NOTHING. Harvest RESELLS
+    // messaging on an account of its own, buys the church its number and bills
+    // for what is sent — so "Services you connect yourself" is simply not the
+    // section SMS belongs in, and the bullet that said "SMS is bring-your-own
+    // Twilio" would be false rather than premature.
+    //
+    // ⚠️ WHAT REPLACES IT IS NOT HERE, AND THAT IS DELIBERATE. Reselling needs
+    // its own Terms language — Harvest as seller of record, the church as the
+    // sender warranting consent, delivery not guaranteed because it depends on
+    // third-party carriers and providers, and charges metered and
+    // non-refundable once sent. That wording is a legal ticket's. Removing a
+    // false clause needs no lawyer; adding a true one does.
+    expect(terms, 'the Terms describe SMS as a service a church connects itself')
+      .not.toMatch(/twilio/i);
+    expect(terms).not.toMatch(/SMS is bring-your-own/i);
   });
 
   it('puts the church in control of member data and Harvest in the processor seat', () => {
@@ -738,7 +751,9 @@ describe('what the analytics disclosure must not have touched', () => {
     // catalogue count the pricing page renders is untouched.
     expect(tierPriceMismatches(plans)).toEqual([]);
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
@@ -952,7 +967,9 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
   it('no price or tool count changed', () => {
     expect(tierPriceMismatches(plans)).toEqual([]);
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',

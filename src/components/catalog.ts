@@ -240,7 +240,11 @@ export const CATALOG: CatalogGroup[] = [
       // anywhere else in this file. It is now 29 → 28, and would go stale
       // again. The only figure worth quoting is the derived one, so this
       // comment names the DIRECTION and CATALOG_TOOL_COUNT names the value.
-      ...(SMS_MARKETING_ENABLED ? [item('message-square-text', 'SMS Automation', 'Twilio-powered SMS flows for follow-up, reminders and care.')] : []),
+      // ⚠️ THE-314 — the description named the carrier ('Twilio-powered'), which
+      // described bring-your-own. Harvest resells on its own account now, so a
+      // church never sees a carrier at all and naming one would be describing
+      // a relationship it does not have.
+      ...(SMS_MARKETING_ENABLED ? [item('message-square-text', 'SMS Automation', 'Broadcasts and automated texts for follow-up, reminders and care.')] : []),
       item('clipboard-list', 'Custom Forms → CRM', 'Build forms that feed straight into your CRM pipeline.'),
     ],
   },

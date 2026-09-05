@@ -326,8 +326,17 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
        ⚠️ NOT ONE PRICE, CELL, ROW OR ADD-ON MOVED — the previous hash was
        d0d574f0…, and `planPriceContract` still throws at module scope if this
        repo and the app disagree on any of the nine, which is the guard that
-       makes a claim about this file's prices checkable rather than asserted. */
-    'src/components/Pricing.tsx': 'f0aee586b3fa891fa2ec7870da5053edb1b9b58d3e616c0cd84161525ecf9f16',
+       makes a claim about this file's prices checkable rather than asserted.
+
+       🔵 REPINNED AGAIN AT THE-314, and again NOT ONE PRICE MOVED — the same
+       module-scope contract still stands behind that claim, and it would have
+       failed the prerender rather than this test if one had. What moved is the
+       SMS line and the SMS comparison row: both were withheld behind
+       SMS_MARKETING_ENABLED, and turning it on brought them back RENAMED (no
+       carrier, because Harvest resells) and ON A DIFFERENT TIER (Ministry only,
+       because that is where the app sells it). The previous hash was
+       f0aee586…. */
+    'src/components/Pricing.tsx': '1d0b9ba876b70593f46949ef71dc998de0ae7c3e963a206b10bc8090e619e24c',
     // 7 — the CLI did not overwrite button or card. It writes theme-scoped ui
     // components (`mist-card` → src/components/ui/card.tsx) for any block that
     // pulls one, which is why both adopted blocks were chosen from the 28 in
@@ -343,11 +352,28 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     // the-257 and the-258 the #replaces integrations row. Loosening one of them
     // to make room is the failure mode this ticket had, and these are what make
     // it visible in the diff rather than in the reviewer's memory.
-    'src/components/Features.test.ts': '3d6717dda43731eef354b3390a3b2ff0e5cc5ba78b97df093ea443a74bb63b2c',
+    //
+    // 🔵 ALL THREE REPINNED AT THE-314, and none of them loosened — which is the
+    // distinction this list exists to make visible, so it is spelled out:
+    //   · Features.test.ts asserted the rendered footer never contains "29
+    //     tools" — a proxy for "the count is not a stale literal" that worked
+    //     only while 29 was WRONG. THE-314 made 29 the true derived count, so
+    //     that assertion would now fail on a correct render and pass on a
+    //     hardcoded one. It was rewritten to assert the thing it always meant:
+    //     the SOURCE carries no literal count. STRICTER, not looser.
+    //   · the-257 and the-258 both asserted Twilio was IN the integrations row.
+    //     Harvest resells now, so a church connects no carrier — the row's whole
+    //     subject is services a church connects itself. Both now assert its
+    //     ABSENCE, name and favicon, which is a new guard rather than a dropped
+    //     one. the-257 additionally gained the SMS entry it used to forbid,
+    //     because THE-257's own coverage guard demanded it once the feature went
+    //     live.
+    // Previous hashes: 3d6717dd…, 4f7af228…, c342d76e….
+    'src/components/Features.test.ts': 'dfb2140eb6850979bbbc349d47f4fca644eafc956f14bf6684f847c57ab914b3',
     'src/components/the-257-competitor-table-retired.test.ts':
-      '4f7af228425466af4a594d12f8f1ec6c0f93a4f50f8620d744dba72fdde987c4',
+      '15d2a39990ab2412c816f2e32cc1ed3335a5d80e5910b2afa56831fd9278708b',
     'src/components/the-258-platform-brand-complete.test.ts':
-      'c342d76e327b08dcaf7aedd53b81ded5536cca954a992ba1170b1bc4c8750189',
+      'a3a5a9df43047764e9f6cd215be1ce9bc1097aa2f30f99192bd0f552e5ba6067',
   };
 
   for (const [file, hash] of Object.entries(PINNED)) {

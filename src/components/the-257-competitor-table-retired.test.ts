@@ -56,7 +56,8 @@ const EXPECTED: ReadonlyArray<readonly [string, readonly string[]]> = [
   ['Community & Engagement', ['feed', 'groups', 'prayer', 'map']],
   ['Events & Livestream', ['events', 'checkin', 'livestream']],
   ['Discipleship & Content', ['bible', 'courses', 'blog', 'aiblog', 'docs']],
-  ['Automation', ['knowledge', 'newsletter', 'autonewsletter', 'forms']],
+  // 🔵 `sms` ADDED AT THE-314 — see the note on the row in Replaces.tsx.
+  ['Automation', ['knowledge', 'newsletter', 'autonewsletter', 'sms', 'forms']],
   ['Giving & Finance', ['donation', 'fundraising', 'crm', 'accounting']],
   ['Platform & Brand', ['webapp', 'pwa', 'dashboard', 'branding', 'analytics']],
 ];
@@ -88,11 +89,16 @@ const featureById = (categories: readonly Category[]) =>
  *            the company will defend. It has its own section on the Giving &
  *            Finance page, which is where a capability of this size belongs.
  *
- * ⚠️ SMS AND AFFILIATE ARE NOT IN HERE AND NEVER WERE. They are excluded by
- * FLAG — SMS_MARKETING_ENABLED and AFFILIATE_PROGRAM_ENABLED keep them out of
- * `CATEGORIES` entirely, so they never reach this guard. That is the stronger
- * mechanism of the two, and `a flag flip trips the coverage guard` below is what
- * proves it: put one in here and the flip would stop failing.
+ * ⚠️ SMS AND AFFILIATE ARE NOT IN HERE AND NEVER WERE. They were excluded by
+ * FLAG — SMS_MARKETING_ENABLED and AFFILIATE_PROGRAM_ENABLED kept them out of
+ * `CATEGORIES` entirely, so they never reached this guard at all. That is the
+ * stronger mechanism of the two, and `a flag flip trips the coverage guard`
+ * below is what proves it: put one in here and the flip would stop failing.
+ *
+ * 🔴 AND THE-314 IS THAT MECHANISM PAYING OFF. Turning SMS_MARKETING_ENABLED on
+ * made SMS a visible feature, this guard immediately demanded it appear in the
+ * section, and it was added to the Automation row rather than quietly excluded
+ * here. Affiliate is still flag-hidden and still absent.
  *
  * 🔴 branding AND analytics WERE HERE AND ARE NOT ANY MORE — THE-258. THE-257's
  * table omitted Branding & Domain and Evangelism Analytics while its own §4 gave
@@ -161,10 +167,17 @@ describe('the section lists what is in one plan', () => {
     expect(docs!.name).toBe('Docs & Notes');
   });
 
-  it('SMS, AI Chat and Affiliate appear nowhere in the section', () => {
-    for (const absent of ['SMS', 'Text-to-Give', 'AI Chat', 'Affiliate', 'Multi-Campus']) {
+  it('AI Chat and Affiliate appear nowhere in the section — and SMS now does', () => {
+    // ⚠️ SMS LEFT THIS LIST AT THE-314, and it left it for the reason the list
+    // exists: these are things the section must not claim BECAUSE THEY ARE NOT
+    // LIVE. SMS is live now — a Ministry church buys a number inside Harvest and
+    // texts its congregation — so continuing to assert its absence would have
+    // been asserting that the section understates the product.
+    for (const absent of ['AI Chat', 'Affiliate', 'Multi-Campus']) {
       expect(SECTION, `"${absent}" is in the section`).not.toContain(absent);
     }
+    expect(SECTION, 'the section understates the plan by omitting SMS')
+      .toContain('SMS & Text-to-Give');
   });
 
   it('no competitor name appears anywhere in the section', () => {
@@ -186,8 +199,10 @@ describe('the section lists what is in one plan', () => {
 
     // And no competitor logo survives the table it belonged to. The
     // integrations row below is the only image left in the section.
+    // 🔵 TWO SINCE THE-314, not three: Twilio's favicon left the row with its
+    // name, because a church no longer connects a carrier account of its own.
     const markup = render(React.createElement(Replaces));
-    expect([...markup.matchAll(/<img/g)]).toHaveLength(3);
+    expect([...markup.matchAll(/<img/g)]).toHaveLength(2);
   });
 });
 
@@ -311,22 +326,36 @@ describe('what the change did not touch', () => {
     // which is why they survived a change that deleted every other logo in the
     // section — and why the sentence introducing them still reads the same.
     expect(SECTION).toContain('Plus integrates with your newsletter & tools —');
-    for (const name of ['QuickBooks', 'Twilio', 'Mailchimp']) {
+    for (const name of ['QuickBooks', 'Mailchimp']) {
       expect(SECTION, `the integrations row lost ${name}`).toContain(name);
     }
+
+    // 🔴 TWILIO LEFT THE ROW AT THE-314, AND ITS ABSENCE IS ASSERTED RATHER THAN
+    // MERELY ALLOWED. This row lists third-party services a church CONNECTS
+    // ITSELF — that is the whole reason these three survived a change that
+    // deleted every other logo in the section. Harvest RESELLS messaging now, on
+    // one account of its own, so a church connects no carrier and holds no
+    // account with one. Leaving the name and the favicon would have told a
+    // visitor to go and open something that is not part of the product.
+    expect(SECTION, 'the integrations row still names a carrier a church never touches')
+      .not.toMatch(/twilio/i);
 
     const markup = render(React.createElement(Replaces));
     expect(markup).toContain('https://cdn.simpleicons.org/quickbooks');
     expect(markup).toContain('https://cdn.simpleicons.org/mailchimp');
-    // Twilio has no Simple Icons slug and falls back to a favicon, as before.
-    expect(markup).toContain('https://www.google.com/s2/favicons?domain=twilio.com&amp;sz=64');
+    // 🔴 The LOGO goes with the name. It was a favicon fallback rather than a
+    // Simple Icons mark, so it would have survived a name-only sweep.
+    expect(markup, 'the integrations row still hotlinks a carrier mark')
+      .not.toContain('favicons?domain=twilio.com');
   });
 
   it('no flag value changed, and coming-soon.ts is untouched', () => {
     // The flag values, pinned again from the other direction: this ticket reads
     // them and sets none.
     expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
-    expect(SMS_MARKETING_ENABLED).toBe(false);
+    // 🔵 TRUE since THE-314 — the SMS flip. THE-257 set no flag and still sets
+    // none; this pin moved with the product, not with this ticket.
+    expect(SMS_MARKETING_ENABLED).toBe(true);
     expect(MULTI_CAMPUS_ENABLED).toBe(false);
 
     /* 🔴 THE AFFILIATE PROGRAMME'S STATE IS NOT THIS TICKET'S. THE-252 put it
@@ -338,8 +367,12 @@ describe('what the change did not touch', () => {
        put them. */
     const soon = COMING_SOON_ITEMS.map((i) => i.id);
     expect(soon).toContain('affiliate');
-    expect(soon).toContain('sms');
     expect(COMING_SOON_ITEMS.find((i) => i.id === 'affiliate')!.name).toBe('Affiliate referrals');
-    expect(COMING_SOON_ITEMS.find((i) => i.id === 'sms')!.name).toBe('SMS & Text-to-Give');
+    // 🔴 SMS LEFT COMING SOON AT THE-314, in the same motion that put it on the
+    // pricing page — `COMING_SOON_ITEMS` filters on SMS_MARKETING_ENABLED so the
+    // two can never both be true. A capability sold on one page while another
+    // calls it unbuilt is the same claim made twice, in two tenses.
+    expect(soon, 'SMS is sold on the pricing page AND promised as coming soon')
+      .not.toContain('sms');
   });
 });

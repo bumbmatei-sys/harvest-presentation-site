@@ -47,7 +47,11 @@ const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
   { c: 'Community & Engagement', ids: ['feed', 'groups', 'prayer', 'map'] },
   { c: 'Events & Livestream', ids: ['events', 'checkin', 'livestream'] },
   { c: 'Discipleship & Content', ids: ['bible', 'courses', 'blog', 'aiblog', 'docs'] },
-  { c: 'Automation', ids: ['knowledge', 'newsletter', 'autonewsletter', 'forms'] },
+  // ⚠️ `sms` JOINED THIS ROW AT THE-314. It was absent because
+  // SMS_MARKETING_ENABLED kept it out of `CATEGORIES` entirely, not because
+  // this table declined to list it — so turning the flag on made it a visible
+  // feature that the coverage guard requires to appear here.
+  { c: 'Automation', ids: ['knowledge', 'newsletter', 'autonewsletter', 'sms', 'forms'] },
   { c: 'Giving & Finance', ids: ['donation', 'fundraising', 'crm', 'accounting'] },
   { c: 'Platform & Brand', ids: ['webapp', 'pwa', 'dashboard', 'branding', 'analytics'] },
 ];
@@ -89,9 +93,15 @@ const items = ROWS.map((r) => {
 
 // Third-party services Harvest connects to (does NOT replace). Add future
 // newsletter/email backends (Wix, etc.) here as they ship.
+// ⚠️ TWILIO LEFT THIS ROW — THE-314. It belonged here while SMS was
+// bring-your-own: a church opened its own Twilio account and Harvest connected
+// to it, which is exactly what this row is for. Harvest RESELLS now, on one
+// account of its own, so there is no third-party service a church connects and
+// nothing here that is true to say about it. It is removed rather than gated:
+// a hidden entry would still have carried the mark and the name into the
+// working tree, and this row is a list of relationships, not of capabilities.
 const integrations: [string, string | null][] = [
   ['QuickBooks', 'quickbooks'],
-  ['Twilio', null],
   ['Mailchimp', 'mailchimp'],
 ];
 

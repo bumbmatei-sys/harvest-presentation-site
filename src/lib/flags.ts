@@ -39,47 +39,66 @@ export const AFFILIATE_PROGRAM_ENABLED = false;
  *  "N tools in one platform" claim as well as about campuses. */
 export const MULTI_CAMPUS_ENABLED = false;
 
-/** THE-245 — the SMS & Text-to-Give FEATURE MARKETING, across the whole site.
+/** THE-245 / THE-314 — the SMS & Text-to-Give FEATURE MARKETING, across the
+ *  whole site.
  *
- *  Mirrors the app's `SMS_FEATURE_ENABLED` (Harvest-agent src/lib/sms-feature.ts),
- *  which is `false` for the same reason: the feature is untested, and every send
- *  spends real money on a Twilio account and lands on a real phone. The two
- *  repos cannot share code, so they share a name and a value instead — and
- *  `the-245-sms-hidden.test.ts` asserts they agree.
+ *  Mirrors the app's `SMS_FEATURE_ENABLED` (Harvest-agent src/lib/sms-feature.ts).
+ *  The two repos cannot share code, so they share a name and a value instead —
+ *  and `the-245-sms-hidden.test.ts` asserts they agree.
  *
- *  🔴 THIS ONE DOES SOMETHING THE OTHER TWO DO NOT: it RELOCATES rather than
- *  merely hides. SMS is currently SOLD — it is a line on the Individual card and
- *  a row in the comparison table — so hiding it silently would leave the site
- *  advertising a capability with no page behind it. Instead the entry moves to
- *  the Coming Soon category (THE-247), where the shape itself forbids a price, a
- *  tier or a call to action. Both halves are this flag:
+ *  🔴 IT IS TRUE AGAIN — THE-314 IS THE FLIP. THE-245 set it false because the
+ *  feature was untested and every send spent real money on a Twilio account and
+ *  landed on a real phone. All of that was answered before it was turned back
+ *  on: the app's public inbound webhook now verifies an HMAC signature and fails
+ *  closed, STOP is honoured by the provider and mirrored by Harvest, every send
+ *  is metered against a per-plan cap, and only one tier can reach the send path
+ *  at all.
  *
- *    OFF  · the `sms` section drops out of /features/ai-automation, and every
- *           crosslink pointing at `#sms` resolves away with it;
- *         · the AI & Automation intro and SEO copy stop naming SMS;
+ *  ⚠️ TWO THINGS THE FLIP DELIBERATELY DID *NOT* RESTORE, and both are the point
+ *  of THE-314 rather than drift:
+ *
+ *    · IT IS NOT BRING-YOUR-OWN, AND NO CARRIER IS NAMED. Every surface below
+ *      said a church would connect its OWN Twilio account and negotiate its own
+ *      per-message rate. Harvest RESELLS now: it buys the church a number from
+ *      inside the app, sends on one account of its own, and bills for what goes
+ *      out. So the copy came back REWORDED, not restored — the pricing line's
+ *      "(bring your own Twilio)", the catalogue's "Twilio-powered", the feature
+ *      page's "Your Twilio, your rates" eyebrow and the Terms bullet under
+ *      "Services you connect yourself" would each have been a false statement
+ *      about who a church contracts with. Twilio also left the integrations row
+ *      in `components/Replaces.tsx`, which lists third-party services a church
+ *      connects — there is no longer one.
+ *    · 🔴 IT IS MINISTRY ONLY. The comparison row is [false, false, false, T]
+ *      and the feature entry's `tiers` is [0, 0, 1], where both were "every paid
+ *      tier" before. The app's `smsAutomation` is true on `max` alone, and an
+ *      Individual or Small Team tenant that opens /admin/sms meets an upgrade
+ *      wall. A tier claim that outran the app is the exact class of bug this
+ *      site has already fixed six times, so `the-314-sms-live.test.ts` VERIFIES
+ *      the tier against the app's published plan catalogue rather than
+ *      restating it.
+ *
+ *  What the switch still governs, in both directions:
+ *
+ *    ON   · the `sms` section renders on /features/ai-automation and every
+ *           crosslink pointing at `#sms` resolves;
+ *         · the AI & Automation intro and SEO copy name SMS;
  *         · the CRM feature's "Tags that drive SMS broadcast targeting" line
- *           stops naming it too;
- *         · the SMS Automation tool leaves the mega-menu catalogue, which moves
- *           the derived CATALOG_TOOL_COUNT from 28 to 27;
- *         · an "SMS & Text-to-Give" entry APPEARS in Coming Soon;
- *         · the FAQ and Terms answers stop describing it as a live integration.
- *    ON   · all of the above reverses, INCLUDING removing the Coming Soon entry.
- *           🔴 SMS live and SMS "coming soon" at the same time would be the same
- *           claim made twice, in two tenses. `COMING_SOON_ITEMS` filters on this
- *           flag for exactly that reason.
- *
- *  ✅ IT NOW GATES THE TWO PRICING SURFACES TOO — THE-250. `components/Pricing.tsx`
- *  (the Individual card's feature list and the comparison-table Automation row)
- *  was owned by a concurrent repricing ticket while THE-245 was in flight, so
- *  THE-245 proved by mutation that removing both lines trips neither cross-repo
- *  contract and wrote the change into its pull request rather than making it.
- *  THE-250 made it, as a gate rather than a deletion — per the "nothing is
- *  deleted" contract at the top of this file, and because the flip back has to
- *  be ONE value: true restores both pricing surfaces AND drops the Coming Soon
- *  entry in the same motion. `the-250-sms-pricing-removed.test.ts` asserts on
- *  RENDERED OUTPUT that the sold-here / promised-there pair is never both, in
- *  either flag state. */
-export const SMS_MARKETING_ENABLED = false;
+ *           names it too;
+ *         · the SMS Automation tool is in the mega-menu catalogue, which puts
+ *           the derived CATALOG_TOOL_COUNT at 29 rather than 28;
+ *         · the Ministry card's SMS line and the comparison row appear;
+ *         · the FAQ and Terms describe it as a live capability;
+ *         · 🔴 and the "SMS & Text-to-Give" Coming Soon entry LEAVES. SMS sold
+ *           on the pricing page while this page calls it unbuilt would be the
+ *           same claim made twice, in two tenses. `COMING_SOON_ITEMS` filters on
+ *           this flag for exactly that reason, so the flip stays ONE value.
+ *    OFF  · all of the above reverses, INCLUDING the Coming Soon entry coming
+ *           back. Nothing is deleted to hide it, per the contract at the top of
+ *           this file — the entry, the row and the tool are all still in the
+ *           tree, and `the-250-sms-pricing-removed.test.ts` asserts on RENDERED
+ *           OUTPUT that the sold-here / promised-there pair is never both, in
+ *           either flag state. */
+export const SMS_MARKETING_ENABLED = true;
 
 /** THE-280 — the CUSTOM DOMAIN marketing, across the whole site.
  *

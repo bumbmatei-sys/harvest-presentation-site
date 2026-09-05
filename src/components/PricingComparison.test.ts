@@ -252,7 +252,9 @@ describe('the catalogue is a different object from the grid', () => {
     // grid still making the claim AND quietly drop the "N tools in one platform"
     // figure the Nav and the features page advertise.
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -415,8 +417,9 @@ describe('the Forever Free column claims exactly what the tier has', () => {
   it('claims NO blog, newsletter, SMS, livestream, check-in, groups or accounting', () => {
     for (const row of [
       'Blog', 'Automated SEO Blog Articles', 'Newsletter', 'Automated Newsletter',
-      // THE-250 — see the note on the priced-tier assertion below.
-      ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []),
+      // THE-250 / THE-314 — see the note on the priced-tier assertion below.
+      // The row is back and renamed; free still claims none of it.
+      ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
       'Livestream + Live Giving', 'Check-In System (QR)',
       'Community Groups', 'Event Registration', 'Church Map', 'Custom Branding',
       // THE-280 \u2014 the Custom Domain row moved behind
@@ -437,12 +440,16 @@ describe('the Forever Free column claims exactly what the tier has', () => {
     // the three priced columns must read exactly as they did before THE-204.
     expect(claim('Blog', 'Individual')).toBe('included');
     expect(claim('Donation Page', 'Individual')).toBe('included');
-    // THE-250 — the SMS row moved behind SMS_MARKETING_ENABLED, so with the flag
-    // off there is no row to read. Guarded rather than deleted: this block's
-    // claim is that the priced columns read as they did BEFORE THE-204, and
-    // with the flag on that still has to include SMS on Individual.
+    // 🔴 THE-314 — the SMS row is back, RENAMED and on a different column.
+    // THE-250 guarded it behind the flag; this block's claim was that the
+    // priced columns read as they did before THE-204, and for SMS that is no
+    // longer the claim to make: Individual LOST the capability when Harvest
+    // started reselling and made it Ministry-only. Asserted in both directions
+    // so the downgrade is recorded rather than silently dropped from the list.
     if (SMS_MARKETING_ENABLED) {
-      expect(claim('SMS (bring your own Twilio)', 'Individual')).toBe('included');
+      expect(claim('SMS & Text-to-Give', 'Ministry')).toBe('included');
+      expect(claim('SMS & Text-to-Give', 'Individual')).not.toBe('included');
+      expect(claim('SMS & Text-to-Give', 'Small Team')).not.toBe('included');
     }
     expect(claim('Contacts', 'Small Team')).toBe('500');
     expect(claim('Contacts', 'Ministry')).toBe('2,000');

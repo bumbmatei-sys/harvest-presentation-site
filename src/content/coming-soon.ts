@@ -242,13 +242,20 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     navDesc: 'Give to a specific fund. Not built yet.',
   },
   {
-    id: 'sms', name: 'SMS & Text-to-Give', icon: 'message-square-text', ref: 'THE-245',
+    // ⚠️ FILTERED OUT WHILE SMS_MARKETING_ENABLED IS TRUE (THE-314), and kept
+    // in the tree behind that flag rather than deleted — the contract at the
+    // top of lib/flags.ts. Its copy was rewritten off bring-your-own at the
+    // same time: leaving a description of a carrier account a church would open
+    // itself would be false in both flag states now that Harvest resells, and
+    // the repo-wide sweep would find the vendor's name in an unrendered file
+    // just as surely as in a rendered one.
+    id: 'sms', name: 'SMS & Text-to-Give', icon: 'message-square-text', ref: 'THE-314',
     eyebrow: 'Texting the church, and giving by text',
     title: 'Harvest does not text your congregation yet.',
-    oneliner: 'Broadcasts to your members, donors or a tag on your own Twilio account — and a keyword a member texts to your number to get their giving link back.',
+    oneliner: 'Broadcasts to your members, donors or a tag from a number of your own — and a keyword a member texts to that number to get their giving link back.',
     today: 'Nothing in Harvest sends a text. There is no broadcast composer, no automated reminder, and no keyword a member can text you. Giving happens on your branded donation page, from a link or a QR code you print or put on a slide, and every gift still writes a receipt and a CRM record the same way. Check-in, event registration and pledges confirm by email.',
     considering: [
-      'Your own Twilio account rather than messages resold through us, so the per-message rate is the one you negotiate and the relationship is yours',
+      'A number bought from inside Harvest, so there is no separate carrier account to open before the first message goes out',
       'A recipient count and a segment cost shown before anything is sent — a broadcast is the one action where finding out afterwards is too late',
       'A keyword that answers with your giving link, so the closing slide can say "text one word" instead of spelling out a URL',
       'US numbers first. Per-segment rates vary about tenfold by country and pretending otherwise is how a church gets a bill it did not expect',

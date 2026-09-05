@@ -289,9 +289,9 @@ export const FAQS: Faq[] = [
     answer: SMS_MARKETING_ENABLED
       ? [
           'Some of each, and where they come from matters, so here is the exact shape of it.',
-          'SMS is bring-your-own Twilio. You connect your own Twilio account, and every message sent from Harvest is billed to you by Twilio at their rates — Harvest does not resell messages and takes no margin on them. The broadcast composer shows the recipient count and the cost before you send.',
+          'SMS is on the Ministry plan. You get a phone number from inside Harvest — there is no separate carrier account to open — and messages are charged against your plan\'s monthly allowance. The broadcast composer shows the recipient count and the cost before you send, and anyone who replies STOP stops receiving messages.',
           'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts — goes through our own provider and is included in your subscription.',
-          'You contract directly with Twilio and Mailchimp, you pay them, and their terms and prices apply to you. If one of those connections breaks, the rest of Harvest keeps working.',
+          'You contract directly with Mailchimp, you pay them, and their terms and prices apply to you. If that connection breaks, the rest of Harvest keeps working.',
         ]
       : [
           'Email, yes. Text messages, not yet — so here is the exact shape of what does send.',

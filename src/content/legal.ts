@@ -336,16 +336,25 @@ const TERMS: LegalDoc = {
       heading: '6. Services you connect yourself',
       blocks: [
         p('Some parts of Harvest run on accounts you hold directly with another provider. Where that is the case, you contract with that provider, you pay them, and their terms and prices apply to you:'),
-        // THE-245 — the Twilio line is withheld while SMS is hidden. 🔴 These
-        // are TERMS: a bullet describing a connection a church cannot make is a
-        // contractual statement about a service that is not being provided, and
-        // this document has already had to be corrected once for describing a
-        // website builder that did not exist. Withheld rather than reworded —
-        // there is nothing true to say about a connection that is switched off.
+        // 🔴 SMS IS NOT IN THIS LIST ANY MORE — THE-314, AND ITS ABSENCE IS THE
+        // CORRECTION. The bullet here read "SMS is bring-your-own Twilio. You
+        // connect your own Twilio account…", which was true of the arrangement
+        // it described and is now false of the one that exists: Harvest RESELLS
+        // messaging on an account of its own, buys the church its number, and
+        // bills for what is sent. A church connects nothing and contracts with
+        // nobody, so this section — "Services you connect yourself" — is not
+        // where SMS belongs, in either flag state.
+        //
+        // ⚠️ WHAT REPLACES IT IS NOT WRITTEN HERE. Reselling needs its own
+        // Terms language — that Harvest is the seller of record, that the church
+        // is the sender and warrants it has consent, that delivery is not
+        // guaranteed because it depends on third-party carriers and providers,
+        // and that charges are metered and non-refundable once a message is
+        // sent. The founder has approved that substance; the WORDING is a legal
+        // ticket's, not this one's, and inventing it here would be writing terms
+        // nobody has reviewed. Removing a false clause needs no lawyer; adding a
+        // true one does.
         list(
-          ...(SMS_MARKETING_ENABLED
-            ? ['SMS is bring-your-own Twilio. You connect your own Twilio account and every message sent from Harvest is billed to you by Twilio at their rates.']
-            : []),
           'Bulk newsletters go through your own Mailchimp account, on whatever Mailchimp plan you hold.',
           'Giving runs through your own Stripe account, as described above.',
         ),
@@ -504,9 +513,18 @@ const PRIVACY: LegalDoc = {
       heading: SMS_MARKETING_ENABLED ? '6. Email and SMS' : '6. Email',
       blocks: [
         p('Transactional email that Harvest sends on your behalf — notifications, sign-in links, confirmations — goes through Resend.'),
-        SMS_MARKETING_ENABLED
-          ? p('Bulk newsletters are sent from your ministry\'s own Mailchimp account, and SMS from your ministry\'s own Twilio account. Where that is how you have set things up, the contact details involved reach Mailchimp or Twilio under your agreements with them, and their privacy terms apply to what they do with them.')
-          : p('Bulk newsletters are sent from your ministry\'s own Mailchimp account. Where that is how you have set things up, the contact details involved reach Mailchimp under your agreement with them, and their privacy terms apply to what they do with them.'),
+        p('Bulk newsletters are sent from your ministry\'s own Mailchimp account. Where that is how you have set things up, the contact details involved reach Mailchimp under your agreement with them, and their privacy terms apply to what they do with them.'),
+        // 🔴 A STATEMENT OF WHERE THE DATA GOES, which is what a privacy notice
+        // owes and what changed underneath it. The old sentence said SMS went
+        // through "your ministry's own Twilio account" under "your agreements
+        // with them"; that is no longer where a text goes or whose agreement
+        // covers it, so leaving it would have made this notice describe a data
+        // flow that does not happen. It names no vendor for the same reason the
+        // Resend line does name one and the carriers do not: Harvest's
+        // messaging provider is Harvest's contract, not the church's.
+        ...(SMS_MARKETING_ENABLED
+          ? [p('Text messages are sent through Harvest\'s own messaging provider, under our agreement with them rather than yours. The phone numbers you send to reach that provider, and the mobile networks it hands the message to, in order to deliver it.')]
+          : []),
       ],
     },
     {

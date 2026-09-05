@@ -154,18 +154,22 @@ describe('2 — sharegiving appears in the Features mega-menu, under GIVING & FI
 // ═════════════════════════════════════════════════════════════════════════════
 describe('3 — the derived tool count, its comment and its assertion all agree', () => {
   it('🔴 the figure is 28, and is still DERIVED rather than written down', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
+    // withheld, and 27 before THE-306 added the Shareable Giving Page.
+    expect(CATALOG_TOOL_COUNT).toBe(29);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
   });
 
-  it('🔴 adding this row is exactly what moved it, 27 → 28', () => {
+  it('🔴 adding this row is exactly what moved it, by exactly one', () => {
     /* The delta, asserted as a delta — so a future ticket that adds a second
-       tool in the same commit cannot hide inside this one's expected move. */
+       tool in the same commit cannot hide inside this one's expected move.
+       🔵 The absolute was 27 → 28; THE-314 turned SMS back on and it is 28 → 29.
+       The DELTA is what this test is about and it has not moved. */
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== SHARE_TITLE).length, 0);
-    expect(without).toBe(27);
+    expect(without).toBe(28);
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
   });
 
@@ -205,19 +209,28 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
       .map((f) => [f, readFileSync(f, 'utf8')] as const)
       .filter(([, body]) => /CATALOG_TOOL_COUNT\)\.toBe\(/.test(body));
 
-    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(16);
+    // 🔵 SEVENTEEN SINCE THE-314, which added its own suite and pinned the
+    // figure there too. The count is pinned alongside the value for the reason
+    // the note above gives: a suite that quietly DROPS its assertion has to fail
+    // as loudly as one that leaves it stale.
+    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(17);
     for (const [f, body] of pinning) {
       expect(body, `${f} still pins the old count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+      expect(body, `${f} still pins the pre-THE-314 count`)
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
       expect(body, `${f} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
     }
 
     /* The two flag suites assert a PAIR rather than the constant, so the scan
        above cannot see them — they are the one place the SMS delta of exactly
        one is still measured, and both halves had to move together. */
     const flags = src('../lib/flags.test.ts');
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count').toBe(28)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count before SMS was withdrawn').toBe(29)");
+    // ⚠️ The two halves swapped which one is the SHIPPED figure when THE-314
+    // turned SMS back on: `OFF` is a synthetic all-flags-false state, so the
+    // live product is now the SMS-on side at 29. The numbers are unchanged.
+    expect(flags).toContain("expect(off.toolCount, 'the count with SMS withheld').toBe(28)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the shipped count, with SMS live').toBe(29)");
     expect(flags).not.toMatch(/toolCount(?:, '[^']*')?\)\.toBe\(27\)/);
   });
 });

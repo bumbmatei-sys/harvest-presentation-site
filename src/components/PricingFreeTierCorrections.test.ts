@@ -294,14 +294,19 @@ describe("the three priced tiers' cards are unchanged", () => {
    */
   const BEFORE: Record<string, string[]> = {
     plus: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
+      // 🔴 THE-314 — the SMS line MOVED CARDS as well as changing its name. It
+      // was 'SMS (bring your own Twilio)' on INDIVIDUAL while a church held its
+      // own carrier account; Harvest resells now and SMS is Ministry-only, so
+      // the line is on the Ministry card and Individual carries none.
       'CRM (Donors & Members)',
-      ...(SMS_MARKETING_ENABLED ? ['SMS (bring your own Twilio)'] : []),
       'Donation page & Fundraising'],
     pro: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
       'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'],
     max: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain',
       'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM',
-      'Tax Receipts & Statements', 'Accounting + QuickBooks'],
+      'Tax Receipts & Statements',
+      ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
+      'Accounting + QuickBooks'],
   };
 
   for (const planId of ['plus', 'pro', 'max']) {
