@@ -3,6 +3,9 @@ import { Reveal } from './effects';
 import { Kicker, H2, container, softCard } from './shared';
 import { plans, formatMonthlyHeadline } from './Pricing';
 import { CATEGORIES } from '../content/features';
+import {
+  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 /* What is in one plan — THE-257.
  *
@@ -45,13 +48,26 @@ import { CATEGORIES } from '../content/features';
  * one place that enumerates it. Only this row changed. */
 const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
   { c: 'Community & Engagement', ids: ['feed', 'groups', 'prayer', 'map'] },
-  { c: 'Events & Livestream', ids: ['events', 'checkin', 'livestream'] },
+  // 🔴 THE-335 — `services` joined this row when service planning became a live
+  // feature entry. `visibleNames` is built from the catalogue, and the coverage
+  // guard requires every visible feature to appear in this table.
+  { c: 'Events & Livestream', ids: ['events', 'checkin', 'services', 'livestream'] },
   { c: 'Discipleship & Content', ids: ['bible', 'courses', 'blog', 'aiblog', 'docs'] },
   // ⚠️ `sms` JOINED THIS ROW AT THE-314. It was absent because
   // SMS_MARKETING_ENABLED kept it out of `CATEGORIES` entirely, not because
   // this table declined to list it — so turning the flag on made it a visible
   // feature that the coverage guard requires to appear here.
-  { c: 'Automation', ids: ['knowledge', 'newsletter', 'autonewsletter', 'sms', 'forms'] },
+  // 🔴 THE-335 — `newsletter`, `autonewsletter` and `sms` are gated here for the
+  // reason `sms` was absent before THE-314 turned it on: `visibleNames` is built
+  // from the FLAG-FILTERED `CATEGORIES`, and an id this row lists but the
+  // catalogue hides throws at the prerender by design (see `items` below). So a
+  // hidden feature must leave this row too, and comes back with its flag.
+  { c: 'Automation', ids: [
+    'knowledge',
+    ...(NEWSLETTER_MARKETING_ENABLED ? ['newsletter', 'autonewsletter'] : []),
+    ...(SMS_MARKETING_ENABLED ? ['sms'] : []),
+    'forms',
+  ] },
   { c: 'Giving & Finance', ids: ['donation', 'fundraising', 'crm', 'accounting'] },
   { c: 'Platform & Brand', ids: ['webapp', 'pwa', 'dashboard', 'branding', 'analytics'] },
 ];
@@ -100,9 +116,22 @@ const items = ROWS.map((r) => {
 // nothing here that is true to say about it. It is removed rather than gated:
 // a hidden entry would still have carried the mark and the name into the
 // working tree, and this row is a list of relationships, not of capabilities.
+//
+// ⚠️ THE-335 GATES BOTH REMAINING ENTRIES RATHER THAN REMOVING THEM, which is
+// the opposite of what THE-314 did to Twilio above — and the difference is the
+// reason, not a change of mind. Twilio went because the RELATIONSHIP ended: no
+// church connects one any more, so there was nothing true left to say. These two
+// relationships are intact and the code that makes them is untouched in the app;
+// what changed is that the site stopped advertising the features they serve, and
+// a row here is an advert. They come back with their flags.
+//
+// 🔴 QuickBooks with QUICKBOOKS_MARKETING_ENABLED, Mailchimp with
+// NEWSLETTER_MARKETING_ENABLED: Mailchimp IS the newsletter backend, so naming
+// it while the newsletter is a coming-soon entry would advertise the sender of a
+// thing this site says is not built.
 const integrations: [string, string | null][] = [
-  ['QuickBooks', 'quickbooks'],
-  ['Mailchimp', 'mailchimp'],
+  ...(QUICKBOOKS_MARKETING_ENABLED ? [['QuickBooks', 'quickbooks'] as [string, string | null]] : []),
+  ...(NEWSLETTER_MARKETING_ENABLED ? [['Mailchimp', 'mailchimp'] as [string, string | null]] : []),
 ];
 
 /* Kept for the integrations row, which was for a while the only caller left —
@@ -181,6 +210,12 @@ export function Replaces() {
               </div>
             </div>
           </div>
+          {/* 🔴 THE-335 — the LINE goes when the list is empty, not just the marks.
+              "Plus integrates with your newsletter & tools —" followed by nothing
+              is a dangling claim, and it names the newsletter besides. Derived
+              from the list rather than from the flags, so the next entry added
+              or gated is handled here without a second condition to remember. */}
+          {integrations.length > 0 && (
           <div style={{ marginTop: 18, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13.5, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '4px 4px' }}>
             <span style={{ marginRight: 6 }}>Plus integrates with your newsletter &amp; tools —</span>
             {integrations.map(([n, s]) => (
@@ -190,6 +225,7 @@ export function Replaces() {
               </span>
             ))}
           </div>
+          )}
         </Reveal>
       </div>
     </section>

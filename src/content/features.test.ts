@@ -68,7 +68,13 @@ describe('the mega-menu reaches every feature it lists', () => {
     // Guards every `it.each` below against silently running on an empty list.
     expect(live).toHaveLength(5);
     expect(soon.map((g) => g.name)).toEqual([COMING_SOON_NAME]);
-    expect(CATALOG.flatMap((g) => g.items).length).toBeGreaterThan(30);
+    // ⚠️ A SANITY FLOOR, NOT A PIN. It guards the `it.each` blocks below against
+    // silently running on an empty list; the real figure is CATALOG_TOOL_COUNT,
+    // pinned in the suites that own it. 🔵 Lowered from 30 at THE-335, which
+    // withdrew three tools (SMS and the two newsletter entries) behind flags —
+    // pinning it any higher would make this a second stale absolute of exactly
+    // the kind the tool-count guards exist to prevent.
+    expect(CATALOG.flatMap((g) => g.items).length).toBeGreaterThan(25);
   });
 
   it.each(live.flatMap((g) => g.items.map((i) => i.title)))(

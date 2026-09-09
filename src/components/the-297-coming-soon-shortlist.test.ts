@@ -105,7 +105,10 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
     // 🔵 ELEVEN since THE-314: SMS left Coming Soon when it went live on the
     // pricing page. `COMING_SOON_ITEMS` filters on SMS_MARKETING_ENABLED so the
     // two can never both be true.
-    expect(COMING_SOON_ITEMS).toHaveLength(11);
+    // 🔵 THIRTEEN SINCE THE-335, which brought the SMS entry back and added a
+    // Newsletter one. The shortlist's own size is what this file is about and it
+    // is unchanged at four; this is the FULL list behind the "See all" link.
+    expect(COMING_SOON_ITEMS).toHaveLength(13);
   });
 
   it('🔴 Harvest Scheduler is FIRST, and is the entry with a page of its own', () => {
@@ -139,6 +142,10 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
        appended as their board cards open, which the-280's suite pins as "the
        ELEVENTH entry, appended, not inserted" — so slicing its top three would
        have shown the OLDEST three and called it an editorial choice. */
+    // 🔵 UNCHANGED BY THE-335. The two entries it added are APPENDED, not
+    // inserted — the same property THE-280's suite pins — so the menu's
+    // chronological shortlist is untouched and the oldest three are still the
+    // three named here.
     expect(COMING_SOON_MENU_ITEMS.slice(1).map((i) => i.id))
       .toEqual(['languages', 'services', 'applications']);
   });
@@ -160,7 +167,7 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
       (i) => !COMING_SOON_MENU_ITEMS.some((m) => m.id === i.id));
     // 🔵 SEVEN since THE-314 — SMS left the published list entirely, so it is
     // neither in the menu shortlist nor among the entries the menu omits.
-    expect(hidden).toHaveLength(7);
+    expect(hidden).toHaveLength(9);
     for (const item of hidden) {
       expect(words(desktopMenu), `"${item.name}" is still in the menu`).not.toContain(item.name);
       // …and is on the page the "see all" row leads to.
@@ -171,7 +178,12 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
   it('the live categories were not truncated — only the unbuilt column was', () => {
     for (const g of CATALOG.slice(1)) {
       expect(g.more, `"${g.name}" was given a see-all row it did not ask for`).toBeUndefined();
-      expect(g.items.length, `"${g.name}" lost rows`).toBeGreaterThan(4);
+      // 🔵 THREE SINCE THE-335, which took the two newsletter tools and the SMS
+      // tool out of "AI & Automation" behind their flags. The claim this makes
+      // is that the LIVE columns were not TRUNCATED by the shortlist mechanism —
+      // no `more` row, no slice — not that any particular column has a
+      // particular height, so the floor moves with the product.
+      expect(g.items.length, `"${g.name}" lost rows`).toBeGreaterThan(2);
     }
     // The tools claim is untouched: nothing here is countable.
     // 🔵 27 → 28 in THE-306: the Shareable Giving Page, a live unflagged
@@ -179,7 +191,7 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
     // subject moved it.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(29);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(soonGroup.items.filter((i) => !i.soon)).toHaveLength(0);
   });
 });
@@ -205,7 +217,7 @@ describe('2 — a "see all" control links to the full coming-soon page', () => {
     // 🔵 Eleven since THE-314 took SMS off the list. The point of this test is
     // the line ABOVE — the label is derived — and this absolute is what proves
     // the derivation is not comparing the label to itself.
-    expect(COMING_SOON_MORE_LABEL).toBe('See all 11');
+    expect(COMING_SOON_MORE_LABEL).toBe('See all 13');
     // Not a literal in the source — a flag can move the count, and one just did.
     expect(readSrc('components/catalog.ts')).not.toMatch(/See all \d+/);
   });
@@ -240,7 +252,10 @@ describe('3 — the full page still shows ALL of the entries', () => {
     // 🔵 ELEVEN since THE-314: SMS left Coming Soon when it went live on the
     // pricing page. `COMING_SOON_ITEMS` filters on SMS_MARKETING_ENABLED so the
     // two can never both be true.
-    expect(COMING_SOON_ITEMS).toHaveLength(11);
+    // 🔵 THIRTEEN SINCE THE-335, which brought the SMS entry back and added a
+    // Newsletter one. The shortlist's own size is what this file is about and it
+    // is unchanged at four; this is the FULL list behind the "See all" link.
+    expect(COMING_SOON_ITEMS).toHaveLength(13);
     for (const item of COMING_SOON_ITEMS) {
       expect(pageText, `"${item.name}" is missing from the page`).toContain(item.name);
     }
@@ -416,12 +431,19 @@ describe('6 — no price, date, tier or CTA in the section or on the page', () =
 
 /* ── 7 ───────────────────────────────────────────────────────────────────── */
 describe('7 — no SoonItem was added or removed, and every ref is intact', () => {
-  it('🔴 still twelve entries, with the ids the page shipped with', () => {
+  it('🔴 still thirteen entries, with the ids the page shipped with', () => {
     expect(COMING_SOON_ITEMS.map((i) => i.id)).toEqual([
       'languages', 'services', 'applications', 'docs', 'website', 'agent',
-      // 🔵 'sms' LEFT THIS LIST AT THE-314 — it is sold on the pricing page now,
-      // and an entry here as well would be the same claim in two tenses.
-      'identity', 'designations', 'affiliate', 'domains', 'scheduler',
+      // 🔵 'sms' LEFT THIS LIST AT THE-314 and CAME BACK AT THE-335, in the same
+      // motion that took it off the pricing page. An entry here AND a row there
+      // would be the same claim in two tenses, which is what the filter prevents.
+      // 🔵 'newsletter' IS NEW AT THE-335, on identical terms.
+      // 🔵 'newsletter' IS NEW AT THE-335, appended to the ORDINARY entries —
+      // the convention this list has kept since THE-280's `domains`. It sits
+      // before `scheduler` because that entry is deliberately LAST in the array
+      // while leading the menu column, which the test above pins.
+      'identity', 'designations', 'sms', 'affiliate', 'domains', 'newsletter',
+      'scheduler',
     ]);
   });
 
@@ -537,7 +559,7 @@ describe('10 — no page changed its built HTML except the ones this PR touches'
       expect(text, `"${item.name}" is missing from the built page`).toContain(item.name);
     }
     // 🔵 Eleven since THE-314 — see the note on COMING_SOON_ITEMS above.
-    expect(text.split(NOT_BUILT_LABEL).length - 1).toBe(11);
+    expect(text.split(NOT_BUILT_LABEL).length - 1).toBe(13);
   });
 
   it.runIf(built)('and no OTHER built page grew a coming-soon entry', () => {

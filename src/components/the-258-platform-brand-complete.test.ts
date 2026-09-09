@@ -8,7 +8,7 @@ import { CATEGORIES, type Category } from '../content/features';
 import { COMING_SOON_ITEMS } from '../content/coming-soon';
 import {
   AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
-  SMS_MARKETING_ENABLED,
+  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
 
 /* 🔴 THE-280 — the branding feature's CAPTION is now flag-dependent, so this
@@ -198,8 +198,20 @@ describe('Platform & Brand is complete', () => {
     for (const absent of ['AI Chat', 'Affiliate', 'Multi-Campus']) {
       expect(SECTION, `"${absent}" is in the section`).not.toContain(absent);
     }
-    expect(SECTION, 'SMS is live but the section does not list it')
-      .toContain('SMS & Text-to-Give');
+    // 🔴 THE-335 — SMS AND THE NEWSLETTER ARE BOTH BACK ON THE ABSENT LIST, by
+    // the same mechanism working the other way: their flags keep them out of the
+    // filtered catalogue, so THE-257's coverage guard no longer demands them and
+    // the section must not claim them. Derived from the flags rather than
+    // hardcoded, so each returns to the "must be listed" half in the same motion
+    // that turns it on.
+    for (const [flag, label] of [
+      [SMS_MARKETING_ENABLED, 'SMS & Text-to-Give'],
+      [NEWSLETTER_MARKETING_ENABLED, 'Newsletter'],
+    ] as const) {
+      if (flag) expect(SECTION, `${label} is live but the section does not list it`).toContain(label);
+      else expect(SECTION, `the section claims ${label}, which is not live`).not.toContain(label);
+    }
+
 
     const byId = featureById(CATEGORIES);
     // Affiliate and Multi-Campus are excluded by FLAG: they are not in the
@@ -207,7 +219,13 @@ describe('Platform & Brand is complete', () => {
     for (const id of ['affiliate', 'churches']) {
       expect(byId.has(id), `#${id} is visible in CATEGORIES — a flag moved`).toBe(false);
     }
-    expect(byId.has('sms'), '#sms is hidden again — SMS_MARKETING_ENABLED moved').toBe(true);
+    // 🔵 THE-335 hid #sms again and #newsletter with it, by the same mechanism.
+    // Read off the flags so this stays a real check of the FILTER in either
+    // state, rather than a pin on whichever way it happens to point.
+    expect(byId.has('sms'), '#sms disagrees with SMS_MARKETING_ENABLED')
+      .toBe(SMS_MARKETING_ENABLED);
+    expect(byId.has('newsletter'), '#newsletter disagrees with NEWSLETTER_MARKETING_ENABLED')
+      .toBe(NEWSLETTER_MARKETING_ENABLED);
     // AI Chat is the editorial one: visible in the catalogue, deliberately not
     // in this section, because it is an add-on rather than part of the plan.
     expect(byId.get('aichat')?.name).toBe('AI Chat');
@@ -274,15 +292,26 @@ describe('what THE-258 did not touch', () => {
     // THE-314 added `sms` to it when the flag turned on, so the assertion below
     // skips it by name rather than by index — an index would silently start
     // pinning a different row if the order ever changed.
+    // ⚠️ AND EVENTS & LIVESTREAM IS THE THIRD, since THE-335 promoted service
+    // planning to a live feature and THE-257's coverage guard put it in that row.
     for (const [label, ids] of AS_SHIPPED_257.slice(0, 5)) {
-      if (label === 'Automation') continue;
+      if (label === 'Automation' || label === 'Events & Livestream') continue;
       const row = rowNamed(label);
       expect(row, `the "${label}" row is missing`).toBeDefined();
       expect(row!.items, `the "${label}" row changed`).toEqual(captionsFor(ids));
     }
     // Automation, pinned with the one addition named.
-    expect(rowNamed('Automation')!.items, 'the "Automation" row changed by more than SMS')
-      .toEqual(captionsFor(['knowledge', 'newsletter', 'autonewsletter', 'sms', 'forms']));
+    // Automation and Events & Livestream, each pinned with its own change named.
+    expect(rowNamed('Automation')!.items, 'the "Automation" row changed by more than its flagged entries')
+      .toEqual(captionsFor([
+        'knowledge',
+        ...(NEWSLETTER_MARKETING_ENABLED ? ['newsletter', 'autonewsletter'] : []),
+        ...(SMS_MARKETING_ENABLED ? ['sms'] : []),
+        'forms',
+      ]));
+    expect(rowNamed('Events & Livestream')!.items,
+      'the "Events & Livestream" row changed by more than service planning')
+      .toEqual(captionsFor(['events', 'checkin', 'services', 'livestream']));
 
     // The section's own copy is untouched too: the kicker and the H2 THE-257
     // wrote, and no reintroduced competitor claim.
@@ -297,21 +326,36 @@ describe('what THE-258 did not touch', () => {
 
   it('the integrations row is unchanged', () => {
     // These are the services Harvest CONNECTS TO, never a competitor claim.
-    expect(SECTION).toContain('Plus integrates with your newsletter & tools —');
-    for (const name of ['QuickBooks', 'Mailchimp']) {
-      expect(SECTION, `the integrations row lost ${name}`).toContain(name);
+    // 🔴 THE-335 gated both remaining names, and the SENTENCE with them: an
+    // introduction followed by an empty list is a dangling claim that also names
+    // the newsletter. Gated rather than deleted, unlike Twilio below, because
+    // the difference is the REASON — Twilio's relationship ended, while these
+    // two are intact and merely un-advertised.
+    const present = [
+      ...(QUICKBOOKS_MARKETING_ENABLED ? ['QuickBooks'] : []),
+      ...(NEWSLETTER_MARKETING_ENABLED ? ['Mailchimp'] : []),
+    ];
+    if (present.length > 0) {
+      expect(SECTION).toContain('Plus integrates with your newsletter & tools —');
+      for (const name of present) {
+        expect(SECTION, `the integrations row lost ${name}`).toContain(name);
+      }
+    } else {
+      expect(SECTION, 'the integrations line survived its own empty list')
+        .not.toContain('Plus integrates with your');
     }
-    expect(MARKUP).toContain('https://cdn.simpleicons.org/quickbooks');
-    expect(MARKUP).toContain('https://cdn.simpleicons.org/mailchimp');
+    if (QUICKBOOKS_MARKETING_ENABLED) expect(MARKUP).toContain('https://cdn.simpleicons.org/quickbooks');
+    if (NEWSLETTER_MARKETING_ENABLED) expect(MARKUP).toContain('https://cdn.simpleicons.org/mailchimp');
     // 🔴 TWILIO LEFT THE ROW AT THE-314 — name AND favicon. This row lists
     // services a church connects ITSELF, and Harvest resells messaging on its
     // own account now, so there is no such connection to advertise.
     expect(SECTION, 'the integrations row still names a carrier').not.toMatch(/twilio/i);
     expect(MARKUP, 'the integrations row still hotlinks a carrier mark')
       .not.toContain('favicons?domain=twilio.com');
-    // Two images in the whole section — no logo came back with the two features
-    // that did, and one left with the connection that ended.
-    expect([...MARKUP.matchAll(/<img/g)]).toHaveLength(2);
+    // 🔵 The image count is DERIVED FROM THE FLAGS since THE-335 gated both
+    // remaining marks. The claim is unchanged: no logo came back with the two
+    // features THE-258 added, and no competitor mark survives.
+    expect([...MARKUP.matchAll(/<img/g)]).toHaveLength(present.length);
   });
 
   it('no flag value changed, and coming-soon.ts is untouched', () => {
@@ -320,9 +364,9 @@ describe('what THE-258 did not touch', () => {
        that do gate this section are exactly where THE-245, THE-252 and THE-223
        left them. */
     expect(AFFILIATE_PROGRAM_ENABLED).toBe(false);
-    // 🔵 TRUE since THE-314. THE-258 still sets no flag; this pin followed the
-    // product rather than this ticket.
-    expect(SMS_MARKETING_ENABLED).toBe(true);
+    // 🔵 TRUE at THE-314 and FALSE again at THE-335. THE-258 still sets no flag;
+    // this pin follows the product rather than this ticket.
+    expect(SMS_MARKETING_ENABLED).toBe(false);
     expect(MULTI_CAMPUS_ENABLED).toBe(false);
     // THE-280's flag joined them, also off. It is not THE-258's, and THE-258
     // still sets none — the claim this test makes is unchanged.
@@ -333,13 +377,18 @@ describe('what THE-258 did not touch', () => {
     const flagsSrc = readFileSync(new URL('../lib/flags.ts', import.meta.url), 'utf8');
     const declared = [...flagsSrc.matchAll(/export const (\w+) = (true|false);/g)]
       .map((m) => [m[1], m[2]] as const);
+    // 🔵 THE-335 added two flags and turned SMS off. THE-258 still sets none.
     expect(declared).toEqual([
       ['AFFILIATE_PROGRAM_ENABLED', 'false'],
       ['MULTI_CAMPUS_ENABLED', 'false'],
-      ['SMS_MARKETING_ENABLED', 'true'],
-      // 🔴 THE-280 added the fourth, at false. Listed rather than loosened to a
-      // subset check: the point of this assertion is that a flag cannot appear
-      // or flip unnoticed, and naming the new one keeps that exact.
+      ['SMS_MARKETING_ENABLED', 'false'],
+      // 🔴 THE-335 added the fifth and sixth, both at false. Listed rather than
+      // loosened to a subset check, exactly as THE-280's fourth was: the point
+      // of this assertion is that a flag cannot appear or flip unnoticed, and
+      // naming each new one keeps that exact.
+      ['NEWSLETTER_MARKETING_ENABLED', 'false'],
+      ['QUICKBOOKS_MARKETING_ENABLED', 'false'],
+      // 🔴 THE-280 added the fourth, at false.
       ['CUSTOM_DOMAIN_MARKETING_ENABLED', 'false'],
     ]);
 
@@ -350,10 +399,13 @@ describe('what THE-258 did not touch', () => {
        and coming soon. */
     const soon = COMING_SOON_ITEMS.map((i) => i.id);
     expect(soon).toContain('affiliate');
-    // 🔴 SMS LEFT COMING SOON AT THE-314, in the same motion that put it on the
-    // pricing page and in the Automation row above. `COMING_SOON_ITEMS` filters
-    // on SMS_MARKETING_ENABLED precisely so the two can never both be true.
-    expect(soon, 'SMS is in the plan AND promised as coming soon').not.toContain('sms');
+    // 🔴 SMS LEFT COMING SOON AT THE-314 AND CAME BACK AT THE-335, each time in
+    // the same motion that moved the pricing page and the Automation row above.
+    // `COMING_SOON_ITEMS` filters on SMS_MARKETING_ENABLED precisely so the two
+    // can never both be true — asserted as the EXCLUSIVE-OR so a third flip
+    // cannot leave it stale.
+    expect(soon.includes('sms'), 'SMS is both in the plan and promised as coming soon')
+      .toBe(!SMS_MARKETING_ENABLED);
     expect(COMING_SOON_ITEMS.find((i) => i.id === 'affiliate')!.name).toBe('Affiliate referrals');
     for (const id of ADDED) {
       expect(soon, `#${id} is in COMING_SOON_ITEMS and in the plan table`).not.toContain(id);

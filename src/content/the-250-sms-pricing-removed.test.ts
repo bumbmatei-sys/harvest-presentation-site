@@ -14,7 +14,7 @@ import {
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
 import { COMING_SOON_ITEMS } from './coming-soon';
 import { CATEGORIES } from './features';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import { NEWSLETTER_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
 /**
  * THE-250 — the site stops SELLING SMS, and says "not yet" in exactly one place.
@@ -100,34 +100,47 @@ describe('1 — the pricing surfaces sell SMS again, on ONE tier and with no car
     // that has it says so, and the two that lost it stay silent. A line on
     // Individual would be this page promising a capability the app answers with
     // an upgrade wall, which is the failure this file exists to prevent.
+    // 🔴 REVERSED AGAIN BY THE-335 — and now asserted THROUGH the flag, so
+    // neither flip can leave it stale a third time. With the switch off the app
+    // grants SMS on NO tier, so no card may name it, Ministry included.
     const text = allCardText();
-    expect(text, 'no plan card sells SMS').toMatch(/\bSMS\b/);
     expect(text, 'a plan card names a carrier a church never sees').not.toMatch(/twilio/i);
-    const ministry = plans.find((p) => p.planId === 'max')!;
-    expect(ministry.features.join(' '), 'the Ministry card lost SMS').toMatch(/\bSMS\b/);
-    for (const lower of ['plus', 'pro']) {
-      const card = plans.find((p) => p.planId === lower)!;
-      expect(card.features.join(' '), `the ${card.name} card sells SMS it cannot use`)
-        .not.toMatch(/\bSMS\b/i);
+    for (const planId of ['plus', 'pro', 'max']) {
+      const card = plans.find((p) => p.planId === planId)!;
+      const shouldSell = SMS_MARKETING_ENABLED && planId === 'max';
+      expect(/\bSMS\b/i.test(card.features.join(' ')), `the ${card.name} card disagrees with the app`)
+        .toBe(shouldSell);
     }
   });
 
   it('🔴 the rendered comparison grid carries the SMS row, ticked on Ministry only', () => {
     const html = render(React.createElement(ComparisonTable));
     const text = visibleText(html);
-    expect(text, 'the comparison grid lost the SMS row').toMatch(/\bSMS\b/);
+    // 🔴 THE-335 — asserted through the flag, in both directions.
+    if (SMS_MARKETING_ENABLED) expect(text, 'the comparison grid lost the SMS row').toMatch(/\bSMS\b/);
+    else expect(text, 'the comparison grid still sells SMS').not.toMatch(/\bSMS\b/);
     expect(text, 'the comparison grid names a carrier').not.toMatch(/twilio/i);
     // The grid still rendered something — an empty render would pass the above
     // vacuously, which is the failure mode this whole file is guarding.
+    // ⚠️ THE NON-VACUITY ANCHOR MOVED OFF "Newsletter" AT THE-335, because that
+    // row is now itself flag-gated and would make this check vacuous exactly
+    // when it is needed. "Custom Forms → CRM" is an ungated Automation row.
     expect(text).toMatch(/Automation/);
-    expect(text).toMatch(/Newsletter/);
+    expect(text).toContain('Custom Forms → CRM');
     expect((html.match(/<tr/g) ?? []).length).toBeGreaterThan(10);
   });
 
   it('the Automation group kept its other rows — the row went, the group did not', () => {
     const text = visibleText(render(React.createElement(ComparisonTable)));
-    for (const row of ['Newsletter', 'Automated Newsletter', 'Custom Forms → CRM']) {
+    // 🔴 THE-335 — the two newsletter rows are gated now, so the group's ungated
+    // members are what prove the GROUP survived a row leaving it. That is the
+    // claim this test makes, and it is unchanged.
+    for (const row of ['Custom Forms → CRM']) {
       expect(text, `the Automation group lost "${row}"`).toContain(row);
+    }
+    for (const row of ['Newsletter', 'Automated Newsletter']) {
+      if (NEWSLETTER_MARKETING_ENABLED) expect(text, `the Automation group lost "${row}"`).toContain(row);
+      else expect(text, `the Automation group still sells "${row}"`).not.toContain(row);
     }
   });
 
@@ -155,8 +168,12 @@ describe('2 — SMS appears only in Coming Soon, and carries no price or tier ba
     // land somewhere when it left the pricing page — vanishing entirely would
     // have left a hole. It is sold again now, so the entry leaves in the same
     // motion, and the filter that does it is asserted below.
-    expect(COMING_SOON_ITEMS.find((i) => i.id === 'sms'), 'SMS is sold AND promised')
-      .toBeUndefined();
+    // 🔴 REVERSED AGAIN BY THE-335, and asserted as the EXCLUSIVE-OR so a third
+    // flip cannot leave it stale: the entry and the pricing row are two arms of
+    // one boolean and exactly one of them is true at a time.
+    const entry = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
+    if (SMS_MARKETING_ENABLED) expect(entry, 'SMS is sold AND promised').toBeUndefined();
+    else expect(entry, 'SMS is hidden everywhere, including from the page that explains why').toBeDefined();
   });
 
   it('🔴 the entry it left behind still cannot carry a price or a tier', () => {
@@ -211,13 +228,19 @@ describe('2 — SMS appears only in Coming Soon, and carries no price or tier ba
     ]);
     expect([...names]).toEqual(['SMS_MARKETING_ENABLED']);
     expect(readSrc('lib/flags.ts').match(/SMS_MARKETING_ENABLED\s*=/g)).toHaveLength(1);
-    // 🔵 TRUE since THE-314. The "one switch, one declaration" property — which
-    // is what this test is actually for — is untouched.
-    expect(readSrc('lib/flags.ts')).toMatch(/^export const SMS_MARKETING_ENABLED = true;$/m);
+    // 🔵 TRUE at THE-314 and FALSE again at THE-335. The "one switch, one
+    // declaration" property — which is what this test is actually for — is
+    // untouched by either flip, and is asserted against the flag rather than
+    // against a literal so the next one cannot make it stale.
+    expect(readSrc('lib/flags.ts'))
+      .toMatch(new RegExp(`^export const SMS_MARKETING_ENABLED = ${SMS_MARKETING_ENABLED};$`, 'm'));
   });
 
   it('the two repos still agree on the value', () => {
-    expect(SMS_MARKETING_ENABLED).toBe(true);
+    // 🔴 THE-335 — false on BOTH sides. The app's `SMS_FEATURE_ENABLED` went
+    // false in the same change; the-245-sms-hidden.test.ts is where the two
+    // repos' values are compared.
+    expect(SMS_MARKETING_ENABLED).toBe(false);
   });
 });
 
@@ -230,21 +253,32 @@ describe('3 — Text-to-Give is named wherever a church would look for it', () =
     // entry is filtered out now, so the same question is asked of the surface
     // that replaced it — the live feature section — and the answer must still
     // be yes: a church searching for either word has to find it.
-    const sms = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms')!;
-    expect(sms, 'the SMS feature section is gone').toBeDefined();
-    expect(sms.name).toMatch(/Text-to-Give/i);
+    // 🔴 REVERSED AGAIN BY THE-335 — it moved house BACK. The live section is
+    // filtered out again, so the same question is asked of the surface that
+    // carries the capability now: the Coming Soon entry. A church searching for
+    // either word still has to find it, which is the claim this test is about.
+    const live = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
+    const soon = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
+    const named = SMS_MARKETING_ENABLED ? live : soon;
+    expect(named, 'neither surface names Text-to-Give').toBeDefined();
+    expect(named!.name).toMatch(/Text-to-Give/i);
   });
 
   it('🔴 and EXPLAINS it — a church reading the giving pages is not left guessing', () => {
-    const sms = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms')!;
-    // The mechanism, in the section's own words.
-    expect(sms.oneliner, 'the oneliner does not describe giving by text')
+    // 🔴 THE-335 — read off whichever surface currently carries it, for the
+    // reason the test above gives. Both describe the same mechanism in the same
+    // words, and neither may name a carrier.
+    const live = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
+    const soon = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
+    const oneliner = SMS_MARKETING_ENABLED ? live!.oneliner : soon!.oneliner;
+    expect(oneliner, 'the oneliner does not describe giving by text')
       .toMatch(/keyword|giving link/i);
-    // 🔴 AND IT NAMES NO CARRIER. Text-to-Give arrives with SMS and is gated the
-    // same way — by the tenant having a number Harvest bought, on the Ministry
-    // plan — so there is no third-party account for a church to hear about.
-    const prose = [sms.eyebrow, sms.title, sms.oneliner, sms.moment,
-      ...(sms.admin ?? []), ...(sms.member ?? [])].join(' ');
+    // 🔴 AND IT NAMES NO CARRIER, in either state — an unrendered file is swept
+    // exactly like a rendered one.
+    const prose = SMS_MARKETING_ENABLED
+      ? [live!.eyebrow, live!.title, live!.oneliner, live!.moment,
+         ...(live!.admin ?? []), ...(live!.member ?? [])].join(' ')
+      : [soon!.eyebrow, soon!.title, soon!.oneliner, soon!.today, ...soon!.considering].join(' ');
     expect(prose, 'the section names a carrier').not.toMatch(/twilio/i);
   });
 
@@ -253,14 +287,18 @@ describe('3 — Text-to-Give is named wherever a church would look for it', () =
     // NOWHERE else — no card, no grid — because it was not for sale. It is now,
     // on one tier, so the assertion is the mirror: the tier that has it says so,
     // and the tiers that do not stay silent.
+    // 🔴 REVERSED AGAIN BY THE-335 — back to "nowhere it should not be", which
+    // with the switch off is EVERY selling surface. Asserted through the flag so
+    // the tier that has it says so whenever there is one, and nothing does when
+    // there is not.
     const grid = visibleText(render(React.createElement(ComparisonTable)));
-    expect(grid, 'the grid does not name Text-to-Give').toMatch(/text[- ]to[- ]give/i);
-    const ministry = plans.find((p) => p.planId === 'max')!;
-    expect(ministry.features.join(' ')).toMatch(/text[- ]to[- ]give/i);
-    for (const lower of ['plus', 'pro']) {
-      const card = plans.find((p) => p.planId === lower)!;
-      expect(card.features.join(' '), `the ${card.name} card sells Text-to-Give`)
-        .not.toMatch(/text[- ]to[- ]give/i);
+    expect(/text[- ]to[- ]give/i.test(grid), 'the grid disagrees with the app about Text-to-Give')
+      .toBe(SMS_MARKETING_ENABLED);
+    for (const planId of ['plus', 'pro', 'max']) {
+      const card = plans.find((p) => p.planId === planId)!;
+      const shouldSell = SMS_MARKETING_ENABLED && planId === 'max';
+      expect(/text[- ]to[- ]give/i.test(card.features.join(' ')), `the ${card.name} card disagrees with the app`)
+        .toBe(shouldSell);
     }
   });
 
@@ -282,13 +320,15 @@ describe('4 — both cross-repo contracts still throw when the repos disagree', 
   const asShipped = (): Plan[] => plans.map((p) => ({ ...p }));
 
   it('🔴 the cross-repo price contract passes on the plans AS THEY NOW SHIP', () => {
-    // 🔵 THE LINE IS BACK IN THE SHIPPED VALUE — on Ministry, since THE-314 —
-    // so this is still the real check rather than a simulation of it, and the
-    // point it makes is now the stronger one: a plan FEATURE moved and the
-    // PRICE contract is unmoved by it. That is exactly the separation the
-    // contract exists to hold, and it throws at module scope during the
-    // prerender if the two repos ever disagree on any of the nine.
-    expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f))).toBe(true);
+    // 🔵 THE LINE LEFT THE SHIPPED VALUE AGAIN AT THE-335, and the point this
+    // test makes is unchanged and is the whole reason it is here: a plan FEATURE
+    // moved — three of them this time — and the PRICE contract is unmoved by it.
+    // That is exactly the separation the contract exists to hold, and it throws
+    // at module scope during the prerender if the two repos ever disagree on any
+    // of the nine. The SMS presence is read off the flag so this stays a real
+    // check of the shipped plans in either state.
+    expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f)))
+      .toBe(SMS_MARKETING_ENABLED);
     expect(() => planPriceContract(asShipped())).not.toThrow();
   });
 
@@ -331,7 +371,7 @@ describe('5 — the tool count is still derived, and no price changed', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(29);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     // Derived, not restated: recompute it here and demand agreement.
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),

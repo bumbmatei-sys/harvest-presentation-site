@@ -5,7 +5,7 @@
 
 import {
   AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
-  SMS_MARKETING_ENABLED,
+  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
 import {
   COMING_SOON_HREF, COMING_SOON_ITEMS, COMING_SOON_KICKER, COMING_SOON_NAME, SCHEDULER_HREF,
@@ -225,8 +225,18 @@ export const CATALOG: CatalogGroup[] = [
     items: [
       item('brain-circuit', 'AI Knowledge Base', "Train AI on your teachings so members get answers rooted in your ministry's theology."),
       item('message-square', 'AI Chat', "A contextual assistant for members — your ministry's voice, not a generic bot."),
-      item('mail', 'Newsletter', 'Write a newsletter and send it through your own Mailchimp audience.'),
-      item('sparkles', 'Automated Newsletter', 'AI drafts a newsletter from a month of your own Instagram posts.'),
+      // 🔴 THE-335 — BOTH newsletter tools move the count, two off it, for the
+      // same reason the SMS entry below moves it by one: CATALOG_TOOL_COUNT is a
+      // derived tally of everything NOT marked `soon`, and a tool a church
+      // cannot use is not one of the "N tools in one platform". The Newsletter
+      // entry that appears in the Coming Soon column above is `soon: true` and
+      // contributes nothing, which is what keeps the figure honest.
+      // ⚠️ NO ABSOLUTE PAIR IS WRITTEN HERE, per the note on the SMS entry
+      // below: the only figure worth quoting is the derived one.
+      ...(NEWSLETTER_MARKETING_ENABLED ? [
+        item('mail', 'Newsletter', 'Write a newsletter and send it through your own Mailchimp audience.'),
+        item('sparkles', 'Automated Newsletter', 'AI drafts a newsletter from a month of your own Instagram posts.'),
+      ] : []),
       // Hidden FEATURE entry — THE-245. 🔴 This is one of the two things that
       // move the count: CATALOG_TOOL_COUNT is a derived tally of everything NOT
       // marked `soon`, so withdrawing this tool takes one off it. That is the
@@ -267,7 +277,15 @@ export const CATALOG: CatalogGroup[] = [
       item('share', 'Shareable Giving Page', 'Share every way your church takes a gift — as a link, a share sheet or a QR code.'),
       item('trending-up', 'Fundraising', 'Run campaigns with goals, progress and updates for your community.'),
       item('contact', 'CRM (Donors & Members)', 'A full relationship manager for donors and members.'),
-      item('calculator', 'Accounting + QuickBooks', 'Accounting tools with QuickBooks sync to keep the books clean.'),
+      // 🔴 THE-335 — REWORDED, NOT REMOVED, so this does NOT move the count.
+      // Accounting is a live tool a church uses today: the ledger, the receipt
+      // statuses and the numbered PDF audit trail all ship. Dropping it to hide
+      // one untested integration on it would understate the product, which is
+      // the error the note above this array warns against in the other
+      // direction.
+      QUICKBOOKS_MARKETING_ENABLED
+        ? item('calculator', 'Accounting + QuickBooks', 'Accounting tools with QuickBooks sync to keep the books clean.')
+        : item('calculator', 'Accounting', 'A ledger of every receipt Harvest issues, each with its own numbered PDF.'),
       item('receipt-text', 'Tax Receipts & Statements', 'Automatic tax receipts and annual giving statements.'),
       ...(AFFILIATE_PROGRAM_ENABLED ? [item('share-2', 'Affiliate Program', 'Earn 30% recurring commission for 12 months on every ministry you refer.')] : []),
     ],

@@ -156,7 +156,7 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
   it('🔴 the figure is 28, and is still DERIVED rather than written down', () => {
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(29);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -165,11 +165,13 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
   it('🔴 adding this row is exactly what moved it, by exactly one', () => {
     /* The delta, asserted as a delta — so a future ticket that adds a second
        tool in the same commit cannot hide inside this one's expected move.
-       🔵 The absolute was 27 → 28; THE-314 turned SMS back on and it is 28 → 29.
-       The DELTA is what this test is about and it has not moved. */
+       🔵 The absolute was 27 → 28; THE-314 turned SMS back on and made it
+       28 → 29; THE-335 hid SMS again and both newsletter tools with it, so it is
+       25 → 26. The DELTA is what this test is about and it has not moved
+       through any of them. */
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== SHARE_TITLE).length, 0);
-    expect(without).toBe(28);
+    expect(without).toBe(25);
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
   });
 
@@ -213,13 +215,22 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
     // figure there too. The count is pinned alongside the value for the reason
     // the note above gives: a suite that quietly DROPS its assertion has to fail
     // as loudly as one that leaves it stale.
-    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(17);
+    // 🔵 EIGHTEEN SINCE THE-335, which added a suite of its own that pins the
+    // figure — the count moves with the number of FILES that pin it, and a file
+    // that quietly drops its assertion still fails here.
+    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(18);
     for (const [f, body] of pinning) {
-      expect(body, `${f} still pins the old count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+      // 🔴 THE-335 — the figure is 26. SMS went back behind its flag (−1) and
+      // both newsletter tools went behind theirs (−2). Every stale value this
+      // guard has ever had is named individually rather than as a range, so a
+      // file left at any previous count fails and says which count it kept.
+      expect(body, `${f} still pins the pre-THE-306 count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
       expect(body, `${f} still pins the pre-THE-314 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
+      expect(body, `${f} still pins the pre-THE-335 count`)
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       expect(body, `${f} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
     }
 
     /* The two flag suites assert a PAIR rather than the constant, so the scan
@@ -227,11 +238,12 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
        one is still measured, and both halves had to move together. */
     const flags = src('../lib/flags.test.ts');
     // ⚠️ The two halves swapped which one is the SHIPPED figure when THE-314
-    // turned SMS back on: `OFF` is a synthetic all-flags-false state, so the
-    // live product is now the SMS-on side at 29. The numbers are unchanged.
-    expect(flags).toContain("expect(off.toolCount, 'the count with SMS withheld').toBe(28)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the shipped count, with SMS live').toBe(29)");
-    expect(flags).not.toMatch(/toolCount(?:, '[^']*')?\)\.toBe\(27\)/);
+    // turned SMS back on, and swapped BACK at THE-335: `OFF` is a synthetic
+    // all-flags-false state that now coincides with the live product at 26.
+    // The DELTA of one is what the pair measures and it has never moved.
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(27)");
+    expect(flags).not.toMatch(/toolCount(?:, '[^']*')?\)\.toBe\(2[89]\)/);
   });
 });
 

@@ -13,7 +13,10 @@ import { Replaces } from './Replaces';
 import { CATEGORIES } from '../content/features';
 import { FAQS } from '../content/faq';
 import { LEGAL_DOCS } from '../content/legal';
-import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED,
+  QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 /* THE-163 — two claims in the plan comparison grid, and everything the change
  * had to leave alone.
@@ -144,14 +147,19 @@ describe('CRM on the cheapest plan', () => {
     for (const name of ['Small Team', 'Ministry']) {
       expect(claim(CRM_ROW, name), `${name} lost CRM`).toBe('included');
     }
-    // 🔴 ON ALL FOUR TIERS, BUT NOT IDENTICALLY (THE-205). Free carries
-    // `crm: true` in the app's matrix — that is the whole point of the tier, an
-    // evangelist has to be able to see who enrolled — AND `fundraising: false`,
-    // so it has no donate page and no donor record can exist in it. The row
-    // LABEL is shared by four columns and keeps the priced tiers' wording;
-    // free's CELL is what says members only.
+    // 🔴 THREE TIERS NOW, NOT FOUR — THE-335. Free read 'Members only' while it
+    // carried `crm: true`; the founder moved it off CRM and onto Signups, so
+    // free's cell is `excluded` and the row is a priced-tier row. The three
+    // priced columns are untouched, which is what makes this a change to free
+    // alone.
     expect(rows.find((r) => r.label === CRM_ROW)!.cells)
-      .toEqual(['Members only', 'included', 'included', 'included']);
+      .toEqual(['excluded', 'included', 'included', 'included']);
+
+    // 🔴 AND THE ROW FREE *IS* TRUE ON. Asserting only the loss would let the
+    // swap look like a pure withdrawal; free gained the screen that carries the
+    // enrolment list, the contact records, the CSV export and the analytics.
+    expect(rows.find((r) => r.label === 'Signups & Evangelism Analytics')!.cells)
+      .toEqual(['included', 'included', 'included', 'included']);
   });
 });
 
@@ -254,7 +262,7 @@ describe('the catalogue is a different object from the grid', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(29);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -387,11 +395,16 @@ describe('the Forever Free column claims exactly what the tier has', () => {
     expect(claim('Admin accounts', FREE_COL)).toBe('1');
   });
 
-  it('claims the installable app, and a MEMBERS-ONLY CRM, which free genuinely has', () => {
-    // 🔴 WAS 'included' (THE-205). Free has the CRM and does not have donors —
-    // `crm: true`, `fundraising: false` — so a plain tick under a row headed
-    // "CRM (Donors & Members)" made the row label's full claim on its behalf.
-    expect(claim('CRM (Donors & Members)', FREE_COL)).toBe('Members only');
+  it('claims the installable app and SIGNUPS, and NO CRM at all', () => {
+    // 🔴 WAS 'Members only' (THE-205), and before that a plain 'included'. THE-335
+    // is the founder's split — "The free plan should have signup feature not CRM
+    // since we separated them" — so the app's `crm` cell is false on free and
+    // this cell has to say `excluded` rather than a smaller true claim.
+    expect(claim('CRM (Donors & Members)', FREE_COL)).toBe('excluded');
+    // 🔴 WHAT FREE GAINED, and the reason the swap loses nothing an evangelist
+    // needs: the Signups screen is where the enrolment list, the contact
+    // records, the CSV export and the analytics all live.
+    expect(claim('Signups & Evangelism Analytics', FREE_COL)).toBe('included');
     expect(claim('Mobile App (PWA)', FREE_COL)).toBe('included');
   });
 
@@ -416,7 +429,13 @@ describe('the Forever Free column claims exactly what the tier has', () => {
 
   it('claims NO blog, newsletter, SMS, livestream, check-in, groups or accounting', () => {
     for (const row of [
-      'Blog', 'Automated SEO Blog Articles', 'Newsletter', 'Automated Newsletter',
+      'Blog', 'Automated SEO Blog Articles',
+      // 🔴 THE-335 — the two newsletter rows moved behind
+      // NEWSLETTER_MARKETING_ENABLED, so with the flag off there is no row to
+      // read. Guarded rather than deleted, exactly as the SMS and Custom Domain
+      // rows are: free never claimed a newsletter, and when the flag comes back
+      // the rows it must not claim come back with it.
+      ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter', 'Automated Newsletter'] : []),
       // THE-250 / THE-314 — see the note on the priced-tier assertion below.
       // The row is back and renamed; free still claims none of it.
       ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
@@ -428,7 +447,10 @@ describe('the Forever Free column claims exactly what the tier has', () => {
       // SMS row above: free never claimed a custom domain, and when the flag
       // comes back the row it must not claim comes back with it.
       ...(CUSTOM_DOMAIN_MARKETING_ENABLED ? ['Custom Domain'] : []),
-      'Custom Forms \u2192 CRM', 'Accounting + QuickBooks Sync',
+      'Custom Forms \u2192 CRM', 
+      // 🔴 THE-335 — the row is REWORDED, not removed: accounting ships on
+      // Ministry and free claims none of it under either label.
+      QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks Sync' : 'Accounting & Receipt Ledger',
       'Tax Receipts & Giving Statements', 'Sermon Notes \u2192 Livestream',
     ]) {
       expect(claim(row, FREE_COL), `free claims ${row}, which it does not have`).toBe('excluded');
