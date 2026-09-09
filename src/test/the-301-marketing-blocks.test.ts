@@ -270,7 +270,7 @@ describe('5 — the nine plan prices are unchanged and the contract still bites'
   const NINE: Readonly<Record<string, Record<string, number>>> = {
     plus: { monthly: 20, quarterly: 54, yearly: 190 },
     pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 80, quarterly: 216, yearly: 760 },
+    max: { monthly: 60, quarterly: 162, yearly: 564 },
   };
 
   it('all nine are exactly what they were', () => {
@@ -344,8 +344,21 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
        accounting line and row were REWORDED off QuickBooks behind
        QUICKBOOKS_MARKETING_ENABLED, and the free card swapped its CRM line for
        Signups while the comparison grid gained a Signups row. The previous hash
-       was 1d0b9ba8…. */
-    'src/components/Pricing.tsx': '8573a448ab8e1ef682b82fbffb6b2fdef91daa2bc8a09e4673de466edbad6190',
+       was 1d0b9ba8….
+
+       🔴 REPINNED AGAIN AT THE-343, AND THIS TIME A PRICE DID MOVE — the first
+       time that sentence cannot be written here. Ministry went $80 → $60
+       monthly, $216 → $162 quarterly and $760 → $564 annually, in this file's
+       `plans` AND in its transcribed `EXPECTED_PLAN_PRICES`, because the
+       founder cut the tier after this week's feature removals.
+       `planPriceContract` still throws at module scope if those two halves — or
+       this repo and the app — disagree on any of the nine, so a HALF-DONE
+       reprice would have failed the prerender rather than reached this hash.
+       Also in this pin: the RECOMMENDED and FOR EVANGELISTS pills were
+       extracted into one shared `CardEyebrow`, and Ministry gained an EARLY
+       BIRD eyebrow through that same component. No add-on, cell, comparison
+       row or feature line moved. The previous hash was 8573a448…. */
+    'src/components/Pricing.tsx': 'a4e92aaa83ed9097e503e5b8522e9ec58c9ae32bda9645902ad6b06df5bbf471',
     // 7 — the CLI did not overwrite button or card. It writes theme-scoped ui
     // components (`mist-card` → src/components/ui/card.tsx) for any block that
     // pulls one, which is why both adopted blocks were chosen from the 28 in
@@ -390,11 +403,19 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
            feature was hidden, and this one does, in both directions.
          · Both also gained the service-planning entry in the Events &
            Livestream row, which THE-257's own coverage guard demanded the moment
-           the feature went live. Neither guard's THRESHOLD moved. */
+           the feature went live. Neither guard's THRESHOLD moved.
+
+       🔵 BOTH REPINNED AGAIN AT THE-343, and again NEITHER THRESHOLD MOVED.
+       Each asserts the #replaces bottom line reads the Ministry ANNUAL
+       monthly-equivalent, and each spells that figure so the assertion is
+       readable in review; the reprice took it from $63.34 to $47, so the
+       expected string moved with the price it is derived from. The mutation
+       half of each — that a HARDCODED figure in the component would fail —
+       is untouched and still runs. Previous hashes: 73da48b8… and 76f48c05…. */
     'src/components/the-257-competitor-table-retired.test.ts':
-      '73da48b82991313c14c34b4aee2c9939314129e14bf7e043f7ea0220a047a569',
+      '45ddb916ef88d870e4312656c5465d385fa6c63ffb15e1f91e96c1dc50b1e455',
     'src/components/the-258-platform-brand-complete.test.ts':
-      '76f48c05b5961c6c391a1283c0d7695d734b6d03498d565432d85b80dd7c9854',
+      '2aad68fa0bc6c19029bb8a1fa229be289e163cd6ca2498763c4d3961feba60da',
   };
 
   for (const [file, hash] of Object.entries(PINNED)) {

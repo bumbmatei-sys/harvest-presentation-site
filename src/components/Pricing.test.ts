@@ -65,7 +65,7 @@ describe('plan ids', () => {
 const DODO_CATALOGUE_USD: Record<string, Record<BillingTerm, number>> = {
   plus: { monthly: 20, quarterly: 54, yearly: 190 },
   pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 80, quarterly: 216, yearly: 760 },
+  max: { monthly: 60, quarterly: 162, yearly: 564 },
 };
 
 describe('the nine plan prices match the Dodo catalogue exactly', () => {
@@ -116,11 +116,12 @@ describe('the discount badges read 10% and 20% and are not computed from the pri
     // computed badge for DIFFERENT reasons — which is why neither one alone
     // would have justified the decision.
     //
-    // ⚠️ THE-248 INVERTED WHICH TERM FAILS WHICH WAY. The old argument was
-    // "quarterly disagrees across tiers, yearly agrees but drifts". The spread
-    // is gone — every tier now saves the same on both terms — so the first half
-    // of that argument no longer holds, and it is restated here rather than
-    // quietly left standing on a premise the prices retired.
+    // ⚠️ THE-248 INVERTED WHICH TERM FAILS WHICH WAY; THE-343 GAVE THE YEARLY
+    // TERM BOTH FAILURES AT ONCE. THE-248's flat columns removed the original
+    // "quarterly disagrees across tiers" half. THE-343 repriced Ministry ALONE,
+    // which puts a spread back — on YEARLY this time — so a computed yearly
+    // badge is now wrong in two independent ways simultaneously: it disagrees
+    // with the stored 20, AND it disagrees with itself across the three cards.
 
     // 1. QUARTERLY: computing AGREES with the stored number, exactly. All three
     //    tiers save 10.0%, and 10 is what the toggle advertises. 🔴 THAT
@@ -139,8 +140,13 @@ describe('the discount badges read 10% and 20% and are not computed from the pri
     //    beside a page that says 20 in the Terms, in the FAQ and in the app. A
     //    percentage nobody chose is not more honest for being derived; it is a
     //    number every other surface would then have to chase.
+    // 🔴 AND SINCE THE-343 THEY DO NOT EVEN AGREE WITH EACH OTHER: Individual
+    //    and Small Team round to 21, Ministry to 22. A computed badge above a
+    //    toggle that governs all three cards would have to pick one of two
+    //    numbers, neither of which is the 20 every other surface states.
     const yearlyRounded = plans.map((p) => Math.round(actualSavingPct(p, 'yearly')));
-    expect(new Set(yearlyRounded)).toEqual(new Set([21]));
+    expect(new Set(yearlyRounded)).toEqual(new Set([21, 22]));
+    expect(new Set(yearlyRounded).size).toBeGreaterThan(1);
     expect(new Set(yearlyRounded)).not.toEqual(new Set([ADVERTISED_DISCOUNT_PCT.yearly]));
     expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeGreaterThan(20);
     expect(discountClaimShape('yearly')).toBe('flat');
@@ -198,15 +204,17 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
     expect(discountClaim('quarterly')).not.toContain('up to');
   });
 
-  it('yearly may be claimed flat — every tier saves 20.83% against an advertised 20%', () => {
-    // Yearly clears with room, on all three tiers alike: $190 against $240,
-    // $380 against $480, $760 against $960 are each 20.8333%. So yearly is NOT
-    // the term a future reprice breaks first — quarterly, sitting on equality,
-    // is. The founder's number is the round 20; the prices deliver more, which
-    // is the direction a claim is allowed to be wrong in.
+  it('yearly may be claimed flat — the WORST tier saves 20.83% against an advertised 20%', () => {
+    // Yearly clears with room, but NO LONGER BY THE SAME MARGIN ON EACH TIER:
+    // $190 against $240 and $380 against $480 are 20.8333%, while THE-343 made
+    // Ministry $564 against $720, which is 21.6667%. The claim is bounded by
+    // the WORST tier, so 20.83 is what keeps it flat — a tier saving MORE
+    // cannot weaken a 20% claim. Yearly is still not the term a future reprice
+    // breaks first; quarterly, sitting on equality, is.
     expect(worst('yearly')).toBeGreaterThan(20);
     expect(worst('yearly')).toBeCloseTo(20.8333, 3);
-    expect(best('yearly')).toBeCloseTo(worst('yearly'), 9);
+    expect(best('yearly')).toBeCloseTo(21.6667, 3);
+    expect(best('yearly')).toBeGreaterThan(worst('yearly'));
     expect(discountClaimShape('yearly')).toBe('flat');
     expect(discountClaim('yearly')).toBe('Save 20%');
     expect(discountClaim('yearly')).not.toContain('up to');

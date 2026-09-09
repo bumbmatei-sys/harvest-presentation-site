@@ -72,7 +72,12 @@ describe('THE-197 — the blog post no longer contradicts PLAN_PRICING', () => {
     // assertion is `toBe` on the derived figure and a `toContain` on the
     // sentence, not a scan for retired numbers: only the derivation catches a
     // stale figure that is too LOW.
-    expect(perMonth(ministry.price.yearly)).toBe(63.34);
+    // 🔴 THE-343 MADE THIS THE ONE YEARLY CELL THAT DIVIDES EXACTLY. $564/12 is
+    // $47 on the nose, so the ceiling is a no-op here and `toFixed(2)` renders
+    // it "47.00" in the sentence below. The DERIVATION is what this asserts,
+    // not the figure: a stale sentence that is too LOW is the failure mode only
+    // a derivation catches, and Ministry's year fell $196 at this reprice.
+    expect(perMonth(ministry.price.yearly)).toBe(47);
     expect(blogPost).toContain(
       `Harvest's Ministry plan is $${perMonth(ministry.price.yearly).toFixed(2)}/month billed annually`,
     );
@@ -234,7 +239,7 @@ describe('THE-197 — no price data changed', () => {
     expect(plans.map((p) => ({ planId: p.planId, price: p.price, fee: p.fee }))).toEqual([
       { planId: 'plus', price: { monthly: 20, quarterly: 54, yearly: 190 }, fee: 0 },
       { planId: 'pro', price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0 },
-      { planId: 'max', price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0 },
+      { planId: 'max', price: { monthly: 60, quarterly: 162, yearly: 564 }, fee: 0 },
     ]);
   });
 
@@ -279,7 +284,7 @@ describe('THE-197 — no price data changed', () => {
       planPriceContract(plans, {
         plus: { monthly: 20, quarterly: 54, yearly: 190 },
         pro: { monthly: 40, quarterly: 108, yearly: 380 },
-        max: { monthly: 80, quarterly: 216, yearly: 761 },
+        max: { monthly: 60, quarterly: 162, yearly: 565 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();

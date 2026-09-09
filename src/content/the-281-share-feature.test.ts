@@ -202,7 +202,7 @@ describe('13 — the nine plan prices are unchanged and the contract still throw
   const APP_PRICING = {
     plus: { monthly: 20, quarterly: 54, yearly: 190 },
     pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 80, quarterly: 216, yearly: 760 },
+    max: { monthly: 60, quarterly: 162, yearly: 564 },
   } as const;
 
   it('all nine are exactly what the app publishes', () => {
@@ -236,7 +236,7 @@ describe('13 — the nine plan prices are unchanged and the contract still throw
       fileURLToPath(new URL('../components/Pricing.tsx', import.meta.url)), 'utf8');
     expect(src).toContain("plus: { monthly: 20, quarterly: 54,  yearly: 190 }");
     expect(src).toContain("pro:  { monthly: 40, quarterly: 108, yearly: 380 }");
-    expect(src).toContain("max:  { monthly: 80, quarterly: 216, yearly: 760 }");
+    expect(src).toContain("max:  { monthly: 60, quarterly: 162, yearly: 564 }");
   });
 });
 

@@ -240,7 +240,7 @@ describe('what THE-258 did not touch', () => {
 
     // 🔴 ADDING FEATURES DOES NOT TOUCH PRICE. The figure, the wording and the
     // absence of any yearly total are all exactly as THE-257 left them.
-    expect(monthly).toBe('$63.34');
+    expect(monthly).toBe('$47');
     expect(SECTION).toContain(`Everything above, on the ${topPlan.name} plan — ${monthly}/mo, billed annually.`);
     expect(SECTION).not.toMatch(/\/yr\b/);
     expect(SECTION).not.toContain(`$${topPlan.price.yearly}`);
@@ -248,7 +248,7 @@ describe('what THE-258 did not touch', () => {
     // Still exactly one figure in the section, and still that one.
     expect([...SECTION.matchAll(/\$[0-9][0-9,]*(?:\.[0-9]{2})?/g)].map((m) => m[0])).toEqual([monthly]);
 
-    /* 🔴 THE MUTATION. `$63.34` being present proves nothing on its own — a
+    /* 🔴 THE MUTATION. `$47` being present proves nothing on its own — a
        hardcoded literal prints it too. So move the Ministry yearly price and
        re-import: the rendered figure has to move with it. The mock spreads the
        real module and replaces only `plans`, leaving Pricing.tsx's own
@@ -270,7 +270,7 @@ describe('what THE-258 did not touch', () => {
 
       expect(expected).toBe('$83.34');            // $1,000 / 12, ceiled at the cent
       expect(movedText).toContain(`${expected}/mo, billed annually.`);
-      expect(movedText).not.toContain('$63.34');  // the live figure did not survive the move
+      expect(movedText).not.toContain('$47');  // the live figure did not survive the move
       // The five-item row is still five items under the moved price — the two
       // changes are independent, which is the point of doing both here.
       expect(movedText).toContain(BRANDING_CAPTION);

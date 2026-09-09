@@ -740,8 +740,18 @@ describe('what the analytics disclosure must not have touched', () => {
     // because branding does ship, no other clause was reworded, no price was
     // touched, and every other paragraph is byte-identical. The REFUND hash
     // below is unchanged for the third time, which is the same control holding.
+    //
+    // 🔴 REPINNED AT THE-343, AND THIS TIME A PRICE IS EXACTLY WHAT MOVED. The
+    // Terms quote the plan prices in writing, so Ministry going $80 → $60
+    // ($216 → $162 quarterly, $760 → $564 annually) necessarily changes this
+    // digest. Nothing else in the document was touched: the prices reach the
+    // rendered text through `TIER_PRICE_CLAIMS`, which `tierPriceMismatches`
+    // checks against the cards at module scope, so a one-sided edit stops the
+    // prerender rather than reaching this hash. The REFUND hash is unchanged
+    // again, which is the control that says the edit was confined to the Terms.
+    //   Previous pin: 04a5b733fc639b9ca695374cd836ff9810c047205acbf0b9863e5937f6f44f61 (pre-THE-343)
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('04a5b733fc639b9ca695374cd836ff9810c047205acbf0b9863e5937f6f44f61');
+      .toBe('ddf58b1e891c065955dc063e86658ed24c5a6c0954b4a974ebd831c7da573259');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
   });
@@ -757,7 +767,9 @@ describe('what the analytics disclosure must not have touched', () => {
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
-      'max:80/216/760',
+      // ⚠️ Moved by THE-343. plus and pro are enumerated beside it so a reprice
+      // that reached past Ministry still fails here.
+      'max:60/162/564',
     ]);
   });
 });
@@ -926,7 +938,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // recorded in full on the THE-198 block above. Kept in step deliberately:
     // the two sites pin the same document and must not disagree about it.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('04a5b733fc639b9ca695374cd836ff9810c047205acbf0b9863e5937f6f44f61');
+      .toBe('ddf58b1e891c065955dc063e86658ed24c5a6c0954b4a974ebd831c7da573259');
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
     // And neither was restated as revised.
@@ -973,7 +985,9 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
-      'max:80/216/760',
+      // ⚠️ Moved by THE-343. plus and pro are enumerated beside it so a reprice
+      // that reached past Ministry still fails here.
+      'max:60/162/564',
     ]);
   });
 
