@@ -68,7 +68,7 @@ const toggleMarkup = (value: BillingTerm = 'yearly') =>
 const LIVE_DODO_USD: Record<string, Record<BillingTerm, number>> = {
   plus: { monthly: 20, quarterly: 54, yearly: 190 },
   pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 80, quarterly: 216, yearly: 760 },
+  max: { monthly: 60, quarterly: 162, yearly: 564 },
 };
 
 /* ── 1 ─────────────────────────────────────────────────────────────────────── */
@@ -90,7 +90,7 @@ describe('the nine plan prices match the new table exactly', () => {
   });
 
   it('🔴 the MONTHLY column did not move — $20 / $40 / $80', () => {
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
+    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 60]);
   });
 
   it('every discounted price went UP, which is what a smaller discount means', () => {
@@ -99,10 +99,19 @@ describe('the nine plan prices match the new table exactly', () => {
       pro: { quarterly: 99, yearly: 329 },
       max: { quarterly: 199, yearly: 659 },
     };
-    for (const p of plans) {
+    // ⚠️ SCOPED TO THE TWO TIERS THE-248 STILL OWNS. THE-343 took Ministry the
+    // other way deliberately — $60 is a price CUT — so its quarter and year now
+    // sit BELOW THE-248's predecessors. Asserting a rise there would be
+    // asserting that the later ticket did not happen.
+    for (const p of plans.filter((pl) => pl.planId !== 'max')) {
       for (const term of DISCOUNTED_TERMS) {
         expect(p.price[term], `${p.name} ${term} did not rise`).toBeGreaterThan(BEFORE[p.planId][term]);
       }
+    }
+    const ministry = plans.find((pl) => pl.planId === 'max')!;
+    for (const term of DISCOUNTED_TERMS) {
+      expect(ministry.price[term], `Ministry ${term} did not fall`)
+        .toBeLessThan(BEFORE.max[term]);
     }
   });
 
@@ -244,7 +253,8 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
   it('the smallest savings are exactly 10.0% quarterly and 20.83% yearly, on every tier', () => {
     for (const p of plans) {
       expect(actualSavingPct(p, 'quarterly'), `${p.name} quarterly`).toBe(10);
-      expect(actualSavingPct(p, 'yearly'), `${p.name} yearly`).toBeCloseTo(20.8333, 3);
+      expect(actualSavingPct(p, 'yearly'), `${p.name} yearly`)
+        .toBeCloseTo(p.planId === 'max' ? 21.6667 : 20.8333, 3);
     }
     expect(Math.min(...plans.map((p) => actualSavingPct(p, 'quarterly')))).toBe(10);
     expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(20.8333, 3);
@@ -282,8 +292,13 @@ describe('a saving exactly equal to the claim passes the percentage guard', () =
     expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 20 })).not.toThrow();
     expect(() => discountClaimContract(plans, { quarterly: 11, yearly: 20 }))
       .toThrow(/quarterly advertises 11%/);
-    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 21 }))
-      .toThrow(/yearly advertises 21%/);
+    // ⚠️ 21 NO LONGER CLEARS THE BEST TIER. THE-343 took Ministry's year to
+    // 21.67%, so 21 is a claim the best tier honours and the guard must NOT
+    // throw on it — the threshold moved with the prices, which is the guard
+    // deriving rather than remembering. 22 is the first figure no tier reaches.
+    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 21 })).not.toThrow();
+    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 22 }))
+      .toThrow(/yearly advertises 22%/);
     // And for what the site actually advertises, at module scope and here.
     expect(() => discountClaimContract(plans)).not.toThrow();
   });
@@ -329,8 +344,10 @@ describe("no term's price is a whole number of months at the monthly rate", () =
     expect(inMonths('plus', 'yearly')).toBe(9.5);      // 190 / 20
     expect(inMonths('pro', 'quarterly')).toBe(2.7);    // 108 / 40
     expect(inMonths('pro', 'yearly')).toBe(9.5);       // 380 / 40
-    expect(inMonths('max', 'quarterly')).toBe(2.7);    // 216 / 80
-    expect(inMonths('max', 'yearly')).toBe(9.5);       // 760 / 80
+    expect(inMonths('max', 'quarterly')).toBe(2.7);    // 162 / 60
+    // ⚠️ 9.4, not 9.5 — THE-343 repriced Ministry alone, so the yearly column
+    // no longer lands on one multiple. Still not an integer, which is the rule.
+    expect(inMonths('max', 'yearly')).toBe(9.4);       // 564 / 60
   });
 });
 

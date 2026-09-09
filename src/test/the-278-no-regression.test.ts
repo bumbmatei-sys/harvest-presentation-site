@@ -411,9 +411,51 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'c85289d0c324e911ca2b6bb353cb01e7bf1ad51bf640f7f44dd689afbf0f7829',
   };
 
+  /**
+   * 🔴 THE-343 — THE MINISTRY REPRICE. Five pages, and every one of them moved
+   * for the SAME reason: Ministry costs $60/$162/$564 where it cost
+   * $80/$216/$760, and its per-month annual equivalent is $47 where it was
+   * $63.34. Named rather than counted, because "five pages moved" is a number
+   * and "these five render a Ministry price" is a claim:
+   *
+   *   pricing        the three cards and the comparison table
+   *   index          the #replaces band, which quotes the Ministry annual
+   *                  monthly-equivalent, and the pricing section it shares
+   *   terms          TIER_PRICE_CLAIMS, quoted in writing in §Fees
+   *   faq            FAQ_PLAN_CLAIMS, in the prose AND in the FAQPage JSON-LD
+   *   blog/planning-center-alternative-small-churches
+   *                  the comparison table's two Harvest rows and the
+   *                  "$47.00/month billed annually" sentence
+   *
+   * ⚠️ ALSO ON `pricing` AND `index`: Ministry's new EARLY BIRD eyebrow, and
+   * the RECOMMENDED / FOR EVANGELISTS pills moving to one shared `CardEyebrow`.
+   * The filled pill's BORDER-BOX IS UNCHANGED by that move — 4px/10px with no
+   * border became 3px/9px plus a 1px transparent border — so the only visible
+   * addition is the second pill on the Ministry card.
+   *
+   * 🔴 SEVENTEEN OF THE TWENTY-TWO ARE BYTE-IDENTICAL, which is the real
+   * assertion: `refunds`, `contact`, `privacy`, every `features/*` page, the
+   * blog index, the three category pages and the other two posts render no plan
+   * price, and a reprice that reached any of them would be a price leaking onto
+   * a surface nobody chose.
+   */
+  const THE_343_MOVED: Readonly<Record<string, string>> = {
+    'blog/planning-center-alternative-small-churches/index.html':
+      'b19a1596027d1435225d3c1963f8d469786db5a61a4cadea7142ddac3423f012',
+    'faq/index.html':
+      '5e29823e161afad5c21720238def63c2836ef968514cc69744b2d1aebca31d58',
+    'index.html':
+      'c5c7d77bb13577523cc1f457bc290aed30ce93ee67d9ca9bcc2c8d23d9bd4061',
+    'pricing/index.html':
+      'ecd42363c6afbba78e49c3b0411a1e255ae896dc7053c5ad2b925420651103eb',
+    'terms/index.html':
+      'afc4c5cf3d5a998a8273df274961eb4a4e265033bb0b64effed973a84af8028e',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
+    ...THE_343_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -433,7 +475,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  Retaken again at THE-335 from the same build as THE_335_MOVED; the previous
    *  value was f4bead896c16822fac0b6d3a493a2ac98277c1358b80316e39f1cad3ed793692.
    *  🔴 THE PAGE COUNT IS STILL 22 — THE-335 adds and removes no route. */
-  const BASELINE_ALL = 'c488c1c4d831ba263dac07d7fe045e60dae1a081882f7a95004c9573c1e2a067';
+  const BASELINE_ALL = '7f97c8d6345bb20409439f54e26e9ec94c878316ad26f42886813e9126af5ff1';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -474,11 +516,18 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        excluded as THE-301's, THE-306's or THE-280's own.
        ⚠️ AND THE_335_MOVED JOINS IT ON THE SAME TERMS AGAIN. Ten becomes nine:
        nine of its ten pages were already excluded by one of the tables above,
-       and the tenth is `faq`, which no earlier ticket had moved. */
+       and the tenth is `faq`, which no earlier ticket had moved.
+       ⚠️ AND THE_343_MOVED JOINS IT ON IDENTICAL TERMS. Nine becomes EIGHT:
+       four of its five pages — `index`, `pricing`, `faq` and `terms` — were
+       already excluded by a table above, and the fifth is the Planning Center
+       blog post, which no earlier ticket had moved. It is still asserted byte
+       for byte against THE_343_MOVED by the per-page loop below; nothing leaves
+       the assertion, only this "still at THE-278's original value" subset. */
     const untouched = Object.keys(PRE_TAILWIND)
       .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED) && !(p in THE_301_MOVED)
-        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
-    expect(untouched).toHaveLength(9);
+        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
+        && !(p in THE_343_MOVED));
+    expect(untouched).toHaveLength(8);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
         .toBe(PRE_TAILWIND[page]);
@@ -534,11 +583,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        same terms and asserted in THE-306's, so eighteen becomes fifteen. */
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED) && !(p in THE_301_MOVED)
-        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
+        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
+        && !(p in THE_343_MOVED));
     // 🔵 Fifteen until THE-314 took three more out of the list, on the same
     // terms: they are asserted against THE_314_MOVED, not dropped. Five of its
     // eight were already excluded as THE-301's or THE-306's.
-    expect(others).toHaveLength(11);
+    // 🔵 Nine since THE-343 excluded the Planning Center blog post, on the same
+    // terms again — its other four pages were already excluded above.
+    expect(others).toHaveLength(9);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
         .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -584,10 +636,11 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(Object.keys(BASELINE)).toHaveLength(22);
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED)
-        && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
+        && !(p in THE_314_MOVED) && !(p in THE_335_MOVED) && !(p in THE_343_MOVED));
     // 🔵 Twenty until THE-301 took two out of the list, THE-306 three more and
     // THE-314 four more (four of its eight were already excluded).
-    expect(others).toHaveLength(11);
+    // 🔵 Nine since THE-343 excluded the Planning Center blog post.
+    expect(others).toHaveLength(9);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
         .toBe(THE_335_MOVED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -617,15 +670,19 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        assertion that says the two blocks are confined to the two pages that
        render them: nothing they touch is shared, so nothing else may move. */
     const others = Object.keys(BASELINE)
-      .filter((p) => !(p in THE_301_MOVED) && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
+      .filter((p) => !(p in THE_301_MOVED) && !(p in THE_306_MOVED) && !(p in THE_314_MOVED)
+        && !(p in THE_335_MOVED) && !(p in THE_343_MOVED));
     // 🔵 Eleven since THE-314 moved eight of the twenty-two; the claim is
     // unchanged — everything outside the named tables is still at its recorded
     // value.
-    expect(others).toHaveLength(12);
+    // 🔵 Ten since THE-343 excluded the Planning Center blog post on the same
+    // terms — the other four pages it moved were already excluded above.
+    expect(others).toHaveLength(10);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-301 had no business moving it`)
-        .toBe(THE_335_MOVED[page] ?? THE_293_MOVED[page] ?? THE_284_ADDED[page]
-          ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? THE_293_MOVED[page]
+          ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
+          ?? PRE_TAILWIND[page]);
     }
 
     // Nothing added, nothing dropped: still the same 22 keys.
@@ -677,12 +734,15 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        that reached past the one new key, or a `FeatureBlock` change made to
        accommodate it, would move all five and could not pass this. */
     const untouched = Object.keys(BASELINE)
-      .filter((p) => !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
+      .filter((p) => !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
+        && !(p in THE_343_MOVED));
     // 🔵 Twelve since THE-335 moved ten more, eight of which were already
     // outside this list. THE-306's own claim — that it moved three and no
     // others — is unchanged; the pages it must be measured against are the ones
     // no later ticket has legitimately moved since.
-    expect(untouched).toHaveLength(12);
+    // 🔵 Ten since THE-343 excluded the two pages it moved that no table above
+    // had claimed — the Planning Center blog post and `terms`.
+    expect(untouched).toHaveLength(10);
     // ⚠️ ai-automation LEFT THIS LIST AT THE-314, which restored the SMS feature
     // section that renders on it, and community-engagement left it at THE-335,
     // which added the service-planning section. Both are measured against their
@@ -855,7 +915,7 @@ describe('8 — the nine plan prices are unchanged and the contract still has te
   const NINE = {
     plus: { monthly: 20, quarterly: 54, yearly: 190 },
     pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 80, quarterly: 216, yearly: 760 },
+    max: { monthly: 60, quarterly: 162, yearly: 564 },
   } as const;
 
   it('all nine prices are exactly what the app charges', () => {

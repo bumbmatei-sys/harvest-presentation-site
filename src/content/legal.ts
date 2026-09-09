@@ -138,7 +138,7 @@ export interface TierPriceClaim {
 export const TIER_PRICE_CLAIMS: TierPriceClaim[] = [
   { planId: 'plus', name: 'Individual', monthly: 20, quarterly: 54, annual: 190 },
   { planId: 'pro', name: 'Small Team', monthly: 40, quarterly: 108, annual: 380 },
-  { planId: 'max', name: 'Ministry', monthly: 80, quarterly: 216, annual: 760 },
+  { planId: 'max', name: 'Ministry', monthly: 60, quarterly: 162, annual: 564 },
 ];
 
 /** Shape of the bits of `Plan` this check needs — passed in rather than

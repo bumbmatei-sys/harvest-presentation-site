@@ -31,6 +31,22 @@ export interface Plan {
   // two numbers for one fact is what let "keeps 100%" outlive a nonzero fee.
   fee: number;
   popular?: boolean;
+  /**
+   * 🔴 A CLAIM THE TERM LINE CANNOT MAKE (THE-343). Ministry dropped $80 → $60
+   * because this week's removals took the most from it, and the founder is
+   * holding $60 as an EARLY BIRD price that rises as features come back.
+   *
+   * ⚠️ SEPARATE FROM `popular`, DELIBERATELY. `popular` drives the dark card,
+   * the RECOMMENDED pill AND `popularIdx`'s gold column in the comparison
+   * table — one flag, three consequences, which is why #44 made the table
+   * derive from it rather than restate it. Folding an early-bird claim into
+   * that flag would tie a temporary price offer to the permanent question of
+   * which tier is recommended, and moving either would silently move the other.
+   *
+   * 🔴 A FIXED WORD, NEVER A NUMBER. See `CardEyebrow` for why this may not
+   * become a "was $80", a percentage, or a date.
+   */
+  earlyBird?: boolean;
   blurb: string;
   features: string[];
 }
@@ -82,18 +98,23 @@ export const TERM_LABEL: Readonly<Record<BillingTerm, string>> = Object.freeze({
  * misrepresentation, not a rounding preference, so the headline is CEILED — it
  * may never imply less than the bill.
  *
- * ⚠️ THOSE TWO CELLS ARE HISTORY; THE RULE IS NOT. Under THE-248's prices all
- * three quarters divide exactly ($54/3, $108/3, $216/3 → $18, $36, $72) and two
- * of the three years round up, leaving exactly ONE cell that still understates
- * under `Math.round`: Ministry yearly, $760/12 = $63.3333 → $63 → implies $756
- * against a charged $760. One is enough, and a reprice decides which — so this
- * is guarded as a rule, never as a list of offending cells.
+ * ⚠️ THOSE TWO CELLS ARE HISTORY; THE RULE IS NOT, AND THE-343 IS WHY THAT
+ * DISTINCTION EARNS ITS KEEP. All three quarters divide exactly ($54/3, $108/3,
+ * $162/3 → $18, $36, $54); two years round UP ($190/12 → $16, $380/12 → $32)
+ * and Ministry's now divides exactly ($564/12 = $47). So NO cell understates
+ * under `Math.round` any more — the one that did, Ministry's $760/12 = $63.3333
+ * → $63 → $756, was repriced away.
+ *
+ * 🔴 THAT IS NOT PERMISSION TO GO BACK TO ROUNDING. A list of offending cells
+ * would now be empty and would read as exactly that; the next reprice puts one
+ * back without touching a line here. It is guarded as a rule, never as a list.
  *
  * Ceiled at the CENT rather than the dollar. Ceiling to the dollar also never
- * understates, but it puts "$64/mo" directly above "billed as $760 every 12
- * months", and $64 x 12 is $768: the two numbers on the card would not
- * reconcile, which is the same class of defect this ticket exists to remove.
- * At the cent they reconcile to within eight cents — the rounding itself.
+ * understates, but on THE-248's prices it put "$64/mo" directly above "billed
+ * as $760 every 12 months", and $64 x 12 is $768: the two numbers on the card
+ * would not reconcile, which is the same class of defect this ticket exists to
+ * remove. At the cent they reconcile to within a few cents — the rounding
+ * itself — and on Ministry's year they now reconcile EXACTLY, $47 x 12 = $564.
  *
  * ⚠️ MUST MATCH THE APP. `plan-features.ts` in Harvest-agent carries the same
  * rule as `ceilToCent`, and `planPriceContract` below compares the two repos'
@@ -211,7 +232,7 @@ const FREE_TIER_PLAN_ID = 'free';
 export const plans: Plan[] = [
   { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
   { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
+  { name: 'Ministry',   planId: 'max',  price: { monthly: 60, quarterly: 162, yearly: 564 }, fee: 0, popular: true, earlyBird: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
@@ -331,7 +352,7 @@ export const ALL_TIER_NAMES = [FREE_TIER.name, ...plans.map((p) => p.name)];
 const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = {
   plus: { monthly: 20, quarterly: 54,  yearly: 190 },
   pro:  { monthly: 40, quarterly: 108, yearly: 380 },
-  max:  { monthly: 80, quarterly: 216, yearly: 760 },
+  max:  { monthly: 60, quarterly: 162, yearly: 564 },
 };
 
 /**
@@ -389,9 +410,9 @@ export const DISCOUNTED_TERMS = BILLING_TERMS.filter((t): t is DiscountedTerm =>
  *
  * This read `(1 - price / atMonthlyRate) * 100`. That is the same arithmetic on
  * paper and NOT the same in binary floating point, and THE-248 is the reprice
- * that walked into the difference: quarterly is now EXACTLY 10% off on all
- * three tiers — $54 against $60, $108 against $120, $216 against $240 — and the
- * old form computes that as 9.999999999999998.
+ * that walked into the difference: quarterly is EXACTLY 10% off on all three
+ * tiers — $54 against $60, $108 against $120, and since THE-343 $162 against
+ * $180 — and the old form computes that as 9.999999999999998.
  *
  *     54 / 60   →  0.9   (the nearest double to nine tenths, a hair BELOW it)
  *     1 - 0.9   →  0.09999999999999998
@@ -1306,6 +1327,72 @@ function PlanCta({ planId, billing, variant }: { planId: string; billing: Billin
   return <HBtn href={useAppSignupUrl(planId, billing)} variant={variant} block>Start free trial</HBtn>;
 }
 
+/* ─── 🔴 THE CARD EYEBROW — ONE COMPONENT, THREE CARDS (THE-343) ──────────────
+
+   The small pill at the top-right corner of a pricing card. It was written
+   TWICE, inline, with the two copies differing only in ground and text colour:
+   `PlanCard` carried a filled brand pill reading RECOMMENDED, `FreeTierCard` an
+   outlined brand pill reading FOR EVANGELISTS. THE-343 needs a THIRD — EARLY
+   BIRD on Ministry — and adding a third inline copy is how three pills drift
+   into three positions and three sizes.
+
+   🔴 SO IT IS ONE CODE PATH, NOT A COPY. Every eyebrow on every card renders
+   through this function; `variant` chooses the ground and nothing else. The
+   geometry — corner offset, radius, size, weight, tracking — is written once
+   here, so a pill cannot move on one card and stay put on another.
+
+   ⚠️ `top` IS A PROP because Ministry is the one card carrying TWO eyebrows:
+   RECOMMENDED, then EARLY BIRD stacked directly beneath it at the same right
+   edge. It is the only geometry a caller may vary, and it exists so the stack
+   is expressed as an offset from the first pill rather than as a second,
+   subtly-different absolute position.
+
+   ─── 🔴 WHAT AN EYEBROW MAY SAY ────────────────────────────────────────────
+
+   A FIXED WORD. Never a number, and this is a rule with scars behind it:
+
+     · A badge on this page once claimed "keeps 100%" against a real 2.5% fee,
+       because a human had to remember to re-word it after a change and did not.
+     · A computed discount badge was rejected outright because every tier saves
+       a different amount, so one number beside three cards is false on two.
+
+   🔴 SO: NO STRUCK-THROUGH OLD PRICE, NO PERCENTAGE, NO COUNTDOWN AND NO
+   "price rises soon" LINE. A struck $80 would be the worst of them — it claims
+   a price somebody used to pay, and NOBODY EVER PAID $80: there are no paying
+   customers on Ministry, so the strike-through would advertise a history that
+   does not exist. A percentage is a second number to maintain. A date is a
+   promise this repo has broken before, which is why `SoonItem` carries no date
+   field at all.
+
+   "EARLY BIRD" survives the next reprice untouched, and Dodo makes it TRUE:
+   changing a product's price affects new checkouts only, so a church that joins
+   at $60 keeps paying $60 until someone deliberately migrates it.             */
+type EyebrowVariant = 'filled' | 'outline';
+
+export function CardEyebrow(
+  { children, variant, top = 18 }: { children: string; variant: EyebrowVariant; top?: number },
+) {
+  const filled = variant === 'filled';
+  return (
+    <span style={{
+      position: 'absolute', top, right: 18,
+      background: filled ? 'var(--brand)' : 'transparent',
+      color: filled ? '#fff' : 'var(--brand)',
+      border: filled ? '1px solid transparent' : '1px solid var(--brand)',
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+      // 🔴 ONE GEOMETRY, AND THE FILLED PILL'S BOX DOES NOT MOVE. It was
+      // `padding: '4px 10px'` with no border; it is now 3px/9px plus a 1px
+      // TRANSPARENT border, which is the same border-box to the pixel — the
+      // transparent border exists precisely so the outlined variant's 1px does
+      // not make one pill a pixel taller than the other. No `lineHeight` is set
+      // here for the same reason: adding one would have moved both existing
+      // pills to reuse them, and reuse must not cost a redesign.
+      padding: '3px 9px', borderRadius: 999,
+      whiteSpace: 'nowrap',
+    }}>{children}</span>
+  );
+}
+
 /* One pricing card. Takes the toggle state as a prop rather than reading it,
    which is what lets the price it prints and the term its button sells be
    checked against each other on a rendered card — the pair that disagreed. The
@@ -1321,7 +1408,15 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
       borderRadius: 24, padding: 24, boxShadow: pop ? '0 30px 60px rgba(12,21,38,0.28)' : '0 12px 30px rgba(45,37,25,0.05)',
       position: 'relative',
     }}>
-      {pop && <span style={{ position: 'absolute', top: 18, right: 18, background: 'var(--brand)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 10px', borderRadius: 999 }}>RECOMMENDED</span>}
+      {pop && <CardEyebrow variant="filled">RECOMMENDED</CardEyebrow>}
+      {/* 🔴 STACKED BENEATH RECOMMENDED, NOT INSTEAD OF IT. Ministry carries
+          both today, and the two say different things: RECOMMENDED is which
+          tier we point a church at, EARLY BIRD is what this price is. `popular`
+          is untouched — it still drives the dark card and, through
+          `popularIdx`, the gold column in the comparison table. */}
+      {plan.earlyBird && (
+        <CardEyebrow variant="outline" top={pop ? 46 : 18}>EARLY BIRD</CardEyebrow>
+      )}
       <div style={{ fontSize: 13, fontWeight: 600, color: pop ? 'var(--gold-400)' : 'var(--brand)' }}>{plan.name}</div>
       {/* 🔴 THE-196 FLIPPED THIS. The headline is the PER-MONTH figure; the
           charged total is the line below. See `ceilToCent` for why the figure
@@ -1392,8 +1487,16 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
    tier in the same visual slot and make the row say two contradictory things at
    once. So free is differentiated the other way: the cream ground the section
    already sits on, a solid brand border instead of the hairline the white cards
-   carry, and a FOREVER FREE eyebrow in the brand colour where the priced cards
-   put a price term. It reads as an on-ramp, not as a recommendation.           */
+   carry, and an OUTLINED eyebrow in the brand colour where a priced card puts a
+   filled one. It reads as an on-ramp, not as a recommendation.
+
+   ⚠️ THAT EYEBROW READS "FOR EVANGELISTS", AND THIS PARAGRAPH USED TO SAY
+   "FOREVER FREE" — the tier's name, not the pill's text. Corrected at THE-343
+   rather than left standing, because a docblock that quotes a string the code
+   does not contain is the exact hazard this repo keeps being bitten by: a
+   guard grepping for the quoted text passes on the COMMENT and never reads the
+   element. The pill itself now renders through `CardEyebrow`, shared with the
+   priced cards, so its text is the only thing that varies between them.       */
 export function FreeTierCard({ tier }: { tier: FreeTier }) {
   const href = useAppSignupUrl(tier.planId);
   return (
@@ -1404,11 +1507,7 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
       borderRadius: 24, padding: 24, boxShadow: '0 12px 30px rgba(45,37,25,0.05)',
       position: 'relative',
     }}>
-      <span style={{
-        position: 'absolute', top: 18, right: 18, background: 'transparent', color: 'var(--brand)',
-        border: '1px solid var(--brand)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
-        padding: '3px 9px', borderRadius: 999,
-      }}>FOR EVANGELISTS</span>
+      <CardEyebrow variant="outline">FOR EVANGELISTS</CardEyebrow>
       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}>{tier.name}</div>
 
       {/* No "/mo". The priced cards print a per-month EQUIVALENT beside that

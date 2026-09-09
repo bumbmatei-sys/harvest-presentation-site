@@ -89,7 +89,7 @@ describe('THE-196 — the headline is the per-month figure', () => {
     expect(table).toEqual([
       ['$20', '$18', '$15.84'],
       ['$40', '$36', '$31.67'],
-      ['$80', '$72', '$63.34'],
+      ['$60', '$54', '$47'],
     ]);
   });
 
@@ -99,7 +99,7 @@ describe('THE-196 — the headline is the per-month figure', () => {
     // one; $1,329 stays as the "exact but not whole" case, which no current
     // price produces.
     expect(formatMonthlyHeadline(108, 'quarterly')).toBe('$36');      // 36.00 exactly
-    expect(formatMonthlyHeadline(216, 'quarterly')).toBe('$72');      // 72.00 exactly
+    expect(formatMonthlyHeadline(162, 'quarterly')).toBe('$54');      // 54.00 exactly
     expect(formatMonthlyHeadline(1329, 'yearly')).toBe('$110.75');    // exact, but not whole
     expect(formatMonthlyHeadline(380, 'yearly')).toBe('$31.67');      // 31.6667 ceiled
     expect(ceilToCent(36)).toBe(36);                                  // no float drift upward
@@ -183,15 +183,27 @@ describe('THE-196 — the honesty guard', () => {
     // By MUTATION of the rule, which is the thing that can regress. Checked
     // against the shipped ceiling it could never fail.
     expect(() => monthlyHeadlineContract()).not.toThrow();
-    expect(() => monthlyHeadlineContract(Math.round)).toThrow(/never promise less than the bill/);
-    // 🔴 THE-248 MOVED IT AGAIN, AND DOWN TO A SINGLE CELL. Every quarter now
-    // divides exactly ($54/3, $108/3, $216/3), so no quarterly cell can round
-    // down at all, and two of the three years round UP ($190/12 = $15.83 → $16,
-    // $380/12 = $31.67 → $32). Exactly one cell is left where the old rule
-    // lies: Ministry's YEAR — $760/12 is $63.3333, rounds to $63, implies $756
-    // against a charged $760. The guard stops at the first offender and names
-    // it, and one offender is all this mutation needs.
-    expect(() => monthlyHeadlineContract(Math.round)).toThrow(/Ministry yearly/);
+    // 🔴 THE-343 TOOK THE LAST OFFENDING CELL AWAY, so the shipped table can no
+    // longer supply this mutation's hazard. Every quarter divides exactly
+    // ($54/3, $108/3, $162/3), two years round UP ($190/12 → $16, $380/12 →
+    // $32), and Ministry's year now divides exactly ($564/12 = $47). Under the
+    // old rule NOTHING understates. Pointed at `plans` this mutation would pass
+    // while exercising nothing — so the hazardous table is written out here,
+    // and the RULE stays the subject.
+    const HAZARD: Plan[] = plans.map((p) =>
+      p.planId === 'max'
+        // 1325/12 = 110.4167 rounds DOWN to 110, implying $1,320 against a
+        // charged $1,325. The other two divide exactly, so they cannot throw
+        // first and the message can only name Ministry.
+        ? { ...p, price: { monthly: 159, quarterly: 399, yearly: 1325 } }
+        : { ...p, price: { monthly: 39, quarterly: 90, yearly: 360 } },
+    );
+    expect(() => monthlyHeadlineContract(Math.round, HAZARD))
+      .toThrow(/never promise less than the bill/);
+    expect(() => monthlyHeadlineContract(Math.round, HAZARD)).toThrow(/Ministry yearly/);
+    // `Math.floor` still understates on the SHIPPED table — $15.83 and $31.67
+    // floor to $15 and $31 — so it keeps the real prices in the mutation.
+    expect(() => monthlyHeadlineContract(Math.round, HAZARD)).toThrow(/Ministry yearly/);
     expect(() => monthlyHeadlineContract(Math.floor)).toThrow(/never promise less than the bill/);
     // Ceiling to the dollar never understates, so the guard accepts it; it is
     // the reconciliation test that rules it out.
@@ -237,7 +249,7 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
     const APP_HEADLINES: Record<string, Record<BillingTerm, string>> = {
       plus: { monthly: '$20', quarterly: '$18', yearly: '$15.84' },
       pro:  { monthly: '$40', quarterly: '$36', yearly: '$31.67' },
-      max:  { monthly: '$80', quarterly: '$72', yearly: '$63.34' },
+      max:  { monthly: '$60', quarterly: '$54', yearly: '$47' },
     };
     for (const p of plans) {
       for (const term of BILLING_TERMS) {

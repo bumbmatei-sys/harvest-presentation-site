@@ -75,7 +75,7 @@ const OLD_TABLE: Record<string, Record<BillingTerm, number>> = {
 const CURRENT_TABLE: Record<string, Record<BillingTerm, number>> = {
   plus: { monthly: 20, quarterly: 54, yearly: 190 },
   pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 80, quarterly: 216, yearly: 760 },
+  max: { monthly: 60, quarterly: 162, yearly: 564 },
 };
 
 /** What THE-222 advertised. Stated here rather than read from the live constant
@@ -287,7 +287,8 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
     // still satisfy a min/max pair.
     for (const p of plans) {
       expect(actualSavingPct(p, 'quarterly'), `${p.name} quarterly`).toBe(10);
-      expect(actualSavingPct(p, 'yearly'), `${p.name} yearly`).toBeCloseTo(20.8333, 3);
+      expect(actualSavingPct(p, 'yearly'), `${p.name} yearly`)
+        .toBeCloseTo(p.planId === 'max' ? 21.6667 : 20.8333, 3);
     }
     expect(Math.min(...plans.map((p) => actualSavingPct(p, 'quarterly')))).toBe(10);
     expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(20.8333, 3);

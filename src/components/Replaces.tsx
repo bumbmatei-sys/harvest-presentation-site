@@ -164,9 +164,11 @@ export const logoUrl = (slug: string | null, name: string) =>
  * Throwing beats a `!`, which would turn a renamed tier into a runtime crash
  * during the prerender instead of a build-time error.
  *
- * ⚠️ THE YEARLY TOTAL IS DELIBERATELY ABSENT. This line used to carry
- * "billed annually ($760/yr)" underneath the figure; the founder asked for the
- * monthly figure alone, so there is no /yr anywhere in this section. */
+ * ⚠️ THE YEARLY TOTAL IS DELIBERATELY ABSENT. This line used to carry the
+ * charged year — "billed annually ($760/yr)" at the time — underneath the
+ * figure; the founder asked for the monthly figure alone, so there is no /yr
+ * anywhere in this section. The figure itself is derived from `plans`, so
+ * THE-343's reprice moved it without an edit here. */
 const foundTopPlan = plans.find((p) => p.planId === 'max');
 if (!foundTopPlan) throw new Error("Replaces: no plan with planId 'max' to price against.");
 const topPlan = foundTopPlan;
