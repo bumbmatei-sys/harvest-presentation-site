@@ -11,7 +11,9 @@ import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
 import { Replaces } from '../components/Replaces';
 import { CATEGORIES } from './features';
 import { COMING_SOON_ITEMS } from './coming-soon';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 /**
  * THE-314 — SMS is live on the site, on ONE tier, and no carrier is named.
@@ -136,10 +138,24 @@ describe('15 — Twilio appears nowhere on the site', () => {
     const markup = render(React.createElement(Replaces));
     expect(markup, 'the integrations row still hotlinks a carrier mark')
       .not.toContain('favicons?domain=twilio.com');
-    // The two that remain are services a church genuinely does connect itself.
-    expect(markup).toContain('https://cdn.simpleicons.org/quickbooks');
-    expect(markup).toContain('https://cdn.simpleicons.org/mailchimp');
-    expect([...markup.matchAll(/<img/g)]).toHaveLength(2);
+    // 🔴 THE-335 — the two that remained are now gated too, and for a DIFFERENT
+    // reason than Twilio's removal, which is why they are gated rather than
+    // deleted: Twilio went because the RELATIONSHIP ended, while these two are
+    // intact and merely un-advertised while their features are hidden. The
+    // assertion follows the flags rather than restating a count.
+    const marks = [
+      ...(QUICKBOOKS_MARKETING_ENABLED ? ['https://cdn.simpleicons.org/quickbooks'] : []),
+      ...(NEWSLETTER_MARKETING_ENABLED ? ['https://cdn.simpleicons.org/mailchimp'] : []),
+    ];
+    for (const mark of marks) expect(markup).toContain(mark);
+    expect([...markup.matchAll(/<img/g)]).toHaveLength(marks.length);
+    // 🔴 AND THE LINE GOES WITH THE LIST. "Plus integrates with your newsletter
+    // & tools —" followed by nothing is a dangling claim that also names the
+    // newsletter this site is currently calling unbuilt.
+    if (marks.length === 0) {
+      expect(markup, 'the integrations line survived its own empty list')
+        .not.toContain('Plus integrates with your');
+    }
   });
 
   it.runIf(fs.existsSync(path.join(ROOT, 'dist')))('🔴 and no BUILT page names it', () => {
@@ -167,8 +183,19 @@ describe('16 — SMS\'s tier claim is Ministry only, and matches the app', () =>
     expect(Object.entries(APP_SMS_BY_TIER).filter(([, v]) => v).map(([k]) => k)).toEqual(['max']);
   });
 
+  /* 🔴 THE-335 — THIS WHOLE SECTION NOW GUARDS BOTH FLAG STATES, because the
+     property it is really about survives the flip: NO SURFACE MAY OUTRUN THE
+     APP. With SMS hidden the app grants it on no tier at all — the master switch
+     sits in front of the `smsAutomation` cell in every funnel — so the honest
+     claim on every surface is silence, and each assertion below reads the flag
+     rather than being deleted. Flipping SMS_MARKETING_ENABLED back on restores
+     the cell-for-cell comparison exactly as THE-314 wrote it. */
   it('🔴 the FEATURE entry\'s tiers array agrees with the app, cell for cell', () => {
     const sms = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
+    if (!SMS_MARKETING_ENABLED) {
+      expect(sms, 'the feature page sells SMS while the app refuses every tier').toBeUndefined();
+      return;
+    }
     expect(sms, 'the SMS feature entry is missing').toBeDefined();
     expect(sms!.tiers, 'the feature page claims a tier the app refuses')
       .toEqual(PRICED_ORDER.map((p) => (APP_SMS_BY_TIER[p] ? 1 : 0)));
@@ -179,6 +206,10 @@ describe('16 — SMS\'s tier claim is Ministry only, and matches the app', () =>
     // Read off the rendered grid rather than the source array: PR 55 is the
     // precedent — a pure-function test passed while the JSX seam was mutated.
     const row = html.split('<tr').find((r) => /SMS &amp; Text-to-Give|SMS & Text-to-Give/.test(r));
+    if (!SMS_MARKETING_ENABLED) {
+      expect(row, 'the comparison grid sells SMS while the app refuses every tier').toBeUndefined();
+      return;
+    }
     expect(row, 'the comparison grid has no SMS row').toBeDefined();
     const cells = row!.split('<td').slice(1);
     // label, free, then the three priced columns.
@@ -194,19 +225,27 @@ describe('16 — SMS\'s tier claim is Ministry only, and matches the app', () =>
   it('🔴 the plan CARDS agree with the app, card for card', () => {
     for (const plan of PRICED_ORDER) {
       const card = plans.find((p) => p.planId === plan)!;
+      // 🔴 With the master switch off the app grants SMS on NO tier, so every
+      // card must be silent — `APP_SMS_BY_TIER` describes the plan CELL, which
+      // the switch sits in front of.
+      const appGrantsIt = SMS_MARKETING_ENABLED && APP_SMS_BY_TIER[plan];
       expect(/\bSMS\b/i.test(card.features.join(' ')), `the ${card.name} card disagrees with the app`)
-        .toBe(APP_SMS_BY_TIER[plan]);
+        .toBe(appGrantsIt);
     }
   });
 
   it('🔴 all three surfaces say the SAME thing — no surface is left behind', () => {
     // The failure this site has been corrected for six times is one surface
     // moving without the others. Derived from each independently and compared.
-    const sms = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms')!;
-    const fromFeature = PRICED_ORDER.map((_, i) => sms.tiers![i] === 1);
+    const sms = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
+    const fromFeature = PRICED_ORDER.map((_, i) => sms?.tiers?.[i] === 1);
     const fromCards = PRICED_ORDER.map((p) =>
       /\bSMS\b/i.test(plans.find((x) => x.planId === p)!.features.join(' ')));
-    const fromApp = PRICED_ORDER.map((p) => APP_SMS_BY_TIER[p]);
+    // 🔴 THE-335 — the master switch is IN FRONT OF the cell, so with it off the
+    // app's answer for every tier is false and all three surfaces must say so.
+    // Derived from the flag here rather than from a second hardcoded array, so
+    // the comparison stays a real cross-repo check in either state.
+    const fromApp = PRICED_ORDER.map((p) => SMS_MARKETING_ENABLED && APP_SMS_BY_TIER[p]);
     expect(fromFeature).toEqual(fromApp);
     expect(fromCards).toEqual(fromApp);
   });
@@ -243,17 +282,21 @@ describe('17 — no price, date or CTA was added to a coming-soon entry', () => 
 
 /* ── 18 ────────────────────────────────────────────────────────────────────
    The tool count, and every assertion that pins it.                          */
-describe('18 — the tool count is 29, and every assertion agrees', () => {
-  it('🔴 it is 29, derived, and the SMS tool is what took it there', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(29);
+describe('18 — the tool count is 26, and every assertion agrees', () => {
+  it('🔴 it is 26, derived, and the SMS tool is what took it off there', () => {
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
-    // The delta, asserted as a delta: withhold the SMS row and the figure drops
-    // by exactly one. A coming-soon entry contributes nothing in either state.
+    // 🔴 THE-335 — THE DELTA IS NOW ZERO, AND THAT IS THE ASSERTION. The SMS
+    // tool is no longer in the live catalogue at all, so removing "the SMS row"
+    // from the tally changes nothing: the figure already excludes it. Asserted
+    // as the delta rather than rewritten away, so flipping the flag back makes
+    // this fail and demand the 1 again.
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((i) => !i.soon && !/\bSMS\b/.test(i.title)).length, 0);
-    expect(CATALOG_TOOL_COUNT - without).toBe(1);
+    expect(CATALOG_TOOL_COUNT - without, 'the SMS tool is being counted while it is hidden')
+      .toBe(SMS_MARKETING_ENABLED ? 1 : 0);
   });
 
   it('🔴 no suite still pins the old figure, and none quietly dropped its pin', () => {
@@ -261,7 +304,7 @@ describe('18 — the tool count is 29, and every assertion agrees', () => {
        the reason holds: a hand-written list is exactly what let three of these
        go stale last time. The COUNT of pinning files is pinned alongside the
        value, so a suite that DROPS its assertion fails as loudly as one that
-       leaves it at 28. */
+       leaves it at 28 or 29. */
     const walk = (d: string): string[] => fs.readdirSync(d, { withFileTypes: true })
       .flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name))
         : e.name.endsWith('.test.ts') ? [path.join(d, e.name)] : []));
@@ -269,20 +312,28 @@ describe('18 — the tool count is 29, and every assertion agrees', () => {
       .map((f) => [f, fs.readFileSync(f, 'utf8')] as const)
       .filter(([, body]) => /CATALOG_TOOL_COUNT\)\.toBe\(/.test(body));
 
-    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(17);
+    // 🔵 EIGHTEEN SINCE THE-335, which added a suite of its own that pins the
+    // figure — the count moves with the number of FILES that pin it, and a file
+    // that quietly drops its assertion still fails here.
+    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(18);
     for (const [f, body] of pinning) {
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-314 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
+      expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-335 count`)
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       expect(body, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
     }
 
     /* The flag suite asserts a PAIR rather than the constant, so the scan cannot
        see it — it is the one place the SMS delta of exactly one is measured by
        flipping the boolean, and both halves had to move together. */
+    // 🔴 THE-335 — the labels swapped sides with the flag: `off` is what SHIPS
+    // now, at 26, and `smsOnly` is the synthetic half at 27. The DELTA of one is
+    // what the pair measures and it is unchanged.
     const flags = readSrc('lib/flags.test.ts');
-    expect(flags).toContain("expect(off.toolCount, 'the count with SMS withheld').toBe(28)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the shipped count, with SMS live').toBe(29)");
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(27)");
   });
 
   it('the rendered figure is interpolated, never retyped', () => {
@@ -357,7 +408,9 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
 /* ── One switch ────────────────────────────────────────────────────────────*/
 describe('the whole change is still one value', () => {
   it('🔴 SMS_MARKETING_ENABLED is the only SMS flag on the site', () => {
-    expect(SMS_MARKETING_ENABLED).toBe(true);
+    // 🔴 THE-335 — false again. The property this test is about is that there is
+    // exactly ONE SMS flag, which is unchanged by its value.
+    expect(SMS_MARKETING_ENABLED).toBe(false);
     const names = new Set(
       ['components/Pricing.tsx', 'content/coming-soon.ts', 'components/catalog.ts',
        'content/features.ts', 'content/legal.ts', 'content/faq.ts', 'components/Replaces.tsx']
@@ -370,10 +423,17 @@ describe('the whole change is still one value', () => {
   it('the other three marketing flags are untouched', () => {
     const declared = [...readSrc('lib/flags.ts').matchAll(/export const (\w+) = (true|false);/g)]
       .map((m) => [m[1], m[2]] as const);
+    // 🔴 THE-335 — two flags were ADDED (newsletter, QuickBooks) and SMS went
+    // false. The whole list is pinned by value rather than only the ones this
+    // ticket touched, so a fifth flag appearing, or an untouched one quietly
+    // flipping, fails here. 🔴 STRIPE_CONNECT and CUSTOM_DOMAIN ARE UNTOUCHED
+    // AND STILL FALSE, which is the no-regression half of this ticket.
     expect(declared).toEqual([
       ['AFFILIATE_PROGRAM_ENABLED', 'false'],
       ['MULTI_CAMPUS_ENABLED', 'false'],
-      ['SMS_MARKETING_ENABLED', 'true'],
+      ['SMS_MARKETING_ENABLED', 'false'],
+      ['NEWSLETTER_MARKETING_ENABLED', 'false'],
+      ['QUICKBOOKS_MARKETING_ENABLED', 'false'],
       ['CUSTOM_DOMAIN_MARKETING_ENABLED', 'false'],
     ]);
   });

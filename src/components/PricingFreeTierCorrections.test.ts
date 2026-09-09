@@ -6,7 +6,9 @@ import {
   PlanCard, crmLabel, planPriceContract, plans,
 } from './Pricing';
 import { CATEGORIES } from '../content/features';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 /**
  * THE-205 — the two corrections the founder made after seeing the live card.
@@ -71,7 +73,11 @@ const FREE_MATRIX = {
   fundraising: false,    // 🔴 no donate page — which is why the CRM line moved
   eventRegistration: false,
   docs: false,
-  crm: true,
+  // 🔴 THE-335 — the founder's split. `crm` left free and `signups` arrived, and
+  // the transcription has to move with the app or this mirror is the lie it
+  // exists to catch.
+  crm: false,
+  signups: true,
   accountingTools: false,
   taxReceipt: false,
   communityGroups: false,
@@ -147,20 +153,45 @@ describe('the free card does not list a news or community feed', () => {
   });
 });
 
-// ─── 7. 🔴 the free card's CRM line names members only ───────────────────────
-describe("the free card's CRM line names members only", () => {
-  it('renders "CRM (Members)" and never mentions donors', () => {
+// ─── 7. 🔴 the free card shows SIGNUPS, and no CRM at all ────────────────────
+describe('the free card shows Signups and no CRM at all', () => {
+  it('names no CRM, in either wording', () => {
+    // 🔴 THE-335 — this section used to pin "CRM (Members)" ONTO the free card,
+    // which was right while free held `crm: true`. The founder moved free off
+    // CRM entirely, so the card must now name NEITHER label: "CRM (Members)" is
+    // no longer a smaller true claim, it is a false one.
     const text = freeCard();
-    expect(text).toContain('CRM (Members)');
+    expect(text, 'the free card still claims a CRM it no longer has').not.toContain('CRM (Members)');
     expect(text, 'the free card names donors it cannot have').not.toContain('CRM (Donors');
   });
 
+  it('names Signups instead, with the contact detail and the export', () => {
+    // ⚠️ THE EXPORT AND THE CONTACT RECORDS ARE THE POINT. The `crm` cell was
+    // documented as what let a free evangelist "see WHO enrolled, with contact
+    // records, and export them" — so the replacement line has to carry all
+    // three, or the swap quietly loses two of them.
+    const text = freeCard();
+    expect(text).toContain('Signups');
+    expect(text).toContain('contact details');
+    expect(text).toContain('CSV export');
+  });
+
+  it('still shows analytics, which the CRM cell used to carry', () => {
+    // 🔴 THE ONE THING THE SWAP COULD HAVE SILENTLY DROPPED. There is no
+    // `analytics` cell in the matrix on any tier — it is a permission on the
+    // Signups screen — so "free gets analytics" was expressed by `crm: true`
+    // and is now expressed by `signups: true`. The card says so out loud.
+    expect(freeCard()).toContain('Evangelism analytics');
+    expect('analytics' in FREE_MATRIX, 'an analytics cell was invented').toBe(false);
+  });
+
   it('says it because free has no donate page, not by coincidence', () => {
-    // The label is derived from `fundraising`. If free ever gained a donate
-    // page the line would have to move back — and this pins the reason, so a
-    // later edit cannot keep the noun while flipping the cell.
+    // The label is derived from `fundraising`. `crmLabel` keeps its free branch
+    // even though the free CARD no longer calls it: the comparison row still
+    // needs "CRM (Members)" as the label of the row free is now FALSE on.
     expect(FREE_MATRIX.fundraising).toBe(false);
-    expect(FREE_MATRIX.crm).toBe(true);
+    expect(FREE_MATRIX.crm).toBe(false);
+    expect(FREE_MATRIX.signups).toBe(true);
     expect(crmLabel('free')).toBe('CRM (Members)');
   });
 
@@ -205,7 +236,10 @@ describe('every free card line is derived from the matrix', () => {
   const LINE_SOURCE: Record<string, keyof typeof FREE_MATRIX> = {
     '500 members · 1 admin': 'maxContacts',
     '1 course, adopted from the library': 'maxCourses',
-    'CRM (Members)': 'crm',
+    // 🔴 THE-335 — was `'CRM (Members)': 'crm'`. Both halves moved together: the
+    // line the card renders, and the cell that entitles it.
+    'Signups — who joined, with contact details and CSV export': 'signups',
+    'Evangelism analytics': 'signups',
     'Mobile App (PWA)': 'pwaApp',
   };
 
@@ -300,13 +334,21 @@ describe("the three priced tiers' cards are unchanged", () => {
       // the line is on the Ministry card and Individual carries none.
       'CRM (Donors & Members)',
       'Donation page & Fundraising'],
+    /* 🔴 THE-335 — three lines moved behind their flags, and each is SPREAD or
+       BRANCHED rather than deleted from this baseline, for the reason the SMS
+       line already was: this block's claim is that nothing ELSE moved, and a
+       hardcoded list would restate that claim against the wrong baseline the
+       moment a switch flips back. */
     pro: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
-      'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'],
+      'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map',
+      ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])],
     max: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain',
-      'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM',
+      'Community Groups & Events',
+      NEWSLETTER_MARKETING_ENABLED ? 'Automated SEO Blog & Newsletter' : 'Automated SEO Blog',
+      'Custom Forms → CRM',
       'Tax Receipts & Statements',
       ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
-      'Accounting + QuickBooks'],
+      QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'],
   };
 
   for (const planId of ['plus', 'pro', 'max']) {

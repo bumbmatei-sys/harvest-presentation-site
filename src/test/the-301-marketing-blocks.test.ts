@@ -335,8 +335,17 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
        SMS_MARKETING_ENABLED, and turning it on brought them back RENAMED (no
        carrier, because Harvest resells) and ON A DIFFERENT TIER (Ministry only,
        because that is where the app sells it). The previous hash was
-       f0aee586…. */
-    'src/components/Pricing.tsx': '1d0b9ba876b70593f46949ef71dc998de0ae7c3e963a206b10bc8090e619e24c',
+       f0aee586….
+       🔵 REPINNED AGAIN AT THE-335, and again NOT ONE PRICE MOVED — the same
+       module-scope contract still stands behind that claim and would have failed
+       the prerender rather than this test. What moved: the SMS line and row went
+       back behind SMS_MARKETING_ENABLED, the two newsletter rows and the two
+       newsletter card lines went behind NEWSLETTER_MARKETING_ENABLED, the
+       accounting line and row were REWORDED off QuickBooks behind
+       QUICKBOOKS_MARKETING_ENABLED, and the free card swapped its CRM line for
+       Signups while the comparison grid gained a Signups row. The previous hash
+       was 1d0b9ba8…. */
+    'src/components/Pricing.tsx': '8573a448ab8e1ef682b82fbffb6b2fdef91daa2bc8a09e4673de466edbad6190',
     // 7 — the CLI did not overwrite button or card. It writes theme-scoped ui
     // components (`mist-card` → src/components/ui/card.tsx) for any block that
     // pulls one, which is why both adopted blocks were chosen from the 28 in
@@ -370,10 +379,22 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     //     live.
     // Previous hashes: 3d6717dd…, 4f7af228…, c342d76e….
     'src/components/Features.test.ts': 'dfb2140eb6850979bbbc349d47f4fca644eafc956f14bf6684f847c57ab914b3',
+    /* 🔵 BOTH REPINNED AT THE-335, and neither loosened — the distinction this
+       list exists to make visible, so it is spelled out:
+         · the-257 and the-258 each pin the #replaces integrations row. THE-335
+           gated its two remaining names behind their own features' flags and
+           hid the introducing sentence when the list is empty, so both suites
+           now DERIVE what must be present from the flags instead of naming
+           QuickBooks and Mailchimp unconditionally. That is strictly stronger:
+           the previous form could not have caught a row appearing while its
+           feature was hidden, and this one does, in both directions.
+         · Both also gained the service-planning entry in the Events &
+           Livestream row, which THE-257's own coverage guard demanded the moment
+           the feature went live. Neither guard's THRESHOLD moved. */
     'src/components/the-257-competitor-table-retired.test.ts':
-      '15d2a39990ab2412c816f2e32cc1ed3335a5d80e5910b2afa56831fd9278708b',
+      '73da48b82991313c14c34b4aee2c9939314129e14bf7e043f7ea0220a047a569',
     'src/components/the-258-platform-brand-complete.test.ts':
-      'a3a5a9df43047764e9f6cd215be1ce9bc1097aa2f30f99192bd0f552e5ba6067',
+      '76f48c05b5961c6c391a1283c0d7695d734b6d03498d565432d85b80dd7c9854',
   };
 
   for (const [file, hash] of Object.entries(PINNED)) {

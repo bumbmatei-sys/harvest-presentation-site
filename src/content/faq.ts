@@ -1,7 +1,10 @@
 import { ADVERTISED_DISCOUNT_PCT, discountClaim } from '../components/Pricing';
 import { SITE_ORIGIN } from './post-core';
 import { TRIAL_LENGTH_DAYS } from './legal';
-import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED,
+  QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 /* /faq — the buyer's FAQ, as data.
  *
@@ -210,7 +213,11 @@ export const FAQS: Faq[] = [
       // reads "up to 30%" because the cheapest tier saves 29.7% and a flat claim
       // would overstate it. Never restate a percentage here as a literal.
       `${discountClaim('quarterly')} by paying every three months, and ${discountClaim('yearly').toLowerCase()} by paying for a year up front, against paying month by month. The longer terms are one charge, not a smaller monthly one: a year of Individual is a single payment of $${usd(FAQ_PLAN_CLAIMS[0].annual)}.`,
-      'Every plan includes the web and mobile app, your news feed, the full Bible, courses, the donor and member CRM, and your donation page and fundraising. Small Team adds docs and sermon notes, livestream with live giving, QR check-in, the church map and the newsletter. Ministry adds your own branding and domain, community groups and events, custom forms that feed the CRM, tax receipts and giving statements, automated SEO blog articles and the automated newsletter, and QuickBooks accounting sync.',
+      /* 🔴 THE-335 — three claims came out of this answer, each because the app
+         stopped answering for it: the newsletter on Small Team, the automated
+         newsletter on Ministry, and the QuickBooks sync. Service planning went
+         IN, because it shipped and is a Ministry capability. */
+      `Every plan includes the web and mobile app, your news feed, the full Bible, courses, the donor and member CRM, and your donation page and fundraising. Small Team adds docs and sermon notes, livestream with live giving, QR check-in${NEWSLETTER_MARKETING_ENABLED ? ', the church map and the newsletter' : ' and the church map'}. Ministry adds your own branding and domain, community groups and events, service planning with volunteer rotas, custom forms that feed the CRM, tax receipts and giving statements, automated SEO blog articles${NEWSLETTER_MARKETING_ENABLED ? ' and the automated newsletter' : ''}, and ${QUICKBOOKS_MARKETING_ENABLED ? 'QuickBooks accounting sync' : 'the accounting receipt ledger'}.`,
       'The full plan-by-plan comparison is on the pricing page. What is on that page is what you are buying — there is nothing else to add at checkout.',
     ],
   },
@@ -293,11 +300,27 @@ export const FAQS: Faq[] = [
           'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts — goes through our own provider and is included in your subscription.',
           'You contract directly with Mailchimp, you pay them, and their terms and prices apply to you. If that connection breaks, the rest of Harvest keeps working.',
         ]
+      /* 🔴 THE-335 — the NEWSLETTER half of this answer is now gated too, and it
+         had to be: while NEWSLETTER_MARKETING_ENABLED is false there is no bulk
+         newsletter to describe, and describing one here would sell on the FAQ
+         what the Coming Soon page calls unbuilt — the two-tenses claim these
+         flags exist to prevent.
+         ⚠️ THE TRANSACTIONAL SENTENCE STAYS IN BOTH BRANCHES, because it is
+         true in both: a receipt, a sign-in link, an event confirmation and a
+         serving invitation all still send. That is the honest answer to "does
+         Harvest send email?" with the newsletter withdrawn, and it is the one
+         a church needs. */
       : [
           'Email, yes. Text messages, not yet — so here is the exact shape of what does send.',
-          'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts, check-in and registration confirmations — goes through our own provider and is included in your subscription.',
-          'Harvest does not send SMS. There is no broadcast composer and no keyword a member can text you; anything you have read about texting in Harvest describes work that is not finished. It is on our Coming Soon page with everything else we are not shipping yet.',
-          'You contract directly with Mailchimp, you pay them, and their terms and prices apply to you. If that connection breaks, the rest of Harvest keeps working.',
+          NEWSLETTER_MARKETING_ENABLED
+            ? 'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts, check-in and registration confirmations — goes through our own provider and is included in your subscription.'
+            : 'The email Harvest sends is the email a person is owed one at a time — sign-in links, notifications, donation receipts, check-in and event registration confirmations, and an invitation when you put someone on a serving rota. It goes through our own provider and is included in your subscription.',
+          NEWSLETTER_MARKETING_ENABLED
+            ? 'Harvest does not send SMS. There is no broadcast composer and no keyword a member can text you; anything you have read about texting in Harvest describes work that is not finished. It is on our Coming Soon page with everything else we are not shipping yet.'
+            : 'What Harvest does not send is anything to everybody at once. Harvest does not send SMS: there is no broadcast composer and no keyword a member can text you. Nor does it send a newsletter. To reach the whole church today you post to your feed, which notifies every member, or publish to your blog. Both are on our Coming Soon page with everything else we are not shipping yet.',
+          ...(NEWSLETTER_MARKETING_ENABLED
+            ? ['You contract directly with Mailchimp, you pay them, and their terms and prices apply to you. If that connection breaks, the rest of Harvest keeps working.']
+            : []),
         ],
   },
   {
@@ -314,7 +337,7 @@ export const FAQS: Faq[] = [
     question: 'Can we get our data out?',
     answer: [
       'Yes, and export is never gated behind a payment — not on any plan, and not after you cancel. That is a commitment in the Terms of Service and in the Refund & Cancellation Policy, not a preference we could quietly change.',
-      'Contacts and donor records, giving history, event and check-in attendee lists, form submissions and your analytics all export to CSV. Documents and sermon notes export to PDF, DOCX or Markdown. Every donation receipt is a numbered PDF whether or not you use the QuickBooks sync.',
+      `Contacts and donor records, giving history, event and check-in attendee lists, form submissions and your analytics all export to CSV. Documents and sermon notes export to PDF, DOCX or Markdown. Every donation receipt is a numbered PDF${QUICKBOOKS_MARKETING_ENABLED ? ' whether or not you use the QuickBooks sync' : ''}.`,
       'Your ministry\'s records are not leverage. We would rather you stayed because Harvest is worth paying for.',
     ],
   },

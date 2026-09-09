@@ -429,6 +429,9 @@ describe('the Coming Soon page lists every named item', () => {
     expect(COMING_SOON_ITEMS.map((i) => i.ref)).toEqual([
       'THE-123', 'THE-122', 'THE-112', 'THE-117', 'THE-59', 'THE-58',
       'THE-118', 'THE-98',
+      // 🔵 THE-314's SMS ENTRY IS BACK AT THE-335, which hid the feature again —
+      // see the note below, whose story now has a further chapter.
+      'THE-314',
       // ⚠️ THE-245's SMS ENTRY LEFT THIS LIST AT THE-314. It was the only
       // RELOCATED one — every other entry describes work that was never built,
       // while that one described work that shipped, was found untested and was
@@ -448,6 +451,12 @@ describe('the Coming Soon page lists every named item', () => {
       // behind CUSTOM_DOMAIN_ENABLED in the same change. Its own terms are
       // asserted in the-280-custom-domain-coming-soon.test.ts.
       'THE-280',
+      // 🔵 THE-335 — the Newsletter entry, the FOURTH relocated one. The
+      // newsletter shipped a composer and a working Mailchimp send, and is being
+      // withdrawn until it is rebuilt on the intended sender; the app hides it
+      // behind NEWSLETTER_FEATURE_ENABLED in the same change. It is appended
+      // after `domains` and before `scheduler`, which is deliberately last.
+      'THE-335',
       /* 86bbu5q9m — Harvest Scheduler (THE-284), and the FIRST entry whose ref
          is not a `THE-` number. Not a lapse: that card has no `THE-` id at all,
          because its `custom_id` is null on the board, so its raw card id is the
@@ -787,7 +796,7 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     // the navigation could not reach. Still no coming-soon entry involved.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(29);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -795,14 +804,16 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
 
   it('the unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    // 🔵 29 since THE-314 turned SMS back on.
-    expect(live).toBe(29);
+    // 🔵 26 since THE-335 hid SMS again and both newsletter tools with it.
+    expect(live).toBe(26);
     /* ⚠️ FOUR SINCE THE-297, not twelve: the column is a shortlist plus a "see
        all" row. The number that matters here is unchanged — none of them counts
        as a tool — and shortening the column could only ever have LOWERED a
        count of unbuilt entries, never raised it. The page still renders all of
        them; that is pinned in test 5 above and in the THE-297 suite.
-       🔵 Eleven of them since THE-314 took SMS off the list. */
+       🔵 Eleven of them at THE-314, and thirteen since THE-335 put SMS back and
+       added a Newsletter entry. The COLUMN is still four either way — it is a
+       shortlist, so the list growing does not lengthen it. */
     expect(CATALOG[0].items).toHaveLength(4);
     expect(CATALOG[0].items).toHaveLength(COMING_SOON_MENU_ITEMS.length);
     expect(CATALOG[0].items.filter((i) => !i.soon)).toHaveLength(0);
@@ -810,27 +821,27 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
 
   it('🔴 and it WOULD have moved if a single entry lost its soon flag — by mutation', () => {
     // The tripwire, proved rather than asserted. Without `soon`, the count runs
-    // to 31 and the site starts advertising four tools it does not have — one of
+    // to 30 and the site starts advertising four tools it does not have — one of
     // which, the Harvest Scheduler, THE-297 has just moved to the top of the
     // column, so the mutation would advertise the most prominent unbuilt thing
     // on the site as shipped.
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    // 🔵 29 live tools since THE-314 + the 4 unbuilt entries this mutation
-    // wrongly counts.
-    expect(wrong).toBe(33);
-    // 🔵 29 since THE-314 turned SMS back on — this is the derived count plus
-    // the coming-soon rows the mutation wrongly counts.
-    expect(wrong).toBe(29 + CATALOG[0].items.length);
+    // 🔵 26 live tools since THE-335 + the 4 unbuilt shortlist rows this
+    // mutation wrongly counts.
+    expect(wrong).toBe(30);
+    // 🔵 26 since THE-335 hid SMS and the newsletter again — this is the derived
+    // count plus the coming-soon rows the mutation wrongly counts.
+    expect(wrong).toBe(26 + CATALOG[0].items.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.
     const oneLost = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it, j) => (j === 0 ? { ...it, soon: false } : it)) } : g));
-    // 🔵 30 since THE-314: the derived 29 plus the single entry this mutation
+    // 🔵 27 since THE-335: the derived 26 plus the single entry this mutation
     // wrongly un-flags.
-    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(30);
+    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(27);
   });
 
   it('the nav still quotes the derived figure', () => {

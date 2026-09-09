@@ -13,7 +13,9 @@ import {
   faqPlainText,
   faqPlanMismatches,
 } from './faq';
-import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 /* What the FAQ says.
  *
@@ -352,9 +354,18 @@ describe('product facts stated in the FAQ', () => {
   it('describes bulk email as the customer’s own account, and SMS by its real state', () => {
     // THE-245 — the SMS half of this answer is asserted THROUGH the flag,
     // because both readings are product facts and exactly one is true at a time.
-    // The Mailchimp half is unconditional: it did not change.
+    // 🔴 THE-335 — THE MAILCHIMP HALF IS CONDITIONAL NOW TOO, and it had to
+    // become so: Mailchimp is the newsletter's SENDER, so while the newsletter
+    // is a coming-soon entry this answer must not describe an account a church
+    // would open for it. What replaces it is the transactional half, which is
+    // true in both states and is the honest answer to "does Harvest send email?"
     const text = answerText(FAQS.find((f) => f.id === 'messaging')!);
-    expect(text).toMatch(/your own mailchimp account/i);
+    if (NEWSLETTER_MARKETING_ENABLED) {
+      expect(text).toMatch(/your own mailchimp account/i);
+    } else {
+      expect(text, 'the FAQ still points a church at a newsletter sender').not.toMatch(/mailchimp/i);
+      expect(text, 'the FAQ stopped saying what email DOES send').toMatch(/receipts/i);
+    }
 
     if (SMS_MARKETING_ENABLED) {
       // ⚠️ THE-314 REPLACED THE BRING-YOUR-OWN READING. This branch asserted

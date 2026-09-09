@@ -5,7 +5,10 @@ import { HBtn } from './magic';
 import { I } from './icons';
 import { Kicker, H2, container, softCard } from './shared';
 import { MERCHANT_OF_RECORD_NOTE } from '../content/legal';
-import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED,
+  QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 export interface Plan {
   name: string;
@@ -207,8 +210,8 @@ const FREE_TIER_PLAN_ID = 'free';
 // the same claim gets made twice in two tenses. No price changed here.
 export const plans: Plan[] = [
   { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
-  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter'] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter', 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), 'Accounting + QuickBooks'] },
+  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])] },
+  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 760 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
@@ -261,12 +264,21 @@ export const FREE_TIER: FreeTier = {
   features: [
     '500 members · 1 admin',
     '1 course, adopted from the library',
-    // 🔴 MEMBERS ONLY (THE-205). Was 'CRM (Donors & Members)'. free is
-    // `fundraising: false`: there is no donate page, so no donor record can
-    // exist to be managed. Derived from `crmLabel` rather than rewritten here,
-    // so this card and the Individual card above cannot disagree about the
-    // vocabulary while disagreeing about the tier.
-    crmLabel(FREE_TIER_PLAN_ID),
+    // 🔴 SIGNUPS, NOT CRM — THE-335, the founder's split: "The free plan should
+    // have signup feature not CRM since we separated them." The app's `crm` cell
+    // is now false on free and a new `signups` cell is true, so this line is the
+    // one the matrix supports.
+    //
+    // ⚠️ NOTHING FREE COULD DO IS LOST, which is why this is a swap and not a
+    // deletion. The Signups screen is where an evangelist sees who enrolled and
+    // exports them, and its CSV carries the CONTACT RECORDS — name, phone,
+    // email, registration date, country, city — not merely enrolment rows.
+    //
+    // 🔴 `crmLabel(FREE_TIER_PLAN_ID)` IS DELIBERATELY NOT CALLED HERE ANY MORE,
+    // and the function keeps its free branch anyway: the comparison row below
+    // still needs "CRM (Members)" as the label of the row free is FALSE on.
+    'Signups — who joined, with contact details and CSV export',
+    'Evangelism analytics',
     'Mobile App (PWA)',
     'Bible',
     'Prayer Requests',
@@ -588,8 +600,16 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Sermon Notes → Livestream', [false, false, T, T]],
   ] },
   { grp: 'Automation', rows: [
-    ['Newsletter', [false, false, T, T]],
-    ['Automated Newsletter', [false, false, false, T]],
+    /* 🔴 THE-335 — both newsletter rows are gated on NEWSLETTER_MARKETING_ENABLED,
+       on exactly the terms the SMS row below is gated: this table is a claim
+       about what a tier BUYS, and the app now refuses the send on every tier.
+       They come back with the flag, unchanged. */
+    ...(NEWSLETTER_MARKETING_ENABLED
+      ? [
+          ['Newsletter', [false, false, T, T]] as [string, Cell[]],
+          ['Automated Newsletter', [false, false, false, T]] as [string, Cell[]],
+        ]
+      : []),
     /* 🔴 THE SMS ROW IS BACK, AND ITS CELLS MOVED — THE-314.
        It read ['SMS (bring your own Twilio)', [false, T, T, T]] — included on
        all three paid tiers — while the app refused every send with a 503. That
@@ -635,8 +655,23 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
        the four columns want. Free's CELL carries the correction instead: it
        has the CRM, and it has it for members only. A `T` here would read as
        the row label's full claim. */
-    [crmLabel('plus'), ['Members only', T, T, T]],
-    ['Accounting + QuickBooks Sync', [false, false, false, T]],
+    /* 🔴 THE-335 — FREE IS FALSE ON THIS ROW NOW. It read 'Members only', which
+       described free's `crm: true` cell; the founder moved free off CRM and onto
+       Signups, so the app's cell is false and this cell has to say so. The three
+       priced tiers are untouched.
+       ⚠️ The label still comes from `crmLabel('plus')` — the vocabulary did not
+       change, only which tiers hold it. */
+    [crmLabel('plus'), [false, T, T, T]],
+    /* 🔴 THE-335 — THE ROW FREE IS TRUE ON. Added with the split so the table
+       shows what free GAINED rather than only what it lost, and because a free
+       tenant really can reach this screen: the app gates it on the new `signups`
+       cell, which is true on every tier. */
+    ['Signups & Evangelism Analytics', [T, T, T, T]],
+    /* 🔴 THE-335 — the row is REWORDED, not removed: the accounting ledger,
+       receipt statuses and numbered PDFs all ship on Ministry, and dropping the
+       row to hide one untested integration would understate the tier. Only the
+       QuickBooks half of the label goes. */
+    [QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks Sync' : 'Accounting & Receipt Ledger', [false, false, false, T]],
     ['Tax Receipts & Giving Statements', [false, false, false, T]],
   ] },
 ];

@@ -8,7 +8,7 @@
 
 import {
   AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
-  SMS_MARKETING_ENABLED,
+  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
 import { plans } from '../components/Pricing';
 
@@ -65,12 +65,12 @@ const ALL_CATEGORIES: Category[] = [
     slug: 'community-engagement', name: 'Community & Engagement', kicker: 'Belong',
     eyebrowColor: 'var(--sky-700)',
     heroBg: 'linear-gradient(180deg,#cadff1 0%,#dcebf5 46%,#eef4f3 74%,var(--cream) 100%)',
-    headline: 'Seven ways for your\npeople to belong.',
+    headline: 'Eight ways for your\npeople to belong.',
     headWidth: 900, introWidth: 620,
-    intro: 'A feed, prayer wall, groups, campus map, events, check-in and livestream — the whole engagement stack, in one app that carries your name instead of a platform’s.',
+    intro: 'A feed, prayer wall, groups, campus map, events, check-in, service planning and livestream — the whole engagement stack, in one app that carries your name instead of a platform’s.',
     ctaHeading: 'Everything your people need, in one home.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: 'Community feed, groups, prayer requests, church map, events, check-in and livestream — the engagement stack for your ministry, under your own brand.',
+    seo: 'Community feed, groups, prayer requests, church map, events, check-in, service planning and livestream — the engagement stack for your ministry, under your own brand.',
     features: [
       {
         id: 'feed', name: 'Community Feed', n: '1',
@@ -140,7 +140,51 @@ const ALL_CATEGORIES: Category[] = [
         crosslinks: [{ label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Event Registration', href: '/features/community-engagement#events' }],
       },
       {
-        id: 'livestream', name: 'Livestream + Live Giving', n: '7',
+        /* 🔴 THE-335 — A LIVE FEATURE, not a coming-soon entry. The founder: "Put
+           the scheduler as a live feature in the marketing site", clarified as
+           "Service scheduler I mean not the one for social media."
+
+           ⚠️ THIS IS NOT THE HARVEST SCHEDULER. That is social-media publishing,
+           it is still coming-soon on this site, and it is NOT built — see
+           `the-284-harvest-scheduler.test.ts`. Confusing the two would claim an
+           unbuilt product as shipped, which is the exact class of bug this site
+           has fixed six times.
+
+           🔴 THE TIER IS VERIFIED, NOT ASSERTED. `tiers: [0, 0, 1]` because the
+           app gates every service-planning surface on the `eventRegistration`
+           plan cell — the Services nav entry, the screen behind it, and
+           `/api/rota/invitations` — and that cell is true on Ministry alone. The
+           write permission on top of it is `manageEvents`, the same one the
+           `servicePlans` and `rotaInvitations` Firestore rules require; there is
+           deliberately no separate planning permission. A tier claim that outran
+           the app is what this site keeps having to correct, so
+           `the-335-service-planner-live.test.ts` reads the tier off the app's
+           published plan catalogue rather than restating it here.
+
+           🔴 WHAT THIS COPY MUST NEVER CLAIM, because none of it exists: a song
+           library, CCLI numbers or reporting, chord charts, rehearsal scheduling,
+           and availability blockouts. `service-plan.ts` names all five as
+           deliberately absent. They are what is LEFT in the Coming Soon entry
+           this feature was promoted out of, and claiming any of them here would
+           put the same capability on the site in two tenses.
+
+           ⚠️ THE INVITATION IS EMAIL. It goes out through the church's own
+           connected Gmail — so the copy says "email" and does not say "text":
+           SMS is hidden in this very ticket, and a serving text is the thing
+           email is replacing. */
+        id: 'services', name: 'Service Planning', n: '7',
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 1],
+        eyebrow: 'The Sunday run sheet',
+        title: 'The order of service, and who is on it.',
+        oneliner: 'Build Sunday\u2019s run sheet with your team \u2014 every item, how long it runs and who is doing it \u2014 then invite those people and see who has said yes.',
+        moment: 'The run sheet stops being a document somebody emails round on Thursday. Timings add up on their own, so moving one item moves everything after it, and the person on the door finds out by email instead of by group chat.',
+        admin: ['An order of service you reorder \u2014 durations become clock times', 'Assign people to items; double-bookings are flagged', 'See who has not served recently, and which slots are still empty', 'Invite by email and read each answer; send a reminder'],
+        member: ['An email saying what they are doing and when', 'One link to accept or decline \u2014 no sign-in, no account', 'A reminder before the day, if they have not answered'],
+        adminLabel: 'For the team', memberLabel: 'For volunteers',
+        crosslinks: [{ label: 'Event Registration', href: '/features/community-engagement#events' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }, { label: 'Livestream', href: '/features/community-engagement#livestream' }],
+      },
+      {
+        id: 'livestream', name: 'Livestream + Live Giving', n: '8',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1, 1],
         eyebrow: 'The prayer that reaches the pastor',
         title: 'Go live — and reach the person watching alone.',
@@ -352,7 +396,9 @@ const ALL_CATEGORIES: Category[] = [
     intro: 'Giving, fundraising, a CRM that builds itself, and books that reconcile themselves — with no platform fee at all, on any plan. The money lands in your account, not ours.',
     ctaHeading: 'Keep more of every gift.',
     secondary: { label: 'See pricing', to: '/#pricing' },
-    seo: `Branded giving, fundraising campaigns, a donor and member CRM and QuickBooks-synced receipts${AFFILIATE_PROGRAM_ENABLED ? ', plus a 30% affiliate program' : ''} — with 0% platform fee on every donation.`,
+    // 🔴 THE-335 — the SEO line named the sync too. A claim in a meta
+    // description is a claim; it is what a search result shows.
+    seo: `Branded giving, fundraising campaigns, a donor and member CRM and ${QUICKBOOKS_MARKETING_ENABLED ? 'QuickBooks-synced receipts' : 'numbered PDF receipts'}${AFFILIATE_PROGRAM_ENABLED ? ', plus a 30% affiliate program' : ''} — with 0% platform fee on every donation.`,
     features: [
       {
         id: 'donation', name: 'Donation Page', n: '1',
@@ -430,13 +476,29 @@ const ALL_CATEGORIES: Category[] = [
         crosslinks: [{ label: 'Custom Forms', href: '/features/ai-automation#forms' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }, { label: 'SMS', href: '/features/ai-automation#sms' }],
       },
       {
-        id: 'accounting', name: 'Accounting + QuickBooks', n: '4',
+        /* 🔴 THE-335 — REWORDED OFF QUICKBOOKS, NOT HIDDEN. The accounting
+           ledger, the numbered PDF audit trail and the per-receipt record all
+           ship and are what this entry now claims. Only the SYNC half is
+           withdrawn, exactly as the `branding` entry below withdraws only the
+           domain half: hiding a live capability to hide an untested integration
+           on it is the overreach that shape exists to avoid.
+           ⚠️ EVERY QUICKBOOKS SENTENCE IS BEHIND THE FLAG, including the ones
+           inside `admin` — a bullet is a claim just as much as the title is. */
+        id: 'accounting', name: QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting', n: '4',
         accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
         eyebrow: 'Your treasurer stops asking',
-        title: 'Every receipt, pushed into QuickBooks.',
-        oneliner: 'A ledger of every donation receipt and event ticket Harvest issues — synced to QuickBooks as sales receipts, with per-item retry when one fails.',
-        moment: 'For a church with a real treasurer, the giving-report request lands every month. Here, receipts flow into QuickBooks as sales receipts on their own — hours a month, gone.',
-        admin: ['Ledger of every donation receipt & event ticket', 'Connect QuickBooks; sync all, or retry a single one', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail, QuickBooks or not'],
+        title: QUICKBOOKS_MARKETING_ENABLED
+          ? 'Every receipt, pushed into QuickBooks.'
+          : 'Every receipt, in one ledger.',
+        oneliner: QUICKBOOKS_MARKETING_ENABLED
+          ? 'A ledger of every donation receipt and event ticket Harvest issues — synced to QuickBooks as sales receipts, with per-item retry when one fails.'
+          : 'A ledger of every donation receipt and event ticket Harvest issues, each with its own numbered PDF and a status you can read at a glance.',
+        moment: QUICKBOOKS_MARKETING_ENABLED
+          ? 'For a church with a real treasurer, the giving-report request lands every month. Here, receipts flow into QuickBooks as sales receipts on their own — hours a month, gone.'
+          : 'For a church with a real treasurer, the giving-report request lands every month. Here the answer is already written: every receipt Harvest issued, numbered, dated and exportable.',
+        admin: QUICKBOOKS_MARKETING_ENABLED
+          ? ['Ledger of every donation receipt & event ticket', 'Connect QuickBooks; sync all, or retry a single one', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail, QuickBooks or not']
+          : ['Ledger of every donation receipt & event ticket', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail for every item issued'],
         member: ['Every gift arrives with a numbered PDF receipt', 'Clean records they can file themselves'],
         adminLabel: 'For admins', memberLabel: 'For givers',
         crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
@@ -603,6 +665,17 @@ const HIDDEN_FEATURE_IDS: ReadonlySet<string> = new Set([
   // slugs are re-pointed at the Coming Soon entry below rather than merely
   // defragmented, so an indexed link lands somewhere that explains itself.
   ...(SMS_MARKETING_ENABLED ? [] : ['sms']),
+  // THE-335 — Newsletter and Automated Newsletter. Hiding both also strips the
+  // crosslinks that point at `#newsletter` and `#autonewsletter` (they point at
+  // each other, and the Automated SEO Blog and Community Feed entries each carry
+  // one), which `hiddenFragment` below re-points at the Coming Soon entry.
+  //
+  // 🔴 BOTH, NOT ONE. `autonewsletter` drafts FROM Instagram INTO the newsletter
+  // editor and sends down the same path — there is no configuration in which one
+  // works and the other does not, which is the same reasoning that takes
+  // Text-to-Give with SMS. Leaving it would advertise an AI that fills a
+  // composer this site no longer says exists.
+  ...(NEWSLETTER_MARKETING_ENABLED ? [] : ['newsletter', 'autonewsletter']),
 ]);
 
 /** True when a href's #fragment names a feature that is currently hidden.
@@ -702,7 +775,18 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   'fundraising': '/features/giving-finance#fundraising',
   'crm-donors-members': '/features/giving-finance#crm',
   'crm': '/features/giving-finance#crm',
+  // ⚠️ A RETIRED SLUG, NOT A CLAIM. THE-335 renamed the entry off QuickBooks,
+  // which changes `slugify(name)` — this line keeps the OLD indexed URL landing
+  // on the accounting entry, and must stay whatever the flag says.
   'accounting-quickbooks': '/features/giving-finance#accounting',
+  // 🔴 THE-335 — the slug the RENAMED entry produces. Both are mapped, in both
+  // flag states, because `slugify(name)` is what the mega-menu resolves and the
+  // name is now flag-dependent: mapping only the live one would leave the other
+  // falling through to a category page the moment the switch moved.
+  'accounting': '/features/giving-finance#accounting',
+  // 🔴 THE-335 — the same for the SERVICE PLANNING entry, promoted from Coming
+  // Soon to a live feature in this ticket.
+  'service-planning': '/features/community-engagement#services',
   'tax-receipts-statements': '/features/giving-finance#accounting',
   // Both affiliate slugs stay mapped while the programme is hidden: they are
   // indexed and still have to land somewhere. With the section not rendering,

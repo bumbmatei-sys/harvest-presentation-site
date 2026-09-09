@@ -5,7 +5,9 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ADD_ONS, BILLING_TERMS, ComparisonTable, DODO_ADD_ON_CATALOG, planPriceContract, plans, type BillingTerm } from './Pricing';
-import { SMS_MARKETING_ENABLED } from '../lib/flags';
+import {
+  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+} from '../lib/flags';
 
 /* The contract's expectations, DERIVED from `plans` rather than typed out a
    fourth time. Handing it this passes; bumping one cell of it is a repo
@@ -345,16 +347,24 @@ describe('the plan feature matrix is unchanged', () => {
     ]);
     expect(plans.find((p) => p.planId === 'pro')!.features).toEqual([
       'Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
-      'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', 'Newsletter',
+      'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map',
+      // 🔴 THE-335 — the Newsletter line moved behind NEWSLETTER_MARKETING_ENABLED.
+      // Spread on the flag rather than deleted, for the reason the note above
+      // gives about the SMS line.
+      ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : []),
     ]);
     expect(plans.find((p) => p.planId === 'max')!.features).toEqual([
       'Everything in Small Team', '2,000 contacts · 15 admins', '15 courses',
-      'Custom Branding & Domain', 'Community Groups & Events', 'Automated SEO Blog & Newsletter',
+      'Custom Branding & Domain', 'Community Groups & Events',
+      // 🔴 THE-335 — the newsletter half of this line is gated; the automated
+      // SEO blog on the same line ships and stays either way.
+      NEWSLETTER_MARKETING_ENABLED ? 'Automated SEO Blog & Newsletter' : 'Automated SEO Blog',
       'Custom Forms → CRM', 'Tax Receipts & Statements',
       // 🔴 THE-314 — SMS arrived HERE, on Ministry, having left the Individual
       // card above. Harvest resells now and the founder's call is Ministry only.
       ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
-      'Accounting + QuickBooks',
+      // 🔴 THE-335 — reworded, not removed: accounting ships on Ministry.
+      QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting',
     ]);
   });
 

@@ -357,9 +357,63 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'privacy/index.html': 'f2122a8337fb0ba29e017d9a666ab083d45dd1c88bb9c8c7254118b08ab0bae4',
   };
 
+  /**
+   * 🔴 THE-335 — the ten pages that moved, retaken from a Linux build of this
+   * branch, and every one of them explained by a change this ticket made:
+   *
+   *   · `features/ai-automation` — the SMS section and BOTH newsletter sections
+   *     left it, behind SMS_MARKETING_ENABLED and NEWSLETTER_MARKETING_ENABLED.
+   *   · `features/community-engagement` — service planning ARRIVED as a live
+   *     feature, and the category headline went from seven ways to eight.
+   *   · `features/giving-finance` — the accounting entry is reworded off
+   *     QuickBooks (name, title, oneliner, moment and one bullet), and the SEO
+   *     line with it.
+   *   · `features/coming-soon` — the SMS entry came back, a Newsletter entry
+   *     arrived, and the services entry narrowed to the worship half.
+   *   · `features/index` and `contact` — both render the feature CATEGORIES,
+   *     which gained one entry and lost three.
+   *   · `index` and `pricing` — the plan cards and the comparison grid: free
+   *     swapped CRM for Signups, and the SMS, newsletter and QuickBooks lines
+   *     went behind their flags.
+   *   · `faq` — the messaging answer, the what-is-in-each-plan answer and the
+   *     export answer each stopped naming something the app now refuses.
+   *   · `privacy` — `content/legal.ts` gates its SMS paragraph and its section
+   *     heading on the flag, so both went dormant.
+   *
+   * 🔴 AND THE TWELVE THAT DID NOT MOVE ARE THE EVIDENCE. `terms` is the one
+   * worth naming: THE-314 REMOVED a false SMS bullet from it and added nothing,
+   * so there is no dormant SMS clause in the Terms to withdraw — the whole of
+   * THE-314's legal footprint is the privacy paragraph above. `blog/*`,
+   * `refunds`, `features/discipleship-content`, `features/platform-brand` and
+   * `features/harvest-scheduler` are all untouched, which is what says the
+   * social-media scheduler page was not confused with the service planner.
+   */
+  const THE_335_MOVED: Readonly<Record<string, string>> = {
+    'contact/index.html':
+      '035afb8f6c533cb8f650bd17d5ecd0bfd4f2a386b87bb239a20e356907c9c778',
+    'faq/index.html':
+      '0efc1c9e4380a201d104c038a4e2f30347fdbcd60f79ddf6d1bef432488d5109',
+    'features/ai-automation/index.html':
+      'bbc8a40447dfbed578996e0bcb94f23391f7952ec528c2eeb871bece5b133b1c',
+    'features/coming-soon/index.html':
+      '600c0217572d5356744f77ebaabbb18a535cb828c3b67e99f5ca60875bed03b8',
+    'features/community-engagement/index.html':
+      '43a10f253a350a19335b6b72e05e3c86e4ae24b235772df95d3c64770fce436d',
+    'features/giving-finance/index.html':
+      '92643e7ef6e46f371666b9a273eab07cb751f1afdde1612253786297751c01ce',
+    'features/index.html':
+      'a1c2e2b0591f8deaa69ea2d6a5866f41a6b1612460e2c016cb7a4863e7f3b98c',
+    'index.html':
+      '52096cd79e74081f66d8ea341dfea93dc86b1fd1e398d05ef73ccdfd1837de13',
+    'pricing/index.html':
+      '4f241a2724b31377d1ffafa10331e19cc9a707c9acf5596fdf07ce0f426c6c84',
+    'privacy/index.html':
+      'c85289d0c324e911ca2b6bb353cb01e7bf1ad51bf640f7f44dd689afbf0f7829',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
-    ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED,
+    ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -374,8 +428,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  value was a68cec2fd49851b3a960679733f94bc1ef1944bbc19f5bb6c7f2bbebeb13793c.
    *  🔴 THE PAGE COUNT IS UNCHANGED AT 22 — THE-314 adds no route, and the
    *  assertion below that this hash covers `pagesInDist()` is what proves an
-   *  added or dropped page would have been caught rather than absorbed. */
-  const BASELINE_ALL = 'f4bead896c16822fac0b6d3a493a2ac98277c1358b80316e39f1cad3ed793692';
+   *  added or dropped page would have been caught rather than absorbed.
+   *
+   *  Retaken again at THE-335 from the same build as THE_335_MOVED; the previous
+   *  value was f4bead896c16822fac0b6d3a493a2ac98277c1358b80316e39f1cad3ed793692.
+   *  🔴 THE PAGE COUNT IS STILL 22 — THE-335 adds and removes no route. */
+  const BASELINE_ALL = 'c488c1c4d831ba263dac07d7fe045e60dae1a081882f7a95004c9573c1e2a067';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -413,11 +471,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     /* ⚠️ AND THE_314_MOVED JOINS THE SAME LIST, on identical terms: its eight
        pages are asserted against THE_314_MOVED in the per-page comparison, not
        dropped from view. Twelve becomes ten: six of the eight were already
-       excluded as THE-301's, THE-306's or THE-280's own. */
+       excluded as THE-301's, THE-306's or THE-280's own.
+       ⚠️ AND THE_335_MOVED JOINS IT ON THE SAME TERMS AGAIN. Ten becomes nine:
+       nine of its ten pages were already excluded by one of the tables above,
+       and the tenth is `faq`, which no earlier ticket had moved. */
     const untouched = Object.keys(PRE_TAILWIND)
       .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED) && !(p in THE_301_MOVED)
-        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED));
-    expect(untouched).toHaveLength(10);
+        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
+    expect(untouched).toHaveLength(9);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
         .toBe(PRE_TAILWIND[page]);
@@ -429,13 +490,16 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        property is the same one: THE-280 did not touch this page, and if it ever
        did, its hash would have to appear in THE_280_MOVED and this would fail. */
     // 🔵 AND THE-314 MOVED IT AGAIN — the CRM feature's SMS crosslink resolves
-    // once more, and the page carries the tool-count footnote. So the value it
-    // is measured against is THE-314's now; the property is unchanged.
+    // once more, and the page carries the tool-count footnote.
+    // 🔵 AND THE-335 MOVED IT ONCE MORE, rewording the accounting entry off
+    // QuickBooks and dropping the CRM entry's SMS crosslink again. So the value
+    // it is measured against is THE-335's now; the property is unchanged, and
+    // it is still that THE-280 did not touch this page.
     const giving = 'features/giving-finance/index.html';
     expect(untouched).not.toContain(giving);
     expect(THE_280_MOVED[giving], 'THE-280 moved the Giving & Finance page, which is not its to move')
       .toBeUndefined();
-    expect(BASELINE[giving]).toBe(THE_314_MOVED[giving]);
+    expect(BASELINE[giving]).toBe(THE_335_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -470,11 +534,11 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        same terms and asserted in THE-306's, so eighteen becomes fifteen. */
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED) && !(p in THE_301_MOVED)
-        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED));
+        && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
     // 🔵 Fifteen until THE-314 took three more out of the list, on the same
     // terms: they are asserted against THE_314_MOVED, not dropped. Five of its
     // eight were already excluded as THE-301's or THE-306's.
-    expect(others).toHaveLength(12);
+    expect(others).toHaveLength(11);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
         .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -512,21 +576,21 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'features/platform-brand/index.html',
     ]) {
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page]
-          ?? PRE_TAILWIND[page]);
+        .toBe(THE_335_MOVED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page]
+          ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
     // Nothing added, nothing dropped: the same 22 keys THE-284 left behind.
     expect(Object.keys(BASELINE)).toHaveLength(22);
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED)
-        && !(p in THE_314_MOVED));
+        && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
     // 🔵 Twenty until THE-301 took two out of the list, THE-306 three more and
     // THE-314 four more (four of its eight were already excluded).
-    expect(others).toHaveLength(12);
+    expect(others).toHaveLength(11);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
-        .toBe(THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(THE_335_MOVED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
   });
 
@@ -553,15 +617,15 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        assertion that says the two blocks are confined to the two pages that
        render them: nothing they touch is shared, so nothing else may move. */
     const others = Object.keys(BASELINE)
-      .filter((p) => !(p in THE_301_MOVED) && !(p in THE_306_MOVED) && !(p in THE_314_MOVED));
+      .filter((p) => !(p in THE_301_MOVED) && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
     // 🔵 Eleven since THE-314 moved eight of the twenty-two; the claim is
     // unchanged — everything outside the named tables is still at its recorded
     // value.
-    expect(others).toHaveLength(13);
+    expect(others).toHaveLength(12);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-301 had no business moving it`)
-        .toBe(THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page]
-          ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(THE_335_MOVED[page] ?? THE_293_MOVED[page] ?? THE_284_ADDED[page]
+          ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
     // Nothing added, nothing dropped: still the same 22 keys.
@@ -613,19 +677,23 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        that reached past the one new key, or a `FeatureBlock` change made to
        accommodate it, would move all five and could not pass this. */
     const untouched = Object.keys(BASELINE)
-      .filter((p) => !(p in THE_306_MOVED) && !(p in THE_314_MOVED));
-    // 🔵 Fourteen since THE-314 moved eight more, five of which were already
+      .filter((p) => !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED));
+    // 🔵 Twelve since THE-335 moved ten more, eight of which were already
     // outside this list. THE-306's own claim — that it moved three and no
     // others — is unchanged; the pages it must be measured against are the ones
     // no later ticket has legitimately moved since.
-    expect(untouched).toHaveLength(14);
+    expect(untouched).toHaveLength(12);
     // ⚠️ ai-automation LEFT THIS LIST AT THE-314, which restored the SMS feature
-    // section that renders on it. The other four category pages plus the
-    // scheduler still carry FeatureMock and still did not move, which is the
-    // leak THE-306 was actually guarding against — and ai-automation is now
-    // measured against THE_314_MOVED in the per-page comparison instead.
-    for (const page of ['features/community-engagement/index.html',
-                        'features/discipleship-content/index.html',
+    // section that renders on it, and community-engagement left it at THE-335,
+    // which added the service-planning section. Both are measured against their
+    // own ticket's table in the per-page comparison instead.
+    //
+    // 🔴 THE THREE THAT REMAIN ARE STILL THE LEAK TEST, and `harvest-scheduler`
+    // is the one THE-335 most needed here: this ticket promoted the SERVICE
+    // planner to a live feature while the SOCIAL-MEDIA scheduler stays
+    // coming-soon, and that page not moving is what says the two were not
+    // confused.
+    for (const page of ['features/discipleship-content/index.html',
                         'features/platform-brand/index.html',
                         'features/harvest-scheduler/index.html']) {
       expect(untouched, `${page} must be among the pages that did not move`).toContain(page);

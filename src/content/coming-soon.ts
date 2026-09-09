@@ -22,7 +22,8 @@
  * none of these is In Progress, and the copy must not imply otherwise. */
 
 import {
-  AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+  AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED,
+  SMS_MARKETING_ENABLED,
 } from '../lib/flags';
 
 export interface SoonItem {
@@ -122,17 +123,29 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     navDesc: 'The interface in more than English. Not built yet.',
   },
   {
-    id: 'services', name: 'Service and worship planning', icon: 'church', ref: 'THE-122',
-    eyebrow: 'The Sunday run sheet',
-    title: 'Planning Sunday still happens in a spreadsheet and a group chat.',
-    oneliner: 'An order of service your team plans together — songs, people, timings — instead of a document somebody emails round on Thursday.',
-    today: 'Harvest runs events, check-in and the livestream. It does not plan the service itself: there is no order of service, no song library and no rota.',
+    /* 🔴 THE-335 — WHAT IS LEFT OF THIS ENTRY, after the order of service and the
+       rota both shipped. It is kept as a coming-soon item rather than deleted
+       because the WORSHIP half is genuinely unbuilt, and the `today` line is now
+       written from the app rather than from the original ask.
+       ⚠️ THE OLD `today` SAID "there is no order of service, no song library and
+       no rota". Two thirds of that became FALSE — service planning is a live
+       feature entry in content/features.ts as of this ticket — so the sentence
+       had to be retaken, not merely left standing.
+       🔴 THE NAME AND THE ONELINER NARROWED WITH IT. This entry can no longer
+       claim "an order of service your team plans together", because that is what
+       shipped; what is left is the song and rehearsal side, and the three
+       `considering` lines were already exactly that. */
+    id: 'services', name: 'Song library and rehearsals', icon: 'church', ref: 'THE-122',
+    eyebrow: 'The worship half of Sunday',
+    title: 'The songs and the rehearsal still live outside Harvest.',
+    oneliner: 'A song library your team plans from — keys, CCLI numbers and chord charts — and a rehearsal that knows who is already busy.',
+    today: 'Harvest plans the service itself: an order of service with timings your team builds together, and a volunteer rota that invites people and takes their answer. What it does not have is the worship side of that — there is no song library, no CCLI reporting, no chord charts, no rehearsal scheduling and no availability blockouts, so who can make which Sunday is still asked in a group chat.',
     considering: [
       'A song library carrying keys and CCLI numbers, with chord charts attached',
       'Rehearsal scheduling with availability and blockouts, so the conflict is caught before Sunday',
       'Recurring templates, because most services are last week with three things changed',
     ],
-    navDesc: 'Order of service, songs and rotas. Not built yet.',
+    navDesc: 'Song library, chord charts and rehearsals. Not built yet.',
   },
   {
     id: 'applications', name: 'Application processing', icon: 'clipboard-list', ref: 'THE-112',
@@ -293,6 +306,33 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     navDesc: 'Point a domain you own at Harvest. Not built yet.',
   },
   {
+    /* 🔴 THE-335 — FILTERED OUT WHILE NEWSLETTER_MARKETING_ENABLED IS TRUE, and
+       kept in the tree behind that flag rather than deleted — the contract at
+       the top of lib/flags.ts, and the same shape the SMS entry below has.
+
+       ⚠️ THE `today` LINE IS THE HARD PART OF THIS ENTRY, because a newsletter
+       sender DOES exist in the app today and is being withdrawn rather than
+       waited for. Saying "nothing sends email" would be false. So it says what
+       is true from a church's side — the newsletter is not something it can
+       reach — and names the paths that DO reach a congregation and still ship.
+
+       🔴 NO PRICE, NO DATE, NO TIER, NO CTA, and `SoonItem` has no field for one.
+       In particular it does not say the newsletter "returns with the scheduler",
+       which is a real internal plan and would read here as a commitment about
+       when. */
+    id: 'newsletter', name: 'Newsletter', icon: 'mail', ref: 'THE-335',
+    eyebrow: 'Email to the whole church',
+    title: 'Harvest does not send your newsletter yet.',
+    oneliner: 'Write a newsletter in a real editor and send it to your congregation, with one place for them to unsubscribe.',
+    today: 'There is no newsletter to write or send in Harvest. Reaching everyone at once happens on your feed, where a post notifies every member, and on your blog, which is public and indexed. Everything Harvest sends a person one at a time — a donation receipt, an event confirmation, a check-in, a serving invitation — is unaffected and still goes out.',
+    considering: [
+      'The sender itself, which is the whole of the work: a list, a send, and a bounce that is dealt with rather than swallowed',
+      'One unsubscribe that actually stops the mail, because an ignored unsubscribe is a legal problem and not a bug',
+      'Whether the audience lives in Harvest or in an account of your own, which decides who owns the list the day you leave',
+    ],
+    navDesc: 'Email to your whole congregation. Not built yet.',
+  },
+  {
     id: 'scheduler', name: SCHEDULER_NAME, icon: 'calendar-clock', ref: '86bbu5q9m',
     page: SCHEDULER_HREF,
     eyebrow: 'One post, every account',
@@ -325,6 +365,13 @@ export const COMING_SOON_ITEMS: SoonItem[] = ITEMS
      renumber for the reason the map below already exists: removing an entry must
      never leave the index reading 1, 2, 3, 4, 5, 6, 7, 8, 10. */
   .filter((item) => item.id !== 'sms' || !SMS_MARKETING_ENABLED)
+  /* 🔴 THE-335 — the newsletter entry is here on the SAME TERMS as the three
+     around it. NEWSLETTER_MARKETING_ENABLED hides two feature entries, two
+     mega-menu tools, a comparison row and the plan-card lines that between them
+     sell a working newsletter. Turning that flag on while this entry still stood
+     would put the same capability on the site twice, in two tenses. One flag,
+     one tense, either way it is set. */
+  .filter((item) => item.id !== 'newsletter' || !NEWSLETTER_MARKETING_ENABLED)
   /* 🔴 THE-252 — the affiliate entry is here on the SAME TERMS, and for the same
      reason. AFFILIATE_PROGRAM_ENABLED already hides a landing section, a footer
      link, a mega-menu tool, a feature entry and a line of SEO copy that between
