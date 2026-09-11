@@ -663,11 +663,54 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       '746e45caf64cfd38517d7000282ac0feef47e908ea25bf049c077c0854a5c9c2',
   };
 
+  /**
+   * 🔴 SOLUTIONS / CHURCHES (board card 86bbyv8pp, part two) — ONE PAGE MOVED,
+   * AND ONE PAGE WAS ADDED — and the one that moved is NOT the Nav change.
+   *
+   * ⚠️ THE NAV TRIGGER'S PANEL IS NOT IN THE PRERENDERED MARKUP, so adding a
+   * second `SOLUTIONS` entry moved NOTHING the way the first one did.
+   * `Nav.tsx`'s desktop panel and mobile accordion are both gated behind
+   * `{solutions && (...)}` / `{mobileSolutions && (...)}`, and the prerender
+   * never sets that state — see the "the panel is not in the default-collapsed
+   * prerendered markup" test in SolutionPage.test.ts, and the identical
+   * property THE-284's note above already relies on for the mega-menu. So
+   * every one of the 24 pages that existed before this ticket was hashed
+   * before and after with the Nav change alone applied, and 23 of them came
+   * back byte-identical.
+   *
+   * ⚠️ THE ONE THAT MOVED, moved for a DIFFERENT reason: adding the `services`
+   * key to `MOCKS` in components/FeatureMock.tsx — the vignette this ticket's
+   * own spec asked for, on the Churches page's Services tab — also fills in
+   * the Service Planning FeatureBlock's vignette on the live
+   * `/features/community-engagement` page, which was rendering an empty panel
+   * for it before (no MOCKS['services'] entry existed anywhere on the site).
+   * `FeatureMock.tsx` is shared chrome, so a key added to it changes every
+   * page that already renders a FeatureBlock for that feature id, and
+   * community-engagement is the only one that does for `services`.
+   *
+   * The second entry, `solutions/churches/index.html`, is the new page itself,
+   * fingerprinted from its first build like every other page THE-284,
+   * THE-355 and SOLUTIONS_EVANGELISTIC_MOVED added before it — recorded in its
+   * own ADDED table rather than folded into MOVED, the same split THE-284
+   * uses for THE_284_MOVED / THE_284_ADDED.
+   *
+   * Regenerated from a fresh `npm run build` on Linux, the same procedure the
+   * note on THE_301_MOVED describes.
+   */
+  const SOLUTIONS_CHURCHES_MOVED: Readonly<Record<string, string>> = {
+    'features/community-engagement/index.html':
+      '6efe150f9fe7c737753493aa4989f64da40a5466eb0e220957be049ef18b2256',
+  };
+  const SOLUTIONS_CHURCHES_ADDED: Readonly<Record<string, string>> = {
+    'solutions/churches/index.html':
+      '580aaa749e2e1f66a35330fca75534785048eef34dea69b7b29b3065a8f9703d',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
     ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
-    ...SOLUTIONS_EVANGELISTIC_MOVED,
+    ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -700,7 +743,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  🔴 THE PAGE COUNT MOVED, 23 → 24 — the new /solutions/evangelistic-
    *  organizations page — AND EVERY ONE OF THE OTHER 23 MOVED TOO, because
    *  `Nav.tsx`'s new Solutions trigger renders on every route. */
-  const BASELINE_ALL = '20ff432681b06c44a4b9f166bb18812377cac137430979b2dbc3bbc14e880db1';
+  /*  Retaken again at SOLUTIONS_CHURCHES_MOVED / SOLUTIONS_CHURCHES_ADDED from
+   *  the same build as those tables; the previous value was
+   *  20ff432681b06c44a4b9f166bb18812377cac137430979b2dbc3bbc14e880db1.
+   *  🔴 THE PAGE COUNT MOVED, 24 → 25 — the new /solutions/churches page —
+   *  and, unlike the first Solutions page, ONLY ONE OF THE OTHER 24 MOVED:
+   *  `features/community-engagement`, for the `services` MOCKS entry reason
+   *  documented on SOLUTIONS_CHURCHES_MOVED above, not the Nav trigger. */
+  const BASELINE_ALL = 'c98767cabfbfb7127701d9919e61c68534ebdd35570b611b749c48d87bccdcef';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -758,7 +808,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED) && !(p in THE_301_MOVED)
         && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
         && !(p in THE_343_MOVED) && !(p in AF7A7BA_MOVED) && !(p in THE_355_MOVED)
-        && !(p in SOLUTIONS_EVANGELISTIC_MOVED));
+        && !(p in SOLUTIONS_EVANGELISTIC_MOVED) && !(p in SOLUTIONS_CHURCHES_MOVED)
+        && !(p in SOLUTIONS_CHURCHES_ADDED));
     // 🔵 ZERO SINCE SOLUTIONS_EVANGELISTIC_MOVED: `Nav.tsx`'s new Solutions
     // trigger renders on every route, so every one of the six pages that were
     // still at their pre-existing value now has a SOLUTIONS_EVANGELISTIC_MOVED
@@ -832,7 +883,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
         && !(p in THE_343_MOVED)
         && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED)
-        && !(p in SOLUTIONS_EVANGELISTIC_MOVED));
+        && !(p in SOLUTIONS_EVANGELISTIC_MOVED) && !(p in SOLUTIONS_CHURCHES_MOVED)
+        && !(p in SOLUTIONS_CHURCHES_ADDED));
     // 🔵 Fifteen until THE-314 took three more out of the list, on the same
     // terms: they are asserted against THE_314_MOVED, not dropped. Five of its
     // eight were already excluded as THE-301's or THE-306's.
@@ -874,25 +926,33 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        has a LATER recorded value; the other four still resolve to THE-278's,
        which is what says THE-293's `unbuilt` flag stayed default-off and its
        edit did not leak. A leak from EITHER ticket still moves four pages that
-       have no later entry to hide behind. */
+       have no later entry to hide behind.
+       ⚠️ `features/community-engagement` NOW RESOLVES THROUGH
+       SOLUTIONS_CHURCHES_MOVED, on the same terms as giving-finance above: the
+       new `services` MOCKS entry filled in that page's own previously-empty
+       Service Planning vignette (see the note on that table), which is a
+       legitimate content change to the ONE page that renders a FeatureBlock for
+       `services` — not a leak from THE-293's `unbuilt` prop, which THE-293
+       itself never touched. */
     for (const page of [
       'features/ai-automation/index.html', 'features/community-engagement/index.html',
       'features/discipleship-content/index.html', 'features/giving-finance/index.html',
       'features/platform-brand/index.html',
     ]) {
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
     /* 🔵 24 KEYS SINCE SOLUTIONS_EVANGELISTIC_MOVED added the new page. The
        claim here is unchanged — THE-293 added and dropped nothing. */
-    expect(Object.keys(BASELINE)).toHaveLength(24);
+    expect(Object.keys(BASELINE)).toHaveLength(25);
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED)
         && !(p in THE_314_MOVED) && !(p in THE_335_MOVED) && !(p in THE_343_MOVED)
         && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED)
-        && !(p in SOLUTIONS_EVANGELISTIC_MOVED));
+        && !(p in SOLUTIONS_EVANGELISTIC_MOVED) && !(p in SOLUTIONS_CHURCHES_MOVED)
+        && !(p in SOLUTIONS_CHURCHES_ADDED));
     // 🔵 Twenty until THE-301 took two out of the list, THE-306 three more and
     // THE-314 four more (four of its eight were already excluded).
     // 🔵 Nine since THE-343 excluded the Planning Center blog post.
@@ -933,7 +993,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       .filter((p) => !(p in THE_301_MOVED) && !(p in THE_306_MOVED) && !(p in THE_314_MOVED)
         && !(p in THE_335_MOVED) && !(p in THE_343_MOVED)
         && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED)
-        && !(p in SOLUTIONS_EVANGELISTIC_MOVED));
+        && !(p in SOLUTIONS_EVANGELISTIC_MOVED) && !(p in SOLUTIONS_CHURCHES_MOVED)
+        && !(p in SOLUTIONS_CHURCHES_ADDED));
     // 🔵 Eleven since THE-314 moved eight of the twenty-two; the claim is
     // unchanged — everything outside the named tables is still at its recorded
     // value.
@@ -953,7 +1014,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
     // 🔵 24 keys since SOLUTIONS_EVANGELISTIC_MOVED added the new page —
     // nothing added or dropped BY THE-301 itself.
-    expect(Object.keys(BASELINE)).toHaveLength(24);
+    expect(Object.keys(BASELINE)).toHaveLength(25);
   });
 
   const pagesInDist = (): string[] => {
@@ -1004,7 +1065,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       .filter((p) => !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
         && !(p in THE_343_MOVED)
         && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED)
-        && !(p in SOLUTIONS_EVANGELISTIC_MOVED));
+        && !(p in SOLUTIONS_EVANGELISTIC_MOVED) && !(p in SOLUTIONS_CHURCHES_MOVED)
+        && !(p in SOLUTIONS_CHURCHES_ADDED));
     // 🔵 Twelve since THE-335 moved ten more, eight of which were already
     // outside this list. THE-306's own claim — that it moved three and no
     // others — is unchanged; the pages it must be measured against are the ones
@@ -1038,7 +1100,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
     // 🔵 24 keys since SOLUTIONS_EVANGELISTIC_MOVED added the new page —
     // nothing added or dropped BY THE-306 itself.
-    expect(Object.keys(BASELINE)).toHaveLength(24);
+    expect(Object.keys(BASELINE)).toHaveLength(25);
   });
 
   it.runIf(comparable)('and the whole set matches as one number', () => {
@@ -1237,12 +1299,17 @@ describe('9 — the prerender list and the built page count are unchanged', () =
        page.
        🔴 24 SINCE SOLUTIONS_EVANGELISTIC_MOVED, board card 86bbyv8pp — the new
        /solutions/evangelistic-organizations route, appended above the
-       catch-all in App.tsx for the reason documented there. */
-    expect(blogRoutes()).toHaveLength(24);
+       catch-all in App.tsx for the reason documented there.
+       🔴 25 SINCE SOLUTIONS_CHURCHES_ADDED, same board card, part two — the new
+       /solutions/churches route, appended the same way, above the catch-all,
+       right after the evangelistic-organizations entry — both are one line
+       each, since both are `...SOLUTIONS.map((s) => ...)` spreads keyed off
+       content/solutions.ts rather than a route added by hand. */
+    expect(blogRoutes()).toHaveLength(25);
   });
 
-  it.runIf(built)('and the build emits all 24 of them', () => {
-    /* The list and the build agree: 24 routes in, 24 pages out.
+  it.runIf(built)('and the build emits all 25 of them', () => {
+    /* The list and the build agree: 25 routes in, 25 pages out.
        ⚠️ ON A win32 CHECKOUT THIS FAILS AT 20, and the failure is correct —
        that build really is missing the three blog posts, for the slugFromPath
        reason noted at the top of this file. Asserted rather than skipped so a
@@ -1256,7 +1323,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
       }
       return n;
     })(DIST);
-    expect(count, `this checkout built ${count} pages, not 24`).toBe(24);
+    expect(count, `this checkout built ${count} pages, not 25`).toBe(25);
   });
 });
 

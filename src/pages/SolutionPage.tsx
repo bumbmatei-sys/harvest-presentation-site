@@ -10,14 +10,16 @@ import { SiteCTA } from '../components/SiteCTA';
 import { PostRow } from '../components/blog';
 import { CATEGORIES, type Feature } from '../content/features';
 import { POSTS } from '../content/posts';
-import { EVANGELISTIC_ORGANIZATIONS } from '../content/solutions';
+import { SOLUTION_PAGES, type SolutionPageContent } from '../content/solutions';
 
-/* /solutions/evangelistic-organizations — board card 86bbyv8pp.
+/* /solutions/<slug> — board card 86bbyv8pp.
  *
  * Modelled on ClickUp's Small Business Suite page, adapted: no reviews, logos,
  * stats or customer stories — Harvest has none real to show and none may be
- * invented. Every string on the page is imported from content/solutions.ts;
- * this file is layout only.
+ * invented. Every string on every page is imported from content/solutions.ts,
+ * keyed by slug in `SOLUTION_PAGES`; this file is layout only and never reads
+ * a page's content export directly, so a section here renders identically for
+ * every solution the content file defines.
  *
  * The hero and the navy positioning band are the same components the five
  * /features/* category pages use, pulled out of CategoryPage.tsx into
@@ -105,7 +107,11 @@ function OneAppTabs({ tabs }: { tabs: readonly { id: string; label: string }[] }
                       <span style={{ marginLeft: 'auto', fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600 }}>Harvest</span>
                     </div>
                     <div style={{ padding: '15px 16px 18px', background: 'var(--stone-100)' }}>
-                      {MOCKS[t.id] ? <FeatureMock id={t.id} /> : null}
+                      {/* `groups` renders through FeatureMock's own special case
+                          (GroupsMock) rather than a MOCKS[id] entry, so the gate
+                          checks both — otherwise the groups tab would render an
+                          empty panel even though FeatureMock has content for it. */}
+                      {(MOCKS[t.id] || t.id === 'groups') ? <FeatureMock id={t.id} /> : null}
                     </div>
                   </div>
                 </div>
@@ -118,8 +124,7 @@ function OneAppTabs({ tabs }: { tabs: readonly { id: string; label: string }[] }
   );
 }
 
-function OneApp() {
-  const c = EVANGELISTIC_ORGANIZATIONS.oneApp;
+function OneApp({ oneApp: c }: { oneApp: SolutionPageContent['oneApp'] }) {
   return (
     <section style={{ background: 'var(--cream)', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
       <div style={{ ...container, textAlign: 'center' }}>
@@ -136,9 +141,8 @@ function OneApp() {
   );
 }
 
-// ---------- Numbers ----------
-function Numbers() {
-  const c = EVANGELISTIC_ORGANIZATIONS.numbers;
+// ---------- Numbers (a generic kicker/heading/body/four-tiles section) ----------
+function Numbers({ numbers: c }: { numbers: SolutionPageContent['numbers'] }) {
   return (
     <section style={{ background: '#fff', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
       <div style={{ ...container, textAlign: 'center' }}>
@@ -161,8 +165,7 @@ function Numbers() {
 }
 
 // ---------- In their pocket ----------
-function Pocket() {
-  const c = EVANGELISTIC_ORGANIZATIONS.pocket;
+function Pocket({ pocket: c }: { pocket: SolutionPageContent['pocket'] }) {
   return (
     <section style={{ background: 'var(--cream)', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
       <div style={{ ...container, textAlign: 'center' }}>
@@ -188,10 +191,10 @@ function Pocket() {
 }
 
 // ---------- Deep dives ----------
-function DeepDives() {
+function DeepDives({ deepDives }: { deepDives: SolutionPageContent['deepDives'] }) {
   return (
     <>
-      {EVANGELISTIC_ORGANIZATIONS.deepDives.map((group) => (
+      {deepDives.map((group) => (
         <section key={group.heading} style={{ background: '#fff', padding: 'clamp(40px, 5vw, 64px) 0 clamp(8px, 1vw, 16px)' }}>
           <div style={{ ...container, textAlign: 'center', marginBottom: 20 }}>
             <Reveal>
@@ -213,8 +216,7 @@ function DeepDives() {
 }
 
 // ---------- Founder note ----------
-function FounderNote() {
-  const c = EVANGELISTIC_ORGANIZATIONS.founder;
+function FounderNote({ founder: c }: { founder: SolutionPageContent['founder'] }) {
   return (
     <section style={{ background: 'var(--navy-900)', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
@@ -232,8 +234,7 @@ function FounderNote() {
 }
 
 // ---------- Support ----------
-function Support() {
-  const c = EVANGELISTIC_ORGANIZATIONS.support;
+function Support({ support: c }: { support: SolutionPageContent['support'] }) {
   return (
     <section style={{ background: '#fff', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
       <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
@@ -251,11 +252,11 @@ function Support() {
 }
 
 // ---------- Recap (three pillars) ----------
-function Recap() {
+function Recap({ pillars }: { pillars: SolutionPageContent['pillars'] }) {
   return (
     <section style={{ background: 'var(--cream)', padding: 'clamp(48px, 6vw, 80px) 24px' }}>
       <div style={{ ...container, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18 }}>
-        {EVANGELISTIC_ORGANIZATIONS.pillars.map((p) => (
+        {pillars.map((p) => (
           <Reveal key={p.title} style={{ ...softCard, padding: '26px 24px', textAlign: 'center' }}>
             <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: '1.3rem', color: 'var(--navy-900)' }}>{p.title}</div>
             <div style={{ fontFamily: 'var(--font-sans)', fontSize: 14, lineHeight: 1.55, color: 'var(--text-muted)', marginTop: 10 }}>{p.body}</div>
@@ -267,8 +268,7 @@ function Recap() {
 }
 
 // ---------- Resources ----------
-function Resources() {
-  const c = EVANGELISTIC_ORGANIZATIONS.resources;
+function Resources({ resources: c }: { resources: SolutionPageContent['resources'] }) {
   const posts = c.slugs.map((slug) => POSTS.find((p) => p.slug === slug)).filter((p): p is NonNullable<typeof p> => !!p);
   return (
     <section style={{ background: '#fff', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
@@ -284,8 +284,9 @@ function Resources() {
   );
 }
 
-export function SolutionPage() {
-  const c = EVANGELISTIC_ORGANIZATIONS;
+export function SolutionPage({ slug }: { slug: string }) {
+  const c = SOLUTION_PAGES[slug];
+  if (!c) return null;
   return (
     <main>
       <Seo title={c.seo.title} description={c.seo.description} canonical={c.seo.canonical} />
@@ -300,15 +301,15 @@ export function SolutionPage() {
         secondary={c.hero.secondary}
         audience={c.hero.audience}
       />
-      <OneApp />
+      <OneApp oneApp={c.oneApp} />
       <PositioningBand kicker={c.gap.kicker} kickerColor="var(--gold-400)" heading={c.gap.heading} body={c.gap.body} />
-      <Numbers />
-      <Pocket />
-      <DeepDives />
-      <FounderNote />
-      <Support />
-      <Recap />
-      <Resources />
+      <Numbers numbers={c.numbers} />
+      <Pocket pocket={c.pocket} />
+      <DeepDives deepDives={c.deepDives} />
+      <FounderNote founder={c.founder} />
+      <Support support={c.support} />
+      <Recap pillars={c.pillars} />
+      <Resources resources={c.resources} />
       <SiteCTA heading={c.finalCta.heading} />
     </main>
   );

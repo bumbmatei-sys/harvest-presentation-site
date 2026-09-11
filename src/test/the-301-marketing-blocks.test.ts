@@ -243,8 +243,10 @@ describe('4 — the prerendered page count is unchanged', () => {
        renders — /features/giving-finance — and a section is an anchor, not a
        page.
        🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
-       the new /solutions/evangelistic-organizations route. */
-    expect(blogRoutes()).toHaveLength(24);
+       the new /solutions/evangelistic-organizations route.
+       🔴 25 SINCE board card 86bbyv8pp, part two, and not because of this
+       ticket either — the new /solutions/churches route. */
+    expect(blogRoutes()).toHaveLength(25);
   });
 
   it('and App.tsx gained no route', () => {
@@ -253,7 +255,7 @@ describe('4 — the prerendered page count is unchanged', () => {
   });
 
   it.runIf(built && postPagesBuilt)('the build emits one page per route', () => {
-    expect(PAGES).toHaveLength(24);
+    expect(PAGES).toHaveLength(25);
   });
 
   it.runIf(built)('and the twenty non-post pages are there on any platform', () => {
@@ -269,7 +271,7 @@ describe('4 — the prerendered page count is unchanged', () => {
        the blog. Twenty holds on Linux and on Windows, and it still catches a
        page this ticket added or dropped — which was the point. */
     const nonPosts = PAGES.filter(([f]) => !/^blog\/[^/]+\/index\.html$/.test(f) || f.startsWith('blog/category/'));
-    expect(nonPosts.map(([f]) => f)).toHaveLength(20);
+    expect(nonPosts.map(([f]) => f)).toHaveLength(21);
     expect(nonPosts.map(([f]) => f)).toContain('features/index.html');
     expect(nonPosts.map(([f]) => f)).toContain('contact/index.html');
   });

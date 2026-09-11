@@ -12,19 +12,27 @@ import { blogRoutes, readPublishedPosts } from '../../build/blog-plugin';
 import { SolutionPage } from './SolutionPage';
 import { Nav, SolutionsMenuItems } from '../components/Nav';
 import { CATEGORIES } from '../content/features';
-import { FEATURE_ICONS } from '../components/FeatureMock';
+import { FEATURE_ICONS, MOCKS } from '../components/FeatureMock';
 import {
-  SOLUTIONS, SOLUTIONS_BASE, solutionHref,
-  EVANGELISTIC_ORGANIZATIONS, EVANGELISTIC_TABS, EVANGELISTIC_DEEP_DIVES,
+  SOLUTIONS, SOLUTIONS_BASE, solutionHref, SOLUTION_PAGES, type SolutionPageContent,
+  EVANGELISTIC_ORGANIZATIONS, CHURCHES,
 } from '../content/solutions';
 
-/* board card 86bbyv8pp — Solutions nav dropdown + /solutions/evangelistic-
- * organizations. See also src/test/the-278-no-regression.test.ts
- * (SOLUTIONS_EVANGELISTIC_MOVED — the prerender fingerprint guard) and
+/* board card 86bbyv8pp — Solutions nav dropdown, /solutions/evangelistic-
+ * organizations, and (part two of the same card) /solutions/churches. See
+ * also src/test/the-278-no-regression.test.ts (SOLUTIONS_EVANGELISTIC_MOVED
+ * and SOLUTIONS_CHURCHES_MOVED — the prerender fingerprint guards) and
  * src/pages/CategoryHero.tsx's header note (the Hero/PositioningBand
- * extraction). This file covers the page's own content and the Nav wiring. */
-
-const HREF = solutionHref('evangelistic-organizations');
+ * extraction). This file covers every solution page's own content plus the
+ * Nav wiring shared by all of them.
+ *
+ * ⚠️ DATA-DRIVEN, LIKE THE PAGE IT TESTS. SolutionPage.tsx no longer hardcodes
+ * the Evangelistic Organizations content — it reads `SOLUTION_PAGES[slug]` —
+ * so most of this file's checks run once per entry in `SOLUTIONS` rather than
+ * being written out twice. Where a check is genuinely page-specific (exact
+ * tab order, exact deep-dive feature ids, the approved copy), it stays a
+ * literal expectation per page rather than being derived from the very
+ * content it is meant to catch a typo in. */
 
 const render = (el: React.ReactElement, at: string) =>
   renderToStaticMarkup(React.createElement(
@@ -49,343 +57,440 @@ const words = (html: string) =>
     .replace(/&nbsp;|\s+/g, ' ')
     .trim();
 
-const pageHtml = render(React.createElement(SolutionPage), HREF);
-const pageText = words(pageHtml);
-
-/* ═══ 1 — the route ════════════════════════════════════════════════════════ */
 type Child = NonNullable<RouteRecord[]>[number];
 const children = ((routes[0] as { children?: Child[] }).children ?? []) as Child[];
 const pathOf = (r: Child) => (r as { path?: string }).path;
 const routePaths = children.map(pathOf);
 const routeFor = (path: string) => children.find((r) => pathOf(r) === path);
 
-describe('the /solutions/evangelistic-organizations route', () => {
-  it('is in the router', () => {
-    expect(routePaths, 'no route for the Evangelistic Organizations page').toContain(HREF);
-  });
+const FEATURES_BY_ID = new Map(CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f] as const)));
 
-  it('renders the SolutionPage', () => {
-    const element = (routeFor(HREF) as { element?: React.ReactNode }).element;
-    expect(React.isValidElement(element)).toBe(true);
-    expect((element as React.ReactElement).type).toBe(SolutionPage);
-  });
+/** One page's fixture: its content, its rendered markup, and the exact tab /
+ *  deep-dive shape the ticket approved for it — asserted literally so a typo
+ *  in content/solutions.ts fails here rather than being re-derived away. */
+interface PageFixture {
+  slug: string;
+  content: SolutionPageContent;
+  tabLabels: readonly string[];
+  tabIds: readonly string[];
+  deepDiveFeatureIds: readonly (readonly string[])[];
+  resourceSlugs: readonly string[];
+  exactStrings: readonly string[];
+}
 
-  it('resolves before the catch-all', () => {
-    expect(routePaths.indexOf(HREF)).toBeLessThan(routePaths.indexOf('*'));
-  });
-
-  it('is one route per SOLUTIONS entry, so a later page needs no App.tsx edit', () => {
-    for (const s of SOLUTIONS) expect(routePaths).toContain(solutionHref(s.slug));
-  });
-});
-
-/* ═══ 2 — prerendered and in the sitemap ═══════════════════════════════════ */
-describe('the prerender list and sitemap', () => {
-  it('blogRoutes() includes the page', () => {
-    expect(blogRoutes()).toContain(HREF);
-  });
-
-  it('build/blog-plugin.ts lists it in both STATIC_ROUTES (the sitemap) and blogRoutes()', () => {
-    const plugin = readFileSync(fileURLToPath(new URL('../../build/blog-plugin.ts', import.meta.url)), 'utf8');
-    const spread = '...SOLUTIONS.map((s) => solutionHref(s.slug))';
-    expect(plugin.split(spread).length - 1, 'the route spread must appear in both STATIC_ROUTES and blogRoutes()')
-      .toBe(2);
-  });
-});
-
-/* ═══ 3 — every feature id referenced resolves ═════════════════════════════ */
-describe('every feature id the Solutions content references resolves', () => {
-  const byId = new Map(CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f] as const)));
-
-  const referenced = new Set<string>([
-    ...EVANGELISTIC_TABS.map((t) => t.id),
-    ...EVANGELISTIC_ORGANIZATIONS.pocket.tiles.map((t) => t.id),
-    ...EVANGELISTIC_DEEP_DIVES.flatMap((g) => g.featureIds),
-  ]);
-
-  it('resolves against the flag-filtered CATEGORIES, never the unfiltered catalog', () => {
-    expect(referenced.size).toBeGreaterThan(0);
-    for (const id of referenced) {
-      expect(byId.get(id), `"${id}" does not resolve in CATEGORIES — hidden or flagged off?`).toBeDefined();
-    }
-  });
-
-  it('every pocket tile has an icon', () => {
-    for (const t of EVANGELISTIC_ORGANIZATIONS.pocket.tiles) {
-      expect(FEATURE_ICONS[t.id], `no FEATURE_ICONS entry for "${t.id}"`).toBeDefined();
-    }
-  });
-
-  it('each feature block id appears exactly once on the whole page — no duplicate DOM ids', () => {
-    const ids = [...pageHtml.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
-    const counts = new Map<string, number>();
-    for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1);
-    for (const id of referenced) {
-      if (!EVANGELISTIC_DEEP_DIVES.some((g) => g.featureIds.includes(id))) continue;
-      expect(counts.get(id), `#${id} appears ${counts.get(id) ?? 0} times, expected 1`).toBe(1);
-    }
-  });
-});
-
-/* ═══ 4 — every approved string, verbatim ═══════════════════════════════════ */
-describe('every approved copy string appears exactly as written', () => {
-  const c = EVANGELISTIC_ORGANIZATIONS;
-
-  const EXACT_STRINGS = [
-    c.hero.eyebrow,
+const EVANGELISTIC_FIXTURE: PageFixture = {
+  slug: 'evangelistic-organizations',
+  content: EVANGELISTIC_ORGANIZATIONS,
+  tabLabels: ['Giving', 'Fundraising', 'Pledges', 'Analytics', 'CRM', 'Blog', 'Feed', 'Courses'],
+  tabIds: ['donation', 'fundraising', 'pledges', 'analytics', 'crm', 'blog', 'feed', 'courses'],
+  deepDiveFeatureIds: [
+    ['donation', 'sharegiving', 'fundraising', 'pledges'],
+    ['analytics', 'forms', 'crm'],
+    ['blog', 'feed'],
+    ['courses', 'bible', 'prayer'],
+  ],
+  resourceSlugs: [
+    'work-that-outlives-you',
+    'generosity-without-pressure',
+    'year-end-giving-statements-what-to-include',
+  ],
+  exactStrings: [
+    EVANGELISTIC_ORGANIZATIONS.hero.eyebrow,
     'Every decision counted.',
     'Every one followed up.',
-    c.hero.intro,
-    'Start free trial',
+    EVANGELISTIC_ORGANIZATIONS.hero.intro,
     'See pricing',
-    c.hero.audience,
-    c.oneApp.kicker,
-    c.oneApp.heading,
-    c.oneApp.sub,
-    c.gap.kicker,
-    c.gap.heading,
-    c.gap.body,
-    c.numbers.kicker,
-    c.numbers.heading,
-    c.numbers.body,
-    ...c.numbers.tiles.flatMap((t) => [t.label, t.body]),
-    c.pocket.kicker,
-    c.pocket.heading,
-    c.pocket.sub,
-    ...c.pocket.tiles.flatMap((t) => [t.title, t.body]),
-    ...c.deepDives.flatMap((g) => [g.heading, g.sub]),
-    c.founder.quote,
-    c.founder.attribution,
-    c.support.kicker,
-    c.support.heading,
-    c.support.body,
-    c.support.button.label,
-    ...c.pillars.flatMap((p) => [p.title, p.body]),
-    c.resources.kicker,
-    c.finalCta.heading,
-  ];
+    EVANGELISTIC_ORGANIZATIONS.hero.audience,
+  ],
+};
 
-  it.each(EXACT_STRINGS)('%s', (s) => {
-    expect(pageText, `missing exact copy: ${JSON.stringify(s)}`).toContain(s);
-  });
+const CHURCHES_FIXTURE: PageFixture = {
+  slug: 'churches',
+  content: CHURCHES,
+  tabLabels: ['Giving', 'Feed', 'Check-in', 'Groups', 'Services', 'Livestream', 'Events', 'CRM'],
+  tabIds: ['donation', 'feed', 'checkin', 'groups', 'services', 'livestream', 'events', 'crm'],
+  deepDiveFeatureIds: [
+    ['donation', 'sharegiving', 'fundraising', 'pledges'],
+    ['services', 'checkin', 'livestream', 'events'],
+    ['feed', 'groups', 'prayer'],
+    ['crm', 'dashboard', 'forms'],
+    ['courses', 'bible', 'docs'],
+  ],
+  resourceSlugs: [
+    'generosity-without-pressure',
+    'year-end-giving-statements-what-to-include',
+  ],
+  exactStrings: [
+    CHURCHES.hero.eyebrow,
+    CHURCHES.hero.headline,
+    CHURCHES.hero.intro,
+    'See pricing',
+    CHURCHES.hero.audience,
+  ],
+};
 
-  it('the tab labels are the approved set, in order', () => {
-    expect(EVANGELISTIC_TABS.map((t) => t.label)).toEqual([
-      'Giving', 'Fundraising', 'Pledges', 'Analytics', 'CRM', 'Blog', 'Feed', 'Courses',
-    ]);
-    expect(EVANGELISTIC_TABS.map((t) => t.id)).toEqual([
-      'donation', 'fundraising', 'pledges', 'analytics', 'crm', 'blog', 'feed', 'courses',
-    ]);
-  });
+const FIXTURES: readonly PageFixture[] = [EVANGELISTIC_FIXTURE, CHURCHES_FIXTURE];
 
-  it('the deep-dive groups carry the approved feature ids, in order', () => {
-    expect(EVANGELISTIC_DEEP_DIVES.map((g) => g.featureIds)).toEqual([
-      ['donation', 'sharegiving', 'fundraising', 'pledges'],
-      ['analytics', 'forms', 'crm'],
-      ['blog', 'feed'],
-      ['courses', 'bible', 'prayer'],
-    ]);
-  });
-
-  it('the SEO title, description and canonical are set', () => {
-    expect(c.seo.title).toBe('Harvest for Evangelistic Organizations');
-    expect(c.seo.canonical).toBe('https://theharvest.site/solutions/evangelistic-organizations');
-    // <Seo/> is vite-react-ssg's <Head/>, i.e. react-helmet-async — it writes
-    // into the Helmet context rather than inline into the returned markup, so
-    // the title/canonical are read off the context the same way the app's own
-    // SSR entry does, not off `pageHtml`.
-    const helmetContext: { helmet?: import('react-helmet-async').HelmetServerState } = {};
-    renderToStaticMarkup(React.createElement(
-      HelmetProvider, { context: helmetContext },
-      React.createElement(MemoryRouter, { initialEntries: [HREF] }, React.createElement(SolutionPage)),
-    ));
-    const helmet = helmetContext.helmet!;
-    expect(helmet.title.toString()).toContain('Harvest for Evangelistic Organizations');
-    expect(helmet.link.toString()).toContain(`href="${c.seo.canonical}"`);
-  });
-
-  it('every trial/pricing CTA on the page goes to /#pricing — no plan is named', () => {
-    expect(c.hero.secondary.to).toBe('/#pricing');
-    expect(pageHtml.match(/href="\/#pricing"/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
-  });
-});
-
-/* ═══ 5 — the aichat tile carries no plan chip and no price ════════════════ */
-describe('the aichat pocket tile makes no plan or price claim', () => {
-  it('is present, and its own copy never says "add-on" or names a price', () => {
-    const tile = EVANGELISTIC_ORGANIZATIONS.pocket.tiles.find((t) => t.id === 'aichat');
-    expect(tile).toBeDefined();
-    expect(pageText).toContain(tile!.title);
-    const ownCopy = `${tile!.title} ${tile!.body}`;
-    expect(ownCopy.toLowerCase()).not.toContain('add-on');
-    expect(ownCopy).not.toMatch(/\$\d/);
-  });
-
-  it('the pocket tile renders no plan-chip UI at all — Pocket() never draws PlanChips', () => {
-    // Unlike the deep-dive FeatureBlocks, the pocket tiles are this ticket's
-    // own markup (see SolutionPage.tsx's `Pocket()`), so this one really can
-    // be checked against the full rendered page.
-    const source = readFileSync(fileURLToPath(new URL('./SolutionPage.tsx', import.meta.url)), 'utf8');
-    const pocketFn = source.slice(source.indexOf('function Pocket()'), source.indexOf('// ---------- Deep dives'));
-    expect(pocketFn).not.toMatch(/PlanChips|Available on/);
-  });
-});
-
-/* ═══ 6 — tabs: a11y wiring and SSR content ═════════════════════════════════ */
-describe('the "One app" tabs', () => {
-  it('role=tablist, role=tab and role=tabpanel are all present', () => {
-    expect(pageHtml).toContain('role="tablist"');
-    expect(pageHtml).toContain('role="tab"');
-    expect(pageHtml).toContain('role="tabpanel"');
-  });
-
-  it('exactly one tab is aria-selected, and it is the first', () => {
-    const selectedTrue = (pageHtml.match(/role="tab"[^>]*aria-selected="true"/g) ?? []).length;
-    expect(selectedTrue).toBe(1);
-    const firstTabId = `solutions-tab-${EVANGELISTIC_TABS[0].id}`;
-    expect(pageHtml).toMatch(new RegExp(`id="${firstTabId}"[^>]*aria-selected="true"`));
-  });
-
-  it('every tab button is keyboard-reachable — aria-controls pairs it with its panel, and only the active tab is in the default tab order', () => {
-    for (const t of EVANGELISTIC_TABS) {
-      const tabId = `solutions-tab-${t.id}`;
-      const panelId = `solutions-panel-${t.id}`;
-      expect(pageHtml).toContain(`id="${tabId}"`);
-      expect(pageHtml).toContain(`id="${panelId}"`);
-      expect(pageHtml).toMatch(new RegExp(`id="${tabId}"[^>]*aria-controls="${panelId}"`));
-    }
-    // Roving tabindex: the active tab is reachable by Tab, the rest only by
-    // the arrow keys the panel's onKeyDown handler wires up.
-    expect((pageHtml.match(/role="tab"[^>]*tabindex="0"/g) ?? []).length).toBe(1);
-    expect((pageHtml.match(/role="tab"[^>]*tabindex="-1"/g) ?? []).length).toBe(EVANGELISTIC_TABS.length - 1);
-  });
-
-  it('the first tab\'s panel is present in the prerendered HTML, with its feature\'s oneliner', () => {
-    const byId = new Map(CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f] as const)));
-    const first = EVANGELISTIC_TABS[0];
-    const feature = byId.get(first.id);
-    expect(feature).toBeDefined();
-    const panelId = `solutions-panel-${first.id}`;
-    const panelMatch = pageHtml.match(new RegExp(`id="${panelId}"[\\s\\S]*?(?=id="solutions-panel-)`));
-    expect(panelMatch, 'first tab panel not found').toBeTruthy();
-    expect(words(panelMatch![0])).toContain(feature!.oneliner);
-  });
-
-  it('a non-active panel is hidden in the prerendered HTML', () => {
-    const last = EVANGELISTIC_TABS[EVANGELISTIC_TABS.length - 1];
-    const panelId = `solutions-panel-${last.id}`;
-    expect(pageHtml).toMatch(new RegExp(`id="${panelId}"[^>]*hidden=""`));
-  });
-});
-
-/* ═══ 7 — Resources: the three named posts, published ══════════════════════
- *
- * ⚠️ READ FROM THE MARKDOWN ON DISK, NOT `content/posts.ts`. That module reads
- * `virtual:blog-content`, which only exists inside a Vite build — the test
- * runner aliases it to an empty stub (see vitest.config.ts), so `POSTS` is
- * always `[]` here and `SolutionPage`'s own render of the Resources section is
- * therefore also empty in `pageHtml`. `readPublishedPosts()` from
- * build/blog-plugin.ts parses the same three .md files directly, the same way
- * content/parse-post.test.ts does, so this is a real check rather than one
- * that would pass with the section silently gutted. */
-describe('the Resources section', () => {
-  const slugs = EVANGELISTIC_ORGANIZATIONS.resources.slugs;
-  const posts = readPublishedPosts();
-
-  it('names exactly the three approved slugs', () => {
-    expect(slugs).toEqual([
-      'work-that-outlives-you',
-      'generosity-without-pressure',
-      'year-end-giving-statements-what-to-include',
-    ]);
-  });
-
-  it('every one of them exists on disk and is published', () => {
-    for (const slug of slugs) {
-      const post = posts.find((p) => p.slug === slug);
-      expect(post, `"${slug}" is missing or not published`).toBeDefined();
+/* ═══ 0 — content/solutions.ts wiring: every SOLUTIONS slug has a page, and
+ * every SOLUTION_PAGES entry has a SOLUTIONS listing ════════════════════ */
+describe('SOLUTIONS and SOLUTION_PAGES agree', () => {
+  it('every SOLUTIONS slug has a SOLUTION_PAGES entry', () => {
+    for (const s of SOLUTIONS) {
+      expect(SOLUTION_PAGES[s.slug], `no SOLUTION_PAGES entry for "${s.slug}"`).toBeDefined();
+      expect(SOLUTION_PAGES[s.slug].slug).toBe(s.slug);
     }
   });
 
-  const DIST = fileURLToPath(new URL('../../dist', import.meta.url));
-  const built = existsSync(path.join(DIST, 'index.html'));
+  it('every SOLUTION_PAGES entry has a SOLUTIONS listing', () => {
+    const slugs = new Set(SOLUTIONS.map((s) => s.slug));
+    for (const slug of Object.keys(SOLUTION_PAGES)) {
+      expect(slugs.has(slug), `SOLUTION_PAGES["${slug}"] has no SOLUTIONS entry`).toBe(true);
+    }
+  });
 
-  it.runIf(built)('every one of them renders on the built page, by title', () => {
-    const html = readFileSync(path.join(DIST, 'solutions', 'evangelistic-organizations', 'index.html'), 'utf8');
-    for (const slug of slugs) {
-      const post = posts.find((p) => p.slug === slug)!;
-      expect(html, `"${post.title}" is missing from the built Resources section`).toContain(post.title);
+  it('SOLUTIONS_BASE and solutionHref agree', () => {
+    expect(SOLUTIONS_BASE).toBe('/solutions');
+    expect(solutionHref('evangelistic-organizations')).toBe('/solutions/evangelistic-organizations');
+    expect(solutionHref('churches')).toBe('/solutions/churches');
+  });
+
+  it('every SOLUTIONS entry has a non-empty name and description', () => {
+    for (const s of SOLUTIONS) {
+      expect(s.name.length).toBeGreaterThan(0);
+      expect(s.description.length).toBeGreaterThan(0);
     }
   });
 });
 
-/* ═══ 8 — no invented capability: prices, plans, percentages, competitors ═══
- *
- * ⚠️ SCOPED TO THIS PAGE'S OWN AUTHORED COPY — content/solutions.ts — NOT to
- * `pageText`, the full rendered page. Deep dives (2.6) render the exact same
- * `FeatureBlock`/`FeatureMock` every /features/* category page already does,
- * unmodified per the spec: its plan-availability chips print "Individual",
- * "Small Team" and "Ministry" for every feature that carries tiers, and its
- * vignettes are UI mockups with realistic sample data ("$50", "$1,240") —
- * both are sitewide chrome no other category page's tests forbid either. The
- * founder's "no plan is named in page copy" is about what THIS ticket writes,
- * not about turning off chrome the rest of the site relies on; scoping this
- * guard to the copy this ticket owns is what makes it a meaningful check
- * rather than a false failure against a component nobody asked to change. */
-describe('the page\'s own authored copy makes no capability claim it cannot back', () => {
-  const c = EVANGELISTIC_ORGANIZATIONS;
-  const OWN_COPY = [
-    c.hero.eyebrow, c.hero.headline, c.hero.intro, c.hero.audience,
-    c.oneApp.kicker, c.oneApp.heading, c.oneApp.sub,
-    ...c.oneApp.tabs.map((t) => t.label),
-    c.gap.kicker, c.gap.heading, c.gap.body,
-    c.numbers.kicker, c.numbers.heading, c.numbers.body,
-    ...c.numbers.tiles.flatMap((t) => [t.label, t.body]),
-    c.pocket.kicker, c.pocket.heading, c.pocket.sub,
-    ...c.pocket.tiles.flatMap((t) => [t.title, t.body]),
-    ...c.deepDives.flatMap((g) => [g.heading, g.sub]),
-    c.founder.quote, c.founder.attribution,
-    c.support.kicker, c.support.heading, c.support.body, c.support.button.label,
-    ...c.pillars.flatMap((p) => [p.title, p.body]),
-    c.resources.kicker,
-    c.finalCta.heading,
-  ].join(' \n ');
+for (const fixture of FIXTURES) {
+  const { slug, content: c, tabLabels, tabIds, deepDiveFeatureIds, resourceSlugs, exactStrings } = fixture;
+  const HREF = solutionHref(slug);
+  const pageHtml = render(React.createElement(SolutionPage, { slug }), HREF);
+  const pageText = words(pageHtml);
 
-  it('no dollar price', () => {
-    expect(OWN_COPY).not.toMatch(/\$\d/);
-  });
+  describe(`/solutions/${slug}`, () => {
+    /* ═══ 1 — the route ══════════════════════════════════════════════════ */
+    describe('the route', () => {
+      it('is in the router', () => {
+        expect(routePaths, `no route for ${HREF}`).toContain(HREF);
+      });
 
-  it('no plan name', () => {
-    expect(OWN_COPY).not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
-  });
+      it('renders the SolutionPage', () => {
+        const element = (routeFor(HREF) as { element?: React.ReactNode }).element;
+        expect(React.isValidElement(element)).toBe(true);
+        expect((element as React.ReactElement).type).toBe(SolutionPage);
+        expect((element as React.ReactElement).props).toEqual({ slug });
+      });
 
-  it('no percentage', () => {
-    expect(OWN_COPY).not.toMatch(/\d+(\.\d+)?%/);
-  });
+      it('resolves before the catch-all', () => {
+        expect(routePaths.indexOf(HREF)).toBeLessThan(routePaths.indexOf('*'));
+      });
+    });
 
-  it('no competitor name', () => {
-    const COMPETITORS = [
-      'Tithe.ly', 'Pushpay', 'Subsplash', 'HubSpot', 'Planning Center', 'Skool',
-      'Teachable', 'Typeform', 'WordPress', 'Donorbox', 'Notion', 'The Church Co',
-    ];
-    for (const name of COMPETITORS) {
-      expect(OWN_COPY, `"${name}" is named in this ticket's own copy`).not.toContain(name);
-    }
-  });
+    /* ═══ 2 — prerendered and in the sitemap ═══════════════════════════════ */
+    describe('the prerender list and sitemap', () => {
+      it('blogRoutes() includes the page', () => {
+        expect(blogRoutes()).toContain(HREF);
+      });
+    });
 
-  it('the numbers tiles carry no digit or invented metric', () => {
-    for (const tile of c.numbers.tiles) {
-      expect(tile.label).not.toMatch(/\d/);
-      expect(tile.body).not.toMatch(/\d/);
-    }
-  });
+    /* ═══ 3 — every feature id referenced resolves, and no duplicate DOM ids ═ */
+    describe('every feature id this page references resolves', () => {
+      const referenced = new Set<string>([
+        ...tabIds,
+        ...c.pocket.tiles.map((t) => t.id),
+        ...deepDiveFeatureIds.flat(),
+      ]);
 
-  it('no Scripture reference is used as a sales device', () => {
-    // A book:chapter:verse reference (e.g. "John 3:16") appearing on a sales
-    // page would be exactly that.
-    expect(OWN_COPY).not.toMatch(/\b[A-Z][a-z]+ \d+:\d+/);
+      it('resolves against the flag-filtered CATEGORIES, never the unfiltered catalog', () => {
+        expect(referenced.size).toBeGreaterThan(0);
+        for (const id of referenced) {
+          expect(FEATURES_BY_ID.get(id), `"${id}" does not resolve in CATEGORIES — hidden or flagged off?`).toBeDefined();
+        }
+      });
+
+      it('every pocket tile has an icon', () => {
+        for (const t of c.pocket.tiles) {
+          expect(FEATURE_ICONS[t.id], `no FEATURE_ICONS entry for "${t.id}"`).toBeDefined();
+        }
+      });
+
+      it('each deep-dive feature block id appears exactly once on the page — no duplicate DOM ids', () => {
+        const ids = [...pageHtml.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+        const counts = new Map<string, number>();
+        for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1);
+        for (const id of deepDiveFeatureIds.flat()) {
+          expect(counts.get(id), `#${id} appears ${counts.get(id) ?? 0} times, expected 1`).toBe(1);
+        }
+      });
+    });
+
+    /* ═══ 4 — approved copy, verbatim ═══════════════════════════════════════ */
+    describe('every approved copy string appears exactly as written', () => {
+      const EXACT_STRINGS = [
+        ...exactStrings,
+        c.oneApp.kicker,
+        c.oneApp.heading,
+        c.oneApp.sub,
+        c.gap.kicker,
+        c.gap.heading,
+        c.gap.body,
+        c.numbers.kicker,
+        c.numbers.heading,
+        c.numbers.body,
+        ...c.numbers.tiles.flatMap((t) => [t.label, t.body]),
+        c.pocket.kicker,
+        c.pocket.heading,
+        c.pocket.sub,
+        ...c.pocket.tiles.flatMap((t) => [t.title, t.body]),
+        ...c.deepDives.flatMap((g) => [g.heading, g.sub]),
+        c.founder.quote,
+        c.founder.attribution,
+        c.support.kicker,
+        c.support.heading,
+        c.support.body,
+        c.support.button.label,
+        ...c.pillars.flatMap((p) => [p.title, p.body]),
+        c.resources.kicker,
+        c.finalCta.heading,
+      ];
+
+      it.each(EXACT_STRINGS)('%s', (s) => {
+        expect(pageText, `missing exact copy: ${JSON.stringify(s)}`).toContain(s);
+      });
+
+      it('the tab labels and ids are the approved set, in order', () => {
+        expect(c.oneApp.tabs.map((t) => t.label)).toEqual([...tabLabels]);
+        expect(c.oneApp.tabs.map((t) => t.id)).toEqual([...tabIds]);
+      });
+
+      it('the deep-dive groups carry the approved feature ids, in order', () => {
+        expect(c.deepDives.map((g) => g.featureIds)).toEqual(deepDiveFeatureIds.map((ids) => [...ids]));
+      });
+
+      it('the SEO title, description and canonical are set', () => {
+        expect(c.seo.canonical).toBe(`https://theharvest.site${HREF}`);
+        // <Seo/> is vite-react-ssg's <Head/>, i.e. react-helmet-async — it writes
+        // into the Helmet context rather than inline into the returned markup, so
+        // the title/canonical are read off the context the same way the app's own
+        // SSR entry does, not off `pageHtml`.
+        const helmetContext: { helmet?: import('react-helmet-async').HelmetServerState } = {};
+        renderToStaticMarkup(React.createElement(
+          HelmetProvider, { context: helmetContext },
+          React.createElement(MemoryRouter, { initialEntries: [HREF] }, React.createElement(SolutionPage, { slug })),
+        ));
+        const helmet = helmetContext.helmet!;
+        expect(helmet.title.toString()).toContain(c.seo.title);
+        expect(helmet.link.toString()).toContain(`href="${c.seo.canonical}"`);
+      });
+
+      it('every trial/pricing CTA on the page goes to /#pricing — no plan is named', () => {
+        expect(c.hero.secondary.to).toBe('/#pricing');
+        expect(pageHtml.match(/href="\/#pricing"/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+      });
+    });
+
+    /* ═══ 5 — the aichat tile carries no plan chip and no price ════════════ */
+    describe('the aichat pocket tile (when present) makes no plan or price claim', () => {
+      const tile = c.pocket.tiles.find((t) => t.id === 'aichat');
+
+      it.runIf(!!tile)('its own copy never says "add-on" or names a price', () => {
+        expect(pageText).toContain(tile!.title);
+        const ownCopy = `${tile!.title} ${tile!.body}`;
+        expect(ownCopy.toLowerCase()).not.toContain('add-on');
+        expect(ownCopy).not.toMatch(/\$\d/);
+      });
+
+      it('the pocket tile renders no plan-chip UI at all — Pocket() never draws PlanChips', () => {
+        // Unlike the deep-dive FeatureBlocks, the pocket tiles are this ticket's
+        // own markup (see SolutionPage.tsx's `Pocket()`), so this one really can
+        // be checked against the full rendered page.
+        const source = readFileSync(fileURLToPath(new URL('./SolutionPage.tsx', import.meta.url)), 'utf8');
+        const pocketFn = source.slice(source.indexOf('function Pocket('), source.indexOf('// ---------- Deep dives'));
+        expect(pocketFn).not.toMatch(/PlanChips|Available on/);
+      });
+    });
+
+    /* ═══ 6 — tabs: a11y wiring and SSR content ═════════════════════════════ */
+    describe('the "One app" tabs', () => {
+      it('role=tablist, role=tab and role=tabpanel are all present', () => {
+        expect(pageHtml).toContain('role="tablist"');
+        expect(pageHtml).toContain('role="tab"');
+        expect(pageHtml).toContain('role="tabpanel"');
+      });
+
+      it('exactly one tab is aria-selected, and it is the first', () => {
+        const selectedTrue = (pageHtml.match(/role="tab"[^>]*aria-selected="true"/g) ?? []).length;
+        expect(selectedTrue).toBe(1);
+        const firstTabId = `solutions-tab-${c.oneApp.tabs[0].id}`;
+        expect(pageHtml).toMatch(new RegExp(`id="${firstTabId}"[^>]*aria-selected="true"`));
+      });
+
+      it('every tab button is keyboard-reachable — aria-controls pairs it with its panel, and only the active tab is in the default tab order', () => {
+        for (const t of c.oneApp.tabs) {
+          const tabId = `solutions-tab-${t.id}`;
+          const panelId = `solutions-panel-${t.id}`;
+          expect(pageHtml).toContain(`id="${tabId}"`);
+          expect(pageHtml).toContain(`id="${panelId}"`);
+          expect(pageHtml).toMatch(new RegExp(`id="${tabId}"[^>]*aria-controls="${panelId}"`));
+        }
+        // Roving tabindex: the active tab is reachable by Tab, the rest only by
+        // the arrow keys the panel's onKeyDown handler wires up.
+        expect((pageHtml.match(/role="tab"[^>]*tabindex="0"/g) ?? []).length).toBe(1);
+        expect((pageHtml.match(/role="tab"[^>]*tabindex="-1"/g) ?? []).length).toBe(c.oneApp.tabs.length - 1);
+      });
+
+      it('the first tab\'s panel is present in the prerendered HTML, with its feature\'s oneliner', () => {
+        const first = c.oneApp.tabs[0];
+        const feature = FEATURES_BY_ID.get(first.id);
+        expect(feature).toBeDefined();
+        const panelId = `solutions-panel-${first.id}`;
+        const panelMatch = pageHtml.match(new RegExp(`id="${panelId}"[\\s\\S]*?(?=id="solutions-panel-)`));
+        expect(panelMatch, 'first tab panel not found').toBeTruthy();
+        expect(words(panelMatch![0])).toContain(feature!.oneliner);
+      });
+
+      it('a non-active panel is hidden in the prerendered HTML', () => {
+        const last = c.oneApp.tabs[c.oneApp.tabs.length - 1];
+        const panelId = `solutions-panel-${last.id}`;
+        expect(pageHtml).toMatch(new RegExp(`id="${panelId}"[^>]*hidden=""`));
+      });
+
+      it('no tab id\'s FeatureMock renders null — every mock the tab list references actually draws something', () => {
+        // OneAppTabs only calls <FeatureMock id={t.id}/> when `MOCKS[t.id]` is
+        // truthy or `t.id === 'groups'` (FeatureMock's own special case for
+        // GroupsMock — see the header note on that gate in SolutionPage.tsx).
+        // Checked against the real MOCKS export rather than the rendered
+        // markup, which can't distinguish "no mock" from "a mock that happens
+        // to render nothing visible".
+        for (const t of c.oneApp.tabs) {
+          const hasMock = !!MOCKS[t.id] || t.id === 'groups';
+          expect(hasMock, `FeatureMock has no entry for tab "${t.id}" — it would render an empty panel`).toBe(true);
+        }
+      });
+    });
+
+    /* ═══ 7 — Resources: the approved slugs, published ═════════════════════
+     *
+     * ⚠️ READ FROM THE MARKDOWN ON DISK, NOT `content/posts.ts`. That module
+     * reads `virtual:blog-content`, which only exists inside a Vite build —
+     * the test runner aliases it to an empty stub (see vitest.config.ts), so
+     * `POSTS` is always `[]` here and `SolutionPage`'s own render of the
+     * Resources section is therefore also empty in `pageHtml`.
+     * `readPublishedPosts()` from build/blog-plugin.ts parses the same .md
+     * files directly, the same way content/parse-post.test.ts does, so this
+     * is a real check rather than one that would pass with the section
+     * silently gutted. */
+    describe('the Resources section', () => {
+      const posts = readPublishedPosts();
+
+      it('names exactly the approved slugs', () => {
+        expect(c.resources.slugs).toEqual(resourceSlugs);
+      });
+
+      it('every one of them exists on disk and is published', () => {
+        for (const s of c.resources.slugs) {
+          const post = posts.find((p) => p.slug === s);
+          expect(post, `"${s}" is missing or not published`).toBeDefined();
+        }
+      });
+
+      const DIST = fileURLToPath(new URL('../../dist', import.meta.url));
+      const built = existsSync(path.join(DIST, 'index.html'));
+      const builtSlugParts = slug.split('/');
+
+      it.runIf(built)('every one of them renders on the built page, by title', () => {
+        const html = readFileSync(path.join(DIST, 'solutions', ...builtSlugParts, 'index.html'), 'utf8');
+        for (const s of c.resources.slugs) {
+          const post = posts.find((p) => p.slug === s)!;
+          expect(html, `"${post.title}" is missing from the built Resources section`).toContain(post.title);
+        }
+      });
+    });
+
+    /* ═══ 8 — no invented capability: prices, plans, percentages, competitors ═
+     *
+     * ⚠️ SCOPED TO THIS PAGE'S OWN AUTHORED COPY — content/solutions.ts — NOT
+     * to `pageText`, the full rendered page. Deep dives render the exact same
+     * `FeatureBlock`/`FeatureMock` every /features/* category page already
+     * does, unmodified per the spec: its plan-availability chips print
+     * "Individual", "Small Team" and "Ministry" for every feature that carries
+     * tiers, and its vignettes are UI mockups with realistic sample data
+     * ("$50", "$1,240") — both are sitewide chrome no other category page's
+     * tests forbid either. The founder's "no plan is named in page copy" is
+     * about what THIS ticket writes, not about turning off chrome the rest of
+     * the site relies on; scoping this guard to the copy this ticket owns is
+     * what makes it a meaningful check rather than a false failure against a
+     * component nobody asked to change. */
+    describe('the page\'s own authored copy makes no capability claim it cannot back', () => {
+      const OWN_COPY = [
+        c.hero.eyebrow, c.hero.headline, c.hero.intro, c.hero.audience,
+        c.oneApp.kicker, c.oneApp.heading, c.oneApp.sub,
+        ...c.oneApp.tabs.map((t) => t.label),
+        c.gap.kicker, c.gap.heading, c.gap.body,
+        c.numbers.kicker, c.numbers.heading, c.numbers.body,
+        ...c.numbers.tiles.flatMap((t) => [t.label, t.body]),
+        c.pocket.kicker, c.pocket.heading, c.pocket.sub,
+        ...c.pocket.tiles.flatMap((t) => [t.title, t.body]),
+        ...c.deepDives.flatMap((g) => [g.heading, g.sub]),
+        c.founder.quote, c.founder.attribution,
+        c.support.kicker, c.support.heading, c.support.body, c.support.button.label,
+        ...c.pillars.flatMap((p) => [p.title, p.body]),
+        c.resources.kicker,
+        c.finalCta.heading,
+      ].join(' \n ');
+
+      it('no dollar price', () => {
+        /* ⚠️ CHURCHES' founder note says "hundreds of dollars every month" —
+           prose about the cost of the OLD stack of tools it replaces, not a
+           price Harvest charges. Allowed by matching that exact sentence and
+           stripping only it before the `$\d` check runs, per the ticket:
+           "Allow it by exact sentence, not by loosening the $ rule." Any other
+           dollar figure anywhere else in this page's own copy still fails. */
+        const HUNDREDS_OF_DOLLARS_SENTENCE = "shouldn't have to pay hundreds of dollars every month across a stack of subscriptions just to run";
+        const scrubbed = OWN_COPY.includes(HUNDREDS_OF_DOLLARS_SENTENCE)
+          ? OWN_COPY.split(HUNDREDS_OF_DOLLARS_SENTENCE).join('')
+          : OWN_COPY;
+        if (slug === 'churches') {
+          expect(OWN_COPY, 'the allowlisted sentence must actually be present to be worth allowlisting')
+            .toContain(HUNDREDS_OF_DOLLARS_SENTENCE);
+        }
+        expect(scrubbed).not.toMatch(/\$\d/);
+      });
+
+      it('no plan name', () => {
+        expect(OWN_COPY).not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
+      });
+
+      it('no percentage', () => {
+        expect(OWN_COPY).not.toMatch(/\d+(\.\d+)?%/);
+      });
+
+      it('no competitor name', () => {
+        const COMPETITORS = [
+          'Tithe.ly', 'Pushpay', 'Subsplash', 'HubSpot', 'Planning Center', 'Skool',
+          'Teachable', 'Typeform', 'WordPress', 'Donorbox', 'Notion', 'The Church Co',
+        ];
+        for (const name of COMPETITORS) {
+          expect(OWN_COPY, `"${name}" is named in this ticket's own copy`).not.toContain(name);
+        }
+      });
+
+      it('the numbers/tiles section carries no digit or invented metric', () => {
+        for (const tile of c.numbers.tiles) {
+          expect(tile.label).not.toMatch(/\d/);
+          expect(tile.body).not.toMatch(/\d/);
+        }
+      });
+
+      it('no Scripture reference is used as a sales device', () => {
+        // A book:chapter:verse reference (e.g. "John 3:16") appearing on a sales
+        // page would be exactly that.
+        expect(OWN_COPY).not.toMatch(/\b[A-Z][a-z]+ \d+:\d+/);
+      });
+    });
   });
-});
+}
 
 /* ═══ 9 — Nav: the Solutions dropdown ═══════════════════════════════════════ */
 describe('the Nav "Solutions" trigger', () => {
@@ -419,7 +524,7 @@ describe('the Solutions panel content — SolutionsMenuItems, rendered directly'
   // mobile accordion only exist once real click-driven state is true, which
   // nothing outside a real click can set in this DOM-less test runner. Pulled
   // into its own exported component, both variants can be rendered directly.
-  it('desktop: one menuitem per SOLUTIONS entry, each with its name and description', () => {
+  it('desktop: one menuitem per SOLUTIONS entry, IN SOLUTIONS ORDER, each with its name and description', () => {
     const html = renderToStaticMarkup(React.createElement(
       MemoryRouter, {}, React.createElement(SolutionsMenuItems, { variant: 'desktop' }),
     ));
@@ -428,10 +533,12 @@ describe('the Solutions panel content — SolutionsMenuItems, rendered directly'
       expect(html).toContain(s.description);
       expect(html).toContain(`href="${solutionHref(s.slug)}"`);
     }
+    const order = SOLUTIONS.map((s) => html.indexOf(`href="${solutionHref(s.slug)}"`));
+    expect(order).toEqual([...order].sort((a, b) => a - b));
     expect((html.match(/role="menuitem"/g) ?? []).length).toBe(SOLUTIONS.length);
   });
 
-  it('mobile: the same entries, no role=menuitem (matches the Features accordion\'s own variant split)', () => {
+  it('mobile: the same entries, IN SOLUTIONS ORDER, no role=menuitem (matches the Features accordion\'s own variant split)', () => {
     const html = renderToStaticMarkup(React.createElement(
       MemoryRouter, {}, React.createElement(SolutionsMenuItems, { variant: 'mobile' }),
     ));
@@ -439,6 +546,8 @@ describe('the Solutions panel content — SolutionsMenuItems, rendered directly'
       expect(html).toContain(s.name);
       expect(html).toContain(s.description);
     }
+    const order = SOLUTIONS.map((s) => html.indexOf(`href="${solutionHref(s.slug)}"`));
+    expect(order).toEqual([...order].sort((a, b) => a - b));
     expect(html).not.toContain('role="menuitem"');
   });
 
@@ -476,17 +585,63 @@ describe('Nav.tsx source — the two desktop menus close each other, and Escape 
   });
 });
 
-/* ═══ 10 — SOLUTIONS_BASE / solutionHref ════════════════════════════════════ */
-describe('content/solutions.ts wiring', () => {
-  it('SOLUTIONS_BASE and solutionHref agree', () => {
-    expect(SOLUTIONS_BASE).toBe('/solutions');
-    expect(solutionHref('evangelistic-organizations')).toBe('/solutions/evangelistic-organizations');
+/* ═══ 10 — one route per SOLUTIONS entry ═══════════════════════════════════ */
+describe('one route per SOLUTIONS entry, so a later page needs no App.tsx edit', () => {
+  it('every SOLUTIONS slug has a route, before the catch-all', () => {
+    for (const s of SOLUTIONS) {
+      const href = solutionHref(s.slug);
+      expect(routePaths, `no route for ${href}`).toContain(href);
+      expect(routePaths.indexOf(href)).toBeLessThan(routePaths.indexOf('*'));
+    }
+  });
+});
+
+/* ═══ 11 — the groups tab renders GroupsMock, not an empty panel ═══════════
+ *
+ * `FeatureMock` special-cases `id === 'groups'` to draw the same GroupsMock
+ * component /features/community-engagement uses (see FeatureMock.tsx), but
+ * OneAppTabs in SolutionPage.tsx only calls FeatureMock at all when it can
+ * see content for the tab's id. `groups` carries no MOCKS['groups'] entry —
+ * only the special case does — so this is checked directly rather than
+ * assumed: Churches' groups tab panel must contain a channel GroupsMock
+ * actually draws ("Leadership"), not render empty. */
+describe('the groups tab (Churches) renders GroupsMock', () => {
+  it('the groups panel contains GroupsMock\'s own content', () => {
+    const html = render(React.createElement(SolutionPage, { slug: 'churches' }), solutionHref('churches'));
+    const panelMatch = html.match(/id="solutions-panel-groups"[\s\S]*?(?=id="solutions-panel-|$)/);
+    expect(panelMatch, 'groups panel not found').toBeTruthy();
+    expect(words(panelMatch![0])).toContain('Leadership');
+  });
+});
+
+/* ═══ 12 — the services mock (Churches) ═════════════════════════════════════
+ *
+ * Source of truth: the `services` (Service Planning) entry in
+ * content/features.ts. Only fields that entry names as real: durations
+ * becoming clock times, a person assigned per item, and an accept / decline /
+ * no-answer-yet state per person. */
+describe('the services tab (Churches) mock', () => {
+  const html = render(React.createElement(SolutionPage, { slug: 'churches' }), solutionHref('churches'));
+  const panelMatch = html.match(/id="solutions-panel-services"[\s\S]*?(?=id="solutions-panel-|$)/);
+  const panelText = words(panelMatch![0]);
+
+  it('the panel is present and carries an order-of-service item with a clock time', () => {
+    expect(panelMatch, 'services panel not found').toBeTruthy();
+    expect(panelText).toMatch(/\d{1,2}:\d{2}/);
   });
 
-  it('every SOLUTIONS entry has a non-empty name and description', () => {
-    for (const s of SOLUTIONS) {
-      expect(s.name.length).toBeGreaterThan(0);
-      expect(s.description.length).toBeGreaterThan(0);
-    }
+  it('shows a person assigned to an item', () => {
+    expect(panelText).toContain('David R.');
+  });
+
+  it('shows all three answer states: accepted, waiting, and declined', () => {
+    expect(panelText).toContain('Accepted');
+    expect(panelText).toContain('Waiting');
+    expect(panelText).toContain('Declined');
+  });
+
+  it('claims nothing service-plan.ts names as deliberately absent', () => {
+    const forbidden = [/CCLI/i, /chord chart/i, /rehearsal/i, /blockout/i, /song library/i];
+    for (const re of forbidden) expect(panelText).not.toMatch(re);
   });
 });

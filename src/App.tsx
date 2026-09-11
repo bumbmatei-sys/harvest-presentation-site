@@ -104,7 +104,7 @@ export const routes: RouteRecord[] = [
          only the ones this ticket actually changed. See the note above. */
       ...SOLUTIONS.map((s) => ({
         path: solutionHref(s.slug),
-        element: <SolutionPage />,
+        element: <SolutionPage slug={s.slug} />,
       })),
       { path: '*', element: <Landing /> },
     ],

@@ -526,8 +526,10 @@ describe('9 — the prerendered page count is still 22', () => {
        renders — /features/giving-finance — and a section is an anchor, not a
        page.
        🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
-       the new /solutions/evangelistic-organizations route. */
-    expect(pages(DIST)).toHaveLength(24);
+       the new /solutions/evangelistic-organizations route.
+       🔴 25 SINCE board card 86bbyv8pp, part two, and not because of this
+       ticket either — the new /solutions/churches route. */
+    expect(pages(DIST)).toHaveLength(25);
   });
 
   it('🔴 and no route was added — "see all" points at a page that already existed', () => {
