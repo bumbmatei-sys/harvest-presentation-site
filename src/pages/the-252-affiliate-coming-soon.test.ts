@@ -11,6 +11,7 @@ import { ComingSoonPage } from './ComingSoonPage';
 import { ComingSoonBlock } from '../components/ComingSoonBlock';
 import { FeatureMenuColumns } from '../components/Nav';
 import { CATALOG, CATALOG_TOOL_COUNT, COMING_SOON_MENU_ITEMS } from '../components/catalog';
+import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';
 import {
   ADD_ONS,
   ADD_ON_BILLED_MONTHS,
@@ -590,7 +591,19 @@ describe('6 — it does not name Rekomi', () => {
     // Stripe account. It must not attach to the unbuilt programme.
     const unbuilt = [item().name, item().eyebrow, item().title, item().oneliner, ...item().considering].join(' ');
     expect(unbuilt).not.toMatch(/\b(stripe|dodo|paypal|wise)\b/i);
-    expect(item().notThis!).toMatch(/your church's own Stripe account/);
+    /* 🔵 THE-355 — THE SENTENCE MOVED OFF STRIPE AND THE PROPERTY DID NOT.
+       What this assertion is for is that the `notThis` paragraph tells a reader
+       where congregational giving actually goes, so an affiliate share cannot
+       be mistaken for a cut of it. `STRIPE_GIVING_MARKETING_ENABLED` is false,
+       so the paragraph now says the gift never passes through Harvest at all;
+       with the flag on it names the Stripe account again, and both spellings
+       have to satisfy the same property. ⚠️ THE LINE ABOVE IS UNCHANGED — no
+       processor may be named against the UNBUILT programme, in either state. */
+    expect(item().notThis!).toMatch(
+      STRIPE_GIVING_MARKETING_ENABLED
+        ? /your church's own Stripe account/
+        : /never passes through Harvest at all/,
+    );
   });
 });
 
@@ -924,7 +937,7 @@ describe('10 — the tool count is unchanged and still derived', () => {
        figure, never a remembered one. */
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -966,7 +979,7 @@ describe('10 — the tool count is unchanged and still derived', () => {
     const wrong = withoutFlag.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     // 🔵 26 since THE-335 hid SMS and both newsletter tools again — this is the
     // derived count plus the coming-soon rows the mutation wrongly counts.
-    expect(wrong).toBe(26 + COMING_SOON_MENU_ITEMS.length);
+    expect(wrong).toBe(27 + COMING_SOON_MENU_ITEMS.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
   });
 

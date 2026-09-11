@@ -763,7 +763,7 @@ describe('what the analytics disclosure must not have touched', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
@@ -981,7 +981,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',

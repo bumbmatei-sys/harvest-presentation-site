@@ -565,7 +565,17 @@ describe('12 & 13 — the page count is 22 and no existing page moved', () => {
   };
 
   it.runIf(built)('the prerendered page count is still 22', () => {
-    expect(pagesInDist()).toHaveLength(22);
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(pagesInDist()).toHaveLength(23);
     expect(pagesInDist()).toContain('features/harvest-scheduler/index.html');
   });
 

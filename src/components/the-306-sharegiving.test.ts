@@ -53,6 +53,7 @@ import { CATALOG, CATALOG_TOOL_COUNT, slugify } from './catalog';
 import { FEATURE_ICONS, FeatureMock, SHARE_GIVING_PROVIDERS } from './FeatureMock';
 import { CATEGORIES, LEGACY_ANCHORS } from '../content/features';
 import { itemHref } from './Nav';
+import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';
 
 const SHARE_ID = 'sharegiving';
 const SHARE_TITLE = 'Shareable Giving Page';
@@ -156,7 +157,7 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
   it('🔴 the figure is 28, and is still DERIVED rather than written down', () => {
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -166,12 +167,13 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
     /* The delta, asserted as a delta — so a future ticket that adds a second
        tool in the same commit cannot hide inside this one's expected move.
        🔵 The absolute was 27 → 28; THE-314 turned SMS back on and made it
-       28 → 29; THE-335 hid SMS again and both newsletter tools with it, so it is
-       25 → 26. The DELTA is what this test is about and it has not moved
-       through any of them. */
+       28 → 29; THE-335 hid SMS again and both newsletter tools with it, taking
+       it to 25 → 26; THE-355 added the Pledge Campaigns row, so it is 26 → 27.
+       The DELTA is what this test is about and it has not moved through any of
+       them. */
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== SHARE_TITLE).length, 0);
-    expect(without).toBe(25);
+    expect(without).toBe(26);
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
   });
 
@@ -218,19 +220,26 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
     // 🔵 EIGHTEEN SINCE THE-335, which added a suite of its own that pins the
     // figure — the count moves with the number of FILES that pin it, and a file
     // that quietly drops its assertion still fails here.
-    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(18);
+    // 🔵 TWENTY SINCE THE-355, which adds two suites of its own — one for the
+    // flag-off state and one for the restore path — and both pin the figure.
+    // The count moves with the number of FILES that pin it, and a file that
+    // quietly drops its assertion still fails here.
+    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(20);
     for (const [f, body] of pinning) {
-      // 🔴 THE-335 — the figure is 26. SMS went back behind its flag (−1) and
-      // both newsletter tools went behind theirs (−2). Every stale value this
-      // guard has ever had is named individually rather than as a range, so a
-      // file left at any previous count fails and says which count it kept.
-      expect(body, `${f} still pins the pre-THE-306 count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+      // 🔴 THE-355 — the figure is 27. THE-335 left it at 26 (SMS −1, both
+      // newsletter tools −2); THE-355 adds the Pledge Campaigns row, +1. Every
+      // stale value this guard has ever had is named individually rather than
+      // as a range, so a file left at any previous count fails and says which
+      // count it kept. ⚠️ 27 MOVED SIDES — it was THE-306's own figure and was
+      // forbidden here as "the pre-THE-306 count"; it is the live one again,
+      // for a different reason, so what is forbidden is 26 instead.
+      expect(body, `${f} still pins the pre-THE-355 count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
       expect(body, `${f} still pins the pre-THE-314 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
       expect(body, `${f} still pins the pre-THE-335 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       expect(body, `${f} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
     }
 
     /* The two flag suites assert a PAIR rather than the constant, so the scan
@@ -241,9 +250,16 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
     // turned SMS back on, and swapped BACK at THE-335: `OFF` is a synthetic
     // all-flags-false state that now coincides with the live product at 26.
     // The DELTA of one is what the pair measures and it has never moved.
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(27)");
-    expect(flags).not.toMatch(/toolCount(?:, '[^']*')?\)\.toBe\(2[89]\)/);
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(28)");
+    /* 🔵 THE-355 — the forbidden range moved WITH the pair. It read `2[89]`,
+       which forbade the very figures this pair now holds; the stale values to
+       guard against are the THE-335 ones, 26 and 27, and 27 can only be
+       forbidden on the `smsOnly` half because it is the live figure on the
+       `off` half. So the two halves are guarded separately rather than by one
+       range that can no longer be written. */
+    expect(flags).not.toMatch(/off\.toolCount(?:, '[^']*')?\)\.toBe\(2[689]\)/);
+    expect(flags).not.toMatch(/smsOnly\.toolCount(?:, '[^']*')?\)\.toBe\(2[679]\)/);
   });
 });
 
@@ -253,11 +269,31 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
 describe('4 — the vignette shows a donation form and the provider circles beneath it', () => {
   const html = mockHtml(SHARE_ID);
 
+  /* 🔵 THE-355 — THE FORM HALF IS BEHIND A FLAG NOW, AND THE FOUNDER'S SPEC IS
+     NOT BEING OVERRULED. The instruction was "i want to see in that shareable
+     design the donation form and put the logo of the shareable links one next to
+     the other under it in circles", and it was given while card giving worked.
+     `STRIPE_GIVING_MARKETING_ENABLED` is false because the platform Stripe
+     account is closed and `/api/stripe/donate` answers 503, so "Give $60 by
+     card" is a picture of a refusal. The form waits behind the switch with every
+     other Stripe string and comes back whole with them — which is what the ON
+     branch below pins, unchanged from THE-306.
+     🔴 THE CIRCLES ARE ASSERTED IN BOTH STATES, because they are the half that
+     actually answered the founder's "is horrible": a blank panel. */
   it('🔴 a donation form: preset amounts, one of them selected, and a give button', () => {
-    expect(html).toContain('$30');
-    expect(html).toContain('$60');
-    expect(html).toContain('$150');
-    expect(html).toContain('Give $60 by card');
+    if (STRIPE_GIVING_MARKETING_ENABLED) {
+      expect(html).toContain('$30');
+      expect(html).toContain('$60');
+      expect(html).toContain('$150');
+      expect(html).toContain('Give $60 by card');
+    } else {
+      // No card form, and no amount left over from one.
+      expect(html).not.toContain('by card');
+      expect(html).not.toMatch(/\$\d/);
+      // What stands in its place is the page's own address — the thing this
+      // entry is about handing to a congregation.
+      expect(html).toContain('gracechapel.theharvest.app/give');
+    }
     // The selected chip is the one on the gold ground — the `donation` idiom.
     expect(html).toContain('background:var(--gold-500)');
   });
@@ -272,7 +308,11 @@ describe('4 — the vignette shows a donation form and the provider circles bene
 
   it('🔴 the circles sit BENEATH the form, side by side', () => {
     // Order in the markup is order on the page: the form's button comes first.
-    const formAt = html.indexOf('Give $60 by card');
+    // 🔵 THE-355 — the top half is the card form with the flag on and the page's
+    // own address with it off; either way the circles sit BENEATH it, which is
+    // the ordering this test exists for.
+    const formAt = html.indexOf(
+      STRIPE_GIVING_MARKETING_ENABLED ? 'Give $60 by card' : 'gracechapel.theharvest.app/give');
     const circlesAt = html.indexOf('repeat(6, 1fr)');
     expect(formAt).toBeGreaterThan(-1);
     expect(circlesAt).toBeGreaterThan(-1);
@@ -312,9 +352,20 @@ describe('5 — exactly the providers this site already claims are shown', () =>
        Five are in the rendered member bullet; Zelle is in the block comment on
        the `sharegiving` entry that records the full list the page carries. Both
        are in this file, so both are checked against it. */
+    /* 🔵 THE-355 — PINNED AGAINST RENDERED COPY NOW, NOT A BLOCK COMMENT, AND
+       THAT IS STRICTLY STRONGER. THE-306 had to reach into the `sharegiving`
+       entry's comment because only five of the six were in a rendered bullet
+       and Zelle was not. The `donation` entry's one-liner now names all six in
+       a sentence a visitor reads, so the evidence for "the app supports this
+       rail" is a published claim rather than a note to ourselves. */
     const featuresSrc = src('../content/features.ts');
-    expect(featuresSrc).toContain(
-      "carries the church's OWN payment links (PayPal, Cash App, Venmo,\n           Zelle, Revolut, Wise)");
+    const donationLine = CATEGORIES
+      .flatMap((c) => c.features).find((f) => f.id === 'donation')!.oneliner;
+    if (!STRIPE_GIVING_MARKETING_ENABLED) {
+      for (const p of SHARE_GIVING_PROVIDERS) {
+        expect(donationLine, `"${p.name}" is drawn but no rendered line names it`).toContain(p.name);
+      }
+    }
     for (const p of SHARE_GIVING_PROVIDERS) {
       expect(featuresSrc, `"${p.name}" is drawn but this site never claims it`).toContain(p.name);
     }
@@ -547,16 +598,38 @@ describe('8 — the vignette matches FeatureMock\'s existing idiom', () => {
       expect(donation).toContain(needle);
       expect(html).toContain(needle);
     }
-    expect(donation).toContain('$50.00');
-    expect(html).not.toContain('$50.00');
+    /* 🔵 THE-355 — THE PAIR IS "NOT THE SAME PICTURE", AND THE FIGURES WENT
+       WITH THE FORMS. With the flag on, `donation` still carries $50.00 and this
+       one still does not. With it off neither vignette prints an amount at all —
+       the giving page a member actually sees has no amount picker — so what
+       distinguishes them is checked directly instead: `donation` is the page,
+       this one is the page being shared. */
+    if (STRIPE_GIVING_MARKETING_ENABLED) {
+      expect(donation).toContain('$50.00');
+      expect(html).not.toContain('$50.00');
+    } else {
+      expect(donation).not.toMatch(/\$\d/);
+      expect(donation).not.toContain('Share');
+      expect(html).toContain('Share');
+    }
+    expect(donation).not.toBe(html);
   });
 
   it('🔴 nothing was installed to draw it — hand-built markup, like every other mock', () => {
     /* Only `button` and `card` are installed here, and a vignette that needed a
        third would have been a stop-and-report. This one is spans and divs. */
+    /* 🔵 THE-355 — A SECOND IMPORT, AND IT IS NOT A UI DEPENDENCY. The property
+       this test is about is that no component library was installed to draw a
+       vignette; `lib/flags` is this repo's own module of booleans and draws
+       nothing. It is named as a literal rather than allowed by a pattern, so a
+       third import — or a real dependency wearing a plausible path — still
+       fails here, which is the failure this assertion exists for. */
     const mock = src('./FeatureMock.tsx');
     const imports = mock.match(/^import .*$/gm) ?? [];
-    expect(imports).toEqual(["import React from 'react';"]);
+    expect(imports).toEqual([
+      "import React from 'react';",
+      "import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';",
+    ]);
   });
 });
 

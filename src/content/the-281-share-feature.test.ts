@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { CATEGORIES } from './features';
+import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';
 import { plans, planPriceContract, BILLING_TERMS } from '../components/Pricing';
 import { ADD_ONS } from '../components/Pricing';
 
@@ -181,8 +182,23 @@ describe('12 — neither feature duplicates an existing entry', () => {
     // The distinction, asserted rather than asserted-in-a-comment: the donation
     // entry is about Stripe card gifts; this one is about handing the page's
     // address to a congregation and the church's OWN accounts.
-    expect(donation.oneliner).toMatch(/Stripe/);
-    expect(share.oneliner).not.toMatch(/Stripe/);
+    /* 🔵 THE-355 — THE DISTINCTION SURVIVED THE FLAG; THE WORDING DID NOT.
+       This pair used to read "one names Stripe, the other does not", because
+       the `donation` entry was the card rail and this one was the church's own
+       accounts. With `STRIPE_GIVING_MARKETING_ENABLED` false both describe the
+       same accounts, so the line between them is now PAGE versus SHARING —
+       which is what the two assertions below actually measure, and what the
+       rest of this suite has always measured. With the flag on, the old
+       spelling is asserted exactly as it was. */
+    if (STRIPE_GIVING_MARKETING_ENABLED) {
+      expect(donation.oneliner).toMatch(/Stripe/);
+      expect(share.oneliner).not.toMatch(/Stripe/);
+    } else {
+      expect(donation.oneliner + donation.moment).not.toMatch(/Stripe/);
+      expect(share.oneliner).not.toMatch(/Stripe/);
+      // The share entry is the one that is about carrying the page somewhere.
+      expect(donation.oneliner).not.toMatch(/QR|share sheet/i);
+    }
     expect(share.oneliner + share.moment).toMatch(/QR|share/i);
   });
 

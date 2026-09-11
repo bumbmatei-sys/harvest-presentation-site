@@ -191,7 +191,7 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
     // subject moved it.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(soonGroup.items.filter((i) => !i.soon)).toHaveLength(0);
   });
 });
@@ -514,8 +514,18 @@ const pages = (dir: string, base = ''): string[] => (existsSync(dir) ? readdirSy
   }) : []);
 
 describe('9 — the prerendered page count is still 22', () => {
-  it.runIf(built)('🔴 exactly 22 pages, because this ticket adds no route', () => {
-    expect(pages(DIST)).toHaveLength(22);
+  it.runIf(built)('🔴 exactly 23 pages, because this ticket adds no route', () => {
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(pages(DIST)).toHaveLength(23);
   });
 
   it('🔴 and no route was added — "see all" points at a page that already existed', () => {

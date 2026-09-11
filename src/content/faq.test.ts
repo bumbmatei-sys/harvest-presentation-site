@@ -13,6 +13,7 @@ import {
   faqPlainText,
   faqPlanMismatches,
 } from './faq';
+import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';
 import {
   CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
@@ -154,8 +155,26 @@ describe('the donation-fee answer', () => {
     // third-party processing statement. A buyer page that described giving
     // differently would contradict the documents they are asked to agree to.
     const text = answerText(fee!);
-    expect(text).toMatch(/stripe connect/i);
-    expect(text).toMatch(/harvest does not hold, control or forward donation funds/i);
+    /* 🔵 THE-355 — THE PROPERTY IS "THE SAME THING THE POLICIES SAY", AND THE
+       POLICIES DID NOT MOVE. src/content/legal.ts still describes Stripe
+       Connect — withdrawing a term from a published agreement is a founder
+       decision, and THE-355 deliberately left that file alone and enumerated
+       the affected lines in its pull request instead. So this answer cannot be
+       held to the Terms' wording while the flag is off without asserting a
+       claim the app refuses.
+       🔴 WHAT IS ASSERTED INSTEAD IS THE SUBSTANCE BOTH DOCUMENTS AGREE ON:
+       Harvest does not hold, control or forward a congregational gift. That
+       sentence is the one a treasurer is reading for, it is true in both flag
+       states, and it is what the Terms' §Giving and the Refund Policy both say
+       in their own words. The Stripe spelling is asserted with the flag on. */
+    if (STRIPE_GIVING_MARKETING_ENABLED) {
+      expect(text).toMatch(/stripe connect/i);
+      expect(text).toMatch(/harvest does not hold, control or forward donation funds/i);
+    } else {
+      expect(text).not.toMatch(/stripe/i);
+      expect(text).toMatch(/nothing for us to hold, forward, or take a share of/i);
+      expect(text).toMatch(/does not run through Harvest at all/i);
+    }
   });
 
   it('claims nothing about what anybody else charges', () => {

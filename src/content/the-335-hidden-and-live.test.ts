@@ -314,7 +314,7 @@ describe('15f — QuickBooks appears nowhere on the site', () => {
    🔴 The tool count, and every assertion that pins it.                       */
 describe('15g & 18 — the tool count is right, and no "replaces N tools" figure is wrong', () => {
   it('🔴 the count is 26, derived, and the three withdrawals are what moved it', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -342,10 +342,13 @@ describe('15g & 18 — the tool count is right, and no "replaces N tools" figure
        named rather than absorbed. The COUNT is pinned alongside the value for
        the reason the-306 gives: a suite that quietly DROPS its assertion has to
        fail as loudly as one that leaves it stale, which a bare scan would not. */
-    expect(pins.length, 'a suite gained or lost its tool-count assertion').toBe(21);
+    // 🔵 TWENTY-THREE SINCE THE-355, which adds two suites of its own — one for
+    // the flag-off state and one for the restore path — each pinning the figure
+    // once. This scan counts PINS rather than files, so the delta is two.
+    expect(pins.length, 'a suite gained or lost its tool-count assertion').toBe(23);
     for (const [f, pin] of pins) {
       expect(pin, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toBe('CATALOG_TOOL_COUNT).toBe(26)');
+        .toBe('CATALOG_TOOL_COUNT).toBe(27)');
     }
   });
 

@@ -275,7 +275,24 @@ export const CATALOG: CatalogGroup[] = [
          must resolve in content/features.ts's LEGACY_ANCHOR_TARGETS or the row
          falls back to the first category page. It is mapped there. */
       item('share', 'Shareable Giving Page', 'Share every way your church takes a gift — as a link, a share sheet or a QR code.'),
-      item('trending-up', 'Fundraising', 'Run campaigns with goals, progress and updates for your community.'),
+      /* 🔴 THE-355 — the row this column was MISSING, and the THE-306 precedent
+         is why it is here at all. `sharegiving` shipped in THE-281 with a
+         section on this column's own category page and no row here, and a live,
+         paid feature unreachable from the navigation was treated as a defect
+         when the founder found it. Pledge Campaigns became a feature entry of
+         its own in this ticket, so it gets its row in the same change rather
+         than in the ticket that notices it is absent.
+
+         ⚠️ IT IS NOT `soon`, so it MOVES CATALOG_TOOL_COUNT by one — see the
+         note on the constant at the foot of this file. That is the correct
+         direction: the figure counts tools a church can use today, and a
+         Ministry tenant creates a pledge campaign today.
+         ⚠️ BOTH TITLES FEED `slugify(title)` → LEGACY_ANCHOR_TARGETS in
+         content/features.ts, and the Fundraising row was RENAMED with the
+         feature. `fundraising-campaigns` and `pledge-campaigns` are mapped
+         there, alongside the retired `fundraising` spelling. */
+      item('trending-up', 'Fundraising Campaigns', 'Run campaigns with goals, progress and updates for your community.'),
+      item('handshake', 'Pledge Campaigns', 'Commit now, give later — a ledger of pledged against paid, with the status derived.'),
       item('contact', 'CRM (Donors & Members)', 'A full relationship manager for donors and members.'),
       // 🔴 THE-335 — REWORDED, NOT REMOVED, so this does NOT move the count.
       // Accounting is a live tool a church uses today: the ledger, the receipt

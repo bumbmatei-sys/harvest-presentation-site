@@ -3,7 +3,7 @@ import { SITE_ORIGIN } from './post-core';
 import { TRIAL_LENGTH_DAYS } from './legal';
 import {
   CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED,
-  QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+  QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED, STRIPE_GIVING_MARKETING_ENABLED,
 } from '../lib/flags';
 
 /* /faq — the buyer's FAQ, as data.
@@ -199,8 +199,25 @@ export const FAQS: Faq[] = [
     question: 'Do you take a cut of our donations?',
     answer: [
       'No. Harvest charges a 0% platform fee on giving, and it is 0% on every paid plan — Individual, Small Team and Ministry alike. It is not an introductory rate, and there is no tier of Harvest that takes a percentage of a gift. (Forever Free has no donation page at all, so there is no giving on it to take a cut of; giving starts on Individual.)',
-      'Giving runs through your ministry\'s own Stripe account, connected once through Stripe Connect. Gifts given on your donation page, in a fundraising campaign or during a livestream settle into that account, on Stripe\'s schedule, under your ministry\'s name. Harvest does not hold, control or forward donation funds, so there is nothing for us to take a share of.',
-      'Stripe\'s own processing fees are a matter between your ministry and Stripe, under your agreement with them. What you pay Harvest is the subscription, and nothing else.',
+      /* 🔴 THE-355 — THE SECOND AND THIRD PARAGRAPHS DESCRIBED A RAIL THAT
+         REFUSES. `/api/stripe/donate` answers 503 while the app's
+         `STRIPE_CONNECT_ENABLED` is false, so no gift settles into a connected
+         account and there are no Stripe processing fees to describe. The FIRST
+         paragraph is untouched and is still exactly true: the 0% platform fee
+         is what Harvest charges, and it is 0% whichever way a gift arrives.
+         ⚠️ THE ANSWER GETS STRONGER, NOT WEAKER, and that is worth stating
+         because the instinct is to soften. "There is nothing for us to take a
+         share of" was an argument about routing; it is now an argument about
+         absence — the money never passes through anything Harvest operates,
+         because a member pays the church's own account directly. */
+      ...(STRIPE_GIVING_MARKETING_ENABLED ? [
+        'Giving runs through your ministry\'s own Stripe account, connected once through Stripe Connect. Gifts given on your donation page, in a fundraising campaign or during a livestream settle into that account, on Stripe\'s schedule, under your ministry\'s name. Harvest does not hold, control or forward donation funds, so there is nothing for us to take a share of.',
+        'Stripe\'s own processing fees are a matter between your ministry and Stripe, under your agreement with them. What you pay Harvest is the subscription, and nothing else.',
+      ] : [
+        'Card giving inside the app is off, and giving does not run through Harvest at all. Your ministry publishes its own payment links — PayPal, Cash App, Venmo, Zelle, Revolut and Wise — on one giving page, and a member taps the one they already use. The gift goes from them to your account without passing through anything Harvest operates, so there is nothing for us to hold, forward, or take a share of.',
+        'What each of those providers charges is a matter between your ministry and that provider, under your agreement with them. What you pay Harvest is the subscription, and nothing else.',
+        'A gift you record in the CRM counts everywhere a gift should: it posts to your dashboard, into accounting, onto the giver\'s own history and onto their year-end giving statement.',
+      ]),
     ],
   },
   {

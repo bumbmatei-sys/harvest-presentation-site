@@ -242,3 +242,84 @@ export const QUICKBOOKS_MARKETING_ENABLED = false;
  *  bullets the domain half left. Conflating the two is the one error that would
  *  turn this correction into a new false claim. */
 export const CUSTOM_DOMAIN_MARKETING_ENABLED = false;
+
+/** THE-355 — the STRIPE GIVING marketing, across the whole site.
+ *
+ *  Mirrors the app's `STRIPE_CONNECT_ENABLED` (Harvest-agent
+ *  src/lib/stripe-connect-feature.ts), and `the-355-stripe-giving-hidden.test.ts`
+ *  asserts they agree.
+ *
+ *  🔴 IT IS FALSE, AND THE REASON IS NOT A DECISION — IT IS AN ACCOUNT CLOSURE.
+ *  Stripe closed the platform account `acct_1U4MOhFzBnH2P7JZ` as
+ *  `rejected.fraud` on 2026-08-27. There is no appeal in flight and no date. So
+ *  `/api/stripe/donate` refuses every request with 503, and that route is the
+ *  ONLY card path behind the Give page, `CampaignWidget`, `PublicCampaign` and
+ *  `PartnerWithUsTab`. Every sentence on this site that said a gift is a
+ *  destination charge into a church's own Stripe account described a request
+ *  that now comes back 503.
+ *
+ *  ⚠️ WHAT IS STILL TRUE, AND IS WHAT THE COPY BECOMES. Churches take gifts
+ *  through their OWN payment links — PayPal, Cash App, Venmo, Zelle, Revolut
+ *  and Wise (`components/donations/giving-providers.ts`, THE-246/249/254) — and
+ *  Harvest is not in that flow at all: no fee, nothing held, no endpoint
+ *  touched. `readGivingLinks` re-derives every URL against its provider's host
+ *  allow-list on READ, so a stored link that no longer passes stops being a
+ *  link. That path is INDEPENDENT of this switch and always was, which is the
+ *  whole reason withdrawing the Stripe copy leaves a feature rather than a hole.
+ *
+ *  🔴 AND WHAT A RECORDED GIFT DOES, because the difference decides two
+ *  sentences on this site that look identical and are not:
+ *
+ *    · A gift recorded in the CRM (Add Activity → Donation) writes an INVOICE
+ *      through `lib/manual-donation.ts` (THE-350). It reaches the dashboard,
+ *      accounting, the member's own donation history, their receipt and the
+ *      year-end giving statement.
+ *    · A gift recorded against a CAMPAIGN ("Record an offline gift", THE-251,
+ *      `AdminFundraising.tsx`) increments that campaign's total and NOTHING
+ *      else. No receipt, no giving-statement line — the app's own dialog says
+ *      so in as many words.
+ *
+ *  ⚠️ IT REWORDS RATHER THAN RELOCATING — the shape
+ *  QUICKBOOKS_MARKETING_ENABLED and CUSTOM_DOMAIN_MARKETING_ENABLED have, not
+ *  the shape SMS has. There is NO Coming Soon entry for card giving and there
+ *  must not be one: a coming-soon entry is a promise that something is on its
+ *  way, and nobody has committed to a rail. The `donation` feature is not
+ *  hidden either — a church really does publish a giving page and really does
+ *  take gifts through it; only the processor half of every sentence goes.
+ *
+ *    OFF · the `donation` entry describes the church's own payment links —
+ *          title, one-liner, eyebrow, moment and every bullet;
+ *        · the `fundraising` entry stops crediting a progress bar
+ *          automatically and says what actually moves the total;
+ *        · the `events` entry stops selling destination charges and paid-ticket
+ *          -only lines, and describes free and waitlisted registration, the QR
+ *          confirmation and check-in;
+ *        · the `livestream` entry stops saying a member gives in one tap;
+ *        · the `crm` entry stops claiming a gift creates and types a contact,
+ *          which only the Stripe webhook ever did;
+ *        · the `donation` vignette in components/FeatureMock.tsx draws the
+ *          church's own accounts instead of a card form;
+ *        · the giving FAQ answer and the affiliate Coming Soon entry's
+ *          `notThis` stop naming Stripe;
+ *        · the giving-finance category intro and SEO line stop promising that
+ *          the money lands in an account Harvest routes it to.
+ *    ON  · every one of those strings comes back BYTE-FOR-BYTE. Nothing is
+ *          deleted to hide it, per the contract at the top of this file — each
+ *          one is still in the tree on the other side of a ternary, and
+ *          `the-355-stripe-strings-restored.test.ts` imports them with the flag
+ *          ON and pins them, so the restore path is guarded rather than hoped
+ *          for.
+ *
+ *  🔴 THE PLEDGE SPLIT IS NOT THIS FLAG. Pledge Campaigns became a feature
+ *  entry of its own in the same ticket, and it stays one in BOTH flag states:
+ *  a pledge is a commitment recorded by hand and tracked against what is paid,
+ *  and no part of it ever went through `/api/stripe/donate`. Tying that split
+ *  to this switch would make a live, Ministry-only capability disappear the day
+ *  a card rail came back.
+ *
+ *  ⚠️ AND `src/content/legal.ts` IS DELIBERATELY UNTOUCHED. It carries the same
+ *  Stripe Connect statements — in the Terms' §Giving, the privacy sub-processor
+ *  list and the refunds policy — and withdrawing a term from a published
+ *  agreement is a founder decision, not a marketing one. The lines are
+ *  enumerated in this ticket's pull request instead. */
+export const STRIPE_GIVING_MARKETING_ENABLED = false;

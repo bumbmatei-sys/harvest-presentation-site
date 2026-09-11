@@ -284,7 +284,7 @@ describe('17 — no price, date or CTA was added to a coming-soon entry', () => 
    The tool count, and every assertion that pins it.                          */
 describe('18 — the tool count is 26, and every assertion agrees', () => {
   it('🔴 it is 26, derived, and the SMS tool is what took it off there', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -315,25 +315,34 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
     // 🔵 EIGHTEEN SINCE THE-335, which added a suite of its own that pins the
     // figure — the count moves with the number of FILES that pin it, and a file
     // that quietly drops its assertion still fails here.
-    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(18);
+    // 🔵 TWENTY SINCE THE-355, which adds two suites of its own — one for the
+    // flag-off state and one for the restore path — and both pin the figure.
+    // The count moves with the number of FILES that pin it, and a file that
+    // quietly drops its assertion still fails here.
+    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(20);
     for (const [f, body] of pinning) {
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-314 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-335 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
+      // 🔵 THE-355 — 26 → 27, the Pledge Campaigns row. 26 is now the stale one.
+      expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-355 count`)
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
       expect(body, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
     }
 
     /* The flag suite asserts a PAIR rather than the constant, so the scan cannot
        see it — it is the one place the SMS delta of exactly one is measured by
        flipping the boolean, and both halves had to move together. */
     // 🔴 THE-335 — the labels swapped sides with the flag: `off` is what SHIPS
-    // now, at 26, and `smsOnly` is the synthetic half at 27. The DELTA of one is
+    // now and `smsOnly` is the synthetic half one above it. The DELTA of one is
     // what the pair measures and it is unchanged.
+    // 🔵 THE-355 — 26/27 → 27/28. The Pledge Campaigns row is a live tool on
+    // BOTH halves, so it moved the pair together and the delta did not move.
     const flags = readSrc('lib/flags.test.ts');
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(27)");
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(28)");
   });
 
   it('the rendered figure is interpolated, never retyped', () => {
@@ -365,7 +374,17 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
     // THE-314 adds no page and removes none. The SMS surfaces it restores all
     // live on pages that already existed, and the Coming Soon entry it withdraws
     // is a block on a page that stays.
-    expect(pagesInDist()).toHaveLength(22);
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(pagesInDist()).toHaveLength(23);
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {
@@ -435,6 +454,9 @@ describe('the whole change is still one value', () => {
       ['NEWSLETTER_MARKETING_ENABLED', 'false'],
       ['QUICKBOOKS_MARKETING_ENABLED', 'false'],
       ['CUSTOM_DOMAIN_MARKETING_ENABLED', 'false'],
+      // 🔵 THE-355 — the seventh, mirroring the app's `STRIPE_CONNECT_ENABLED`.
+      // Appended, so every value above it is pinned exactly where it was.
+      ['STRIPE_GIVING_MARKETING_ENABLED', 'false'],
     ]);
   });
 });

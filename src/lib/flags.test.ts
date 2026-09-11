@@ -25,6 +25,10 @@ type Flags = {
   // type is a flag missing from the mock, and every importer of it throws.
   NEWSLETTER_MARKETING_ENABLED: boolean;
   QUICKBOOKS_MARKETING_ENABLED: boolean;
+  // 🔴 THE-355 — the Stripe giving marketing. Same rule as the note above: this
+  // module exports it, so it must be here or `vi.doMock` hands every importer a
+  // module without it.
+  STRIPE_GIVING_MARKETING_ENABLED: boolean;
 };
 
 /** Re-import the flag-dependent modules with the flags forced to `flags`.
@@ -62,11 +66,13 @@ const OFF: Flags = {
   AFFILIATE_PROGRAM_ENABLED: false, MULTI_CAMPUS_ENABLED: false, SMS_MARKETING_ENABLED: false,
   CUSTOM_DOMAIN_MARKETING_ENABLED: false,
   NEWSLETTER_MARKETING_ENABLED: false, QUICKBOOKS_MARKETING_ENABLED: false,
+  STRIPE_GIVING_MARKETING_ENABLED: false,
 };
 const ON: Flags = {
   AFFILIATE_PROGRAM_ENABLED: true, MULTI_CAMPUS_ENABLED: true, SMS_MARKETING_ENABLED: true,
   CUSTOM_DOMAIN_MARKETING_ENABLED: true,
   NEWSLETTER_MARKETING_ENABLED: true, QUICKBOOKS_MARKETING_ENABLED: true,
+  STRIPE_GIVING_MARKETING_ENABLED: true,
 };
 
 afterEach(() => { vi.doUnmock('./flags'); vi.resetModules(); });
@@ -249,17 +255,21 @@ describe('SMS_MARKETING_ENABLED', () => {
     // and call the total SMS's. This pair differs in one boolean.
     const off = await surfacesWith(OFF);
     const smsOnly = await surfacesWith({ ...OFF, SMS_MARKETING_ENABLED: true });
-    // 🔵 26/27 since THE-335 withdrew the two newsletter tools; it was 28/29
-    // between THE-306 and THE-335, and 27/28 before that. The DELTA of one is
-    // what this test is about, it is asserted below, and it has survived every
-    // one of those absolute moves.
+    // 🔵 27/28 since THE-355 added the Pledge Campaigns row; it was 26/27 from
+    // THE-335, 28/29 between THE-306 and THE-335, and 27/28 before that. The
+    // DELTA of one is what this test is about, it is asserted below, and it has
+    // survived every one of those absolute moves.
     //
     // ⚠️ THE LABELS SWAPPED SIDES AT THE-314 AND SWAPPED BACK AT THE-335. `OFF`
     // forces every flag false, so it is a synthetic state either way — and what
-    // ships is once again the SMS-off side, at 26. The pair still isolates the
+    // ships is once again the SMS-off side, at 27. The pair still isolates the
     // one boolean; only which half is the live product keeps changing.
-    expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26);
-    expect(smsOnly.toolCount, 'the count with SMS live').toBe(27);
+    // ⚠️ THE-355's OWN FLAG DOES NOT APPEAR HERE, and that is the point of the
+    // shape: `STRIPE_GIVING_MARKETING_ENABLED` rewords the Donation Page tool
+    // rather than withdrawing it, so it belongs to the equality case below.
+    // What moved the absolute is the pledge SPLIT, which is not behind any flag.
+    expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27);
+    expect(smsOnly.toolCount, 'the count with SMS live').toBe(28);
     // The Coming Soon entry contributes nothing in either direction — that is
     // what makes the shipped figure honest rather than one tool too high.
     expect(smsOnly.toolCount - off.toolCount).toBe(1);
@@ -414,13 +424,15 @@ describe('CUSTOM_DOMAIN_MARKETING_ENABLED', () => {
     // still describes what a church can use today.
     const off = await surfacesWith(OFF);
     const domainOnly = await surfacesWith({ ...OFF, CUSTOM_DOMAIN_MARKETING_ENABLED: true });
-    // 🔵 26 in this synthetic all-flags-off state since THE-335 withdrew the two
-    // newsletter tools; it was 28 between THE-306 and THE-335. The property here
-    // is the EQUALITY of the two, which is unaffected by any of those moves —
-    // and QUICKBOOKS_MARKETING_ENABLED joins this shape rather than the SMS one,
-    // for the same reason: it rewords the Accounting tool instead of removing it.
-    expect(off.toolCount).toBe(26);
-    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(26);
+    // 🔵 27 in this synthetic all-flags-off state since THE-355 split Pledge
+    // Campaigns out; it was 26 from THE-335 and 28 between THE-306 and THE-335.
+    // The property here is the EQUALITY of the two, which is unaffected by any
+    // of those moves — and QUICKBOOKS_MARKETING_ENABLED and THE-355's
+    // STRIPE_GIVING_MARKETING_ENABLED both join this shape rather than the SMS
+    // one, for the same reason: they reword a tool that stays live instead of
+    // removing it.
+    expect(off.toolCount).toBe(27);
+    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(27);
     // The tool is present under both labels, which is why the count holds.
     expect(off.titles).toContain('Custom Branding');
     expect(domainOnly.titles).toContain('Custom Branding & Domain');

@@ -641,7 +641,7 @@ describe('8 — the entry traces to its board card and reaches the page', () => 
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(soonGroup.items.filter((i) => !i.soon)).toHaveLength(0);
   });
 
@@ -717,18 +717,37 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
     '/blog/planning-center-alternative-small-churches', '/blog/work-that-outlives-you',
   ];
 
-  it('the list was 21 and is now 22, and the difference is exactly one route', () => {
+  it('the list was 21 and is now 23, and the difference is the scheduler page plus one post', () => {
     const routes = blogRoutes();
     expect(BEFORE).toHaveLength(21);
-    expect(routes).toHaveLength(22);
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(routes).toHaveLength(23);
     expect(new Set(routes).size, 'a route is listed twice').toBe(routes.length);
     for (const r of BEFORE) expect(routes, `${r} dropped out of the prerender list`).toContain(r);
-    expect(routes.filter((r) => !BEFORE.includes(r))).toEqual([SCHEDULER_HREF]);
+    /* 🔵 TWO ADDITIONS NOW, AND THE-284's IS STILL EXACTLY ONE OF THEM. `BEFORE`
+       is the 21-route list as it stood when this ticket opened; the scheduler
+       page is what THE-284 added to it, and the Sep 10 `inside-harvest` post is
+       what a direct push to `main` added afterwards. Naming BOTH keeps this
+       assertion saying what it has always said — that THE-284 added one route
+       and dropped none — rather than loosening it to a count. */
+    expect(routes.filter((r) => !BEFORE.includes(r))).toEqual([
+      SCHEDULER_HREF,
+      '/blog/year-end-giving-statements-what-to-include',
+    ]);
   });
 
-  it.runIf(built)('and the build emits 22 files, one per route', () => {
+  it.runIf(built)('and the build emits 23 files, one per route', () => {
     const pages = distPages().filter(([f]) => f.endsWith('index.html'));
-    expect(pages, `this checkout built ${pages.length} pages, not 22`).toHaveLength(22);
+    expect(pages, `this checkout built ${pages.length} pages, not 23`).toHaveLength(23);
     expect(pages.map(([f]) => f)).toContain('features/harvest-scheduler/index.html');
   });
 

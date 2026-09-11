@@ -9,6 +9,7 @@
 import {
   AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
   NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+  STRIPE_GIVING_MARKETING_ENABLED,
 } from '../lib/flags';
 import { plans } from '../components/Pricing';
 
@@ -118,14 +119,45 @@ const ALL_CATEGORIES: Category[] = [
         crosslinks: [{ label: 'Event Registration', href: '/features/community-engagement#events' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }],
       },
       {
+        /* 🔴 THE-355 — THE PAYMENT HALF, AND ONLY THE PAYMENT HALF. Registration
+           itself is untouched and is what this entry now sells.
+           `/api/event-registration/submit` computes `requiresPayment = amount >
+           0 && !waitlisted`, so a free ticket, a waitlist entry and a ticket
+           discounted to $0 never reach Stripe and confirm immediately; anything
+           that DOES owe money fails on the tenant's `connectAccountId`, which
+           no church has while the platform account is closed.
+
+           ⚠️ DISCOUNT CODES LEFT WITH THE PRICE, and that is not a style edit.
+           A code reduces `ticketType.price`; on a free ticket there is nothing
+           for it to reduce, so the only codes that do anything are on tickets
+           that cannot currently be sold.
+
+           ⚠️ EVERY SURVIVING LINE WAS RE-CHECKED against that same route: it
+           enforces per-ticket-type capacity, waitlists a whole party together
+           ("a couple can't take half a seat"), and emails a confirmation
+           carrying a QR generated from the ticket code — with no QR for a
+           waitlisted seat, which is why the bullet says "confirmed". */
         id: 'events', name: 'Event Registration', n: '5',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1],
-        eyebrow: 'The money never touches us',
-        title: 'Ticketing where the money never touches us.',
-        oneliner: 'Ticket types, waitlists, discount codes and QR check-in — with payment going straight to your own Stripe account.',
-        moment: 'Paid tickets are a destination charge straight to the ministry\'s own Stripe account. The money never touches our platform. That is a trust argument worth its own paragraph.',
-        admin: ['Multiple ticket types, each with its own capacity', 'Discount codes, per-event waitlist, group booking', 'Draft → publish, manual check-in, CSV export', 'Pin an event to the top of the community feed'],
-        member: ['Register at a public event page', 'Confirmation email with a scannable QR', '“My Tickets” with a full-screen QR code', 'Household / group registration on one booking'],
+        eyebrow: STRIPE_GIVING_MARKETING_ENABLED ? 'The money never touches us' : 'Registered, scanned, through the door',
+        title: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Ticketing where the money never touches us.'
+          : 'Sign up on a phone, walk in on a scan.',
+        oneliner: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Ticket types, waitlists, discount codes and QR check-in — with payment going straight to your own Stripe account.'
+          : 'Ticket types, per-event waitlists and group booking — a registration that confirms on the spot and arrives as a QR code at the door.',
+        moment: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Paid tickets are a destination charge straight to the ministry\'s own Stripe account. The money never touches our platform. That is a trust argument worth its own paragraph.'
+          : 'A first-time visitor opens the event page on their phone, registers with no account and no app, and has a confirmation with a scannable code before they have put the phone down. On the day, somebody at the door scans it. Nothing else has to happen.',
+        admin: ['Multiple ticket types, each with its own capacity',
+          STRIPE_GIVING_MARKETING_ENABLED
+            ? 'Discount codes, per-event waitlist, group booking'
+            : 'Per-event waitlist; a whole party is waitlisted together',
+          'Draft → publish, manual check-in, CSV export', 'Pin an event to the top of the community feed'],
+        member: ['Register at a public event page — no account',
+          'Confirmation email with a scannable QR once confirmed',
+          '“My Tickets” with a full-screen QR code',
+          'Household / group registration on one booking'],
         crosslinks: [{ label: 'Giving', href: '/features/giving-finance#donation' }, { label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }],
       },
       {
@@ -191,7 +223,16 @@ const ALL_CATEGORIES: Category[] = [
         oneliner: 'Stream on YouTube, keep the congregation inside your app: prayer, chat, sermon notes and giving one tap away.',
         moment: 'Someone watching alone at home types a prayer request — and a real person at the pastor’s console marks it prayed. Lead with this, not the video player.',
         admin: ['Paste a YouTube URL or ID — one button to go live', 'Live viewer and prayer counts, with a peak record', 'Live prayer queue — tap “Prayed” to clear one', 'Delete any chat comment; archive every session'],
-        member: ['Gold “Live Now” banner on Home the instant you start', 'Embedded player with realtime chat', 'Submit a prayer request straight to the pastor', 'Sermon notes synced to the stream; give in one tap'],
+        /* 🔴 THE-355 — "give in one tap" WAS A CARD CLAIM. The Give control on
+           the stream opens `/?giving=1` (`MainApp.tsx`), which is the member
+           Give tab — and with Stripe off that tab draws the church's own payment
+           links rather than an amount picker. So the giving page really is one
+           tap from the stream; what is not true is that the gift completes
+           there. The rest of this entry claims nothing about money. */
+        member: ['Gold “Live Now” banner on Home the instant you start', 'Embedded player with realtime chat', 'Submit a prayer request straight to the pastor',
+          STRIPE_GIVING_MARKETING_ENABLED
+            ? 'Sermon notes synced to the stream; give in one tap'
+            : 'Sermon notes synced to the stream; your giving page one tap away'],
         crosslinks: [{ label: 'Giving', href: '/features/giving-finance#donation' }, { label: 'Docs', href: '/features/discipleship-content#docs' }, { label: 'Prayer', href: '/features/community-engagement#prayer' }],
       },
     ],
@@ -393,22 +434,74 @@ const ALL_CATEGORIES: Category[] = [
     heroBg: 'linear-gradient(180deg,#ecd6a4 0%,#f2e3c4 44%,#f7efe0 72%,var(--cream) 100%)',
     headline: 'Keep 100% of every gift.',
     headWidth: 960, introWidth: 660,
-    intro: 'Giving, fundraising, a CRM that builds itself, and books that reconcile themselves — with no platform fee at all, on any plan. The money lands in your account, not ours.',
+    /* 🔴 THE-355 — "The money lands in your account, not ours" described a
+       destination charge Harvest routed. It lands in the church's account
+       because Harvest is not in the path at all, which is a stronger sentence
+       and a true one. Behind the flag rather than deleted, per the "nothing is
+       deleted" contract in lib/flags.ts. */
+    intro: STRIPE_GIVING_MARKETING_ENABLED
+      ? 'Giving, fundraising, a CRM that builds itself, and books that reconcile themselves — with no platform fee at all, on any plan. The money lands in your account, not ours.'
+      : 'Giving, campaigns, pledges, a CRM that builds itself and books that reconcile themselves — with no platform fee at all, on any plan. Gifts go to the accounts your church already has; Harvest is never in the path.',
     ctaHeading: 'Keep more of every gift.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     // 🔴 THE-335 — the SEO line named the sync too. A claim in a meta
     // description is a claim; it is what a search result shows.
-    seo: `Branded giving, fundraising campaigns, a donor and member CRM and ${QUICKBOOKS_MARKETING_ENABLED ? 'QuickBooks-synced receipts' : 'numbered PDF receipts'}${AFFILIATE_PROGRAM_ENABLED ? ', plus a 30% affiliate program' : ''} — with 0% platform fee on every donation.`,
+    seo: `${STRIPE_GIVING_MARKETING_ENABLED ? 'Branded giving' : 'A giving page carrying your own payment links'}, fundraising and pledge campaigns, a donor and member CRM and ${QUICKBOOKS_MARKETING_ENABLED ? 'QuickBooks-synced receipts' : 'numbered PDF receipts'}${AFFILIATE_PROGRAM_ENABLED ? ', plus a 30% affiliate program' : ''} — with 0% platform fee on every donation.`,
     features: [
       {
+        /* 🔴 THE-355 — REWORDED OFF STRIPE, NOT HIDDEN, and the distinction is
+           the same one the `accounting` entry below makes. A church really does
+           publish a giving page and really does take gifts through it; what
+           stopped working is the PROCESSOR half of every sentence.
+           `/api/stripe/donate` — the only card path behind this page,
+           `CampaignWidget`, `PublicCampaign` and `PartnerWithUsTab` — refuses
+           every request with 503 while the app's `STRIPE_CONNECT_ENABLED` is
+           false, and the platform account behind it is closed as
+           `rejected.fraud`.
+
+           ⚠️ EVERY REPLACEMENT LINE TRACES TO APP CODE, and the file is named
+           because a bullet is a claim just as much as a title is:
+
+             · six providers, from one table — `components/donations/
+               giving-providers.ts` (`GivingProviderId`, THE-246/249/254).
+             · checked against its provider — `validateGivingUrl` is an
+               ALLOW-LIST per provider, and `readGivingLinks` re-derives every
+               stored URL against it on READ, so a link that no longer passes
+               stops being a link.
+             · a gift recorded by hand posts to the dashboard, accounting and
+               the giver's history — `lib/manual-donation.ts` (THE-350) writes
+               the same `donation_receipt` invoice the Stripe webhook wrote.
+               🔴 THAT IS THE CRM's "Add Activity → Donation", NOT the campaign
+               screen's "Record an offline gift", which moves a campaign total
+               and writes no receipt at all. See the `fundraising` entry.
+             · one page, no login, opens the app they already use — `MainApp`'s
+               Give tab and `components/donations/GivingLinks.tsx`.
+
+           🔴 THE TIER DID NOT MOVE, AND IT WAS RE-CHECKED RATHER THAN ASSUMED.
+           `AdminDashboard.tsx` gates the Donations screen — the links editor
+           included — on `canDonations = planAllows(features?.fundraising) &&
+           canSettings`, and `fundraising` is false on Forever Free and true on
+           plus / pro / max. A free tenant cannot publish a giving link at all,
+           so "every paid plan" is still the true claim and [1, 1, 1] is still
+           the true array. */
         id: 'donation', name: 'Donation Page', n: '1',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
-        eyebrow: 'You keep more',
-        title: 'Keep 100% of every gift, on every paid plan.',
-        oneliner: 'Give in three taps. Every dollar lands in your church\'s own Stripe account — Harvest takes 0% of every donation on every paid plan, and never holds your money.',
-        moment: 'Most platforms take 2–5% of every gift, forever, with no way down. Harvest takes zero — on the cheapest paid plan and every plan above it. On a church doing $200k a year online, a 5% platform quietly takes $10,000. Harvest takes none of it; you pay us a flat subscription and nothing else.',
-        admin: ['Gifts are destination charges to your own Stripe', 'Fail-closed — no Stripe connected, no gift routed elsewhere', 'A gift writes a receipt, a CRM record & campaign credit', 'Stripe\'s own processing fees are Stripe\'s, not ours'],
-        member: ['Preset amounts or your own, in three taps', 'No login — give to any church, even as a visitor', 'An emailed PDF receipt, instantly', 'Your full giving history, receipts included'],
+        eyebrow: STRIPE_GIVING_MARKETING_ENABLED ? 'You keep more' : 'Your accounts, not ours',
+        title: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Keep 100% of every gift, on every paid plan.'
+          : 'Every gift goes straight to you.',
+        oneliner: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Give in three taps. Every dollar lands in your church\'s own Stripe account — Harvest takes 0% of every donation on every paid plan, and never holds your money.'
+          : 'Publish your own PayPal, Cash App, Venmo, Zelle, Revolut and Wise links on one giving page. Harvest is never in the flow — no platform fee, nothing held.',
+        moment: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Most platforms take 2–5% of every gift, forever, with no way down. Harvest takes zero — on the cheapest paid plan and every plan above it. On a church doing $200k a year online, a 5% platform quietly takes $10,000. Harvest takes none of it; you pay us a flat subscription and nothing else.'
+          : 'Most platforms sit between a church and the gift and take 2–5% of it, forever. Harvest does not sit there at all — a member taps the account your church already uses, and the money goes to it. There is nothing for us to route, nothing to hold and nothing to take a share of. You pay a flat subscription and nothing else.',
+        admin: STRIPE_GIVING_MARKETING_ENABLED
+          ? ['Gifts are destination charges to your own Stripe', 'Fail-closed — no Stripe connected, no gift routed elsewhere', 'A gift writes a receipt, a CRM record & campaign credit', 'Stripe\'s own processing fees are Stripe\'s, not ours']
+          : ['Paste your own payment links — six providers', 'Every link checked against its provider before it goes live', 'Record a gift by hand and it posts to your dashboard, accounting and the giver’s history'],
+        member: STRIPE_GIVING_MARKETING_ENABLED
+          ? ['Preset amounts or your own, in three taps', 'No login — give to any church, even as a visitor', 'An emailed PDF receipt, instantly', 'Your full giving history, receipts included']
+          : ['One page with every way to give', 'No login, on any phone', 'Taps straight into the app they already use'],
         crosslinks: [{ label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Fundraising', href: '/features/giving-finance#fundraising' }, { label: 'Text-to-Give', href: '/features/ai-automation#sms' }],
       },
       {
@@ -428,12 +521,19 @@ const ALL_CATEGORIES: Category[] = [
            the free tier genuinely does not have this, and Forever Free is a
            real, sold tier on this site.
 
-           ⚠️ NOT A DUPLICATE OF `donation` ABOVE. That entry is the STRIPE
-           giving page — card gifts, receipts, destination charges. This is the
-           surface that hands that page's address to a congregation, and it
-           carries the church's OWN payment links (PayPal, Cash App, Venmo,
-           Zelle, Revolut, Wise), which Stripe is not in at all. The two are
-           adjacent on purpose and describe different things. */
+           ⚠️ NOT A DUPLICATE OF `donation` ABOVE. That entry is the giving PAGE
+           — what it holds and what a gift recorded against it reaches. This is
+           the surface that hands that page's address to a congregation: a link,
+           a native share sheet and a QR code.
+           🔴 THE-355 CHANGED WHAT THAT DISTINCTION RESTS ON, and left this
+           entry alone. It used to read "that entry is the STRIPE giving page —
+           card gifts, receipts, destination charges", against which this one
+           was the page carrying the church's own links. With the card half
+           withdrawn both entries describe the same links, so the line between
+           them is now PAGE versus SHARING rather than rail versus rail. Not one
+           string in this entry moved: every claim it makes was about the
+           church's own accounts to begin with, which is exactly why it needed
+           no correction. */
         id: 'sharegiving', name: 'Shareable Giving Page', n: '2',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: 'Sunday morning, from the platform',
@@ -446,18 +546,110 @@ const ALL_CATEGORIES: Category[] = [
         crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'Fundraising', href: '/features/giving-finance#fundraising' }],
       },
       {
-        id: 'fundraising', name: 'Fundraising', n: '3',
+        /* 🔴 THE-355 — TWO ENTRIES WHERE THERE WAS ONE. This one is CAMPAIGN
+           ONLY; Pledge Campaigns is the entry directly below and every pledge
+           sentence moved there.
+
+           ⚠️ THE SPLIT IS NOT BEHIND THE FLAG, deliberately. A pledge is a
+           commitment an admin records and tracks against what is paid, and no
+           part of it ever went through `/api/stripe/donate` — tying the split
+           to `STRIPE_GIVING_MARKETING_ENABLED` would make a live, Ministry-only
+           capability vanish the day a card rail came back. The tiers are also
+           different, which is the reason the pair could never be honest as one
+           entry: this is [1, 1, 1] (`fundraising`, true on all three paid
+           plans) and pledges are [0, 0, 1] (`pledgeCampaigns`, `max` alone).
+
+           🔴 WHAT MOVES THE TOTAL, AND WHY ONE BULLET IS FLAGGED. `raised` is
+           incremented per payment by the Stripe webhook, which is refusing; the
+           live control is `AdminFundraising.tsx`'s "Record an offline gift"
+           (THE-251), posting to `/api/campaigns/adjust-raised`. It ADDS rather
+           than sets — a correction is a negative amount and both entries stay
+           in the campaign's adjustment trail — and the app's own dialog says
+           what it does not do: "That adds to the total; it does not create a
+           receipt and will not appear on a giving statement." So the bullet
+           says "record", never "receipt".
+
+           ⚠️ THE PUBLIC CAMPAIGN PAGE CARRIES THE CHURCH'S OWN LINKS —
+           `components/PublicCampaign.tsx` renders `GivingLinks` from the same
+           `tenant.config` the logo comes from (THE-251, THE-303), and with
+           Stripe off it draws no amount picker and no Donate button at all. */
+        id: 'fundraising', name: 'Fundraising Campaigns', n: '3',
         accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
         eyebrow: 'A building fund isn\'t a GoFundMe',
-        title: 'A live progress bar — or pledges to track.',
-        oneliner: 'Run a campaign with a real-time progress bar, or a pledge campaign for "commit now, give later" — with a ledger that tracks pledged against paid.',
-        moment: 'Churches don\'t just need a progress bar — they need 300 families committing $1,000 over two years. Pledge campaigns track exactly that, with a status derived from the numbers, never a stale manual field.',
-        admin: ['Campaign or pledge type, chosen at creation', 'Progress bar credited automatically as gifts land', 'Pledge ledger: pledged vs. paid, status derived', 'Pledge campaigns on Ministry'],
-        member: ['Public campaign & pledge pages — no login', 'Pledge from the pulpit, a QR, or a text', 'A confirmation the moment you commit', 'Watch the total move in real time'],
-        crosslinks: [{ label: 'Community Feed', href: '/features/community-engagement#feed' }, { label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
+        title: 'A number the whole church can watch.',
+        oneliner: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Run a campaign with a goal, a cover image and a real-time progress bar — on a public page anyone can open without an account.'
+          : 'Run a campaign with a goal, a cover image and a progress bar — on a public page that carries the accounts your church actually uses and opens without an account.',
+        moment: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'A building fund needs a figure the whole church can see moving. The campaign page carries the total, the goal and the story behind it — and every gift that lands moves the bar.'
+          : 'A building fund needs a figure the whole church can see moving. The campaign page carries the total, the goal and the story behind it — and beneath them, the accounts your church already takes gifts through. What comes in you record against the total, so the number on the page is one you can stand behind rather than one a processor decided.',
+        admin: ['A goal, a cover image and an end date, set at creation',
+          STRIPE_GIVING_MARKETING_ENABLED
+            ? 'Progress bar credited automatically as gifts land'
+            : 'Record gifts from your own payment links against the total',
+          'A correction is a negative amount — both entries stay in the trail',
+          'Embed a live campaign in a post on the community feed'],
+        member: ['A public campaign page — no login',
+          'Every way your church takes a gift, on the campaign page itself',
+          'A progress bar against the goal, and the days still left'],
+        crosslinks: [{ label: 'Pledge Campaigns', href: '/features/giving-finance#pledges' }, { label: 'Community Feed', href: '/features/community-engagement#feed' }, { label: 'Donation Page', href: '/features/giving-finance#donation' }],
       },
       {
-        id: 'crm', name: 'CRM', n: '3',
+        /* 🔴 THE-355 — PLEDGE CAMPAIGNS, ITS OWN ENTRY, DIRECTLY AFTER
+           FUNDRAISING. Everything here was buried in the `fundraising` entry
+           above, where it shared a title, a tier chip and a plan claim with a
+           capability on a different plan: the chips read [1, 1, 1] and one
+           bullet had to say "Pledge campaigns on Ministry" underneath them to
+           correct the picture the chips had already painted. A tier a visitor
+           has to read a bullet to un-learn is the class of claim this site
+           keeps having to fix.
+
+           🔴 THE TIER IS READ OFF THE APP, NOT ASSERTED. `utils/plan-features.ts`
+           has `pledgeCampaigns: false` on free, plus and pro and `true` on max
+           alone, and `AdminFundraising.tsx` computes `canPledge =
+           platformOverride || !!features?.pledgeCampaigns` — which is the
+           condition the "New campaign" type chooser renders behind. So
+           [0, 0, 1], and `the-355-stripe-giving-hidden.test.ts` verifies it
+           against the app's published plan catalogue rather than restating it.
+
+           ⚠️ EVERY LINE TRACES TO APP CODE:
+             · chosen at creation — `AdminFundraising.tsx`'s "New campaign"
+               dialog offers "Fundraising" and "Pledge campaign".
+             · pledged against paid — the Pledges tab totals `pledgeAmount` and
+               `paidAmount` per donor; `dashboard/PledgeFulfilment.tsx` shows the
+               same pair as a share.
+             · status derived — `derivePledgeStatus` in `AdminFundraising.tsx`:
+               fulfilled when paid ≥ pledged, lapsed when a due date has passed
+               unpaid, active otherwise. Never a stored field.
+             · a public page with no login — `src/app/pledge/[campaignId]/
+               page.tsx` renders `PublicPledge`, which answers a commitment with
+               "Thank you, {name}!" and carries the church's own giving links.
+             · a deadline — `pledgeDeadline` on the campaign, and a `dueDate` per
+               pledge.
+
+           🔴 "OR A TEXT" IS GONE FROM THE PULPIT LINE, and not for style. The
+           old bullet read "Pledge from the pulpit, a QR, or a text"; pledge
+           reminders post to `/api/sms/broadcast`, and SMS is off in both repos —
+           `SMS_MARKETING_ENABLED` here, and the app's own switch that mirrors it. A
+           messaging channel this site calls unbuilt cannot be a way to pledge
+           on the same site. */
+        id: 'pledges', name: 'Pledge Campaigns', n: '4',
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1],
+        eyebrow: 'Commit now, give later',
+        title: 'Three hundred families, a thousand dollars each.',
+        oneliner: 'A pledge campaign takes the commitment now and follows it until it is met — a ledger of pledged against paid, donor by donor, with the status worked out from the numbers.',
+        moment: 'Churches don\'t just need a progress bar — they need 300 families committing $1,000 over two years. A pledge campaign tracks exactly that, with a status derived from the numbers, never a stale manual field.',
+        admin: ['Chosen at creation — "New campaign" asks Fundraising or Pledge',
+          'A ledger of pledged against paid, donor by donor',
+          'Status derived from the numbers: active, fulfilled or lapsed',
+          'A campaign deadline, and a due date on each pledge'],
+        member: ['A public pledge page — no login',
+          'Commit an amount now and give it over the months that follow',
+          'A confirmation the moment you commit'],
+        crosslinks: [{ label: 'Fundraising Campaigns', href: '/features/giving-finance#fundraising' }, { label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Donation Page', href: '/features/giving-finance#donation' }],
+      },
+      {
+        id: 'crm', name: 'CRM', n: '5',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
         // The contact ceiling is the primary ladder between the three plans and
         // the pricing table was the only surface carrying it. The CRM is where
@@ -466,11 +658,28 @@ const ALL_CATEGORIES: Category[] = [
         tiersNote: 'The CRM itself is on every plan, Forever Free included; how many people it holds is what scales — 500 on Forever Free, 150 contacts on Individual, 500 on Small Team, 2,000 on Ministry.',
         eyebrow: 'You never type a contact in',
         title: 'One record per person — built automatically.',
-        oneliner: 'Give, register, check in or fill a form and a contact appears with the history attached. One person, one row — deduplicated by email, typed Donor & Member as they give. Connect Gmail and email them without leaving the dashboard.',
+        /* 🔴 THE-355 — the GIVE half of two sentences, and only that half.
+           `lib/donation-webhook.ts` is what created a contact that did not
+           exist and re-typed an existing one to `donor` / `both`; it fires on a
+           Stripe event, and no Stripe event arrives. A gift recorded by hand in
+           the CRM increments `totalDonated` and writes a timeline entry, but
+           `AdminCRM.tsx` writes `type: selected.type ?? 'member'` — it
+           deliberately preserves the type rather than setting it — so the
+           auto-typing is Stripe's alone.
+           ⚠️ THE PIPELINE AND THE TOTALS ARE UNTOUCHED and stay claimed:
+           `resolvePipelineStage(c.totalDonated)` derives the stage from a figure
+           the manual path really does move. */
+        oneliner: STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Give, register, check in or fill a form and a contact appears with the history attached. One person, one row — deduplicated by email, typed Donor & Member as they give. Connect Gmail and email them without leaving the dashboard.'
+          : 'Register, check in or fill a form and a contact appears with the history attached. One person, one row — deduplicated by email, with every gift you record landing on it. Connect Gmail and email them without leaving the dashboard.',
         moment: 'Anyone who\'s used church software has a database full of duplicate Bob Smiths. Harvest merges app members and manual contacts into one row on a stable link — so a person\'s giving history never scatters across three records.',
         // THE-245 — the last bullet sold tags on what they unlock in SMS. The
         // tags themselves are real and unchanged; only the SMS claim is withheld.
-        admin: ['Members & manual contacts merged into one list', 'Contacts scale by plan: 150 → 500 → 2,000', 'Connect Gmail and email a contact from their record', 'Auto-typed member / donor / both as they give', 'Five-stage discipleship pipeline: New → Champion',
+        admin: ['Members & manual contacts merged into one list', 'Contacts scale by plan: 150 → 500 → 2,000', 'Connect Gmail and email a contact from their record',
+          STRIPE_GIVING_MARKETING_ENABLED
+            ? 'Auto-typed member / donor / both as they give'
+            : 'A gift you record posts to their timeline and their total',
+          'Five-stage discipleship pipeline: New → Champion',
           SMS_MARKETING_ENABLED ? 'Tags that drive SMS broadcast targeting' : 'Tags you can segment and filter the whole list by'],
         member: ['A single profile that follows them everywhere', 'Giving, events, check-ins & forms on one timeline', 'Emails you send land from your own address', 'Total given & last gift always current'],
         crosslinks: [{ label: 'Custom Forms', href: '/features/ai-automation#forms' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }, { label: 'SMS', href: '/features/ai-automation#sms' }],
@@ -484,7 +693,7 @@ const ALL_CATEGORIES: Category[] = [
            on it is the overreach that shape exists to avoid.
            ⚠️ EVERY QUICKBOOKS SENTENCE IS BEHIND THE FLAG, including the ones
            inside `admin` — a bullet is a claim just as much as the title is. */
-        id: 'accounting', name: QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting', n: '4',
+        id: 'accounting', name: QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting', n: '6',
         accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
         eyebrow: 'Your treasurer stops asking',
         title: QUICKBOOKS_MARKETING_ENABLED
@@ -499,7 +708,17 @@ const ALL_CATEGORIES: Category[] = [
         admin: QUICKBOOKS_MARKETING_ENABLED
           ? ['Ledger of every donation receipt & event ticket', 'Connect QuickBooks; sync all, or retry a single one', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail, QuickBooks or not']
           : ['Ledger of every donation receipt & event ticket', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail for every item issued'],
-        member: ['Every gift arrives with a numbered PDF receipt', 'Clean records they can file themselves'],
+        /* 🔴 THE-355 — "ARRIVES WITH" WAS THE STRIPE WEBHOOK SPEAKING. It
+           emailed a receipt at the moment a card cleared; nothing emails one
+           when a member pays a church's PayPal, because Harvest never sees that
+           payment. What IS true is the ledger: `lib/manual-donation.ts` writes
+           the same `donation_receipt` invoice for a gift an admin records, so
+           the numbered PDF exists and the giver can download it from their own
+           record. The bullet says where the receipt IS, not when it lands. */
+        member: [STRIPE_GIVING_MARKETING_ENABLED
+          ? 'Every gift arrives with a numbered PDF receipt'
+          : 'A numbered PDF receipt for every gift in the ledger',
+          'Clean records they can file themselves'],
         adminLabel: 'For admins', memberLabel: 'For givers',
         crosslinks: [{ label: 'Donation Page', href: '/features/giving-finance#donation' }, { label: 'CRM', href: '/features/giving-finance#crm' }],
       },
@@ -509,7 +728,7 @@ const ALL_CATEGORIES: Category[] = [
          this copy names no processor. Do not put one back in, and do not
          un-hide the entry, until that migration ships. */
       {
-        id: 'affiliate', name: 'Affiliate Program', n: '5',
+        id: 'affiliate', name: 'Affiliate Program', n: '7',
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: '30% for their first 12 months',
         title: 'Refer a ministry. Earn 30% for a year.',
@@ -572,7 +791,15 @@ const ALL_CATEGORIES: Category[] = [
         oneliner: 'Twenty-three granular permissions per admin, plus location- and region-scoped access — so the check-in lead never sees donation records, and the treasurer never sees prayer requests.',
         moment: 'Churches run on volunteers, and trust boundaries between them are a pastoral concern, not just an IT one. The person running check-in doesn’t see giving; the campus pastor sees their campus and posts to their city, and nothing else.',
         admin: ['23 permissions across content, money, broadcasting & admin', 'Location-scoped analytics & region-scoped posting', 'Gated features are absent, not teased with a padlock', 'Drag-reorder nav — bottom bar & drawer, saved separately'],
-        member: ['Admin seats scale by plan: 2 → 5 → 15', 'A purposeful upgrade screen, never a dead end', 'Roles assigned to a person, right inside the CRM', 'A first-run wizard for Stripe, branding & integrations'],
+        /* 🔴 THE-355 — "STRIPE" LEFT THIS BULLET UNCONDITIONALLY, AND NOT
+           BEHIND THE FLAG. Every other Stripe string on this site waits behind
+           `STRIPE_GIVING_MARKETING_ENABLED` because it was true before the
+           platform account closed and will be true again. This one never was:
+           `components/PostPurchaseWizard.tsx` has four steps — Connect
+           Instagram, Connect Mailchimp, Custom Domain and Brand Your App — and
+           no payment step in any plan's sequence. Putting it behind the flag
+           would schedule a false claim to come back. */
+        member: ['Admin seats scale by plan: 2 → 5 → 15', 'A purposeful upgrade screen, never a dead end', 'Roles assigned to a person, right inside the CRM', 'A first-run wizard for branding & integrations'],
         adminLabel: 'Delegation', memberLabel: 'Setup',
         crosslinks: [{ label: 'CRM', href: '/features/giving-finance#crm' }, { label: 'Evangelism Analytics', href: '/features/platform-brand#analytics' }],
       },
@@ -772,7 +999,22 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
      entry's copy, bullets, tiers and tiersNote are byte-identical to THE-281's,
      and the-306-sharegiving.test.ts asserts that rather than trusting it. */
   'shareable-giving-page': '/features/giving-finance#sharegiving',
+  /* 🔴 THE-355 — BOTH SPELLINGS OF THE CAMPAIGN ENTRY, and the new pledge one.
+     The mega-menu resolves its own destination through `slugify(title)` (see
+     `itemHref` in components/Nav.tsx), so this table is the LIVE menu's routing
+     table as well as the redirect table for retired URLs — a title with no row
+     here falls back silently to the first category page. The feature was
+     renamed "Fundraising" → "Fundraising Campaigns" when pledges were split
+     out, so `fundraising` is now a RETIRED slug (indexed, and the menu row's
+     old spelling) and `fundraising-campaigns` is the live one. Both land on the
+     same `#fundraising` anchor, which is unchanged.
+     ⚠️ `pledge-campaigns` IS NOT A RETIRED URL — it is the THE-306 case exactly:
+     a live menu row whose title has to resolve or the row goes to the fallback.
+     Pledges have never had a URL of their own, so there is nothing to redirect
+     and nothing indexed; this row exists for the menu. */
   'fundraising': '/features/giving-finance#fundraising',
+  'fundraising-campaigns': '/features/giving-finance#fundraising',
+  'pledge-campaigns': '/features/giving-finance#pledges',
   'crm-donors-members': '/features/giving-finance#crm',
   'crm': '/features/giving-finance#crm',
   // ⚠️ A RETIRED SLUG, NOT A CLAIM. THE-335 renamed the entry off QuickBooks,

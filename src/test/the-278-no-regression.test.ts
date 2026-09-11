@@ -452,10 +452,144 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'afc4c5cf3d5a998a8273df274961eb4a4e265033bb0b64effed973a84af8028e',
   };
 
+  /**
+   * 🔴 af7a7ba — NOT A TICKET, AND NOT THIS ONE. A DIRECT PUSH TO `main`.
+   *
+   * The `inside-harvest` post "What your year-end giving statements must
+   * include" was pushed straight to `main` on 2026-09-10. CI runs on
+   * `pull_request` only and `main` is unprotected, so nothing in this suite ever
+   * ran against it — and every pull request opened since has been red on the
+   * three assertions below plus the five `blogRoutes()` counts. THE-355 found
+   * them red and rebaselined them; it did not cause them.
+   *
+   * ⚠️ RECORDED SEPARATELY, AND CREDITED, rather than folded into THE-355's own
+   * table. Two changes in one table is exactly how a page moves for a reason
+   * nobody wrote down — which is the failure every named table in this file
+   * exists to prevent. The values here are from a build of PRISTINE `main` at
+   * af7a7ba, in a worktree, so they are the post's own figures and carry none of
+   * THE-355's edits.
+   *
+   *   · blog/index               the post joins the index listing.
+   *   · blog/category/inside-harvest
+   *                              and its category page.
+   *   · blog/year-end-giving-statements-what-to-include
+   *                              ADDED — the 23rd route, which is what takes
+   *                              `blogRoutes()` from 22 to 23.
+   *
+   * 🔴 AND THE OTHER TWENTY DID NOT MOVE, which is what says a blog post is a
+   * blog post: `posts.ts` is read by the index and the one category page it is
+   * filed under, and by nothing else on the site.
+   */
+  const AF7A7BA_MOVED: Readonly<Record<string, string>> = {
+    'blog/category/inside-harvest/index.html':
+      '473452a9976e38921558be3def7300dc4b0aceca63b21df69cd2d4c43e7f07b7',
+    'blog/index.html':
+      '7b9b0048cb0675663054129d109e23cdb4f7770fb9c20502503ae9014812a37c',
+  };
+  const AF7A7BA_ADDED: Readonly<Record<string, string>> = {
+    'blog/year-end-giving-statements-what-to-include/index.html':
+      'c87fac62d96bbeaa2abee01e2be01cec9066f3b469eccc63634a1fad6bb25cf0',
+  };
+
+  /**
+   * 🔴 THE-355 — THE NINE PAGES THAT MOVED, and every one explained by a
+   * change this ticket made. `STRIPE_GIVING_MARKETING_ENABLED` is false, and
+   * Pledge Campaigns became a feature entry of its own:
+   *
+   *   · features/giving-finance  the largest change, and the one the ticket is
+   *                              for: the Donation Page entry reworded off
+   *                              Stripe (eyebrow, title, one-liner, moment and
+   *                              every bullet) and its vignette redrawn as the
+   *                              church's own accounts; Fundraising renamed to
+   *                              Fundraising Campaigns and its automatic-credit
+   *                              bullet replaced; a NEW `pledges` section
+   *                              directly after it, with its own icon and
+   *                              vignette; the CRM's two give-half claims; the
+   *                              category intro and the SEO line.
+   *   · features/community-engagement
+   *                              the Event Registration entry off destination
+   *                              charges and off discount codes, and the
+   *                              livestream's "give in one tap".
+   *   · faq                      the giving answer's second and third
+   *                              paragraphs, which described a rail that
+   *                              answers 503.
+   *   · features/coming-soon     the Affiliate referrals entry's `notThis`,
+   *                              which named the church's Stripe account as
+   *                              something that "ships today".
+   *   · features                 the category index renders each category's
+   *                              `seo` line, and giving-finance's changed; it
+   *                              also carries the footnote whose digit is
+   *                              CATALOG_TOOL_COUNT, 26 → 27.
+   *   · index (home)             the same footnote digit, and the #replaces
+   *                              Giving & Finance row, which gains Pledge
+   *                              Campaigns and reads the renamed Fundraising
+   *                              Campaigns caption off the catalogue.
+   *   · pricing                  the same footnote digit.
+   *   · features/platform-brand  🔴 THE ONE ENTRY THAT IS NOT BEHIND THE FLAG.
+   *                              The Admin Dashboard entry's member bullet read
+   *                              "A first-run wizard for Stripe, branding &
+   *                              integrations"; `components/PostPurchaseWizard
+   *                              .tsx` has four steps — Connect Instagram,
+   *                              Connect Mailchimp, Custom Domain and Brand Your
+   *                              App — and no payment step in any plan's
+   *                              sequence. That was true before the platform
+   *                              account closed and will be true after it
+   *                              reopens, so the word was dropped outright
+   *                              rather than gated: putting it behind the switch
+   *                              would schedule a false claim to come back.
+   *   · blog/year-end-giving-statements-what-to-include
+   *                              🔴 THE ONE SURFACE A FLAG CANNOT REACH.
+   *                              Markdown reads no flag, so the sentence that
+   *                              said a gift through the donation page writes a
+   *                              receipt, a CRM record and campaign credit is
+   *                              REWRITTEN rather than gated — grounded in
+   *                              `lib/manual-donation.ts`, which is what makes
+   *                              a recorded gift reach a giving statement. It
+   *                              is the only change in this ticket that has to
+   *                              be undone by hand if the flag is flipped back,
+   *                              and the pull request says so.
+   *
+   * 🔴 AND THE FOURTEEN THAT DID NOT MOVE ARE THE EVIDENCE. `terms`, `privacy`
+   * and `refunds` are the three worth naming: they carry the same Stripe
+   * Connect statements and `src/content/legal.ts` is deliberately untouched —
+   * withdrawing a term from a published agreement is a founder decision, and
+   * the affected lines are enumerated in the pull request instead.
+   * `features/ai-automation`, `features/discipleship-content`,
+   * `features/harvest-scheduler` and `contact` are the leak test:
+   * `FeatureMock.tsx`, `FeatureBlock` and `catalog.ts` are all rendered by those
+   * pages, and an edit that reached past the giving keys would show up here as
+   * more entries. ⚠️ `features/platform-brand` LEFT that list and is above,
+   * for the wizard bullet — one line, on one entry, and it is named rather than
+   * absorbed for exactly that reason.
+   *
+   * Regenerated from a fresh `npm run build` on Linux, the same procedure the
+   * note on THE_301_MOVED describes.
+   */
+  const THE_355_MOVED: Readonly<Record<string, string>> = {
+    'blog/year-end-giving-statements-what-to-include/index.html':
+      'ee6ec8d08d474dd4596a03ce865eb8cacd6be386574371b0ed64af6e4c53e54b',
+    'faq/index.html':
+      '2cef2ba401e53cc292e9c7e85b532b567d83f0259a708139e3c695f461cd4653',
+    'features/coming-soon/index.html':
+      'ba4694b55f911b76ebfdb5cb42bd399458632e7ed6faeff976b1396b22e02cce',
+    'features/community-engagement/index.html':
+      'b1cb7266978640d7dc7bdf2ec8625efb4a51f1fb961840d5e7866fd14c3c61a1',
+    'features/giving-finance/index.html':
+      '21efe6e2db31507f9efdd899925131819164c72a20b669f6ee030d5f2de17d21',
+    'features/index.html':
+      '03d73eacf044784b9b6c816e1a1522792f6802f954a14a496a86907dba7ab29b',
+    'features/platform-brand/index.html':
+      'e7bdc09f17b8af0bf55c496171b0a21764128545bcabd1ba7e9219dd1970b296',
+    'index.html':
+      '0c87386e96ea71ddae144bb93ae36394ab957815cbe0e620069a524d48966b8b',
+    'pricing/index.html':
+      'c83aa0e0f4090a234b9a3b7e54cd9ef6d1f10e6fe8041ec246141772264569c7',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
-    ...THE_343_MOVED,
+    ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -475,7 +609,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  Retaken again at THE-335 from the same build as THE_335_MOVED; the previous
    *  value was f4bead896c16822fac0b6d3a493a2ac98277c1358b80316e39f1cad3ed793692.
    *  🔴 THE PAGE COUNT IS STILL 22 — THE-335 adds and removes no route. */
-  const BASELINE_ALL = '7f97c8d6345bb20409439f54e26e9ec94c878316ad26f42886813e9126af5ff1';
+  /*  Retaken again at THE-355 from the same build as THE_355_MOVED; the previous
+   *  value was 7f97c8d6345bb20409439f54e26e9ec94c878316ad26f42886813e9126af5ff1.
+   *  🔴 THE PAGE COUNT MOVED, 22 → 23, AND NOT BECAUSE OF THE-355 — the Sep 10
+   *  `inside-harvest` post added the route (see AF7A7BA_ADDED above). THE-355
+   *  adds a SECTION to a page that already renders, which is an anchor rather
+   *  than a page. A one-number hash over the whole set cannot tell those two
+   *  apart, which is exactly why the tables above are separate and named. */
+  const BASELINE_ALL = '3e2b31da58260d961ee0d24090af165599e3ba4f28b254b1b46ccaf38f0c0859';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -523,11 +664,19 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        blog post, which no earlier ticket had moved. It is still asserted byte
        for byte against THE_343_MOVED by the per-page loop below; nothing leaves
        the assertion, only this "still at THE-278's original value" subset. */
+    /* ⚠️ AND TWO MORE JOIN IT, ON IDENTICAL TERMS AND FOR TWO DIFFERENT REASONS.
+       AF7A7BA_MOVED / AF7A7BA_ADDED are the Sep 10 blog post, pushed straight to
+       `main`; THE_355_MOVED is the Stripe-giving reword and the pledge split.
+       Both are named tables above and both are still asserted page by page — a
+       page leaving this subset means a LATER ticket has claimed it, never that
+       it stopped being checked. */
     const untouched = Object.keys(PRE_TAILWIND)
       .filter((p) => !(p in THE_280_MOVED) && !(p in THE_284_MOVED) && !(p in THE_301_MOVED)
         && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
-        && !(p in THE_343_MOVED));
-    expect(untouched).toHaveLength(8);
+        && !(p in THE_343_MOVED) && !(p in AF7A7BA_MOVED) && !(p in THE_355_MOVED));
+    // 🔵 SIX SINCE THE-355: the Sep 10 post took the blog index and the
+    // inside-harvest category page, and THE-355 took the `features` index.
+    expect(untouched).toHaveLength(6);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
         .toBe(PRE_TAILWIND[page]);
@@ -548,7 +697,10 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(untouched).not.toContain(giving);
     expect(THE_280_MOVED[giving], 'THE-280 moved the Giving & Finance page, which is not its to move')
       .toBeUndefined();
-    expect(BASELINE[giving]).toBe(THE_335_MOVED[giving]);
+    // 🔵 AND THE-355 MOVED IT AGAIN — the Stripe reword and the pledge split,
+    // which is the largest single change this page has had. The value it is
+    // measured against is THE-355's now; the property is unchanged.
+    expect(BASELINE[giving]).toBe(THE_355_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -584,13 +736,16 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_284_MOVED) && !(p in THE_284_ADDED) && !(p in THE_301_MOVED)
         && !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
-        && !(p in THE_343_MOVED));
+        && !(p in THE_343_MOVED)
+        && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED));
     // 🔵 Fifteen until THE-314 took three more out of the list, on the same
     // terms: they are asserted against THE_314_MOVED, not dropped. Five of its
     // eight were already excluded as THE-301's or THE-306's.
     // 🔵 Nine since THE-343 excluded the Planning Center blog post, on the same
     // terms again — its other four pages were already excluded above.
-    expect(others).toHaveLength(9);
+    // 🔵 Six since af7a7ba and THE-355 between them excluded four more and
+    // added one key — a net of three off this subset.
+    expect(others).toHaveLength(6);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
         .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -628,19 +783,24 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'features/platform-brand/index.html',
     ]) {
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(THE_335_MOVED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page]
-          ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(THE_355_MOVED[page] ?? THE_335_MOVED[page] ?? THE_314_MOVED[page]
+          ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
-    // Nothing added, nothing dropped: the same 22 keys THE-284 left behind.
-    expect(Object.keys(BASELINE)).toHaveLength(22);
+    /* 🔵 23 KEYS SINCE af7a7ba, WHICH IS NOT A TICKET. The Sep 10 blog post was
+       pushed straight to `main` and added the 23rd route; THE-355 added none.
+       The claim here is unchanged — THE-293 added and dropped nothing. */
+    expect(Object.keys(BASELINE)).toHaveLength(23);
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED)
-        && !(p in THE_314_MOVED) && !(p in THE_335_MOVED) && !(p in THE_343_MOVED));
+        && !(p in THE_314_MOVED) && !(p in THE_335_MOVED) && !(p in THE_343_MOVED)
+        && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED));
     // 🔵 Twenty until THE-301 took two out of the list, THE-306 three more and
     // THE-314 four more (four of its eight were already excluded).
     // 🔵 Nine since THE-343 excluded the Planning Center blog post.
-    expect(others).toHaveLength(9);
+    // 🔵 Six since af7a7ba and THE-355 between them excluded four more and
+    // added one key — a net of three off this subset.
+    expect(others).toHaveLength(6);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
         .toBe(THE_335_MOVED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
@@ -671,13 +831,16 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        render them: nothing they touch is shared, so nothing else may move. */
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_301_MOVED) && !(p in THE_306_MOVED) && !(p in THE_314_MOVED)
-        && !(p in THE_335_MOVED) && !(p in THE_343_MOVED));
+        && !(p in THE_335_MOVED) && !(p in THE_343_MOVED)
+        && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED));
     // 🔵 Eleven since THE-314 moved eight of the twenty-two; the claim is
     // unchanged — everything outside the named tables is still at its recorded
     // value.
     // 🔵 Ten since THE-343 excluded the Planning Center blog post on the same
     // terms — the other four pages it moved were already excluded above.
-    expect(others).toHaveLength(10);
+    // 🔵 Seven since af7a7ba and THE-355 between them excluded four more and
+    // added one key — a net of three off this subset.
+    expect(others).toHaveLength(7);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-301 had no business moving it`)
         .toBe(THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? THE_293_MOVED[page]
@@ -685,8 +848,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
           ?? PRE_TAILWIND[page]);
     }
 
-    // Nothing added, nothing dropped: still the same 22 keys.
-    expect(Object.keys(BASELINE)).toHaveLength(22);
+    // 🔵 Nothing added or dropped BY THE-301: 23 keys since the Sep 10 post.
+    expect(Object.keys(BASELINE)).toHaveLength(23);
   });
 
   const pagesInDist = (): string[] => {
@@ -735,14 +898,17 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        accommodate it, would move all five and could not pass this. */
     const untouched = Object.keys(BASELINE)
       .filter((p) => !(p in THE_306_MOVED) && !(p in THE_314_MOVED) && !(p in THE_335_MOVED)
-        && !(p in THE_343_MOVED));
+        && !(p in THE_343_MOVED)
+        && !(p in AF7A7BA_MOVED) && !(p in AF7A7BA_ADDED) && !(p in THE_355_MOVED));
     // 🔵 Twelve since THE-335 moved ten more, eight of which were already
     // outside this list. THE-306's own claim — that it moved three and no
     // others — is unchanged; the pages it must be measured against are the ones
     // no later ticket has legitimately moved since.
     // 🔵 Ten since THE-343 excluded the two pages it moved that no table above
     // had claimed — the Planning Center blog post and `terms`.
-    expect(untouched).toHaveLength(10);
+    // 🔵 Seven since af7a7ba and THE-355 between them excluded four more and
+    // added one key — a net of three off this subset.
+    expect(untouched).toHaveLength(7);
     // ⚠️ ai-automation LEFT THIS LIST AT THE-314, which restored the SMS feature
     // section that renders on it, and community-engagement left it at THE-335,
     // which added the service-planning section. Both are measured against their
@@ -753,11 +919,19 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // planner to a live feature while the SOCIAL-MEDIA scheduler stays
     // coming-soon, and that page not moving is what says the two were not
     // confused.
+    /* 🔵 `features/platform-brand` LEFT THIS LIST AT THE-355, which dropped the
+       word "Stripe" from the Admin Dashboard entry's first-run-wizard bullet —
+       one line on one entry, and unconditional rather than flagged, because
+       `PostPurchaseWizard.tsx` has no payment step in any plan's sequence. It is
+       measured against THE_355_MOVED in the per-page comparison instead, and its
+       departure is asserted below rather than merely allowed, so a page cannot
+       quietly leave this list without a table claiming it. */
     for (const page of ['features/discipleship-content/index.html',
-                        'features/platform-brand/index.html',
                         'features/harvest-scheduler/index.html']) {
       expect(untouched, `${page} must be among the pages that did not move`).toContain(page);
     }
+    expect(THE_355_MOVED['features/platform-brand/index.html'],
+      'platform-brand is excluded here but THE-355 does not record it').toBeDefined();
     expect(THE_314_MOVED['features/ai-automation/index.html'],
       'ai-automation is excluded here but THE-314 does not record it').toBeDefined();
     for (const page of untouched) {
@@ -766,8 +940,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
           ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
-    // Nothing added, nothing dropped: still the same 22 keys.
-    expect(Object.keys(BASELINE)).toHaveLength(22);
+    // 🔵 Nothing added or dropped BY THE-306: 23 keys since the Sep 10 post.
+    expect(Object.keys(BASELINE)).toHaveLength(23);
   });
 
   it.runIf(comparable)('and the whole set matches as one number', () => {
@@ -948,17 +1122,27 @@ describe('8 — the nine plan prices are unchanged and the contract still has te
 
 /* ═══ 9 — the prerendered page count ═════════════════════════════════════ */
 describe('9 — the prerender list and the built page count are unchanged', () => {
-  it('blogRoutes() lists 22 routes', () => {
+  it('blogRoutes() lists 23 routes', () => {
     /* The same number LegalPage.test.ts pins. Asserted again here because
        THE-278 was the ticket that could have moved it, by changing what the
        build does rather than what the route table says — and that claim still
        holds: the one route added since is THE-284's Harvest Scheduler page,
        which is a route in the table, not a change to the build. */
-    expect(blogRoutes()).toHaveLength(22);
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(blogRoutes()).toHaveLength(23);
   });
 
-  it.runIf(built)('and the build emits all 22 of them', () => {
-    /* The list and the build agree: 22 routes in, 22 pages out.
+  it.runIf(built)('and the build emits all 23 of them', () => {
+    /* The list and the build agree: 23 routes in, 23 pages out.
        ⚠️ ON A win32 CHECKOUT THIS FAILS AT 19, and the failure is correct —
        that build really is missing the three blog posts, for the slugFromPath
        reason noted at the top of this file. Asserted rather than skipped so a
@@ -972,7 +1156,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
       }
       return n;
     })(DIST);
-    expect(count, `this checkout built ${count} pages, not 22`).toBe(22);
+    expect(count, `this checkout built ${count} pages, not 23`).toBe(23);
   });
 });
 
