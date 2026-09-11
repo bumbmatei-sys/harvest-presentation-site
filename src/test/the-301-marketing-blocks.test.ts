@@ -245,8 +245,10 @@ describe('4 — the prerendered page count is unchanged', () => {
        🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
        the new /solutions/evangelistic-organizations route.
        🔴 25 SINCE board card 86bbyv8pp, part two, and not because of this
-       ticket either — the new /solutions/churches route. */
-    expect(blogRoutes()).toHaveLength(25);
+       ticket either — the new /solutions/churches route.
+       🔴 26 SINCE board card 86bbz2yj6, part three, and not because of this
+       ticket either — the new /solutions/missionaries route. */
+    expect(blogRoutes()).toHaveLength(26);
   });
 
   it('and App.tsx gained no route', () => {
@@ -255,10 +257,10 @@ describe('4 — the prerendered page count is unchanged', () => {
   });
 
   it.runIf(built && postPagesBuilt)('the build emits one page per route', () => {
-    expect(PAGES).toHaveLength(25);
+    expect(PAGES).toHaveLength(26);
   });
 
-  it.runIf(built)('and the twenty non-post pages are there on any platform', () => {
+  it.runIf(built)('and the twenty-two non-post pages are there on any platform', () => {
     /* ⚠️ A win32 CHECKOUT BUILDS FOUR FEWER, and not because of this ticket:
        `slugFromPath` in content/post-core.ts splits on '/' only, so on Windows
        the four blog post slugs become absolute paths and those four routes
@@ -271,7 +273,7 @@ describe('4 — the prerendered page count is unchanged', () => {
        the blog. Twenty holds on Linux and on Windows, and it still catches a
        page this ticket added or dropped — which was the point. */
     const nonPosts = PAGES.filter(([f]) => !/^blog\/[^/]+\/index\.html$/.test(f) || f.startsWith('blog/category/'));
-    expect(nonPosts.map(([f]) => f)).toHaveLength(21);
+    expect(nonPosts.map(([f]) => f)).toHaveLength(22);
     expect(nonPosts.map(([f]) => f)).toContain('features/index.html');
     expect(nonPosts.map(([f]) => f)).toContain('contact/index.html');
   });
