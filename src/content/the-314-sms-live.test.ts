@@ -385,8 +385,10 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
        renders — /features/giving-finance — and a section is an anchor, not a
        page.
        🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
-       the new /solutions/evangelistic-organizations route. */
-    expect(pagesInDist()).toHaveLength(24);
+       the new /solutions/evangelistic-organizations route.
+       🔴 25 SINCE board card 86bbyv8pp, part two, and not because of this
+       ticket either — the new /solutions/churches route. */
+    expect(pagesInDist()).toHaveLength(25);
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {

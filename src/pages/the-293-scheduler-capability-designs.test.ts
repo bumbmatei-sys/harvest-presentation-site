@@ -576,8 +576,10 @@ describe('12 & 13 — the page count is 22 and no existing page moved', () => {
        renders — /features/giving-finance — and a section is an anchor, not a
        page.
        🔴 24 SINCE board card 86bbyv8pp — the new
-       /solutions/evangelistic-organizations route. */
-    expect(pagesInDist()).toHaveLength(24);
+       /solutions/evangelistic-organizations route.
+       🔴 25 SINCE board card 86bbyv8pp, part two — the new /solutions/churches
+       route. */
+    expect(pagesInDist()).toHaveLength(25);
     expect(pagesInDist()).toContain('features/harvest-scheduler/index.html');
   });
 

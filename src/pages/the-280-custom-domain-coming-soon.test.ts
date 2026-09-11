@@ -659,18 +659,20 @@ describe('6 — the prerendered page count is unchanged', () => {
        renders — /features/giving-finance — and a section is an anchor, not a
        page.
        🔴 24 SINCE board card 86bbyv8pp — the new
-       /solutions/evangelistic-organizations route, unrelated to custom domains. */
-    expect(routes).toHaveLength(24);
-    // 🔵 23 with the scheduler page taken out, and the Solutions page counted —
-    // 22 with the scheduler taken out and no Solutions page, 21 before the Sep
-    // 10 post.
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(23);
+       /solutions/evangelistic-organizations route, unrelated to custom domains.
+       🔴 25 SINCE board card 86bbyv8pp, part two — the new /solutions/churches
+       route, equally unrelated to custom domains. */
+    expect(routes).toHaveLength(25);
+    // 🔵 24 with the scheduler page taken out, and both Solutions pages
+    // counted — 22 with the scheduler taken out and no Solutions pages, 21
+    // before the Sep 10 post.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(24);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
   it.runIf(built)('and the build emits exactly those, one file each', () => {
     const count = distPages().filter(([f]) => f.endsWith(`index.html`)).length;
-    expect(count, `this checkout built ${count} pages, not 24`).toBe(24);
+    expect(count, `this checkout built ${count} pages, not 25`).toBe(25);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {
