@@ -657,16 +657,20 @@ describe('6 — the prerendered page count is unchanged', () => {
        Corrected here rather than in the ticket that eventually trips over it.
        ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
        renders — /features/giving-finance — and a section is an anchor, not a
-       page. */
-    expect(routes).toHaveLength(23);
-    // 🔵 22 with the scheduler page taken out — 21 before the Sep 10 post.
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(22);
+       page.
+       🔴 24 SINCE board card 86bbyv8pp — the new
+       /solutions/evangelistic-organizations route, unrelated to custom domains. */
+    expect(routes).toHaveLength(24);
+    // 🔵 23 with the scheduler page taken out, and the Solutions page counted —
+    // 22 with the scheduler taken out and no Solutions page, 21 before the Sep
+    // 10 post.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(23);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
   it.runIf(built)('and the build emits exactly those, one file each', () => {
     const count = distPages().filter(([f]) => f.endsWith(`index.html`)).length;
-    expect(count, `this checkout built ${count} pages, not 23`).toBe(23);
+    expect(count, `this checkout built ${count} pages, not 24`).toBe(24);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {

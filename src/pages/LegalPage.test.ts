@@ -73,7 +73,7 @@ describe('the prerender list', () => {
     expect(prerendered, `/${slug} would ship as an empty shell`).toContain(legalHref(slug));
   });
 
-  it('prerenders 23 pages', () => {
+  it('prerenders 24 pages', () => {
     // 15 before the policies, 18 with them, 19 with /faq, 20 with the Coming
     // Soon category (THE-247), 21 with the `rooted` post added by 1917a9a, and
     // 22 with the Harvest Scheduler page (THE-284) — the first entry on the
@@ -95,8 +95,10 @@ describe('the prerender list', () => {
        Corrected here rather than in the ticket that eventually trips over it.
        ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
        renders — /features/giving-finance — and a section is an anchor, not a
-       page. */
-    expect(prerendered).toHaveLength(23);
+       page.
+       🔴 24 SINCE board card 86bbyv8pp — the new
+       /solutions/evangelistic-organizations route. */
+    expect(prerendered).toHaveLength(24);
     expect(new Set(prerendered).size).toBe(prerendered.length);
   });
 

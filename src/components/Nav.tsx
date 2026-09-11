@@ -5,6 +5,7 @@ import { L } from './icons';
 import { Mark } from './shared';
 import { CATALOG, CATALOG_TOOL_COUNT, slugify, type CatalogGroup, type CatalogItem } from './catalog';
 import { CATEGORIES, CATEGORY_BY_NAME, categoryHref, featureHref as featurePath } from '../content/features';
+import { SOLUTIONS, solutionHref } from '../content/solutions';
 import { TRIAL_CTA_LABEL } from '../content/legal';
 import { CHEAPEST_MONTHLY } from './Pricing';
 
@@ -171,16 +172,57 @@ export function MegaMenuFooterLabel() {
   return <>{`${CATALOG_TOOL_COUNT} tools in one platform — from $${CHEAPEST_MONTHLY}/mo`}</>;
 }
 
+/** The Solutions dropdown's item list — desktop panel and mobile accordion
+ *  both render this, differing only in density (the same split
+ *  `FeatureMenuColumns` above already uses).
+ *
+ *  ⚠️ EXPORTED FOR THE SAME REASON `FeatureMenuColumns` IS. Both panels only
+ *  exist once `solutions`/`mobileSolutions` state is true, and nothing outside
+ *  a real click can set either in this repo's DOM-less test runner — so
+ *  pulling the item list out is what lets a test render it directly and assert
+ *  on the markup a click would reveal. Built from `SOLUTIONS`, so a later
+ *  Solutions page needs no edit here. */
+export function SolutionsMenuItems({ variant, onNavigate = () => {} }:
+  { variant: 'desktop' | 'mobile'; onNavigate?: () => void }) {
+  const desktop = variant === 'desktop';
+  return (
+    <>
+      {SOLUTIONS.map((s) => (
+        <Link
+          key={s.slug}
+          to={solutionHref(s.slug)}
+          role={desktop ? 'menuitem' : undefined}
+          onClick={onNavigate}
+          style={{
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3,
+            minHeight: 44, borderRadius: desktop ? 12 : 9, textDecoration: 'none',
+            padding: desktop ? '8px 12px' : '7px 6px',
+          }}
+          onMouseEnter={desktop ? (e) => { e.currentTarget.style.background = 'var(--stone-100)'; } : undefined}
+          onMouseLeave={desktop ? (e) => { e.currentTarget.style.background = 'transparent'; } : undefined}
+        >
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: 'var(--navy-900)' }}>{s.name}</span>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-muted)' }}>{s.description}</span>
+        </Link>
+      ))}
+    </>
+  );
+}
+
 export function Nav() {
   const { pathname } = useLocation();
   // The only nav item with an active state — every blog route lives under /blog.
   const onBlog = pathname === '/blog' || pathname.startsWith('/blog/');
+  const onSolutions = pathname === '/solutions' || pathname.startsWith('/solutions/');
   const [scrolled, setScrolled] = React.useState(false);
   const [mega, setMega] = React.useState(false);
+  const [solutions, setSolutions] = React.useState(false);
   const [mobile, setMobile] = React.useState(false);
   const [mobileFeatures, setMobileFeatures] = React.useState(false);
+  const [mobileSolutions, setMobileSolutions] = React.useState(false);
   const navRef = React.useRef<HTMLElement>(null);
   const featuresBtnRef = React.useRef<HTMLButtonElement>(null);
+  const solutionsBtnRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -203,7 +245,26 @@ export function Nav() {
     return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
   }, [mega]);
 
-  const closeMobile = () => { setMobile(false); setMobileFeatures(false); };
+  // Same click-to-toggle/outside-click/Escape behaviour as Features, for the
+  // Solutions trigger — and opening either one closes the other, so at most
+  // one desktop menu is ever open at a time.
+  React.useEffect(() => {
+    if (!solutions) return;
+    const onDown = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setSolutions(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setSolutions(false); solutionsBtnRef.current?.focus(); }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [solutions]);
+
+  const toggleMega = () => { setMega((v) => !v); setSolutions(false); };
+  const toggleSolutions = () => { setSolutions((v) => !v); setMega(false); };
+
+  const closeMobile = () => { setMobile(false); setMobileFeatures(false); setMobileSolutions(false); };
 
   return (
     <nav
@@ -236,13 +297,26 @@ export function Nav() {
             type="button"
             aria-haspopup="true"
             aria-expanded={mega}
-            onClick={() => setMega((v) => !v)}
+            onClick={toggleMega}
             style={{ ...linkStyle, color: mega ? 'var(--brand)' : 'var(--navy-800)' }}
             onMouseEnter={(e) => { if (!mega) e.currentTarget.style.color = 'var(--brand)'; }}
             onMouseLeave={(e) => { if (!mega) e.currentTarget.style.color = 'var(--navy-800)'; }}
           >
             Features
             <L name="chevron-down" size={13} color="currentColor" style={{ transform: mega ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
+          </button>
+          <button
+            ref={solutionsBtnRef}
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={solutions}
+            onClick={toggleSolutions}
+            style={{ ...linkStyle, color: solutions || onSolutions ? 'var(--brand)' : 'var(--navy-800)' }}
+            onMouseEnter={(e) => { if (!solutions) e.currentTarget.style.color = 'var(--brand)'; }}
+            onMouseLeave={(e) => { if (!solutions) e.currentTarget.style.color = onSolutions ? 'var(--brand)' : 'var(--navy-800)'; }}
+          >
+            Solutions
+            <L name="chevron-down" size={13} color="currentColor" style={{ transform: solutions ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
           </button>
           {PAGE_LINKS.map(([label, href]) => (
             <Link key={label} to={href} style={linkStyle}
@@ -321,6 +395,24 @@ export function Nav() {
         </div>
       )}
 
+      {/* ---------- Desktop Solutions panel (click-to-toggle) ---------- */}
+      {solutions && (
+        <div
+          role="menu"
+          aria-label="Solutions"
+          style={{
+            width: 'min(360px, calc(100vw - 40px))', marginTop: 10,
+            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
+            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 12,
+            maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
+            animation: 'harvestMenuIn 0.28s var(--ease-out) both',
+          }}
+        >
+          <SolutionsMenuItems variant="desktop" onNavigate={() => setSolutions(false)} />
+        </div>
+      )}
+
       {/* ---------- Mobile panel (accordion) ---------- */}
       {mobile && (
         <div
@@ -346,6 +438,22 @@ export function Nav() {
           {mobileFeatures && (
             <div style={{ padding: '4px 8px 12px' }}>
               <FeatureMenuColumns variant="mobile" onNavigate={closeMobile} />
+            </div>
+          )}
+
+          {/* Solutions accordion */}
+          <button
+            type="button"
+            aria-expanded={mobileSolutions}
+            onClick={() => setMobileSolutions((v) => !v)}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid rgba(45,37,25,0.06)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onSolutions ? 'var(--brand)' : 'var(--navy-900)' }}
+          >
+            Solutions
+            <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileSolutions ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
+          </button>
+          {mobileSolutions && (
+            <div style={{ padding: '4px 8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <SolutionsMenuItems variant="mobile" onNavigate={closeMobile} />
             </div>
           )}
 

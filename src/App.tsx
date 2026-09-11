@@ -15,6 +15,8 @@ import { ContactPage } from './pages/ContactPage';
 import { LegalPage } from './pages/LegalPage';
 import { FaqPage } from './pages/FaqPage';
 import { CATEGORIES, categoryHref } from './content/features';
+import { SOLUTIONS, solutionHref } from './content/solutions';
+import { SolutionPage } from './pages/SolutionPage';
 import { COMING_SOON_HREF, SCHEDULER_HREF } from './content/coming-soon';
 import { LEGAL_DOCS, legalHref } from './content/legal';
 import { FAQ_HREF } from './content/faq';
@@ -96,6 +98,14 @@ export const routes: RouteRecord[] = [
          one page that really changed, which is the whole thing
          src/test/the-278-no-regression.test.ts exists to keep visible. */
       { path: SCHEDULER_HREF, element: <SchedulerPage /> },
+      /* Solutions — board card 86bbyv8pp. Appended here for the same reason
+         SCHEDULER_HREF is: inserting mid-table would renumber every route
+         after it and move every prerendered page's SSR hydration data, not
+         only the ones this ticket actually changed. See the note above. */
+      ...SOLUTIONS.map((s) => ({
+        path: solutionHref(s.slug),
+        element: <SolutionPage />,
+      })),
       { path: '*', element: <Landing /> },
     ],
   },

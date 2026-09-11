@@ -383,8 +383,10 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
        Corrected here rather than in the ticket that eventually trips over it.
        ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
        renders — /features/giving-finance — and a section is an anchor, not a
-       page. */
-    expect(pagesInDist()).toHaveLength(23);
+       page.
+       🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
+       the new /solutions/evangelistic-organizations route. */
+    expect(pagesInDist()).toHaveLength(24);
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {
