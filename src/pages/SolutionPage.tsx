@@ -54,7 +54,7 @@ function OneAppTabs({ tabs }: { tabs: readonly { id: string; label: string }[] }
         aria-label="Harvest, in one app"
         style={{
           display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch',
-          paddingBottom: 4, scrollbarWidth: 'none',
+          paddingBottom: 4, scrollbarWidth: 'none', justifyContent: 'center',
         }}
       >
         {tabs.map((t, i) => {
@@ -133,7 +133,7 @@ function OneApp({ oneApp: c }: { oneApp: SolutionPageContent['oneApp'] }) {
           <H2 style={{ margin: '10px 0 0' }}>{c.heading}</H2>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.6, color: 'var(--text-body)', margin: '16px auto 0', maxWidth: 640 }}>{c.sub}</p>
         </Reveal>
-        <div style={{ marginTop: 34, textAlign: 'left' }}>
+        <div style={{ marginTop: 34 }}>
           <OneAppTabs tabs={c.tabs} />
         </div>
       </div>

@@ -743,12 +743,37 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       '492cacb37f0182e220b50163c49cdcda0fec3e8be4126286793f644ad452f6f4',
   };
 
+  /**
+   * 🔴 SOLUTIONS TABS CENTERED — exactly the three Solutions pages moved, and
+   * nothing else did.
+   *
+   * `OneAppTabs`'s `role="tablist"` flex row in SolutionPage.tsx had no
+   * `justifyContent`, so it defaulted to flex-start and the tab pills sat
+   * left-aligned under a centered heading. Adding `justifyContent: 'center'`
+   * to that row (and dropping the now-redundant `textAlign: 'left'` on its
+   * wrapper) is layout-only chrome inside `SolutionPage.tsx`, which only
+   * `solutions/*` routes render, so `churches`, `evangelistic-organizations`
+   * and `missionaries` are the only pages that could move — and did.
+   *
+   * Regenerated from a fresh `npm run build` on Linux, the same procedure the
+   * note on THE_301_MOVED describes.
+   */
+  const SOLUTIONS_TABS_CENTERED_MOVED: Readonly<Record<string, string>> = {
+    'solutions/churches/index.html':
+      'ed2b8126ea61d0723e36fa8fc16f0d9777836438658a2d9e765f3a62a6a20d29',
+    'solutions/evangelistic-organizations/index.html':
+      '4b93b04c3718104db4345c9e4aa2e5b4872b5198de8f0aec334402220241e718',
+    'solutions/missionaries/index.html':
+      'afc0ffb156b11a460997e0e6348cb9622e977293502632adb63c520d9a65f8b7',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
     ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
     ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
     ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
+    ...SOLUTIONS_TABS_CENTERED_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -794,7 +819,13 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  🔴 THE PAGE COUNT MOVED, 25 → 26 — the new /solutions/missionaries page —
    *  AND NONE OF THE OTHER 25 MOVED, since every tab and deep-dive feature id
    *  this page references already had a `FeatureMock` entry. */
-  const BASELINE_ALL = 'b5607e4da0bbc59a0f31f34ce381846c8af087e13329d48e57709e675b560191';
+  /*  Retaken again at SOLUTIONS_TABS_CENTERED_MOVED from the same build as that
+   *  table; the previous value was
+   *  b5607e4da0bbc59a0f31f34ce381846c8af087e13329d48e57709e675b560191.
+   *  🔴 THE PAGE COUNT IS STILL 26 — no route was added or removed, only the
+   *  three Solutions pages' own markup moved, as SOLUTIONS_TABS_CENTERED_MOVED
+   *  documents. */
+  const BASELINE_ALL = '2dc7f711a7a6f3c1ba22eb21553938bb446d4bc8a6e7e544d16515af6275418b';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -1173,8 +1204,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        `FeatureMock.tsx` entries that already existed rather than needing new
        ones that could have leaked onto a live category page the way THE-306's
        `services` key and SOLUTIONS_CHURCHES_MOVED's own entry did. */
-    const others = Object.keys(BASELINE).filter((p) => !(p in SOLUTIONS_MISSIONARIES_ADDED));
-    expect(others).toHaveLength(25);
+    const others = Object.keys(BASELINE)
+      .filter((p) => !(p in SOLUTIONS_MISSIONARIES_ADDED) && !(p in SOLUTIONS_TABS_CENTERED_MOVED));
+    // 🔵 Twenty-three since SOLUTIONS_TABS_CENTERED_MOVED excluded the two
+    // other pages it moved — churches and evangelistic-organizations. This
+    // ticket's own claim, that adding the Missionaries page moved nothing
+    // else, is unchanged; centering the tabs is a later, unrelated edit to
+    // shared layout the three Solutions pages all render.
+    expect(others).toHaveLength(23);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
         .toBe(SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
