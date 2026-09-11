@@ -578,8 +578,10 @@ describe('12 & 13 — the page count is 22 and no existing page moved', () => {
        🔴 24 SINCE board card 86bbyv8pp — the new
        /solutions/evangelistic-organizations route.
        🔴 25 SINCE board card 86bbyv8pp, part two — the new /solutions/churches
-       route. */
-    expect(pagesInDist()).toHaveLength(25);
+       route.
+       🔴 26 SINCE board card 86bbz2yj6, part three — the new
+       /solutions/missionaries route. */
+    expect(pagesInDist()).toHaveLength(26);
     expect(pagesInDist()).toContain('features/harvest-scheduler/index.html');
   });
 

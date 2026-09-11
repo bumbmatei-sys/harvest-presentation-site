@@ -528,8 +528,10 @@ describe('9 — the prerendered page count is still 22', () => {
        🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
        the new /solutions/evangelistic-organizations route.
        🔴 25 SINCE board card 86bbyv8pp, part two, and not because of this
-       ticket either — the new /solutions/churches route. */
-    expect(pages(DIST)).toHaveLength(25);
+       ticket either — the new /solutions/churches route.
+       🔴 26 SINCE board card 86bbz2yj6, part three, and not because of this
+       ticket either — the new /solutions/missionaries route. */
+    expect(pages(DIST)).toHaveLength(26);
   });
 
   it('🔴 and no route was added — "see all" points at a page that already existed', () => {

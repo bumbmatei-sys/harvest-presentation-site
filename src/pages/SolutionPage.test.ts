@@ -15,7 +15,7 @@ import { CATEGORIES } from '../content/features';
 import { FEATURE_ICONS, MOCKS } from '../components/FeatureMock';
 import {
   SOLUTIONS, SOLUTIONS_BASE, solutionHref, SOLUTION_PAGES, type SolutionPageContent,
-  EVANGELISTIC_ORGANIZATIONS, CHURCHES,
+  EVANGELISTIC_ORGANIZATIONS, CHURCHES, MISSIONARIES,
 } from '../content/solutions';
 
 /* board card 86bbyv8pp — Solutions nav dropdown, /solutions/evangelistic-
@@ -129,7 +129,31 @@ const CHURCHES_FIXTURE: PageFixture = {
   ],
 };
 
-const FIXTURES: readonly PageFixture[] = [EVANGELISTIC_FIXTURE, CHURCHES_FIXTURE];
+const MISSIONARIES_FIXTURE: PageFixture = {
+  slug: 'missionaries',
+  content: MISSIONARIES,
+  tabLabels: ['Giving', 'Share Giving', 'Fundraising', 'Pledges', 'Feed', 'Blog', 'CRM', 'Prayer'],
+  tabIds: ['donation', 'sharegiving', 'fundraising', 'pledges', 'feed', 'blog', 'crm', 'prayer'],
+  deepDiveFeatureIds: [
+    ['donation', 'sharegiving', 'fundraising', 'pledges'],
+    ['feed', 'blog'],
+    ['crm'],
+    ['prayer'],
+  ],
+  resourceSlugs: [
+    'work-that-outlives-you',
+    'generosity-without-pressure',
+  ],
+  exactStrings: [
+    MISSIONARIES.hero.eyebrow,
+    MISSIONARIES.hero.headline,
+    MISSIONARIES.hero.intro,
+    'See pricing',
+    MISSIONARIES.hero.audience,
+  ],
+};
+
+const FIXTURES: readonly PageFixture[] = [EVANGELISTIC_FIXTURE, CHURCHES_FIXTURE, MISSIONARIES_FIXTURE];
 
 /* ═══ 0 — content/solutions.ts wiring: every SOLUTIONS slug has a page, and
  * every SOLUTION_PAGES entry has a SOLUTIONS listing ════════════════════ */

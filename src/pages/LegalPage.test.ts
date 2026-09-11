@@ -73,7 +73,7 @@ describe('the prerender list', () => {
     expect(prerendered, `/${slug} would ship as an empty shell`).toContain(legalHref(slug));
   });
 
-  it('prerenders 24 pages', () => {
+  it('prerenders 26 pages', () => {
     // 15 before the policies, 18 with them, 19 with /faq, 20 with the Coming
     // Soon category (THE-247), 21 with the `rooted` post added by 1917a9a, and
     // 22 with the Harvest Scheduler page (THE-284) — the first entry on the
@@ -99,8 +99,10 @@ describe('the prerender list', () => {
        🔴 24 SINCE board card 86bbyv8pp — the new
        /solutions/evangelistic-organizations route.
        🔴 25 SINCE board card 86bbyv8pp, part two — the new /solutions/churches
-       route. */
-    expect(prerendered).toHaveLength(25);
+       route.
+       🔴 26 SINCE board card 86bbz2yj6, part three — the new
+       /solutions/missionaries route. */
+    expect(prerendered).toHaveLength(26);
     expect(new Set(prerendered).size).toBe(prerendered.length);
   });
 

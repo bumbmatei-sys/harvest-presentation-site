@@ -1,15 +1,15 @@
 /* Solutions section — /solutions/<slug>.
  *
- * Board card 86bbyv8pp. Three pages are planned (Evangelistic Organizations,
- * Churches, Individual Missionaries); this ships the first two. `SOLUTIONS` is
+ * Board card 86bbyv8pp. Three pages were planned (Evangelistic Organizations,
+ * Churches, Individual Missionaries); all three now ship. `SOLUTIONS` is
  * the whole list the Nav dropdown reads, so a later page needs no Nav edit —
  * only a new entry here plus its own route in App.tsx.
  *
  * `SolutionPage.tsx` is data-driven: it takes a `slug` prop and reads
  * `SOLUTION_PAGES[slug]` for every section, rather than importing one page's
  * content directly. A page's content export (`EVANGELISTIC_ORGANIZATIONS`,
- * `CHURCHES`) is never imported outside this file except by `SOLUTION_PAGES`
- * itself and this file's own tests.
+ * `CHURCHES`, `MISSIONARIES`) is never imported outside this file except by
+ * `SOLUTION_PAGES` itself and this file's own tests.
  *
  * Every string the page prints lives in this file, not inline in JSX — the
  * same discipline content/features.ts and content/coming-soon.ts already use.
@@ -42,6 +42,11 @@ export const SOLUTIONS: readonly Solution[] = [
     slug: 'churches',
     name: 'Churches',
     description: 'Run Sunday, gather your people and fund the mission in one app.',
+  },
+  {
+    slug: 'missionaries',
+    name: 'Individual Missionaries',
+    description: 'Raise your support and keep every supporter updated.',
   },
 ];
 
@@ -332,9 +337,126 @@ export const CHURCHES: SolutionPageContent = {
   finalCta: { heading: 'One home for your whole church.' },
 };
 
+/* ── Individual Missionaries — every string on the page, verbatim ──────────
+ * Board card 86bbz2yj6, part three of the same series. Copy is approved and
+ * final — reproduced character for character, per the ticket. */
+
+export const MISSIONARIES_TABS: readonly OneAppTab[] = [
+  { id: 'donation', label: 'Giving' },
+  { id: 'sharegiving', label: 'Share Giving' },
+  { id: 'fundraising', label: 'Fundraising' },
+  { id: 'pledges', label: 'Pledges' },
+  { id: 'feed', label: 'Feed' },
+  { id: 'blog', label: 'Blog' },
+  { id: 'crm', label: 'CRM' },
+  { id: 'prayer', label: 'Prayer' },
+];
+
+export const MISSIONARIES_TILES: readonly NumberTile[] = [
+  { label: 'Total given', body: 'Always current' },
+  { label: 'Last gift', body: 'On every record' },
+  { label: 'Email them', body: 'From their record, through your own Gmail' },
+  { label: 'Tags', body: 'Segment and filter your whole list' },
+];
+
+export const MISSIONARIES_POCKET: readonly PocketTile[] = [
+  { id: 'pwa', title: 'Your app on their home screen.', body: 'It installs in seconds. No app store, no account to create.' },
+  { id: 'feed', title: 'News from the field, as it happens.', body: 'Photos, updates and polls land in their feed with a push notification.' },
+  { id: 'blog', title: 'The full story.', body: 'Longer reports on your blog, with the latest posts showing up in their feed.' },
+  { id: 'sharegiving', title: 'Give in a tap.', body: 'One page with every way to give: PayPal, Cash App, Venmo, Revolut or Wise. No login.' },
+  { id: 'fundraising', title: 'Watch the goal fill.', body: 'A campaign page with a progress bar and the days still left.' },
+  { id: 'prayer', title: 'Pray with you.', body: 'They pray with one tap, and you see how many prayed.' },
+];
+
+export const MISSIONARIES_DEEP_DIVES: readonly DeepDiveGroup[] = [
+  {
+    heading: 'Raise your support.',
+    sub: 'Gifts, campaigns and pledges, straight to your own accounts. Harvest takes no cut.',
+    featureIds: ['donation', 'sharegiving', 'fundraising', 'pledges'],
+  },
+  {
+    heading: 'Keep supporters updated.',
+    sub: 'Updates from the field in your feed and on your blog, straight to the people who send you.',
+    featureIds: ['feed', 'blog'],
+  },
+  {
+    heading: 'Know every supporter.',
+    sub: 'One record per person, with every gift and every email in one place.',
+    featureIds: ['crm'],
+  },
+  {
+    heading: 'Pray together.',
+    sub: 'Share what to pray for, and see how many are standing with you.',
+    featureIds: ['prayer'],
+  },
+];
+
+export const MISSIONARIES_PILLARS: readonly Pillar[] = [
+  { title: 'Fund it', body: 'Gifts, campaigns and pledges, straight to your own accounts.' },
+  { title: 'Tell it', body: 'Updates from the field, in their feed and on your blog.' },
+  { title: 'Keep them close', body: 'Every supporter on one list, every gift on their record.' },
+];
+
+export const MISSIONARIES_RESOURCE_SLUGS: readonly string[] = [
+  'work-that-outlives-you',
+  'generosity-without-pressure',
+];
+
+export const MISSIONARIES: SolutionPageContent = {
+  slug: 'missionaries',
+  seo: {
+    title: 'Harvest for Missionaries',
+    description: 'Raise support with your own giving page, campaigns and pledges. Keep every supporter updated through your feed and blog.',
+    canonical: `https://theharvest.site${solutionHref('missionaries')}`,
+  },
+  hero: {
+    eyebrow: 'INDIVIDUAL MISSIONARIES',
+    headline: 'Stay funded. Stay in touch.',
+    intro: 'Raise support with your own giving page, campaigns and pledges. Keep every supporter updated through your feed and blog. One app, under your name, without a team to run it.',
+    secondary: { label: 'See pricing', to: '/#pricing' },
+    audience: 'For missionaries, church planters and evangelists raising their own support.',
+  },
+  oneApp: {
+    kicker: 'ONE APP',
+    heading: 'Your whole support ministry, in one app.',
+    sub: "Giving, campaigns, pledges, updates and every supporter's record. One subscription, under your name.",
+    tabs: MISSIONARIES_TABS,
+  },
+  gap: {
+    kicker: 'THE SILENCE',
+    heading: 'Out of sight, out of mind.',
+    body: 'Updates go out in a group email nobody opens, the giving link sits in an old post, and supporters drift away between visits home. Harvest keeps you in front of the people who send you.',
+  },
+  numbers: {
+    kicker: 'YOUR SUPPORTERS',
+    heading: "Stop guessing who's still giving. Every supporter is on one list.",
+    body: "Record each gift and it lands on that supporter's record, with their total and last gift, so you know who to thank and who to call.",
+    tiles: MISSIONARIES_TILES,
+  },
+  pocket: {
+    kicker: 'IN THEIR POCKET',
+    heading: "Your mission, on your supporters' home screen.",
+    sub: 'The people who send you see the field, pray with you and give, one tap away.',
+    tiles: MISSIONARIES_POCKET,
+  },
+  deepDives: MISSIONARIES_DEEP_DIVES,
+  founder: {
+    quote: "I'm a missionary myself. I know what it's like to start a partner list and try to keep track of everything. I couldn't find one app that did it all, and paying for several subscriptions burns through money meant for the mission. Harvest puts it all in one place.",
+    attribution: 'Matei Bumb, Founder, Harvest',
+  },
+  support: SOLUTIONS_SUPPORT,
+  pillars: MISSIONARIES_PILLARS,
+  resources: {
+    kicker: 'RESOURCES',
+    slugs: MISSIONARIES_RESOURCE_SLUGS,
+  },
+  finalCta: { heading: 'Stay close to the people who send you.' },
+};
+
 /** Every /solutions/<slug> page's content, keyed by slug — the map
  *  `SolutionPage` reads instead of importing a page's content directly. */
 export const SOLUTION_PAGES: Readonly<Record<string, SolutionPageContent>> = {
   [EVANGELISTIC_ORGANIZATIONS.slug]: EVANGELISTIC_ORGANIZATIONS,
   [CHURCHES.slug]: CHURCHES,
+  [MISSIONARIES.slug]: MISSIONARIES,
 };

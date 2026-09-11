@@ -387,8 +387,10 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
        🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
        the new /solutions/evangelistic-organizations route.
        🔴 25 SINCE board card 86bbyv8pp, part two, and not because of this
-       ticket either — the new /solutions/churches route. */
-    expect(pagesInDist()).toHaveLength(25);
+       ticket either — the new /solutions/churches route.
+       🔴 26 SINCE board card 86bbz2yj6, part three, and not because of this
+       ticket either — the new /solutions/missionaries route. */
+    expect(pagesInDist()).toHaveLength(26);
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {
