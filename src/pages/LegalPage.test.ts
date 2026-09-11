@@ -73,7 +73,7 @@ describe('the prerender list', () => {
     expect(prerendered, `/${slug} would ship as an empty shell`).toContain(legalHref(slug));
   });
 
-  it('prerenders 22 pages', () => {
+  it('prerenders 23 pages', () => {
     // 15 before the policies, 18 with them, 19 with /faq, 20 with the Coming
     // Soon category (THE-247), 21 with the `rooted` post added by 1917a9a, and
     // 22 with the Harvest Scheduler page (THE-284) — the first entry on the
@@ -86,7 +86,17 @@ describe('the prerender list', () => {
     // `pull_request` only and `main` is unprotected, so the direct blog push
     // that added the 21st route never ran this suite. Corrected here because
     // every PR is red until someone does.
-    expect(prerendered).toHaveLength(22);
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(prerendered).toHaveLength(23);
     expect(new Set(prerendered).size).toBe(prerendered.length);
   });
 

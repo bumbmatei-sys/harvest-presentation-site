@@ -294,8 +294,13 @@ describe('what THE-258 did not touch', () => {
     // pinning a different row if the order ever changed.
     // ⚠️ AND EVENTS & LIVESTREAM IS THE THIRD, since THE-335 promoted service
     // planning to a live feature and THE-257's coverage guard put it in that row.
+    // ⚠️ AND GIVING & FINANCE IS THE FOURTH, since THE-355 split Pledge
+    // Campaigns out of Fundraising into a feature entry of its own and THE-257's
+    // coverage guard put it in that row. Skipped by name here and pinned
+    // explicitly below, exactly as the other two are.
     for (const [label, ids] of AS_SHIPPED_257.slice(0, 5)) {
-      if (label === 'Automation' || label === 'Events & Livestream') continue;
+      if (label === 'Automation' || label === 'Events & Livestream'
+        || label === 'Giving & Finance') continue;
       const row = rowNamed(label);
       expect(row, `the "${label}" row is missing`).toBeDefined();
       expect(row!.items, `the "${label}" row changed`).toEqual(captionsFor(ids));
@@ -312,6 +317,15 @@ describe('what THE-258 did not touch', () => {
     expect(rowNamed('Events & Livestream')!.items,
       'the "Events & Livestream" row changed by more than service planning')
       .toEqual(captionsFor(['events', 'checkin', 'services', 'livestream']));
+    /* 🔵 THE-355 — Pledge Campaigns, inserted directly after Fundraising
+       Campaigns. ⚠️ THE FUNDRAISING CAPTION MOVED WITH IT — "Fundraising" →
+       "Fundraising Campaigns" — and this assertion does not say so anywhere,
+       because `captionsFor` reads the live name off the catalogue by id. That is
+       the property worth keeping: a rename in content/features.ts reaches the
+       section without this table or this test holding a second copy of it. */
+    expect(rowNamed('Giving & Finance')!.items,
+      'the "Giving & Finance" row changed by more than the pledge split')
+      .toEqual(captionsFor(['donation', 'fundraising', 'pledges', 'crm', 'accounting']));
 
     // The section's own copy is untouched too: the kicker and the H2 THE-257
     // wrote, and no reintroduced competitor claim.
@@ -390,6 +404,9 @@ describe('what THE-258 did not touch', () => {
       ['QUICKBOOKS_MARKETING_ENABLED', 'false'],
       // 🔴 THE-280 added the fourth, at false.
       ['CUSTOM_DOMAIN_MARKETING_ENABLED', 'false'],
+      // 🔵 THE-355 appended a seventh flag, mirroring the app's
+      // `STRIPE_CONNECT_ENABLED`. THE-258 still sets none of them.
+      ['STRIPE_GIVING_MARKETING_ENABLED', 'false'],
     ]);
 
     /* Coming Soon is not this ticket's either — THE-252 put the affiliate

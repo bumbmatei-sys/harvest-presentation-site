@@ -796,7 +796,7 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     // the navigation could not reach. Still no coming-soon entry involved.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -804,8 +804,8 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
 
   it('the unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    // 🔵 26 since THE-335 hid SMS again and both newsletter tools with it.
-    expect(live).toBe(26);
+    // 🔵 27 since THE-355 split Pledge Campaigns out; 26 since THE-335 hid SMS again and both newsletter tools with it.
+    expect(live).toBe(27);
     /* ⚠️ FOUR SINCE THE-297, not twelve: the column is a shortlist plus a "see
        all" row. The number that matters here is unchanged — none of them counts
        as a tool — and shortening the column could only ever have LOWERED a
@@ -828,20 +828,20 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     const unflagged = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it) => ({ ...it, soon: false })) } : g));
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
-    // 🔵 26 live tools since THE-335 + the 4 unbuilt shortlist rows this
+    // 🔵 27 live tools since THE-355 + the 4 unbuilt shortlist rows this
     // mutation wrongly counts.
-    expect(wrong).toBe(30);
-    // 🔵 26 since THE-335 hid SMS and the newsletter again — this is the derived
+    expect(wrong).toBe(31);
+    // 🔵 27 since THE-355 split Pledge Campaigns out — this is the derived
     // count plus the coming-soon rows the mutation wrongly counts.
-    expect(wrong).toBe(26 + CATALOG[0].items.length);
+    expect(wrong).toBe(27 + CATALOG[0].items.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.
     const oneLost = CATALOG.map((g, i) =>
       (i === 0 ? { ...g, items: g.items.map((it, j) => (j === 0 ? { ...it, soon: false } : it)) } : g));
-    // 🔵 27 since THE-335: the derived 26 plus the single entry this mutation
+    // 🔵 28 since THE-355: the derived 27 plus the single entry this mutation
     // wrongly un-flags.
-    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(27);
+    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(28);
   });
 
   it('the nav still quotes the derived figure', () => {

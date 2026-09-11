@@ -23,7 +23,7 @@
 
 import {
   AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED,
-  SMS_MARKETING_ENABLED,
+  SMS_MARKETING_ENABLED, STRIPE_GIVING_MARKETING_ENABLED,
 } from '../lib/flags';
 
 export interface SoonItem {
@@ -287,7 +287,15 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
       'Plans only. The share would be worked out on what a church pays for its plan, and on nothing else it pays Harvest',
       'How a link would be issued, how a share would be tracked and how the money would reach the person who earned it are all still open — which is why none of it is described here',
     ],
-    notThis: 'This is not a cut of anything your church receives. Giving on Harvest carries no platform fee at all on any paid plan, and every gift lands in your church\'s own Stripe account — that ships today and is unchanged. What is described here would come out of what a referred church pays Harvest for its own plan, and would go to whoever referred them.',
+    /* 🔴 THE-355 — THE REASSURANCE NAMED A RAIL THAT REFUSES. The point of this
+       sentence is that an affiliate share never touches congregational giving,
+       and that point is untouched; what changed is the fact it leaned on.
+       "Every gift lands in your church's own Stripe account — that ships today"
+       was false twice over with `STRIPE_CONNECT_ENABLED` off: the gift does not
+       land there, and it does not ship today. */
+    notThis: STRIPE_GIVING_MARKETING_ENABLED
+      ? 'This is not a cut of anything your church receives. Giving on Harvest carries no platform fee at all on any paid plan, and every gift lands in your church\'s own Stripe account — that ships today and is unchanged. What is described here would come out of what a referred church pays Harvest for its own plan, and would go to whoever referred them.'
+      : 'This is not a cut of anything your church receives. Giving on Harvest carries no platform fee at all on any paid plan, and a gift given through your church\'s own payment links never passes through Harvest at all — that is how giving works today and is unchanged. What is described here would come out of what a referred church pays Harvest for its own plan, and would go to whoever referred them.',
     navDesc: 'A share of what your referrals pay. Not built yet.',
   },
   {

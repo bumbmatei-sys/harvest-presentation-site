@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { ADD_ONS, DODO_ADD_ON_CATALOG, INTENTIONALLY_UNADVERTISED, plans, planPriceContract } from '../components/Pricing';
 import { CATEGORIES } from './features';
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
+import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';
 
 /* THE-197 — two editorial surfaces (the Planning Center blog post and
  * content/features.ts) quoted the plan prices THE-195 retired. Both are
@@ -154,7 +155,17 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
     // this file. So the assertion inverts — it pins the ABSENCE of a literal
     // rather than the correctness of one.
     const donation = byId('donation');
-    expect(donation.moment).toContain('on the cheapest paid plan and every plan above it');
+    /* 🔵 THE-355 — THE SENTENCE THIS PINNED IS BEHIND A FLAG NOW, AND THE
+       PROPERTY IS UNCHANGED. The tier language moved from "on the cheapest paid
+       plan and every plan above it" to a sentence that names no plan at all,
+       which is the same fix THE-197 made one step further: a sentence with no
+       plan and no figure in it cannot contradict PLAN_PRICING. The ON spelling
+       is still pinned, because that is the string the flag restores. */
+    if (STRIPE_GIVING_MARKETING_ENABLED) {
+      expect(donation.moment).toContain('on the cheapest paid plan and every plan above it');
+    } else {
+      expect(donation.moment).not.toMatch(/Individual|Small Team|Ministry/);
+    }
     // Scoped to PLAN prices — current and retired. The sentence legitimately
     // cites "$200k a year online" and "$10,000", which are a CHURCH'S giving
     // volume, not anything Harvest charges, and a blanket no-digits scan would
@@ -174,10 +185,23 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
       expect(donation.moment, `a plan price ($${figure}) came back into the donation copy`)
         .not.toMatch(new RegExp(`\\$${figure}(?![\\d,])`));
     }
-    // The free-aware wording THE-204 added, pinned so a later editorial pass
-    // cannot quietly re-promise a donate page free does not have.
-    expect(donation.title).toContain('every paid plan');
-    expect(donation.oneliner).toContain('every paid plan');
+    /* The free-aware wording THE-204 added, pinned so a later editorial pass
+       cannot quietly re-promise a donate page free does not have.
+       🔵 THE-355 — THE PROPERTY IS "FREE IS NOT PROMISED A GIVING PAGE", AND IT
+       STILL HOLDS. The flag-off title and one-liner name no plan at all, which
+       promises nothing to any tier; the tier claim lives where it is checked
+       against the app, in `tiers: [1, 1, 1]` — three PAID plans, with free
+       absent from the array entirely because `fundraising` is false on it. So
+       the OFF branch asserts the absence of a promise rather than the presence
+       of a qualifier, and the ON spelling is pinned exactly as THE-204 wrote
+       it. */
+    if (STRIPE_GIVING_MARKETING_ENABLED) {
+      expect(donation.title).toContain('every paid plan');
+      expect(donation.oneliner).toContain('every paid plan');
+    } else {
+      expect(donation.title + donation.oneliner).not.toMatch(/every plan|free/i);
+      expect(donation.tiers).toEqual([1, 1, 1]);
+    }
   });
 
   it('the analytics feature names the real Individual price, and the real FLOOR', () => {
@@ -294,7 +318,7 @@ describe('THE-197 — no price data changed', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

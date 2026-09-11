@@ -648,14 +648,25 @@ describe('6 — the prerendered page count is unchanged', () => {
        grows a route. Repinning it to a bare 22 would have quietly turned a
        claim about custom domains into a claim about the site's page count. */
     const routes = blogRoutes();
-    expect(routes).toHaveLength(22);
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(21);
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(routes).toHaveLength(23);
+    // 🔵 22 with the scheduler page taken out — 21 before the Sep 10 post.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(22);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
   it.runIf(built)('and the build emits exactly those, one file each', () => {
     const count = distPages().filter(([f]) => f.endsWith(`index.html`)).length;
-    expect(count, `this checkout built ${count} pages, not 22`).toBe(22);
+    expect(count, `this checkout built ${count} pages, not 23`).toBe(23);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {
@@ -728,7 +739,7 @@ describe('7 — the existing entries are undisturbed', () => {
        proves by flipping the flag and comparing. */
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -756,7 +767,7 @@ describe('7 — the existing entries are undisturbed', () => {
     // 🔴 THE PROPERTY IS THE DELTA, not the absolute: the mutation must move the
     // figure UP by exactly the number of coming-soon rows, which is what the
     // second assertion says without naming a number that goes stale.
-    expect(wrong).toBe(26 + soonGroup[0].items.length);
-    expect(wrong).toBeGreaterThan(26);
+    expect(wrong).toBe(27 + soonGroup[0].items.length);
+    expect(wrong).toBeGreaterThan(27);
   });
 });

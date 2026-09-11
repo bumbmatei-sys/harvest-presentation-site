@@ -68,7 +68,15 @@ const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
     ...(SMS_MARKETING_ENABLED ? ['sms'] : []),
     'forms',
   ] },
-  { c: 'Giving & Finance', ids: ['donation', 'fundraising', 'crm', 'accounting'] },
+  // 🔴 THE-355 — `pledges` joined this row when Pledge Campaigns became a
+  // feature entry of its own, for the reason `services` joined the events row at
+  // THE-335: `visibleNames` is built from the flag-filtered catalogue and the
+  // coverage guard requires every VISIBLE feature to appear in this table. It is
+  // ungated because the split is ungated — a pledge never went through Stripe.
+  // ⚠️ `fundraising`'s caption comes off the catalogue, so it reads "Fundraising
+  // Campaigns" here now without this row being touched, which is the whole point
+  // of keying by id rather than by name.
+  { c: 'Giving & Finance', ids: ['donation', 'fundraising', 'pledges', 'crm', 'accounting'] },
   { c: 'Platform & Brand', ids: ['webapp', 'pwa', 'dashboard', 'branding', 'analytics'] },
 ];
 

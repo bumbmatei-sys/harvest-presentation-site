@@ -7,7 +7,7 @@ import {
   Calculator, ReceiptText, Link, ShieldCheck, MessageSquareText, Zap, Sparkles,
   Crown, Inbox, Building2, MessageSquare, Lock, Youtube, Instagram, ChevronDown,
   Sun, Share2, UserCheck, Monitor, Star, Circle, MapPin, ArrowDownToLine, Play,
-  CalendarClock, Megaphone, ListChecks, Image, Share,
+  CalendarClock, Megaphone, ListChecks, Image, Handshake, Share,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -86,6 +86,14 @@ const NAME_MAP: Record<string, LucideIcon> = {
      reused, for the reason on THE-284's three above: an unknown name falls back
      to `Circle` silently, so a near-miss ships a blank dot instead of failing. */
   share: Share,
+  /* THE-355 — Pledge Campaigns' mega-menu entry. Registered rather than reused,
+     for the reason on THE-284's and THE-306's above: an unknown name falls back
+     to `Circle` silently, so a near-miss ships a blank dot instead of failing.
+     `heart-handshake` is already spoken for by Prayer Requests and `trending-up`
+     by Fundraising Campaigns, which is the row this one sits directly beneath —
+     two adjacent rows sharing a glyph is the case the distinct-icon rule exists
+     for. */
+  handshake: Handshake,
 };
 
 /** Name-based icon, e.g. <L name="arrow-right" size={16} color="currentColor" />. */

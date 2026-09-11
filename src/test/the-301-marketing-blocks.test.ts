@@ -231,8 +231,18 @@ describe('3 — no page outside the two named ones carries a block', () => {
 
 /* ═══ 4 — the page count did not move ════════════════════════════════════ */
 describe('4 — the prerendered page count is unchanged', () => {
-  it('blogRoutes() still lists 22 routes — this ticket adds no route', () => {
-    expect(blogRoutes()).toHaveLength(22);
+  it('blogRoutes() still lists 23 routes — this ticket adds no route', () => {
+    /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
+       `inside-harvest` post "What your year-end giving statements must include"
+       (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
+       unprotected, so that direct blog push never ran this suite and every PR
+       opened after it has been red on this assertion — the same failure mode
+       THE-252 found at 21 and recorded in LegalPage.test.ts, one post later.
+       Corrected here rather than in the ticket that eventually trips over it.
+       ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
+       renders — /features/giving-finance — and a section is an anchor, not a
+       page. */
+    expect(blogRoutes()).toHaveLength(23);
   });
 
   it('and App.tsx gained no route', () => {
@@ -241,7 +251,7 @@ describe('4 — the prerendered page count is unchanged', () => {
   });
 
   it.runIf(built && postPagesBuilt)('the build emits one page per route', () => {
-    expect(PAGES).toHaveLength(22);
+    expect(PAGES).toHaveLength(23);
   });
 
   it.runIf(built)('and the nineteen non-post pages are there on any platform', () => {
@@ -414,8 +424,21 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
        is untouched and still runs. Previous hashes: 73da48b8… and 76f48c05…. */
     'src/components/the-257-competitor-table-retired.test.ts':
       '45ddb916ef88d870e4312656c5465d385fa6c63ffb15e1f91e96c1dc50b1e455',
+    /* 🔵 THE-258 REPINNED AT THE-355, AND AGAIN NO THRESHOLD MOVED. Two edits,
+       both forced by the ticket rather than chosen by it:
+         · the flag-declaration list it pins by value gained a seventh entry,
+           STRIPE_GIVING_MARKETING_ENABLED, appended and false. Every value above
+           it is pinned exactly where it was, which is what that assertion is for.
+         · Giving & Finance joined Automation and Events & Livestream as a row
+           this file can no longer pin as shipped-257, because THE-257's own
+           coverage guard demanded a row for Pledge Campaigns the moment it
+           became a visible feature. It is skipped by name and pinned explicitly
+           beneath, which is the treatment the other two already had.
+       ⚠️ THE FUNDRAISING CAPTION MOVED TOO — "Fundraising" → "Fundraising
+       Campaigns" — and no assertion in that file names it, because captions are
+       read off the catalogue by id. Previous hash: 2aad68fa…. */
     'src/components/the-258-platform-brand-complete.test.ts':
-      '2aad68fa0bc6c19029bb8a1fa229be289e163cd6ca2498763c4d3961feba60da',
+      'a37eee3da8ab6bc75c790fcb80d4d68d9768428716dee56dc81c56fc8c9abf44',
   };
 
   for (const [file, hash] of Object.entries(PINNED)) {

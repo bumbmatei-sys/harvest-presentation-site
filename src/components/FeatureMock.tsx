@@ -1,4 +1,5 @@
 import React from 'react';
+import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';
 
 /* Per-feature UI vignettes and icons for the category pages.
    Ported from the Claude Design handoff (FeatureBlock.dc.html) — one entry per
@@ -146,6 +147,19 @@ export const FEATURE_ICONS: Record<string, React.ReactElement> = {
       <path d="M3 20h18" />
       <path d="M6 20v-6M12 20V8M18 20v-9" />
       <path d="m4 9 6-4 4 3 6-5" />
+    </svg>
+  ),
+  /* THE-355 — Pledge Campaigns. 🔴 A NEW GLYPH, NOT `fundraising`'s. That one is
+     a rising bar chart, which is the progress bar; this is a hand held out and a
+     calendar tick — a commitment made now and met later. The two entries are
+     adjacent on /features/giving-finance, and the badge beside each eyebrow is
+     the only thing distinguishing them at a glance. */
+  pledges: (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="12" height="15" rx="2" />
+      <path d="M3 9h12M7 3v4M11 3v4" />
+      <path d="m6 14 2 2 4-4" />
+      <path d="M18 9v9a2 2 0 0 1-2 2" />
     </svg>
   ),
   crm: (
@@ -451,9 +465,14 @@ const soonBar = (label: string, width: string, fill: string) => (
  * looking like the exception on its own page.
  *
  * 🔴 AND THE ONE WAY IT DIFFERS FROM `donation`, WHICH IS THE FEATURE ITSELF.
- * That entry is the STRIPE giving page — card gifts, one destination. This is
- * the page a church SHARES, and what makes it worth sharing is that it also
- * carries the church's own direct accounts. So the card form is compact, the
+ * That entry is the giving PAGE; this is the page a church SHARES, and what
+ * makes it worth sharing is that it carries the church's own direct accounts.
+ * 🔴 THE-355 CHANGED WHAT THAT DISTINCTION RESTS ON. It read "that entry is the
+ * STRIPE giving page — card gifts, one destination", which was the difference
+ * while a card rail existed. With `STRIPE_GIVING_MARKETING_ENABLED` false both
+ * vignettes draw the same accounts, so the line between them is PAGE versus
+ * SHARING — the header's Share / Copy / QR pills, which only this one has. So
+ * the card form is compact (behind the flag now), the
  * amounts differ from its neighbour's so two adjacent pictures do not read as
  * one duplicated twice, and beneath it sits the row the founder asked for.
  *
@@ -1116,7 +1135,24 @@ const MOCKS: Record<string, React.ReactElement> = {
       </div>
     </>
   ),
-  donation: (
+  /* 🔴 THE-355 — TWO PICTURES, ONE KEY, AND THE FLAG DECIDES. The card form
+     below is a still life of `/api/stripe/donate`, which refuses every request
+     with 503 while the app's `STRIPE_CONNECT_ENABLED` is false. A vignette is a
+     claim exactly as much as a bullet is: an amount picker, a "Give $50" button
+     and a green strip reading "Lands straight in your church's Stripe account"
+     described a screen a member cannot complete.
+
+     ⚠️ THE OFF VARIANT IS THE SCREEN THAT ACTUALLY SHIPS. `MainApp`'s Give tab
+     renders `donations/GivingLinks.tsx` — the church's own accounts as tiles, in
+     `GIVING_PROVIDERS` order, with no amount picker and no submit — and
+     `PublicCampaign` draws the same thing with the form withheld. So the OFF
+     picture is not a redaction of the ON one; it is the other screen.
+
+     ⚠️ IT KEEPS `donation`'s IDIOM, which the-306-sharegiving.test.ts pins
+     against BOTH vignettes: the white card on the 0.08 hairline, the 16px
+     radius, the 11px/13px header row, the 13px body, the three-column grid and
+     the 9px chips are all still here. What changed is what the chips say. */
+  donation: STRIPE_GIVING_MARKETING_ENABLED ? (
     <>
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)', fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Partner with us</div>
@@ -1141,6 +1177,48 @@ const MOCKS: Record<string, React.ReactElement> = {
         </div>
       </div>
     </>
+  ) : (
+    <>
+      <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)', fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Partner with us</div>
+        <div style={{ padding: '13px' }}>
+          {/* The church's own accounts, two rows of three — the same three-column
+              grid and the same 9px chips the form used, carrying tiles instead
+              of amounts. Order is `SHARE_GIVING_PROVIDERS`', which is the app's
+              `GIVING_PROVIDERS` order, so the two surfaces cannot disagree about
+              which account is where. */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
+            {SHARE_GIVING_PROVIDERS.map((p) => (
+              <span key={p.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '0', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '9px 4px' }}>
+                <span
+                  style={{
+                    width: '18px', height: '18px', borderRadius: '50%', flexShrink: '0',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'var(--stone-100)', border: '1px solid rgba(45,37,25,0.10)',
+                    fontSize: '9px', fontWeight: '700', color: 'var(--navy-800)',
+                  }}
+                  aria-hidden="true"
+                >
+                  {p.monogram}
+                </span>
+                <span style={{ fontSize: '9.5px', fontWeight: '600', lineHeight: '1.15', color: 'var(--navy-800)', overflowWrap: 'break-word', minWidth: '0' }}>{p.name}</span>
+              </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '9px', fontSize: '11px', color: 'var(--text-muted)' }}>
+            <span>Every account your church uses</span>
+            <span style={{ fontWeight: '700', color: 'var(--navy-800)' }}>No login</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '11px', background: 'var(--green-100)', border: '1px solid var(--green-200)', borderRadius: '10px', padding: '9px 10px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" strokeWidth="1.8">
+              <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+            <span style={{ fontSize: '10.5px', lineHeight: '1.4', color: 'var(--green-700)', fontWeight: '600' }}>Goes straight to your church's own account — Harvest is never in the flow.</span>
+          </div>
+        </div>
+      </div>
+    </>
   ),
   sharegiving: (
     <>
@@ -1153,13 +1231,35 @@ const MOCKS: Record<string, React.ReactElement> = {
           </span>
         </div>
         <div style={{ padding: '13px' }}>
-          {/* The donation form — the `donation` vignette's own idiom, compacted. */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
-            <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--navy-800)', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '8px 0' }}>$30</div>
-            <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#fff', background: 'var(--gold-500)', borderRadius: '9px', padding: '8px 0', boxShadow: '0 4px 12px rgba(201,150,58,0.35)' }}>$60</div>
-            <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--navy-800)', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '8px 0' }}>$150</div>
-          </div>
-          <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', borderRadius: '9px', padding: '9px', marginTop: '9px' }}>Give $60 by card</div>
+          {/* 🔴 THE-355 — THE CARD HALF IS BEHIND THE FLAG, and the founder's
+              spec is not being overruled. THE-306's instruction was verbatim:
+              "i want to see in that shareable design the donation form and put
+              the logo of the shareable links one next to the other under it in
+              circles." It was given while card giving worked. "Give $60 by
+              card" is now a picture of a 503, so the form waits behind the
+              switch with every other Stripe string and comes back whole with
+              them. The CIRCLES — the half the founder was actually correcting a
+              blank panel with — render in both states, unchanged.
+              ⚠️ WHAT REPLACES IT IS NOT A GAP. `MainApp`'s Give tab and the
+              share sheet behind this feature carry the page's own address, so
+              the OFF variant leads with what a member does instead: the link
+              itself, which is the thing this entry has always been about. */}
+          {STRIPE_GIVING_MARKETING_ENABLED ? (
+            <>
+              {/* The donation form — the `donation` vignette's own idiom, compacted. */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
+                <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--navy-800)', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '8px 0' }}>$30</div>
+                <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#fff', background: 'var(--gold-500)', borderRadius: '9px', padding: '8px 0', boxShadow: '0 4px 12px rgba(201,150,58,0.35)' }}>$60</div>
+                <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--navy-800)', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '8px 0' }}>$150</div>
+              </div>
+              <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', borderRadius: '9px', padding: '9px', marginTop: '9px' }}>Give $60 by card</div>
+            </>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
+              <div style={{ gridColumn: 'span 2', fontSize: '11px', color: 'var(--navy-800)', border: '1px solid rgba(45,37,25,0.12)', borderRadius: '9px', padding: '8px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>gracechapel.theharvest.app/give</div>
+              <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#fff', background: 'var(--gold-500)', borderRadius: '9px', padding: '8px 0', boxShadow: '0 4px 12px rgba(201,150,58,0.35)' }}>Copy</div>
+            </div>
+          )}
 
           {/* ── and beneath it, the circles ──────────────────────────────────
               🔴 SIX FRACTIONAL COLUMNS, NOT SIX FIXED WIDTHS. `repeat(6, 1fr)`
@@ -1172,7 +1272,10 @@ const MOCKS: Record<string, React.ReactElement> = {
               "Cash App" sets on two lines on a phone and one on a desktop. */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '13px 0 10px' }}>
             <span style={{ height: '1px', flex: '1', background: 'rgba(45,37,25,0.08)' }} />
-            <span style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '0.09em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Or give directly</span>
+            {/* 🔴 "OR give directly" IS ONLY TRUE AGAINST A FORM. With the card
+                half withheld there is no other way being offered for these to be
+                an alternative TO, so the label states what the row is. */}
+            <span style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '0.09em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{STRIPE_GIVING_MARKETING_ENABLED ? 'Or give directly' : 'Every way to give'}</span>
             <span style={{ height: '1px', flex: '1', background: 'rgba(45,37,25,0.08)' }} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px' }}>
@@ -1224,8 +1327,63 @@ const MOCKS: Record<string, React.ReactElement> = {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '9px', fontSize: '10.5px', color: 'var(--text-muted)', borderTop: '1px solid rgba(45,37,25,0.06)', paddingTop: '9px' }}>
-            <span>The Okonkwo family · pledged $2,000</span>
-            <span style={{ fontWeight: '700', color: 'var(--green-700)' }}>$1,200 paid</span>
+            <span>Recorded by hand · Revolut</span>
+            <span style={{ fontWeight: '700', color: 'var(--green-700)' }}>+ $1,200</span>
+          </div>
+        </div>
+      </div>
+    </>
+  ),
+  /* 🔴 THE-355 — PLEDGE CAMPAIGNS' OWN PICTURE. The `fundraising` vignette above
+     used to carry the pledge line ("The Okonkwo family · pledged $2,000 /
+     $1,200 paid") because the two capabilities shared one entry; with the split
+     it draws a recorded offline gift instead, which is what actually moves a
+     campaign total now, and the pledge ledger moves here where it belongs.
+
+     ⚠️ DELIBERATELY UNLIKE ITS NEIGHBOUR. `fundraising` is a cover image, a
+     figure against a goal and a progress bar. This is a LEDGER: rows of donors,
+     paid against pledged, and the derived status chip on each — which is the
+     one thing a pledge campaign has that a fundraising campaign does not. Two
+     adjacent sections drawing the same bar is the defect THE-306 and THE-293
+     were both opened for.
+
+     ⚠️ THE THREE STATUSES ARE THE APP'S, IN ITS OWN ORDER OF SEVERITY, and the
+     arithmetic on each row satisfies `derivePledgeStatus`: paid ≥ pledged reads
+     fulfilled; a due date past with paid < pledged reads lapsed; anything else
+     reads active. A row whose figures contradicted its chip would be a picture
+     of a bug. */
+  pledges: (
+    <>
+      <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Building Fund · pledges</span>
+          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)' }}>48 donors</span>
+        </div>
+        <div style={{ padding: '13px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ flex: '1', background: 'var(--stone-100)', borderRadius: '9px', padding: '8px 10px' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--navy-900)' }}>$96,000</div>
+              <div style={{ fontSize: '9.5px', color: 'var(--text-muted)' }}>pledged</div>
+            </div>
+            <div style={{ flex: '1', background: 'var(--stone-100)', borderRadius: '9px', padding: '8px 10px' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--green-700)' }}>$61,440</div>
+              <div style={{ fontSize: '9.5px', color: 'var(--text-muted)' }}>paid</div>
+            </div>
+          </div>
+          <div style={{ marginTop: '11px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+            {([
+              ['The Okonkwo family', '$2,000 of $2,000', 'fulfilled', 'var(--green-700)', 'var(--green-100)'],
+              ['Ruth Adeyemi', '$600 of $1,500', 'active', 'var(--sky-700)', 'var(--sky-100)'],
+              ['Daniel Marsh', '$250 of $1,000 · due 14 Mar', 'lapsed', 'var(--gold-700)', 'var(--gold-100)'],
+            ] as const).map(([who, money, status, ink, tint]) => (
+              <div key={who} style={{ display: 'flex', alignItems: 'center', gap: '8px', borderTop: '1px solid rgba(45,37,25,0.06)', paddingTop: '7px' }}>
+                <span style={{ minWidth: '0', flex: '1' }}>
+                  <span style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--navy-900)' }}>{who}</span>
+                  <span style={{ display: 'block', fontSize: '9.5px', color: 'var(--text-muted)' }}>{money}</span>
+                </span>
+                <span style={{ flexShrink: '0', fontSize: '9px', fontWeight: '700', letterSpacing: '0.04em', color: ink, background: tint, borderRadius: '999px', padding: '3px 8px' }}>{status}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
