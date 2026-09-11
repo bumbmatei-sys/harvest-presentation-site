@@ -756,6 +756,62 @@ export const MOCKS: Record<string, React.ReactElement> = {
       </div>
     </>
   ),
+  /* ── services — the Sunday run sheet ────────────────────────────────────
+   * Source of truth: the `services` (Service Planning) entry in
+   * content/features.ts. Three fields only, all of them real capabilities
+   * that entry names — nothing else is invented:
+   *   · "durations become clock times" (admin bullet 1) — each row's time is
+   *     computed by summing the durations above it from a 9:45 start, not
+   *     typed in, the same way the app derives it from an order you reorder.
+   *   · "Assign people to items" (admin bullet 2) — one name per item.
+   *   · accept / decline / no answer yet (member bullets 2–3) — the row's
+   *     status pill. The app calls the un-answered state a reminder before
+   *     the day, so this mock's third state reads "Waiting", not "Pending".
+   * What service-plan.ts names as deliberately absent — a song library, CCLI,
+   * chord charts, rehearsal scheduling, availability blockouts — appears
+   * nowhere here. */
+  services: (
+    <>
+      <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: '15px', fontWeight: '500', color: 'var(--navy-900)' }}>Sunday, 10:00 AM</span>
+          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--sky-700)', background: 'var(--sky-100)', padding: '3px 9px', borderRadius: '999px' }}>3 of 5 answered</span>
+        </div>
+        <div style={{ padding: '10px 14px 13px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
+          {[
+            { time: '9:45', item: 'Welcome', who: 'David R.', status: 'accepted' as const },
+            { time: '9:55', item: 'Worship Set', who: 'Maria G.', status: 'accepted' as const },
+            { time: '10:20', item: 'Message', who: 'Pastor James', status: 'accepted' as const },
+            { time: '10:55', item: 'Communion', who: 'Sarah M.', status: 'waiting' as const },
+            { time: '11:05', item: 'Closing Prayer', who: 'Daniel K.', status: 'declined' as const },
+          ].map((row) => {
+            const pill = row.status === 'accepted'
+              ? { label: 'Accepted', color: 'var(--green-700)', bg: 'var(--green-100)' }
+              : row.status === 'declined'
+                ? { label: 'Declined', color: 'var(--danger,#C4553B)', bg: 'rgba(196,85,59,0.1)' }
+                : { label: 'Waiting', color: 'var(--gold-700)', bg: 'var(--gold-100)' };
+            return (
+              <div key={row.item} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ flexShrink: 0, width: '38px', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>{row.time}</span>
+                <div style={{ flex: '1', minWidth: 0 }}>
+                  <div style={{ fontSize: '12.5px', fontWeight: '600', color: 'var(--navy-900)' }}>{row.item}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>{row.who}</div>
+                </div>
+                <span style={{ flexShrink: 0, fontSize: '10px', fontWeight: '700', color: pill.color, background: pill.bg, padding: '3px 9px', borderRadius: '999px' }}>{pill.label}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', margin: '0 14px 13px', background: 'var(--stone-100)', border: '1px solid rgba(45,37,25,0.07)', borderRadius: '10px', padding: '8px 10px' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+          </svg>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Reminder email sent to Sarah M.</span>
+        </div>
+      </div>
+    </>
+  ),
   checkin: (
     <>
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', padding: '16px', textAlign: 'center' }}>
