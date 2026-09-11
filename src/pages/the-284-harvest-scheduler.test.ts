@@ -729,25 +729,29 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        Corrected here rather than in the ticket that eventually trips over it.
        ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
        renders — /features/giving-finance — and a section is an anchor, not a
-       page. */
-    expect(routes).toHaveLength(23);
+       page.
+       🔴 24 SINCE board card 86bbyv8pp — the new
+       /solutions/evangelistic-organizations route. */
+    expect(routes).toHaveLength(24);
     expect(new Set(routes).size, 'a route is listed twice').toBe(routes.length);
     for (const r of BEFORE) expect(routes, `${r} dropped out of the prerender list`).toContain(r);
-    /* 🔵 TWO ADDITIONS NOW, AND THE-284's IS STILL EXACTLY ONE OF THEM. `BEFORE`
+    /* 🔵 THREE ADDITIONS NOW, AND THE-284's IS STILL EXACTLY ONE OF THEM. `BEFORE`
        is the 21-route list as it stood when this ticket opened; the scheduler
-       page is what THE-284 added to it, and the Sep 10 `inside-harvest` post is
-       what a direct push to `main` added afterwards. Naming BOTH keeps this
+       page is what THE-284 added to it, the Sep 10 `inside-harvest` post is
+       what a direct push to `main` added afterwards, and the Solutions page is
+       what board card 86bbyv8pp added after that. Naming ALL THREE keeps this
        assertion saying what it has always said — that THE-284 added one route
        and dropped none — rather than loosening it to a count. */
     expect(routes.filter((r) => !BEFORE.includes(r))).toEqual([
       SCHEDULER_HREF,
+      '/solutions/evangelistic-organizations',
       '/blog/year-end-giving-statements-what-to-include',
     ]);
   });
 
-  it.runIf(built)('and the build emits 23 files, one per route', () => {
+  it.runIf(built)('and the build emits 24 files, one per route', () => {
     const pages = distPages().filter(([f]) => f.endsWith('index.html'));
-    expect(pages, `this checkout built ${pages.length} pages, not 23`).toHaveLength(23);
+    expect(pages, `this checkout built ${pages.length} pages, not 24`).toHaveLength(24);
     expect(pages.map(([f]) => f)).toContain('features/harvest-scheduler/index.html');
   });
 

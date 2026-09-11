@@ -7,6 +7,7 @@ import { CATEGORIES as FEATURE_CATEGORIES, categoryHref } from '../src/content/f
 import { LEGAL_DOCS, legalHref } from '../src/content/legal';
 import { FAQ_HREF } from '../src/content/faq';
 import { COMING_SOON_HREF, SCHEDULER_HREF } from '../src/content/coming-soon';
+import { SOLUTIONS, solutionHref } from '../src/content/solutions';
 import { byNewest, SITE_ORIGIN, type ImageSizes, type Post } from '../src/content/post-core';
 import { parsePost } from './parse-post';
 
@@ -52,6 +53,9 @@ const STATIC_ROUTES = [
   // church searching for church social-media scheduling should land on the page
   // that says it does not exist yet, not infer from silence that it does.
   SCHEDULER_HREF,
+  // Solutions — board card 86bbyv8pp. Indexed: a ministry searching for what
+  // Harvest offers evangelistic organizations should find this page.
+  ...SOLUTIONS.map((s) => solutionHref(s.slug)),
   '/contact',
   FAQ_HREF,
   ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
@@ -116,6 +120,7 @@ export function blogRoutes(): string[] {
     ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
     COMING_SOON_HREF,
     SCHEDULER_HREF,
+    ...SOLUTIONS.map((s) => solutionHref(s.slug)),
     '/contact',
     FAQ_HREF,
     ...LEGAL_DOCS.map((d) => legalHref(d.slug)),

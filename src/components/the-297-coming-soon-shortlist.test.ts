@@ -514,7 +514,7 @@ const pages = (dir: string, base = ''): string[] => (existsSync(dir) ? readdirSy
   }) : []);
 
 describe('9 — the prerendered page count is still 22', () => {
-  it.runIf(built)('🔴 exactly 23 pages, because this ticket adds no route', () => {
+  it.runIf(built)('🔴 exactly 24 pages, because this ticket adds no route', () => {
     /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
        `inside-harvest` post "What your year-end giving statements must include"
        (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
@@ -524,8 +524,10 @@ describe('9 — the prerendered page count is still 22', () => {
        Corrected here rather than in the ticket that eventually trips over it.
        ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
        renders — /features/giving-finance — and a section is an anchor, not a
-       page. */
-    expect(pages(DIST)).toHaveLength(23);
+       page.
+       🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
+       the new /solutions/evangelistic-organizations route. */
+    expect(pages(DIST)).toHaveLength(24);
   });
 
   it('🔴 and no route was added — "see all" points at a page that already existed', () => {

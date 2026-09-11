@@ -733,12 +733,16 @@ describe('10 — the circles do not overflow at 380px', () => {
 describe('11 — vite.config.ts, ssgOptions and the blog plugin are byte-identical', () => {
   it('🔴 neither file was touched — this ticket adds a picture', () => {
     /* `base: '/'` is absolute deliberately, and `ssgOptions` and the blog plugin
-       are what produce the 22 pages the fingerprint table pins. Hashed rather
-       than grepped so a whitespace edit fails too. */
+       are what produce the pages the fingerprint table pins. Hashed rather
+       than grepped so a whitespace edit fails too.
+       🔴 THE BLOG PLUGIN'S HASH MOVED AT board card 86bbyv8pp
+       (SOLUTIONS_EVANGELISTIC_MOVED, see src/test/the-278-no-regression.test.ts)
+       — three lines adding the new /solutions/evangelistic-organizations route
+       to STATIC_ROUTES and blogRoutes(). vite.config.ts is untouched. */
     expect(sha(src('../../vite.config.ts')))
       .toBe('709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66');
     expect(sha(src('../../build/blog-plugin.ts')))
-      .toBe('9dbc3c6194c838c6f33e7dc36dcf72fe8682ff93266238ca73f097253b51be36');
+      .toBe('9ddd785595a33a6db189eb04133459608bc1b9e5aa53a3779e9a82b3ad675403');
   });
 });
 

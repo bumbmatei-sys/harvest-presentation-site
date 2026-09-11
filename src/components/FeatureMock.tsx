@@ -603,7 +603,9 @@ const shareChip = (label: string) => (
   </span>
 );
 
-const MOCKS: Record<string, React.ReactElement> = {
+/* Exported so /solutions/evangelistic-organizations' "One app" tabbed section
+   can draw the same vignette each category page uses, keyed by feature id. */
+export const MOCKS: Record<string, React.ReactElement> = {
   feed: (
     <>
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', padding: '14px' }}>

@@ -2,9 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Reveal } from '../components/effects';
-import { AnimatedText, HBtn } from '../components/magic';
 import { FeatureBlock } from '../components/FeatureBlock';
 import { SiteCTA } from '../components/SiteCTA';
+import { Hero as SharedHero, PositioningBand, grainOverlay } from '../components/CategoryHero';
 import { CATEGORY_BY_SLUG, categoryHref, type Category } from '../content/features';
 import { CUSTOM_DOMAIN_MARKETING_ENABLED } from '../lib/flags';
 
@@ -12,64 +12,28 @@ import { CUSTOM_DOMAIN_MARKETING_ENABLED } from '../lib/flags';
    Ported from the Claude Design handoff (one .dc.html per category); the shared
    feature card lives in components/FeatureBlock.tsx and the copy in
    content/features.ts. Hero top padding clears the fixed nav, which the design
-   canvas did not have. */
+   canvas did not have.
 
-const grainOverlay: React.CSSProperties = {
-  position: 'absolute', inset: 0, backgroundImage: 'var(--grain-url)', backgroundSize: '200px',
-  opacity: 0.06, mixBlendMode: 'overlay', pointerEvents: 'none',
-};
+   The hero and the navy positioning band live in components/CategoryHero.tsx,
+   shared with /solutions/evangelistic-organizations — see the note there. */
 
 // ---------- Hero ----------
 function Hero({ cat }: { cat: Category }) {
-  const dark = !!cat.dark;
   return (
-    <section
-      style={{
-        position: 'relative', background: cat.heroBg, overflow: 'hidden',
-        paddingLeft: 24, paddingRight: 24,
-        paddingTop: dark ? 'clamp(148px, calc(8vw + 84px), 188px)' : 'clamp(144px, calc(7vw + 84px), 180px)',
-        paddingBottom: dark ? 'clamp(72px, 9vw, 110px)' : 'clamp(40px, 5vw, 64px)',
+    <SharedHero
+      dark={!!cat.dark}
+      heroBg={cat.heroBg}
+      headWidth={cat.headWidth}
+      eyebrowColor={cat.eyebrowColor}
+      eyebrow={cat.name}
+      headline={cat.headline}
+      introWidth={cat.introWidth}
+      intro={cat.intro}
+      secondary={{
+        label: cat.secondary.label,
+        to: cat.secondary.to.startsWith('#') ? `${categoryHref(cat.slug)}${cat.secondary.to}` : cat.secondary.to,
       }}
-    >
-      {dark && <div style={{ ...grainOverlay, opacity: 0.07 }} />}
-      {dark && (
-        <div style={{ position: 'absolute', top: -120, left: '50%', transform: 'translateX(-50%)', width: 520, height: 420, background: 'radial-gradient(circle, rgba(229,182,92,0.22), transparent 70%)', filter: 'blur(24px)', pointerEvents: 'none' }} />
-      )}
-      <div style={{ position: 'relative', maxWidth: cat.headWidth, margin: '0 auto', textAlign: 'center' }}>
-        <Reveal y={14}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: cat.eyebrowColor }}>{cat.name}</span>
-        </Reveal>
-        <AnimatedText
-          as="h1"
-          text={cat.headline}
-          startOnView={false}
-          delay={120}
-          stagger={80}
-          y={20}
-          duration={780}
-          style={{
-            fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-            lineHeight: 1.04, letterSpacing: '-0.025em', color: dark ? '#fff' : 'var(--navy-900)',
-            margin: '18px 0 0', textWrap: 'balance',
-          } as React.CSSProperties}
-        />
-        <Reveal delay={420} y={16}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1.02rem, 1.5vw, 1.2rem)', lineHeight: 1.6, color: dark ? 'rgba(255,255,255,0.72)' : 'var(--text-body)', margin: '20px auto 0', maxWidth: cat.introWidth }}>{cat.intro}</p>
-        </Reveal>
-        <Reveal delay={560} y={16}>
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 12, marginTop: 30 }}>
-            <HBtn to="/#pricing" size="lg" variant={dark ? 'gold' : 'dark'}>Start free trial</HBtn>
-            <HBtn
-              to={cat.secondary.to.startsWith('#') ? `${categoryHref(cat.slug)}${cat.secondary.to}` : cat.secondary.to}
-              size="lg"
-              variant="light"
-            >
-              {cat.secondary.label}
-            </HBtn>
-          </div>
-        </Reveal>
-      </div>
-    </section>
+    />
   );
 }
 
@@ -93,23 +57,6 @@ function FeatureIndex({ cat }: { cat: Category }) {
             <span style={{ fontSize: 11.5, fontWeight: 600, lineHeight: 1.25 }}>{f.name}</span>
           </Link>
         ))}
-      </div>
-    </section>
-  );
-}
-
-// ---------- Navy bands ----------
-function PositioningBand({ kicker, kickerColor, heading, body }:
-  { kicker: string; kickerColor: string; heading: string; body: string }) {
-  return (
-    <section style={{ position: 'relative', background: 'var(--navy-900)', padding: 'clamp(52px, 6vw, 80px) 24px', overflow: 'hidden' }}>
-      <div style={grainOverlay} />
-      <div style={{ position: 'relative', maxWidth: 820, margin: '0 auto', textAlign: 'center' }}>
-        <Reveal y={16}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: kickerColor }}>{kicker}</span>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', lineHeight: 1.12, letterSpacing: '-0.02em', color: '#fff', margin: '14px 0 0', textWrap: 'balance' } as React.CSSProperties}>{heading}</h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.65, color: 'rgba(255,255,255,0.66)', margin: '18px auto 0', maxWidth: 600 }}>{body}</p>
-        </Reveal>
       </div>
     </section>
   );

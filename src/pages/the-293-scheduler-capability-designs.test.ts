@@ -574,8 +574,10 @@ describe('12 & 13 — the page count is 22 and no existing page moved', () => {
        Corrected here rather than in the ticket that eventually trips over it.
        ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
        renders — /features/giving-finance — and a section is an anchor, not a
-       page. */
-    expect(pagesInDist()).toHaveLength(23);
+       page.
+       🔴 24 SINCE board card 86bbyv8pp — the new
+       /solutions/evangelistic-organizations route. */
+    expect(pagesInDist()).toHaveLength(24);
     expect(pagesInDist()).toContain('features/harvest-scheduler/index.html');
   });
 

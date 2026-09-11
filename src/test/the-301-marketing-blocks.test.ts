@@ -231,7 +231,7 @@ describe('3 — no page outside the two named ones carries a block', () => {
 
 /* ═══ 4 — the page count did not move ════════════════════════════════════ */
 describe('4 — the prerendered page count is unchanged', () => {
-  it('blogRoutes() still lists 23 routes — this ticket adds no route', () => {
+  it('blogRoutes() still lists 24 routes — this ticket adds no route', () => {
     /* 🔴 23 SINCE 2026-09-10, AND NOT BECAUSE OF THIS TICKET. The
        `inside-harvest` post "What your year-end giving statements must include"
        (af7a7ba) added a 23rd route. CI runs on `pull_request` only and `main` is
@@ -241,8 +241,10 @@ describe('4 — the prerendered page count is unchanged', () => {
        Corrected here rather than in the ticket that eventually trips over it.
        ⚠️ THE-355 ITSELF ADDS NO ROUTE. It adds a SECTION to a page that already
        renders — /features/giving-finance — and a section is an anchor, not a
-       page. */
-    expect(blogRoutes()).toHaveLength(23);
+       page.
+       🔴 24 SINCE board card 86bbyv8pp, AND NOT BECAUSE OF THIS TICKET EITHER —
+       the new /solutions/evangelistic-organizations route. */
+    expect(blogRoutes()).toHaveLength(24);
   });
 
   it('and App.tsx gained no route', () => {
@@ -251,23 +253,23 @@ describe('4 — the prerendered page count is unchanged', () => {
   });
 
   it.runIf(built && postPagesBuilt)('the build emits one page per route', () => {
-    expect(PAGES).toHaveLength(23);
+    expect(PAGES).toHaveLength(24);
   });
 
-  it.runIf(built)('and the nineteen non-post pages are there on any platform', () => {
-    /* ⚠️ A win32 CHECKOUT BUILDS 19, NOT 22, and not because of this ticket:
+  it.runIf(built)('and the twenty non-post pages are there on any platform', () => {
+    /* ⚠️ A win32 CHECKOUT BUILDS FOUR FEWER, and not because of this ticket:
        `slugFromPath` in content/post-core.ts splits on '/' only, so on Windows
-       the three blog post slugs become absolute paths and those three routes
+       the four blog post slugs become absolute paths and those four routes
        never render. Documented at length at the head of
        the-278-no-regression.test.ts, which skips its own fingerprint
        comparison for the same reason.
 
        🔴 SO THE ASSERTION THAT RUNS EVERYWHERE IS THE ONE THIS TICKET COULD
-       ACTUALLY BREAK. The three missing pages are blog posts; nothing here
-       touches the blog. Nineteen holds on Linux and on Windows, and it still
-       catches a page this ticket added or dropped — which was the point. */
+       ACTUALLY BREAK. The missing pages are blog posts; nothing here touches
+       the blog. Twenty holds on Linux and on Windows, and it still catches a
+       page this ticket added or dropped — which was the point. */
     const nonPosts = PAGES.filter(([f]) => !/^blog\/[^/]+\/index\.html$/.test(f) || f.startsWith('blog/category/'));
-    expect(nonPosts.map(([f]) => f)).toHaveLength(19);
+    expect(nonPosts.map(([f]) => f)).toHaveLength(20);
     expect(nonPosts.map(([f]) => f)).toContain('features/index.html');
     expect(nonPosts.map(([f]) => f)).toContain('contact/index.html');
   });
@@ -378,7 +380,10 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     // 11 — the build and deploy configuration.
     'vercel.json': 'b7c29796ec5df5d87332d573d130ea805956078bd5d3753cef537b2ac73a87be',
     'vite.config.ts': '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66',
-    'build/blog-plugin.ts': '9dbc3c6194c838c6f33e7dc36dcf72fe8682ff93266238ca73f097253b51be36',
+    // 🔵 REPINNED AT board card 86bbyv8pp (SOLUTIONS_EVANGELISTIC_MOVED) — three
+    // lines adding /solutions/evangelistic-organizations to STATIC_ROUTES and
+    // blogRoutes(). Neither vercel.json nor vite.config.ts moved.
+    'build/blog-plugin.ts': '9ddd785595a33a6db189eb04133459608bc1b9e5aa53a3779e9a82b3ad675403',
     // 12 — 🔴 THE THREE GUARDS THAT SAID NO. Each pins a landing-page element a
     // block would have improved: Features.test.ts the tool-count footnote,
     // the-257 and the-258 the #replaces integrations row. Loosening one of them
