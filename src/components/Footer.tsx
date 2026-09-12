@@ -4,6 +4,7 @@ import { Mark } from './shared';
 import { CATEGORIES } from '../content/categories';
 import { legalLinks } from '../content/legal';
 import { FAQ_HREF } from '../content/faq';
+import { CHANGELOG_URL, DOCS_URL } from '../content/resources';
 import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
 
 /* Footer links resolve to real destinations only. Contact points at the real
@@ -12,7 +13,10 @@ import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
    reads its labels and hrefs from content/legal.ts so it cannot list a policy
    that has no page (it used to be omitted entirely rather than ship dead links). The
    former direct-to-app link now routes to the pricing/trial funnel instead (see
-   #27), like every other marketing CTA — no footer link points off-site anymore.
+   #27), like every other marketing CTA. THE-358 adds the first deliberate
+   off-site links this footer has carried since — Documentation and Changelog on
+   docs.theharvest.site — through the `http` branch below, which is exactly what
+   that branch was left in place for; both open in a new tab with rel="noopener".
    All targets use react-router <Link>, path-qualified (e.g. /#pricing) so they
    scroll correctly from any route; col() still branches on an http prefix so a
    future external link can drop in as a plain <a> without touching this file. */
@@ -27,7 +31,16 @@ const col = (title: string, links: [string, string][]) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {links.map(([l, h]) =>
         h.startsWith('http') ? (
-          <a key={l} href={h} style={linkCss} onMouseEnter={onEnter} onMouseLeave={onLeave}>{l}</a>
+          /* 🔴 THE EXTERNAL BRANCH, USED AT LAST — and it gained the two
+             attributes it always needed. This helper has branched on an `http`
+             prefix since it was written, against the day "a future external
+             link can drop in as a plain <a> without touching this file". That
+             day is THE-358 and the docs site is the link, but the branch as
+             written opened the other origin IN THIS TAB and handed it a live
+             `window.opener` handle back onto the marketing site. `target` and
+             `rel` are set here, once, so no caller can add an external link
+             without them. */
+          <a key={l} href={h} target="_blank" rel="noopener" style={linkCss} onMouseEnter={onEnter} onMouseLeave={onLeave}>{l}</a>
         ) : (
           <Link key={l} to={h} style={linkCss} onMouseEnter={onEnter} onMouseLeave={onLeave}>{l}</Link>
         )
@@ -49,7 +62,7 @@ export function Footer() {
           </div>
           {col('PAGES', [['Home', '/#hero'], ['Features', '/features/community-engagement'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
           {col('MINISTRY', [['Believers', '/#believers'], ...(AFFILIATE_PROGRAM_ENABLED ? [['Affiliate', '/#affiliate'] as [string, string]] : []), ['Start free trial', '/#pricing']])}
-          {col('RESOURCES', [['FAQ', FAQ_HREF], ['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
+          {col('RESOURCES', [['Documentation', DOCS_URL], ['Changelog', CHANGELOG_URL], ['FAQ', FAQ_HREF], ['Blog', '/blog'], ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string])])}
           {col('LEGAL', legalLinks())}
         </div>
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>

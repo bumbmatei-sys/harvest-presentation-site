@@ -221,7 +221,14 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
        EITHER flag state — which is also what proves THE-280 appended rather
        than reordered. */
     const AFTER_252 = [
-      'languages', 'services', 'applications', 'docs', 'website',
+      // 🔴 'docs' LEFT THIS LIST AT THE-358 — the FIRST entry ever removed
+      // because the thing SHIPPED. Harvest's documentation is live at
+      // docs.theharvest.site and the nav and footer link to it, so an entry
+      // saying "there is no manual" was a false claim on the page whose whole
+      // job is the tense that is true. A REMOVAL shifts later entries up; it is
+      // not a reorder, and the ids below keep their original relative order —
+      // the same distinction this list already draws for 'sms'.
+      'languages', 'services', 'applications', 'website',
       // 🔵 'sms' LEFT THE LIST AT THE-314, which turned SMS_MARKETING_ENABLED on,
       // and CAME BACK AT THE-335, which turned it off again. `COMING_SOON_ITEMS`
       // filters on that one boolean so the same claim is never made in two
@@ -251,7 +258,9 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
     // REMOVAL moving a later entry, which is different from a reorder — the ids
     // above are still in their original relative order, and that is what this
     // assertion has always been about.
-    expect(item().n).toBe('10');
+    // 🔵 NINTH SINCE THE-358, which removed the 'docs' entry ahead of it
+    // because the documentation shipped. Another removal moving a later entry.
+    expect(item().n).toBe('9');
   });
 
   it('🔴 and it leaves again the moment the programme is advertised as live', () => {
@@ -778,10 +787,39 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
      legitimate edit into a failure in a file it does not own. What is held for
      it is everything this change could have disturbed: that it is still
      present, still ninth, still gated on its own flag. */
-  const digest = (o: unknown) => createHash('sha256').update(JSON.stringify(o)).digest('hex').slice(0, 16);
+  /* 🔴 THE ORDINAL IS EXCLUDED FROM THE COPY PIN, and that is a sharpening
+     rather than a hole. `n` is DERIVED FROM POSITION — content/coming-soon.ts's
+     own field doc says "Renumbered from the list, never written down" — so
+     REMOVING an earlier entry changes `n` on every entry after it while not
+     touching a character of their copy. THE-358 removed the shipped `docs`
+     entry and did exactly that to `website`, `agent`, `identity` and
+     `designations`.
+     Digesting the ordinal alongside the copy would make this table fail for a
+     positional shift it already asserts elsewhere, and the only way to keep it
+     green would be to REPIN four entries whose text nobody touched — which is
+     how a byte-for-byte pin turns into a rubber stamp nobody reads. So the
+     digest covers the COPY, which is what "was this entry edited" means, and
+     the ordinals keep their own assertion a few tests below
+     (`map((i) => i.n)` equals the position of each entry), where a renumbering
+     that ISN'T contiguous still fails. Between the two, nothing is unguarded. */
+  const digest = (o: unknown) => {
+    const { n: _n, ...copy } = (o ?? {}) as Record<string, unknown>;
+    return createHash('sha256').update(JSON.stringify(copy)).digest('hex').slice(0, 16);
+  };
 
+  /* 🔵 EVERY DIGEST BELOW WAS RECOMPUTED AT THE-358, and not one of them moved
+     because an entry's TEXT changed. `git diff origin/main -- content/coming-soon.ts`
+     for that ticket removes the `docs` entry and adds a header note, and touches
+     no other entry's copy at all. They moved because the digest function above
+     stopped hashing the DERIVED ORDINAL — the one field a removal legitimately
+     changes on every entry after it. Hashing it would have made this table go
+     red for a positional shift it already asserts separately, and the only way
+     back to green would be repinning entries nobody edited, which is how a
+     byte-for-byte pin becomes a rubber stamp. Recomputed once, for that reason;
+     from here on they pin the copy exactly as before. The website row keeps
+     BOTH flag states, recomputed the same way. */
   const UNTOUCHED: [string, string, string][] = [
-    ['languages',     'THE-123', '4dca7c3851c5c8c6'],
+    ['languages',     'THE-123', '4dabb751d5456f56'],
     /* 🔴 REPINNED BY THE-335, and it is the THIRD entry ever to move — the
        first to move because the PRODUCT caught up with it rather than because
        the copy was wrong. Its `today` said "there is no order of service, no
@@ -792,9 +830,16 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
        that is still genuinely absent — the song library, CCLI, chord charts,
        rehearsal scheduling and availability blockouts — and its `considering`
        bullets were already exactly those three, so they are untouched. */
-    ['services',      'THE-122', '8be57eb4cb859157'],
-    ['applications',  'THE-112', '78635528ff4b1480'],
-    ['docs',          'THE-117', '35a3d3761aec0433'],
+    ['services',      'THE-122', '4e63a9c913986194'],
+    ['applications',  'THE-112', 'e729f0a98dc4c8f0'],
+    /* 🔴 'docs' IS GONE FROM THIS TABLE AT THE-358, and its absence is the
+       record. Every other row here pins an entry BYTE FOR BYTE so an unrelated
+       ticket cannot reword it; that pin is meaningless for an entry that no
+       longer exists, and keeping a digest of deleted copy would be the table
+       asserting the page still makes a claim it deliberately stopped making.
+       The documentation SHIPPED — docs.theharvest.site — so the entry left the
+       page rather than being repinned. The eight rows around it are untouched,
+       which is what keeps this a removal rather than a rewrite. */
     /* 🔴 REPINNED BY THE-280, AND FLAG-DEPENDENT — the second entry ever to move
        here, and it moved for the reason this page exists.
 
@@ -816,7 +861,7 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
        ⚠️ Neither branch is a wildcard: both are pinned, so a later edit to
        EITHER wording still fails here. */
     ['website',       'THE-59',
-      CUSTOM_DOMAIN_MARKETING_ENABLED ? '7372d593d2e142eb' : 'b73dcd35217ba8a1'],
+      CUSTOM_DOMAIN_MARKETING_ENABLED ? '5ecdbdccfbb77369' : '784853c5354192b6'],
     /* ⚠️ REPINNED BY THE-253, AND THE ONLY ONE THAT MOVED. The `agent` entry's
        `notThis` said AI Chat "is part of the Small Team and Ministry plans at no
        extra charge" — true when written, false the moment `aiChat` came off
@@ -827,9 +872,9 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
        unbuilt admin agent — is untouched and still asserted in
        ComingSoonPage.test.ts. Nothing else about the entry changed: same id,
        same ref, same position, same `today` and `considering`. */
-    ['agent',         'THE-58',  'c80114beb389601e'],
-    ['identity',      'THE-118', '508c54cd47b1a10e'],
-    ['designations',  'THE-98',  '2ca9b8b2e1cb1ef0'],
+    ['agent',         'THE-58',  '5fe4bd454f944f60'],
+    ['identity',      'THE-118', 'b4ff0e81f4d46136'],
+    ['designations',  'THE-98',  'c5863be49028e988'],
   ];
 
   it('🔴 the eight entries that predate the SMS relocation are byte-for-byte identical', () => {
@@ -860,8 +905,15 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
   });
 
   it('🔴 nothing was reordered — the new entry was APPENDED', () => {
-    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(0, 9)).toEqual([
-      'languages', 'services', 'applications', 'docs', 'website',
+    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(0, 8)).toEqual([
+      // 🔴 'docs' LEFT THIS LIST AT THE-358 — the FIRST entry ever removed
+      // because the thing SHIPPED. Harvest's documentation is live at
+      // docs.theharvest.site and the nav and footer link to it, so an entry
+      // saying "there is no manual" was a false claim on the page whose whole
+      // job is the tense that is true. A REMOVAL shifts later entries up; it is
+      // not a reorder, and the ids below keep their original relative order —
+      // the same distinction this list already draws for 'sms'.
+      'languages', 'services', 'applications', 'website',
       // 🔵 'sms' LEFT THE LIST AT THE-314 and RETURNED AT THE-335 — see the note
       // on AFTER_252 above.
       'agent', 'identity', 'designations', 'sms',
@@ -873,12 +925,13 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
        entries arrive later and in either flag state — which is the whole
        property, and the reason the tail is not pinned to one id. */
     // 🔵 Index 9 again since THE-335 put the SMS entry back ahead of it.
-    expect(COMING_SOON_ITEMS[9].id).toBe('affiliate');
+    // 🔵 Index 8 since THE-358 removed the shipped 'docs' entry ahead of it.
+    expect(COMING_SOON_ITEMS[8].id).toBe('affiliate');
     // 🔵 From index 10, and THE-335's own 'newsletter' entry joins the tail —
     // appended after `domains` and before `scheduler`, which is deliberately
     // last. Derived from the flags rather than pinned, so this still reads
     // correctly in either state.
-    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(10))
+    expect(COMING_SOON_ITEMS.map((i) => i.id).slice(9))
       .toEqual([
         ...(CUSTOM_DOMAIN_MARKETING_ENABLED ? [] : ['domains']),
         ...(NEWSLETTER_MARKETING_ENABLED ? [] : ['newsletter']),
@@ -1103,11 +1156,22 @@ describe('12 — the page renders at 380, 768, 1024, 1280 and 1440 without overf
       .toBeGreaterThan(label);
   });
 
-  it('the label is not the widest on the page, so the binding case is unchanged', () => {
-    // 149px at 380 is the binding figure, and it is set by "Documentation" (13
-    // characters), not by this entry (9). Adding it moves nothing.
+  it('the label is not the widest on the page, so the binding case still holds', () => {
+    /* 149px at 380 is the room, and it is set by the VIEWPORT, not by any
+       label — so it is unchanged and is asserted below unchanged.
+
+       🔵 THE BINDING LABEL CHANGED AT THE-358, and it got NARROWER. It was
+       "Documentation" (13 characters); that entry left the page when the
+       documentation shipped, so the longest unbreakable token is now 12. The
+       page therefore has MORE slack than when this figure was pinned, never
+       less — the direction that cannot cause an overflow. This entry is still
+       9 and still not the widest, which is the claim this test is about. */
     expect(longestWord(item().name)).toBe(9);
-    expect(Math.max(...COMING_SOON_ITEMS.map((i) => longestWord(i.name)))).toBe(13);
+    const widest = Math.max(...COMING_SOON_ITEMS.map((i) => longestWord(i.name)));
+    expect(widest).toBe(12);
+    // And the binding label still fits the smallest card, which is the point of
+    // knowing which one it is.
+    expect(indexCardRoom(380)).toBeGreaterThan(widest * charWidth(11.5));
     expect(Object.fromEntries(VIEWPORTS.map((v) => [v, Math.round(indexCardRoom(v))])))
       .toEqual({ 380: 149, 768: 220, 1024: 223, 1280: 204, 1440: 204 });
   });

@@ -108,7 +108,12 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
     // 🔵 THIRTEEN SINCE THE-335, which brought the SMS entry back and added a
     // Newsletter one. The shortlist's own size is what this file is about and it
     // is unchanged at four; this is the FULL list behind the "See all" link.
-    expect(COMING_SOON_ITEMS).toHaveLength(13);
+    // 🔵 TWELVE SINCE THE-358, which removed the `docs` entry — the first
+    // ever removed because the thing SHIPPED rather than because the copy was
+    // wrong. The documentation is live at docs.theharvest.site and the nav and
+    // footer link to it, so an entry saying "there is no manual" was a false
+    // claim on the one page whose job is the tense that is true.
+    expect(COMING_SOON_ITEMS).toHaveLength(12);
   });
 
   it('🔴 Harvest Scheduler is FIRST, and is the entry with a page of its own', () => {
@@ -167,7 +172,10 @@ describe('1 — the features surface shows the scheduler first, then exactly 3 m
       (i) => !COMING_SOON_MENU_ITEMS.some((m) => m.id === i.id));
     // 🔵 SEVEN since THE-314 — SMS left the published list entirely, so it is
     // neither in the menu shortlist nor among the entries the menu omits.
-    expect(hidden).toHaveLength(9);
+    // 🔵 EIGHT since THE-358 removed the shipped `docs` entry, which was one
+    // of the entries the menu omits rather than one of the four it lists — so the
+    // shortlist above is untouched and only this count moves.
+    expect(hidden).toHaveLength(8);
     for (const item of hidden) {
       expect(words(desktopMenu), `"${item.name}" is still in the menu`).not.toContain(item.name);
       // …and is on the page the "see all" row leads to.
@@ -217,7 +225,8 @@ describe('2 — a "see all" control links to the full coming-soon page', () => {
     // 🔵 Eleven since THE-314 took SMS off the list. The point of this test is
     // the line ABOVE — the label is derived — and this absolute is what proves
     // the derivation is not comparing the label to itself.
-    expect(COMING_SOON_MORE_LABEL).toBe('See all 13');
+    // 🔵 'See all 12' since THE-358 removed the shipped `docs` entry.
+    expect(COMING_SOON_MORE_LABEL).toBe('See all 12');
     // Not a literal in the source — a flag can move the count, and one just did.
     expect(readSrc('components/catalog.ts')).not.toMatch(/See all \d+/);
   });
@@ -255,7 +264,12 @@ describe('3 — the full page still shows ALL of the entries', () => {
     // 🔵 THIRTEEN SINCE THE-335, which brought the SMS entry back and added a
     // Newsletter one. The shortlist's own size is what this file is about and it
     // is unchanged at four; this is the FULL list behind the "See all" link.
-    expect(COMING_SOON_ITEMS).toHaveLength(13);
+    // 🔵 TWELVE SINCE THE-358, which removed the `docs` entry — the first
+    // ever removed because the thing SHIPPED rather than because the copy was
+    // wrong. The documentation is live at docs.theharvest.site and the nav and
+    // footer link to it, so an entry saying "there is no manual" was a false
+    // claim on the one page whose job is the tense that is true.
+    expect(COMING_SOON_ITEMS).toHaveLength(12);
     for (const item of COMING_SOON_ITEMS) {
       expect(pageText, `"${item.name}" is missing from the page`).toContain(item.name);
     }
@@ -431,9 +445,16 @@ describe('6 — no price, date, tier or CTA in the section or on the page', () =
 
 /* ── 7 ───────────────────────────────────────────────────────────────────── */
 describe('7 — no SoonItem was added or removed, and every ref is intact', () => {
-  it('🔴 still thirteen entries, with the ids the page shipped with', () => {
+  it('🔴 still twelve entries, with the ids the page shipped with', () => {
     expect(COMING_SOON_ITEMS.map((i) => i.id)).toEqual([
-      'languages', 'services', 'applications', 'docs', 'website', 'agent',
+      // 🔴 'docs' LEFT THIS LIST AT THE-358 — the FIRST entry ever removed
+      // because the thing SHIPPED. Harvest's documentation is live at
+      // docs.theharvest.site and the nav and footer link to it, so an entry
+      // saying "there is no manual" was a false claim on the page whose whole
+      // job is the tense that is true. A REMOVAL shifts later entries up; it is
+      // not a reorder, and the ids below keep their original relative order —
+      // the same distinction this list already draws for 'sms'.
+      'languages', 'services', 'applications', 'website', 'agent',
       // 🔵 'sms' LEFT THIS LIST AT THE-314 and CAME BACK AT THE-335, in the same
       // motion that took it off the pricing page. An entry here AND a row there
       // would be the same claim in two tenses, which is what the filter prevents.
@@ -575,7 +596,8 @@ describe('10 — no page changed its built HTML except the ones this PR touches'
       expect(text, `"${item.name}" is missing from the built page`).toContain(item.name);
     }
     // 🔵 Eleven since THE-314 — see the note on COMING_SOON_ITEMS above.
-    expect(text.split(NOT_BUILT_LABEL).length - 1).toBe(13);
+    // 🔵 Twelve since THE-358 — see the note on COMING_SOON_ITEMS above.
+    expect(text.split(NOT_BUILT_LABEL).length - 1).toBe(12);
   });
 
   it.runIf(built)('and no OTHER built page grew a coming-soon entry', () => {

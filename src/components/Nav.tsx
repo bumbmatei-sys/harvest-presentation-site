@@ -6,6 +6,7 @@ import { Mark } from './shared';
 import { CATALOG, CATALOG_TOOL_COUNT, slugify, type CatalogGroup, type CatalogItem } from './catalog';
 import { CATEGORIES, CATEGORY_BY_NAME, categoryHref, featureHref as featurePath } from '../content/features';
 import { SOLUTIONS, solutionHref } from '../content/solutions';
+import { RESOURCES, isExternalHref } from '../content/resources';
 import { TRIAL_CTA_LABEL } from '../content/legal';
 import { CHEAPEST_MONTHLY } from './Pricing';
 
@@ -209,6 +210,85 @@ export function SolutionsMenuItems({ variant, onNavigate = () => {} }:
   );
 }
 
+/** The Resources dropdown's item list — desktop panel and mobile accordion
+ *  both render this, differing only in density.
+ *
+ *  ⚠️ EXPORTED FOR THE SAME REASON `SolutionsMenuItems` AND `FeatureMenuColumns`
+ *  ARE, and it is the reason that matters most here: both panels only exist
+ *  once `resources`/`mobileResources` state is true, and nothing outside a real
+ *  click can set either in this repo's DOM-less test runner. Pulled out, the
+ *  three entries and their exact hrefs can be asserted against RENDERED MARKUP
+ *  rather than re-derived from `RESOURCES` — a test that re-reads the array
+ *  passes while the JSX seam sends every visitor somewhere else.
+ *
+ *  🔴 THE INTERNAL/EXTERNAL SPLIT IS THE WHOLE POINT OF THIS COMPONENT.
+ *  Documentation and Changelog live on `docs.theharvest.site`, a DIFFERENT
+ *  ORIGIN, so they are plain <a> elements that open in a new tab and carry
+ *  `rel="noopener"` — without it the opened page gets a live `window.opener`
+ *  handle back onto this one. The Blog is a route on THIS site and stays a
+ *  react-router <Link>: handing <Link> an absolute URL would make it a path,
+ *  and turning the blog into an <a> would drop it out of the router and cost a
+ *  full page load. The branch is on `isExternalHref`, derived from the href
+ *  itself, so neither can be got wrong by editing content/resources.ts alone.
+ */
+export function ResourcesMenuItems({ variant, onNavigate = () => {} }:
+  { variant: 'desktop' | 'mobile'; onNavigate?: () => void }) {
+  const desktop = variant === 'desktop';
+  /* 44px MINIMUM, in both variants. A dropdown row is a tap target, and the
+     mobile accordion is rendered on a phone by definition. Matching the
+     Solutions panel, which is built to the same floor. */
+  const rowStyle: React.CSSProperties = {
+    display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3,
+    minHeight: 44, borderRadius: desktop ? 12 : 9, textDecoration: 'none',
+    padding: desktop ? '8px 12px' : '7px 6px',
+  };
+  const onEnter = desktop
+    ? (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.background = 'var(--stone-100)'; }
+    : undefined;
+  const onLeave = desktop
+    ? (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.background = 'transparent'; }
+    : undefined;
+  const body = (r: (typeof RESOURCES)[number]) => (
+    <>
+      <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: 'var(--navy-900)' }}>{r.label}</span>
+      <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-muted)' }}>{r.description}</span>
+    </>
+  );
+  return (
+    <>
+      {RESOURCES.map((r) => (
+        isExternalHref(r.href) ? (
+          <a
+            key={r.label}
+            href={r.href}
+            target="_blank"
+            rel="noopener"
+            role={desktop ? 'menuitem' : undefined}
+            onClick={onNavigate}
+            style={rowStyle}
+            onMouseEnter={onEnter}
+            onMouseLeave={onLeave}
+          >
+            {body(r)}
+          </a>
+        ) : (
+          <Link
+            key={r.label}
+            to={r.href}
+            role={desktop ? 'menuitem' : undefined}
+            onClick={onNavigate}
+            style={rowStyle}
+            onMouseEnter={onEnter}
+            onMouseLeave={onLeave}
+          >
+            {body(r)}
+          </Link>
+        )
+      ))}
+    </>
+  );
+}
+
 export function Nav() {
   const { pathname } = useLocation();
   // The only nav item with an active state — every blog route lives under /blog.
@@ -217,12 +297,15 @@ export function Nav() {
   const [scrolled, setScrolled] = React.useState(false);
   const [mega, setMega] = React.useState(false);
   const [solutions, setSolutions] = React.useState(false);
+  const [resources, setResources] = React.useState(false);
   const [mobile, setMobile] = React.useState(false);
   const [mobileFeatures, setMobileFeatures] = React.useState(false);
   const [mobileSolutions, setMobileSolutions] = React.useState(false);
+  const [mobileResources, setMobileResources] = React.useState(false);
   const navRef = React.useRef<HTMLElement>(null);
   const featuresBtnRef = React.useRef<HTMLButtonElement>(null);
   const solutionsBtnRef = React.useRef<HTMLButtonElement>(null);
+  const resourcesBtnRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -261,10 +344,30 @@ export function Nav() {
     return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
   }, [solutions]);
 
-  const toggleMega = () => { setMega((v) => !v); setSolutions(false); };
-  const toggleSolutions = () => { setSolutions((v) => !v); setMega(false); };
+  // Third instance of the same contract, for Resources. Written out rather than
+  // abstracted because the two above are written out: a shared hook here would
+  // be a refactor of two working menus made while adding a third.
+  React.useEffect(() => {
+    if (!resources) return;
+    const onDown = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setResources(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setResources(false); resourcesBtnRef.current?.focus(); }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [resources]);
 
-  const closeMobile = () => { setMobile(false); setMobileFeatures(false); setMobileSolutions(false); };
+  /* 🔴 EVERY TOGGLE CLOSES BOTH OTHERS, so at most one desktop menu is open at
+     a time — the property the two-menu version had, extended to three rather
+     than left to chance. */
+  const toggleMega = () => { setMega((v) => !v); setSolutions(false); setResources(false); };
+  const toggleSolutions = () => { setSolutions((v) => !v); setMega(false); setResources(false); };
+  const toggleResources = () => { setResources((v) => !v); setMega(false); setSolutions(false); };
+
+  const closeMobile = () => { setMobile(false); setMobileFeatures(false); setMobileSolutions(false); setMobileResources(false); };
 
   return (
     <nav
@@ -323,14 +426,24 @@ export function Nav() {
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-800)')}>{label}</Link>
           ))}
-          <Link
-            to="/blog"
-            style={{ ...linkStyle, color: onBlog ? 'var(--brand)' : 'var(--navy-800)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = onBlog ? 'var(--brand)' : 'var(--navy-800)')}
+          {/* 🔴 RESOURCES IS A DROPDOWN, NOT A LINK TO THE BLOG.
+              It was a flat <Link to="/blog"> labelled "Resources" — a label
+              that promised a set and delivered one page. It now opens the three
+              the founder named: Documentation, Changelog and the Blog. It keeps
+              its blog active state, because the blog is still inside it. */}
+          <button
+            ref={resourcesBtnRef}
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={resources}
+            onClick={toggleResources}
+            style={{ ...linkStyle, color: resources || onBlog ? 'var(--brand)' : 'var(--navy-800)' }}
+            onMouseEnter={(e) => { if (!resources) e.currentTarget.style.color = 'var(--brand)'; }}
+            onMouseLeave={(e) => { if (!resources) e.currentTarget.style.color = onBlog ? 'var(--brand)' : 'var(--navy-800)'; }}
           >
             Resources
-          </Link>
+            <L name="chevron-down" size={13} color="currentColor" style={{ transform: resources ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
+          </button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -413,6 +526,24 @@ export function Nav() {
         </div>
       )}
 
+      {/* ---------- Desktop Resources panel (click-to-toggle) ---------- */}
+      {resources && (
+        <div
+          role="menu"
+          aria-label="Resources"
+          style={{
+            width: 'min(360px, calc(100vw - 40px))', marginTop: 10,
+            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
+            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 12,
+            maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
+            animation: 'harvestMenuIn 0.28s var(--ease-out) both',
+          }}
+        >
+          <ResourcesMenuItems variant="desktop" onNavigate={() => setResources(false)} />
+        </div>
+      )}
+
       {/* ---------- Mobile panel (accordion) ---------- */}
       {mobile && (
         <div
@@ -461,13 +592,24 @@ export function Nav() {
             <Link key={label} to={href} onClick={closeMobile}
               style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
           ))}
-          <Link
-            to="/blog"
-            onClick={closeMobile}
-            style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: onBlog ? 'var(--brand)' : 'var(--navy-900)' }}
+          {/* Resources accordion. 🔴 AN ACCORDION, NOT A HOVER TARGET: this is
+              the phone panel, and a phone cannot hover. It is the same
+              click-to-expand control the Features and Solutions menus use here,
+              so the three entries are reachable with one tap. */}
+          <button
+            type="button"
+            aria-expanded={mobileResources}
+            onClick={() => setMobileResources((v) => !v)}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid rgba(45,37,25,0.06)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onBlog ? 'var(--brand)' : 'var(--navy-900)' }}
           >
             Resources
-          </Link>
+            <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileResources ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
+          </button>
+          {mobileResources && (
+            <div style={{ padding: '4px 8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <ResourcesMenuItems variant="mobile" onNavigate={closeMobile} />
+            </div>
+          )}
 
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(45,37,25,0.06)' }}>
             <HBtn to="/#pricing" variant="gold" block onClick={closeMobile}>{TRIAL_CTA_LABEL}</HBtn>

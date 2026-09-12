@@ -223,8 +223,15 @@ describe('1 — custom domains appear in Coming Soon', () => {
        REMOVAL or a RESTORATION moving a later entry is not a reorder — the ids
        below are still in their original relative order, which is what this test
        is for. */
-    expect(COMING_SOON_IDS.slice(0, 11)).toEqual([
-      'languages', 'services', 'applications', 'docs', 'website',
+    expect(COMING_SOON_IDS.slice(0, 10)).toEqual([
+      // 🔴 'docs' LEFT THIS LIST AT THE-358 — the FIRST entry ever removed
+      // because the thing SHIPPED. Harvest's documentation is live at
+      // docs.theharvest.site and the nav and footer link to it, so an entry
+      // saying "there is no manual" was a false claim on the page whose whole
+      // job is the tense that is true. A REMOVAL shifts later entries up; it is
+      // not a reorder, and the ids below keep their original relative order —
+      // the same distinction this list already draws for 'sms'.
+      'languages', 'services', 'applications', 'website',
       // 🔵 'sms' LEFT THE LIST AT THE-314, which turned SMS_MARKETING_ENABLED on,
       // and RETURNED AT THE-335, which turned it off again. `COMING_SOON_ITEMS`
       // filters on that one boolean so the same claim is never made in two tenses.
@@ -233,8 +240,9 @@ describe('1 — custom domains appear in Coming Soon', () => {
     // 🔵 THE-335's own 'newsletter' entry was appended AFTER `domains` and
     // BEFORE `scheduler`, which is deliberately last — so this entry keeps its
     // position relative to everything that was already here.
-    expect(COMING_SOON_IDS.slice(11)).toEqual(['newsletter', 'scheduler']);
-    expect(item().n).toBe('11');
+    expect(COMING_SOON_IDS.slice(10)).toEqual(['newsletter', 'scheduler']);
+    // 🔵 TENTH SINCE THE-358 removed the shipped 'docs' entry ahead of it.
+    expect(item().n).toBe('10');
     // Ordinals are derived from position, so appending can never leave a gap.
     expect(COMING_SOON_ITEMS.map((i) => i.n)).toEqual(
       COMING_SOON_ITEMS.map((_, i) => String(i + 1)));
@@ -692,8 +700,15 @@ describe('6 — the prerendered page count is unchanged', () => {
    The ten entries that were already there are unchanged.                     */
 describe('7 — the existing entries are undisturbed', () => {
   it('🔴 nothing was reordered, and nothing was dropped', () => {
-    expect(COMING_SOON_IDS.slice(0, 10)).toEqual([
-      'languages', 'services', 'applications', 'docs', 'website',
+    expect(COMING_SOON_IDS.slice(0, 9)).toEqual([
+      // 🔴 'docs' LEFT THIS LIST AT THE-358 — the FIRST entry ever removed
+      // because the thing SHIPPED. Harvest's documentation is live at
+      // docs.theharvest.site and the nav and footer link to it, so an entry
+      // saying "there is no manual" was a false claim on the page whose whole
+      // job is the tense that is true. A REMOVAL shifts later entries up; it is
+      // not a reorder, and the ids below keep their original relative order —
+      // the same distinction this list already draws for 'sms'.
+      'languages', 'services', 'applications', 'website',
       // 🔵 'sms' LEFT THE LIST AT THE-314, which turned SMS_MARKETING_ENABLED on,
       // and RETURNED AT THE-335, which turned it off again — so ten entries
       // precede `domains`, as they did originally. Their relative ORDER has been

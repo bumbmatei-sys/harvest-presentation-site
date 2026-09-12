@@ -16,6 +16,18 @@
  * closes with a plain note instead of the `SiteCTA` band the five live
  * category pages use (that band sells a trial).
  *
+ * 🔴 AN ENTRY LEAVES THIS FILE THE DAY THE THING SHIPS, AND THE FIRST ONE HAS.
+ * THE-358 removed `docs` (THE-117, "There is no manual. There should be."):
+ * Harvest's documentation is LIVE at docs.theharvest.site, 24 pages across six
+ * sections plus a changelog, and the nav and the footer now link to it. Every
+ * line of that entry had become false in the strongest way this file can fail —
+ * `today` said "Harvest has a contact form and an FAQ. Neither is
+ * documentation", and `considering` proposed "a separate site at its own
+ * address", which is precisely what now exists. A page of honest gaps that
+ * lists a shipped feature as a gap is the same defect as a stale price, and
+ * this file already carries six of those corrections. The removal is the
+ * maintenance path this file's contract implies, not an exception to it.
+ *
  * EVERY ENTRY IS TRACEABLE. `ref` names the open card on the Harvest board that
  * the entry describes. Nothing here was invented for the page: if a claim has
  * no card, it does not belong on this page. Statuses are the board's own —
@@ -160,19 +172,6 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
       'No e-signature. That is a different product and pretending otherwise would be the sixth thing this site had to correct',
     ],
     navDesc: 'Review applicants and issue the decision. Not built yet.',
-  },
-  {
-    id: 'docs', name: 'Documentation', icon: 'book-open', ref: 'THE-117',
-    eyebrow: 'Proper documentation',
-    title: 'There is no manual. There should be.',
-    oneliner: 'A documentation site an admin can search at the moment they are stuck, instead of working it out from the interface.',
-    today: 'Harvest has a contact form and an FAQ. Neither is documentation: nothing explains how a feature works, in order, in one place you can link a volunteer to.',
-    considering: [
-      'A separate site at its own address, so it can be indexed and linked without touching the app',
-      'Written per admin task, not per screen — the question is usually "how do I take a registration", not "what is this button"',
-      'A decision recorded rather than a design settled — the tool and the shape of it are both still open',
-    ],
-    navDesc: 'A real manual you can search. Not built yet.',
   },
   {
     id: 'website', name: 'Website builder', icon: 'blocks', ref: 'THE-59',
