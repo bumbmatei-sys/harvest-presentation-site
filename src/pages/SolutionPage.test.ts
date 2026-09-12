@@ -584,20 +584,35 @@ describe('the Solutions panel content — SolutionsMenuItems, rendered directly'
   });
 });
 
-describe('Nav.tsx source — the two desktop menus close each other, and Escape works', () => {
+/* 🔵 THE-358 — "the two desktop menus" ARE THREE NOW, and every assertion in
+   this block was WIDENED rather than relaxed. Resources became a dropdown
+   beside Features and Solutions, so the mutual-exclusion claim this block
+   exists to pin now has three pairs to hold instead of one. Each toggle is
+   required to close BOTH others and `closeMobile` to collapse all THREE
+   accordions — strictly more than was asserted before, on strictly more
+   surface. Nothing here was made easier to satisfy: drop a single
+   `setResources(false)` and the first test below fails. */
+describe('Nav.tsx source — the three desktop menus close each other, and Escape works', () => {
   const source = readFileSync(fileURLToPath(new URL('../components/Nav.tsx', import.meta.url)), 'utf8');
 
-  it('opening Features closes Solutions, and opening Solutions closes Features', () => {
-    expect(source).toMatch(/const toggleMega = \(\) => \{ setMega\(\(v\) => !v\); setSolutions\(false\); \};/);
-    expect(source).toMatch(/const toggleSolutions = \(\) => \{ setSolutions\(\(v\) => !v\); setMega\(false\); \};/);
+  it('opening any one of the three closes the other two', () => {
+    expect(source).toMatch(/const toggleMega = \(\) => \{ setMega\(\(v\) => !v\); setSolutions\(false\); setResources\(false\); \};/);
+    expect(source).toMatch(/const toggleSolutions = \(\) => \{ setSolutions\(\(v\) => !v\); setMega\(false\); setResources\(false\); \};/);
+    expect(source).toMatch(/const toggleResources = \(\) => \{ setResources\(\(v\) => !v\); setMega\(false\); setSolutions\(false\); \};/);
   });
 
   it('Escape closes the Solutions panel and returns focus to its trigger', () => {
     expect(source).toMatch(/if \(e\.key === 'Escape'\) \{ setSolutions\(false\); solutionsBtnRef\.current\?\.focus\(\); \}/);
   });
 
-  it('closeMobile also collapses the Solutions accordion', () => {
-    expect(source).toMatch(/const closeMobile = \(\) => \{ setMobile\(false\); setMobileFeatures\(false\); setMobileSolutions\(false\); \};/);
+  it('closeMobile also collapses the Solutions AND Resources accordions', () => {
+    expect(source).toMatch(/const closeMobile = \(\) => \{ setMobile\(false\); setMobileFeatures\(false\); setMobileSolutions\(false\); setMobileResources\(false\); \};/);
+  });
+
+  it('Escape closes the Resources panel and returns focus to its trigger', () => {
+    // The same contract Features and Solutions each carry, asserted for the
+    // third menu rather than assumed from the other two.
+    expect(source).toMatch(/if \(e\.key === 'Escape'\) \{ setResources\(false\); resourcesBtnRef\.current\?\.focus\(\); \}/);
   });
 
   it('the trigger shows active on /solutions/*', () => {

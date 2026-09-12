@@ -192,7 +192,11 @@ export function ComingSoonPage() {
     <main>
       <Seo
         title={`${COMING_SOON_NAME} — Harvest`}
-        description="What Harvest does not do yet: languages, service planning, application review, documentation, a website builder, an admin AI agent, one login across churches and fund designations. None of it is built, dated or for sale."
+        /* 🔴 "documentation" LEFT THIS SENTENCE AT THE-358, with the entry it
+            described. The docs shipped — docs.theharvest.site — so a meta
+            description telling search engines Harvest has no documentation was
+            the most publishable form the stale claim could take. */
+        description="What Harvest does not do yet: languages, service planning, application review, a website builder, an admin AI agent, one login across churches and fund designations. None of it is built, dated or for sale."
         canonical={`https://theharvest.site${COMING_SOON_HREF}`}
       />
       <Hero />

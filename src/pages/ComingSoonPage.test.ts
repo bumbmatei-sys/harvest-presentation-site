@@ -404,22 +404,52 @@ describe('it is legible and distinguishable in all four palettes', () => {
 
 /* ── 5 ───────────────────────────────────────────────────────────────────── */
 describe('the Coming Soon page lists every named item', () => {
-  /** The six the founder named, by the board card each traces to. Written out
-   *  so a renamed entry that quietly drops one is a failure here. */
+  /** The five of the founder's six that are STILL unbuilt, by the board card
+   *  each traces to. Written out so a renamed entry that quietly drops one is a
+   *  failure here. */
   const FOUNDER_NAMED: [string, string][] = [
     ['Multiple languages', 'THE-123'],
     ['Church service and worship planner', 'THE-122'],
     ['Application processing', 'THE-112'],
-    ['Documentation', 'THE-117'],
     ['Website builder', 'THE-59'],
     ['In-app personal AI assistant', 'THE-58'],
   ];
 
-  it('carries all six the founder named, each against its open board card', () => {
+  /** 🔴 THE SIXTH ONE SHIPPED, AND THIS IS THE ASSERTION THAT REPLACED IT.
+   *
+   *  "Documentation" (THE-117) was on the list above until THE-358. It is not
+   *  gone because anybody changed their mind about wanting it — it is gone
+   *  because it EXISTS: docs.theharvest.site, 24 pages across six sections and
+   *  a changelog, linked from the nav's Resources dropdown and the footer.
+   *
+   *  ⚠️ DELETING THE ROW WOULD HAVE LEFT NOTHING BEHIND. A guard that merely
+   *  stops naming an entry cannot notice the entry coming back, and this page's
+   *  whole history is claims that were true when written and quietly stopped
+   *  being true. So the row INVERTED rather than vanished: the same board card,
+   *  asserted ABSENT. Restore the entry and this fails, naming it. */
+  const SHIPPED_SO_NOT_HERE: [string, string][] = [
+    ['Documentation', 'THE-117'],
+  ];
+
+  it('carries all five of the founder\'s that are still unbuilt, each against its open board card', () => {
     const refs = COMING_SOON_ITEMS.map((i) => i.ref);
     for (const [label, ref] of FOUNDER_NAMED) {
       expect(refs, `"${label}" (${ref}) is missing from the page`).toContain(ref);
     }
+  });
+
+  it('\u{1F534} and does NOT still list the one that shipped', () => {
+    const refs = COMING_SOON_ITEMS.map((i) => i.ref);
+    const ids = COMING_SOON_ITEMS.map((i) => i.id);
+    const names = COMING_SOON_ITEMS.map((i) => i.name);
+    for (const [label, ref] of SHIPPED_SO_NOT_HERE) {
+      expect(refs, `"${label}" (${ref}) is back on the coming-soon page, but it shipped`)
+        .not.toContain(ref);
+      expect(names, `"${label}" is back on the coming-soon page, but it shipped`)
+        .not.toContain(label);
+    }
+    expect(ids, 'the docs entry is back on the coming-soon page, but it shipped')
+      .not.toContain('docs');
   });
 
   it('plus the two found on the board, and nothing invented', () => {
@@ -427,7 +457,10 @@ describe('the Coming Soon page lists every named item', () => {
     // this page inventing a promise, which is the failure mode it exists to
     // prevent.
     expect(COMING_SOON_ITEMS.map((i) => i.ref)).toEqual([
-      'THE-123', 'THE-122', 'THE-112', 'THE-117', 'THE-59', 'THE-58',
+      // 🔵 THE-117 LEFT THIS LIST AT THE-358 — the documentation shipped. The
+      // test above asserts its ABSENCE by card, so the removal is guarded, not
+      // merely unmentioned.
+      'THE-123', 'THE-122', 'THE-112', 'THE-59', 'THE-58',
       'THE-118', 'THE-98',
       // 🔵 THE-314's SMS ENTRY IS BACK AT THE-335, which hid the feature again —
       // see the note below, whose story now has a further chapter.

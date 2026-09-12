@@ -767,13 +767,91 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'afc0ffb156b11a460997e0e6348cb9622e977293502632adb63c520d9a65f8b7',
   };
 
+  /**
+   * 🔴 THE-358 — ALL TWENTY-SIX PAGES MOVED, AND THAT IS THE EXPECTED SHAPE.
+   *
+   * The precedent is SOLUTIONS_EVANGELISTIC_MOVED above, which records exactly
+   * this and for exactly this reason: `Nav.tsx` renders on EVERY route, so a
+   * change to the nav bar changes every prerendered page. THE-358 turned the
+   * nav's flat "Resources" link into a dropdown over Documentation, Changelog
+   * and the Blog, and added Documentation and Changelog to the footer's
+   * RESOURCES column — and the footer renders on every route too. Two sitewide
+   * components changed, so twenty-six of twenty-six is the honest count; a
+   * SMALLER number here would be the surprise, since it would mean a page was
+   * not rebuilt.
+   *
+   * ⚠️ THE PAGE COUNT IS UNCHANGED AT 26. This ticket adds and removes no
+   * route: the documentation lives on docs.theharvest.site, a different site
+   * entirely, so linking it adds no page here. `features/coming-soon` moved for
+   * a second reason on top of the nav — the `docs` entry was removed from it
+   * because the documentation shipped — and it is the only page with two
+   * reasons. The assertion below that this table covers `pagesInDist()` is what
+   * proves an added or dropped page would have been caught rather than absorbed.
+   *
+   * Taken from the same Linux `npm run build` as BASELINE_ALL below.
+   */
+  const THE_358_MOVED: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html':
+      '447cd45b3067593daf52490ca59444b4bbd689df18b89e71050d06699a6e177a',
+    'blog/category/inside-harvest/index.html':
+      'ae178d06d933b5ba02c17363b147c3f55b64d9bbb441226c5f82f52dd4fb1ba1',
+    'blog/category/rooted/index.html':
+      '9b13fa82b834500b3d2e871d2add9ed80de566d51804038c4b12cead4bf5ac8a',
+    'blog/generosity-without-pressure/index.html':
+      '54c7fee4a9f6e58e37bfde4f8f4c238aec1d108cbbc611ccb23ad5e0c2cfb8f4',
+    'blog/index.html':
+      '0eafb612f346467f2fa77167ae0b630efdb85364724d5f88f4421fc89c0e08c4',
+    'blog/planning-center-alternative-small-churches/index.html':
+      '00e8898cd05f9fcc176ed081e0b775c208b0d5f5a4312464baadbb1f79cb5899',
+    'blog/work-that-outlives-you/index.html':
+      'ee30ad46d6d4c926cf9eade380755dff734faa12ed7ff950a990d43aac69d912',
+    'blog/year-end-giving-statements-what-to-include/index.html':
+      'cecb2ea9f50dddbb4629573fe1b34002af0bbbd70e2430df1b0e9dfac7f06c3a',
+    'contact/index.html':
+      'e2105403dbbeb75066e59dc9aa0a286e3f3d5e18916c6b4779e62dfd62122fee',
+    'faq/index.html':
+      'b0f1977c3bdb8d150d87fad2744c679bbd3fa2b002dad4103ad95e1df0db5fd8',
+    'features/ai-automation/index.html':
+      'b1e5f425e0b1592a914e5f0e5e6ec6298eb1b11b3eb4ce7bd5508065fa3ee074',
+    'features/coming-soon/index.html':
+      'bf86a211ba4023f1260a8cf66524a88d0f77d106738ad20d6437ef978669ce61',
+    'features/community-engagement/index.html':
+      '0a296506ded5eddaf23e0cfd085a402efe5c839543cfeb2bfdf2bbb4a04a7995',
+    'features/discipleship-content/index.html':
+      '766a4e93ec93315bd01095192b3c6987532d568d13dc1aed6e915f656f399091',
+    'features/giving-finance/index.html':
+      'c43a981b036a839620e8b5aaa8a1c1172faba6241c5c8e2dd17659488edb3438',
+    'features/harvest-scheduler/index.html':
+      '8e9a9028a14861363e657608f2967d228c7ccc3bab720a97dd0b7d7ffd469bb9',
+    'features/index.html':
+      '406fe3aef1c78b62ded6c8f5c971a9e1162f4837642b2fb4978dfa4bd97cc595',
+    'features/platform-brand/index.html':
+      '4a4e67d568ddb8abdbefa25bfd7cc455bedd6900fc52000f950d6de1ec307850',
+    'index.html':
+      '535a2b84dbc4227dac87cafcc3b8cf6083f5b3d020e0ab1043f8e5719c60d40e',
+    'pricing/index.html':
+      'fb01fc56599d637b596c11034a45acf0ceb12b5151c78134d951400c7ae9d0c9',
+    'privacy/index.html':
+      '1b8444c0bc544c6f45101f73b4c798f303d06075bce5e49b11eda8887f35ce9a',
+    'refunds/index.html':
+      'a549e8b770ba5486c25b6dda95ba7266743bcd55c886fe0c998bef8db4ade4c4',
+    'solutions/churches/index.html':
+      '8b9a862a241659cb49206e446d34dd10c73e3e01404218e98f68443355a05050',
+    'solutions/evangelistic-organizations/index.html':
+      '05a8f8996d9407032134011ec8b9c40d76fed5665ddb2cf4563555cfb7fda226',
+    'solutions/missionaries/index.html':
+      '084fc9a3f3f1edce426b64d8f9fdde16a40d59c5d99bf396390b9206bfc42bef',
+    'terms/index.html':
+      '18a051e09647bd57630daffd4104e2153e5e3dd41b017e52ef57cc62b4541e8e',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
     ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
     ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
     ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
-    ...SOLUTIONS_TABS_CENTERED_MOVED,
+    ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -825,7 +903,15 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  🔴 THE PAGE COUNT IS STILL 26 — no route was added or removed, only the
    *  three Solutions pages' own markup moved, as SOLUTIONS_TABS_CENTERED_MOVED
    *  documents. */
-  const BASELINE_ALL = '2dc7f711a7a6f3c1ba22eb21553938bb446d4bc8a6e7e544d16515af6275418b';
+  /*  Retaken again at THE-358 from the same build as THE_358_MOVED; the previous
+   *  value was
+   *  2dc7f711a7a6f3c1ba22eb21553938bb446d4bc8a6e7e544d16515af6275418b.
+   *  🔴 THE PAGE COUNT IS STILL 26 — THE-358 adds and removes no route; the
+   *  documentation it links lives on a different site. Every one of the 26
+   *  moved, because the nav AND the footer both changed and both render on
+   *  every route — the SOLUTIONS_EVANGELISTIC_MOVED shape, for the same
+   *  reason. */
+  const BASELINE_ALL = 'eb3254ae3dd8a1a881f65034052496c22ef86eacf893964fd336c54e53d1ee91';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -921,7 +1007,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // same as every other page. The value it is measured against is that
     // table's now; the property — THE-280 never touched this page — is
     // unchanged.
-    expect(BASELINE[giving]).toBe(SOLUTIONS_EVANGELISTIC_MOVED[giving]);
+    /* 🔵 AND THE-358 MOVED IT AGAIN — the Resources dropdown in the nav and
+       the two docs links in the footer, both of which render on every route.
+       THE-358 is simply the most recent table that moved this page, so it
+       goes at the FRONT of the chain; the property each assertion states —
+       which pages ITS OWN ticket moved — is untouched. */
+    expect(BASELINE[giving]).toBe(THE_358_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -1017,7 +1108,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'features/platform-brand/index.html',
     ]) {
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
@@ -1214,7 +1305,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(others).toHaveLength(23);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
