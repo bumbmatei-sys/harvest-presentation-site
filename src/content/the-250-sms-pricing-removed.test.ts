@@ -408,7 +408,8 @@ describe('5 — the tool count is still derived, and no price changed', () => {
   it('every plan kept its other features — the removal took nothing with it', () => {
     const individual = plans.find((p) => p.name === 'Individual')!;
     expect(individual.features).toEqual([
-      '150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible',
+      // '500 contacts' since THE-370 raised Individual's cap; no other line moved.
+      '500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible',
       '2 courses', crmLabel('plus'), 'Donation page & Fundraising',
     ]);
   });

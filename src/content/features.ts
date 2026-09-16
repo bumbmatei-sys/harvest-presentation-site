@@ -114,7 +114,7 @@ const ALL_CATEGORIES: Category[] = [
         title: 'Every campus on a map, sorted by distance.',
         oneliner: 'A member-facing locator and a multi-campus roster admins manage — the “where do I go on Sunday” question, solved.',
         moment: 'The list reorders itself by how far each visitor is standing from every campus. One tap opens directions. That is the whole Sunday-morning question, answered.',
-        admin: ['Add campuses with Google address autocomplete', 'Automatic geocoding fallback + manual lat/lng', 'Full record: schedule, pastor, contact, socials', 'One campus location on every plan'],
+        admin: ['Add campuses with Google address autocomplete', 'Automatic geocoding fallback + manual lat/lng', 'Full record: schedule, pastor, contact, socials', 'Every paid plan runs as many campuses as you need'],
         member: ['Interactive map with a marker per location', '“Locate me” plus distance sorting', 'Set a home church; get directions in one tap', 'Service times, pastor and tap-to-copy contact'],
         crosslinks: [{ label: 'Event Registration', href: '/features/community-engagement#events' }, { label: 'Check-In', href: '/features/community-engagement#checkin' }],
       },
@@ -655,7 +655,7 @@ const ALL_CATEGORIES: Category[] = [
         // the pricing table was the only surface carrying it. The CRM is where
         // a contact lives, so it is where the limit belongs — a cap nobody can
         // find until checkout is the surprise this audience punishes hardest.
-        tiersNote: 'The CRM itself is on every plan, Forever Free included; how many people it holds is what scales — 500 on Forever Free, 150 contacts on Individual, 500 on Small Team, 2,000 on Ministry.',
+        tiersNote: 'The CRM itself is on every plan, Forever Free included; how many people it holds is what scales — 500 on Forever Free, 500 on Individual, 2,000 on Small Team, 4,000 on Ministry.',
         eyebrow: 'You never type a contact in',
         title: 'One record per person — built automatically.',
         /* 🔴 THE-355 — the GIVE half of two sentences, and only that half.
@@ -675,7 +675,7 @@ const ALL_CATEGORIES: Category[] = [
         moment: 'Anyone who\'s used church software has a database full of duplicate Bob Smiths. Harvest merges app members and manual contacts into one row on a stable link — so a person\'s giving history never scatters across three records.',
         // THE-245 — the last bullet sold tags on what they unlock in SMS. The
         // tags themselves are real and unchanged; only the SMS claim is withheld.
-        admin: ['Members & manual contacts merged into one list', 'Contacts scale by plan: 150 → 500 → 2,000', 'Connect Gmail and email a contact from their record',
+        admin: ['Members & manual contacts merged into one list', 'Contacts scale by plan: 500 → 2,000 → 4,000', 'Connect Gmail and email a contact from their record',
           STRIPE_GIVING_MARKETING_ENABLED
             ? 'Auto-typed member / donor / both as they give'
             : 'A gift you record posts to their timeline and their total',
@@ -853,11 +853,29 @@ const ALL_CATEGORIES: Category[] = [
       {
         id: 'churches', name: 'Multi-Campus', n: '5',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 0],
-        eyebrow: '$12 a campus — the whole pricing page',
+        /* 🔴 EVERY PRICE IN THIS BLOCK IS GONE — THE-370. It read "$12 a campus —
+           the whole pricing page", "a flat $12/month per campus", "their bill is
+           $60 + $132 … the other eleven are $12 each" and "Flat $12/mo each,
+           added to your existing subscription", plus a confirm dialog that
+           "names the price first".
+
+           The founder retired the campus add-on — "remove the campus addon. let
+           them add as many as they want." Campus is DETACHED from all nine live
+           plan products, `maxChurches` is unlimited on every paid tier in the
+           app's matrix, and the confirm dialog that named a price is deleted
+           from AdminChurches. So every figure above was a charge that no longer
+           exists, and the section says so instead.
+
+           ⚠️ THIS IS BEHIND `MULTI_CAMPUS_ENABLED`, WHICH IS STILL FALSE, so
+           none of it renders today. It is corrected rather than left because a
+           false price waiting behind a flag is exactly how THE-197's stale
+           figures survived — nothing rendered them, which is why they went
+           stale unnoticed. */
+        eyebrow: 'Every campus, at no extra charge',
         title: 'Every campus on one platform.',
-        oneliner: 'Every paid plan includes one campus. Add more — each with its own address, service times and pastor — at a flat $12/month per campus, confirmed before you’re ever charged.',
-        moment: 'A planting network with 12 campuses knows their bill is $60 + $132 before they talk to anyone: one campus is in the plan, the other eleven are $12 each. No sales call, no custom quote — every competitor hides multi-site pricing behind a form.',
-        admin: ['One campus on every paid plan; add more whenever you need them', 'Add locations with Google address autocomplete', 'Flat $12/mo each, added to your existing subscription', 'An explicit confirm dialog names the price first', 'Filter the roster by city, pastor or country'],
+        oneliner: 'Every paid plan runs as many campuses as you need — each with its own address, service times and pastor — at no extra charge.',
+        moment: 'A planting network with 12 campuses pays the same as a church with one: nothing beyond the plan. No sales call, no custom quote, no per-site line item — every competitor hides multi-site pricing behind a form, and there is no multi-site price here to hide.',
+        admin: ['As many campuses as you need on every paid plan', 'Add locations with Google address autocomplete', 'No per-campus charge and nothing added to your subscription', 'Filter the roster by city, pastor or country'],
         member: ['Every campus on the member map, sorted by distance', 'Its own service times, pastor & contact', 'One-tap directions to the nearest one', 'One tenant, one member list & CRM across campuses'],
         adminLabel: 'For admins', memberLabel: 'For members',
         crosslinks: [{ label: 'Church Map', href: '/features/community-engagement#map' }, { label: 'Admin Dashboard', href: '/features/platform-brand#dashboard' }],

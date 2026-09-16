@@ -373,8 +373,30 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
        Also in this pin: the RECOMMENDED and FOR EVANGELISTS pills were
        extracted into one shared `CardEyebrow`, and Ministry gained an EARLY
        BIRD eyebrow through that same component. No add-on, cell, comparison
-       row or feature line moved. The previous hash was 8573a448…. */
-    'src/components/Pricing.tsx': 'a4e92aaa83ed9097e503e5b8522e9ec58c9ae32bda9645902ad6b06df5bbf471',
+       row or feature line moved. The previous hash was 8573a448….
+
+       🔴 REPINNED AGAIN AT THE-370, AND NOT ONE OF THE NINE PLAN PRICES MOVED —
+       `planPriceContract` still throws at module scope if this repo and the app
+       disagree on any of them, so a one-sided change would have failed the
+       prerender rather than reached this hash. What moved:
+
+         · THE THREE PLAN CARDS' CONTACT BULLETS. The founder raised every cap —
+           "lets not put cap on users that badly" — so Individual reads 500
+           contacts (was 150), Small Team 2,000 (was 500) and Ministry 4,000
+           (was 2,000). No other line on any card moved, which
+           `PricingFreeTierCorrections` asserts line for line.
+         · TWO ADD-ON CARDS WITHDRAWN. Campus and Contacts +500 leave `ADD_ONS`
+           AND `DODO_ADD_ON_CATALOG` — not `INTENTIONALLY_UNADVERTISED`, because
+           the founder DETACHED both from all nine live plan products and that
+           list is for a product Dodo still sells. Five cards become three.
+         · ONE ADD-ON REPRICED. Unlimited Contacts goes $40/$480 → $30/$360, on
+           the SAME two Dodo product ids, transcribed in both units.
+           `dodoAddOnCatalogContract` compares the two halves at module scope.
+
+       ⚠️ THIS IS THE SECOND TIME A PRICE HAS MOVED IN THIS PIN, and the first
+       time an ADD-ON price has. THE-343 moved a plan price; this moves an add-on
+       price and no plan price. The previous hash was a4e92aaa…. */
+    'src/components/Pricing.tsx': 'aec7e5484681bcb3b95f38355fe2d5c1c8190dbbffd105a0f8c7fc2244b789f0',
     // 7 — the CLI did not overwrite button or card. It writes theme-scoped ui
     // components (`mist-card` → src/components/ui/card.tsx) for any block that
     // pulls one, which is why both adopted blocks were chosen from the 28 in

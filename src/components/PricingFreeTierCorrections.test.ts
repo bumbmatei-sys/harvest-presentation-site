@@ -326,8 +326,15 @@ describe("the three priced tiers' cards are unchanged", () => {
 *  nothing ELSE moved, and a hardcoded list would restate that claim against
 *  the wrong baseline the moment the switch flips back.
    */
+  /* 🔴 THE CONTACT LINE IS RE-TRANSCRIBED ON ALL THREE CARDS — THE-370, the
+     only thing that has moved it. The founder raised every cap ("lets not put
+     cap on users that badly"): Individual 150 → 500, Small Team 500 → 2,000,
+     Ministry 2,000 → 4,000. It is transcribed rather than the assertion being
+     relaxed, so this block keeps making its real claim — that NOTHING ELSE on
+     a priced card moved — line for line. No other line changed, and no line was
+     added or removed on any of the three. */
   const BEFORE: Record<string, string[]> = {
-    plus: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
+    plus: ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
       // 🔴 THE-314 — the SMS line MOVED CARDS as well as changing its name. It
       // was 'SMS (bring your own Twilio)' on INDIVIDUAL while a church held its
       // own carrier account; Harvest resells now and SMS is Ministry-only, so
@@ -339,10 +346,10 @@ describe("the three priced tiers' cards are unchanged", () => {
        line already was: this block's claim is that nothing ELSE moved, and a
        hardcoded list would restate that claim against the wrong baseline the
        moment a switch flips back. */
-    pro: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
+    pro: ['Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
       'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map',
       ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])],
-    max: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain',
+    max: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain',
       'Community Groups & Events',
       NEWSLETTER_MARKETING_ENABLED ? 'Automated SEO Blog & Newsletter' : 'Automated SEO Blog',
       'Custom Forms → CRM',

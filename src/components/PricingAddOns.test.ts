@@ -154,16 +154,14 @@ describe('where an add-on can be bought', () => {
   // as planIds is that this copy cannot drift from the tiers that exist.
   const planName = (planId: string) => plans.find((p) => p.planId === planId)!.name;
 
-  it('Contacts +500 is not offered on Individual', () => {
-    const a = find('Contacts +500');
-    expect(a.planIds).not.toContain('plus');
-    const read = words(cardHtml(a));
-    // Stated, not implied: the card names the plans that can buy it and says
-    // "only", and never names the plan that cannot.
-    expect(read).toContain(`${planName('pro')} and ${planName('max')} only`);
-    expect(read).not.toContain(planName('plus'));
-    // And the restriction survives into the rendered section, on the page.
-    expect(words(addOnsHtml(true))).toContain(`${planName('pro')} and ${planName('max')} only`);
+  it('🔴 THE-370 — Contacts +500 is not offered AT ALL any more', () => {
+    // It used to be "not offered on Individual", sold on Small Team and
+    // Ministry. The founder retired the product and raised the tier caps
+    // instead; Dodo has it detached from all nine plan products.
+    expect(ADD_ONS.find((x) => x.name === 'Contacts +500')).toBeUndefined();
+    for (const markup of [pageHtml(), addOnsHtml(true), addOnsHtml(false)]) {
+      expect(words(markup)).not.toMatch(/contacts \+\s?500/i);
+    }
   });
 
   it('Unlimited contacts is stated as Ministry only', () => {
@@ -208,52 +206,82 @@ describe('where an add-on can be bought', () => {
   });
 });
 
-describe('Campus', () => {
-  /* 🔴 THIS BLOCK IS INVERTED, AND THE INVERSION IS THE POINT.
+describe('THE-370 — Campus is withdrawn, and the inversion is the point', () => {
+  /* 🔴 THIS BLOCK HAS NOW BEEN INVERTED TWICE, WHICH IS THE WHOLE RECORD.
    *
-   * It used to assert Campus was NOT purchasable, because the two live Dodo
-   * add-on ids had never been recorded and the app refused the purchase. Both
-   * ids exist now (Harvest-agent DODO_LIVE_ADDONS, PR 328), every live plan
-   * product carries the period-matched Campus add-on, and the app raises
-   * `maxChurches` by one per campus owned. The reason for the omission is gone,
-   * so the omission is the defect — a church could buy a campus and had no way
-   * to find out what one costs.
+   * Before THE-223 it asserted Campus was NOT purchasable, because the two live
+   * Dodo ids had never been recorded and the app refused the purchase. THE-223
+   * inverted it: the ids existed, every live plan product carried the add-on,
+   * and an unadvertised buyable product was the defect.
    *
-   * ⚠️ The old assertions banned `$15` and `$180` from this file "as Campus's
-   * price". Live Dodo says those are CONTACTS +500, and Campus is $12/$144 —
-   * the ban was pinning a figure nobody had checked against the products. That
-   * is the whole THE-223 lesson in one assertion, and it is why what replaces
-   * it reads the catalogue instead of a remembered number. */
-  it('Campus is advertised', () => {
-    const campus = ADD_ONS.find((a) => a.name === 'Campus');
-    expect(campus, 'Campus is not in ADD_ONS').toBeDefined();
-    expect(campus!.monthly).toBe(DODO_ADD_ON_CATALOG.Campus.monthlyCents / 100);
-    expect(campus!.annual).toBe(DODO_ADD_ON_CATALOG.Campus.annualCents / 100);
-    // On the rendered page, not merely in the data.
+   * THE-370 inverts it back, for the opposite reason. The founder RETIRED the
+   * product — "remove the campus addon. let them add as many as they want" —
+   * and DETACHED it from all nine live plan products, so nothing is refusing a
+   * purchase and nothing is hiding one: there is no purchase. `maxChurches` is
+   * UNLIMITED_CAP on every paid tier in the app's matrix, so the cap the add-on
+   * existed to sell past is gone too.
+   *
+   * ⚠️ THE OLD ASSERTIONS BANNED `$15` AND `$180` FROM THIS FILE "as Campus's
+   * price", and THE-223 found those were actually CONTACTS +500's — a figure
+   * nobody had checked against the products. That lesson is why the assertions
+   * below read `DODO_ADD_ON_CATALOG` rather than any remembered number: what is
+   * asserted is that Campus is in NEITHER table, which cannot be got wrong by
+   * misattributing a figure. */
+  it('🔴 Campus is not advertised, and not in the Dodo catalogue either', () => {
+    expect(ADD_ONS.find((a) => a.name === 'Campus')).toBeUndefined();
+    // 🔴 AND REMOVED FROM THE CATALOGUE, not parked in INTENTIONALLY_UNADVERTISED.
+    // That list is for a product Dodo SELLS and this site declines to show; Dodo
+    // sells this one no longer, so an entry there would be the stale excuse
+    // `dodoAddOnCatalogContract` refuses.
+    expect(DODO_ADD_ON_CATALOG.Campus).toBeUndefined();
+    expect(Object.keys(DODO_ADD_ON_CATALOG).sort())
+      .toEqual(['AI Assistant', 'Admin seat', 'Unlimited contacts']);
+  });
+
+  it('🔴 no rendered surface offers a campus or prices one', () => {
     for (const markup of [pageHtml(), addOnsHtml(true), addOnsHtml(false)]) {
-      expect(words(markup)).toMatch(/campus/i);
+      const read = words(markup);
+      expect(read, 'a campus card is still rendering').not.toMatch(/one more campus/i);
+      expect(read).not.toMatch(/your plan includes one/i);
+      // The retired figures, by value: $12/$144 was Campus, $15/$180 was the pack.
+      expect(dollars(markup)).not.toContain(12);
+      expect(dollars(markup)).not.toContain(144);
+      expect(dollars(markup)).not.toContain(15);
+      expect(dollars(markup)).not.toContain(180);
     }
-    const read = words(cardHtml(campus!));
-    expect(dollars(cardHtml(campus!))).toEqual([campus!.monthly, campus!.annual]);
-    // Sold on every paid plan — all three live products carry it.
-    expect(campus!.planIds).toEqual(['plus', 'pro', 'max']);
-    expect(read).toContain('Available on every paid plan');
   });
 
-  it('the Campus card does not imply a tier includes more than one campus', () => {
-    // 🔴 `maxChurches` is 1 on every paid tier in the app's matrix and this
-    // add-on is the ONLY path past it, one campus per purchase. A card that
-    // read "run every campus from one plan" — the feature page's line — would
-    // make a tier claim this ladder does not support.
-    const read = words(cardHtml(ADD_ONS.find((a) => a.name === 'Campus')!));
-    expect(read).toContain('One more campus');
-    expect(read).toContain('Your plan includes one');
-    expect(read).not.toMatch(/every campus|all your campuses|unlimited campuses|multi-campus/i);
-    // And it is stated as capacity, not as a feature the tier switches on.
-    expect(read).not.toMatch(/\bincluded (in|on|with) (your|the) plan\b/i);
+  it('🔴 the page advertises exactly THREE add-ons', () => {
+    expect(ADD_ONS.map((a) => a.name)).toEqual(
+      ['AI Assistant', 'Admin seat', 'Unlimited contacts'],
+    );
+    expect(ADD_ONS).toHaveLength(3);
   });
 
-  it('the multi-campus FEATURE marketing stays behind its flag', () => {
+  it('🔴 Unlimited contacts reads $30 monthly and $360 annual', () => {
+    const u = ADD_ONS.find((a) => a.name === 'Unlimited contacts')!;
+    expect(u.monthly).toBe(30);
+    expect(u.annual).toBe(360);
+    // Against Dodo's own minor units, which is what makes this a match rather
+    // than a second opinion. Repriced from 4000/48000 on the SAME product ids.
+    expect(u.monthly).toBe(DODO_ADD_ON_CATALOG['Unlimited contacts'].monthlyCents / 100);
+    expect(u.annual).toBe(DODO_ADD_ON_CATALOG['Unlimited contacts'].annualCents / 100);
+    expect(DODO_ADD_ON_CATALOG['Unlimited contacts'].monthlyId).toBe('adn_0NlKtwKAhJgz0jeaqDX2c');
+    expect(DODO_ADD_ON_CATALOG['Unlimited contacts'].annualId).toBe('adn_0NlKtwMjMlsjzZ8z2Wt7P');
+    // Still ×12 — add-ons are not discounted.
+    expect(u.annual).toBe(u.monthly * 12);
+    // And the card really prints both.
+    expect(dollars(cardHtml(u))).toEqual([30, 360]);
+  });
+
+  it('🔴 the old $40/$480 figures appear nowhere', () => {
+    for (const markup of [pageHtml(), addOnsHtml(true), addOnsHtml(false)]) {
+      expect(dollars(markup), 'the stale $40 Unlimited Contacts price is back').not.toContain(40);
+      expect(dollars(markup)).not.toContain(480);
+    }
+  });
+
+  it('the multi-campus FEATURE marketing is still behind its flag', () => {
     // The add-on being buyable did not un-hide the feature-page section or the
     // catalogue's Multi-Campus tool entry. Those are a separate decision, and
     // flipping the flag would also move CATALOG_TOOL_COUNT off its derived 28.

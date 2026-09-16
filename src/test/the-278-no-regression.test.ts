@@ -845,13 +845,57 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       '18a051e09647bd57630daffd4104e2153e5e3dd41b017e52ef57cc62b4541e8e',
   };
 
+  /**
+   * 🔴 THE-370 MOVED EIGHT PAGES, AND ADDED AND DROPPED NONE.
+   *
+   * The ticket raises every plan's contact cap (Individual 150 → 500, Small
+   * Team 500 → 2,000, Ministry 2,000 → 4,000) and retires two add-ons, so the
+   * pages that move are exactly the ones that PRINT a cap or an add-on card:
+   *
+   *   pricing            the three plan cards' contact bullets, and the add-on
+   *                      section going from five cards to three with Unlimited
+   *                      Contacts repriced $40/$480 → $30/$360.
+   *   index              the same pricing section renders on the home page.
+   *   faq                FAQ_PLAN_CLAIMS carries the per-plan contact figures.
+   *   features/giving-finance        the CRM deep-dive's `tiersNote` and its
+   *                      "Contacts scale by plan" line, both of which name the
+   *                      caps.
+   *   features/community-engagement  the campus-map admin line, which read
+   *                      "One campus location on every plan".
+   *   solutions/churches, solutions/evangelistic-organizations,
+   *   solutions/missionaries         all three render the pricing section.
+   *
+   * 🔴 AND THE OTHER EIGHTEEN DID NOT MOVE, which is the claim worth having:
+   * the blog, the category indexes, the legal pages, contact, the remaining
+   * four feature pages and features/index are byte-identical, so the change is
+   * confined to the surfaces that actually quote a number.
+   */
+  const THE_370_MOVED: Readonly<Record<string, string>> = {
+    'faq/index.html':
+      '557785cfa965c9ebc5b712935f870dadcd5bf0194e413afc23b8758a4e973d92',
+    'features/community-engagement/index.html':
+      'a0dedd25a7487a8db458795d649d80c6078b995f062d1f32252faac84700b4e1',
+    'features/giving-finance/index.html':
+      '8f7fb380a4fd834c0b2feaa26118c2c868e2ae8245f003ff11df7dde4eda00f9',
+    'index.html':
+      'e7528327bddf3fc87895a211f3d07456a7994b7129c7353c01c01d6f03f758b8',
+    'pricing/index.html':
+      '49dc8a795b74c284adffdb65f8d83e9c74d9688d32fe5420b1279f1e33245a81',
+    'solutions/churches/index.html':
+      'af4c1ebacaa13cebe526a58f2bd6b06e582ff1b82ae4817f04c92ce72adf5dce',
+    'solutions/evangelistic-organizations/index.html':
+      '1ff8b4c9f2521fa56664493107ccbba3ab4c631bbb661b90e84ad28fdb934556',
+    'solutions/missionaries/index.html':
+      '11d33877e3fe849fb798ae240570fab97f1532eea7f0abc3ac87c8cf9dafbea4',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
     ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
     ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
     ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
-    ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED,
+    ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED, ...THE_370_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -1011,8 +1055,13 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        the two docs links in the footer, both of which render on every route.
        THE-358 is simply the most recent table that moved this page, so it
        goes at the FRONT of the chain; the property each assertion states —
-       which pages ITS OWN ticket moved — is untouched. */
-    expect(BASELINE[giving]).toBe(THE_358_MOVED[giving]);
+       which pages ITS OWN ticket moved — is untouched.
+       🔵 AND THE-370 MOVED IT ONCE MORE — the CRM deep-dive's `tiersNote` and
+       its "Contacts scale by plan" line both name the per-tier contact caps,
+       and this ticket raised all three. THE-370 is the most recent table to
+       move this page, so it takes the front of the chain; THE-280 still never
+       touched it, which is all this assertion has ever claimed. */
+    expect(BASELINE[giving]).toBe(THE_370_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -1107,8 +1156,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'features/discipleship-content/index.html', 'features/giving-finance/index.html',
       'features/platform-brand/index.html',
     ]) {
+      // 🔵 THE_370_MOVED JOINS AT THE FRONT — it moved two of these five, the
+      // giving page (the contact caps in the CRM deep-dive) and
+      // community-engagement (the campus-map admin line, which read "One campus
+      // location on every plan"). THE-293's claim is untouched.
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
@@ -1304,8 +1357,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // shared layout the three Solutions pages all render.
     expect(others).toHaveLength(23);
     for (const page of others) {
+      // 🔵 THE_370_MOVED JOINS AT THE FRONT, on identical terms to every table
+      // before it: the pages it moved are asserted against ITS values, and the
+      // claim here — that adding the Missionaries page moved nothing else —
+      // is unchanged.
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]

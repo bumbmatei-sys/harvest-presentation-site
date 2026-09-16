@@ -258,31 +258,38 @@ describe('no price literal appears outside the single source', () => {
    * of the nine are still swept.
    */
   it('excludes only the figures that genuinely collide with an add-on price', () => {
-    /* ⚠️ TWO COLLISIONS AGAIN — THE-253 REOPENED THE ONE THE-224 CLOSED, and
-       this is the assertion that refuses to let that happen quietly.
+    /* 🔵 ONE COLLISION AGAIN — THE-370 CLOSED THE ONE THE-223 OPENED, and this
+       is the assertion that keeps the size of the hole honest in both
+       directions.
      *
-     * THE-223 grew the hole to two: Unlimited Contacts at $40/mo collides with
-     * Small Team's monthly, and the $20 AI Assistant with Individual's.
-     * THE-224's withdrawal shrank it back to one, and this test said so.
-     * Restoring the card puts $20 back into `ADD_ON_PRICE_DIGITS` — derived, so
-     * the set moved on its own — and Individual's monthly leaves the sweep
-     * again. Seven of the nine are swept now, where eight were.
+     * THE-223 grew it to two: Unlimited Contacts at $40/mo collided with Small
+     * Team's monthly, and the $20 AI Assistant with Individual's. THE-224's
+     * withdrawal shrank it to one; THE-253 restored the card and it was two
+     * again. THE-370 REPRICED UNLIMITED CONTACTS $40 → $30, so $40 is no longer
+     * an add-on price at all and Small Team's monthly REJOINS the sweep —
+     * `ADD_ON_PRICE_DIGITS` is derived, so the set moved on its own.
      *
-     * 🔴 THAT IS A REAL LOSS OF COVERAGE AND IT IS STATED RATHER THAN ABSORBED.
-     * It is acceptable only because both colliding plan figures stay guarded by
-     * the three module-scope contracts asserted below — which is exactly what
-     * the mutation at the end of this test proves, for BOTH tiers. */
+     * 🔵 THAT IS A COVERAGE GAIN, and it is stated rather than absorbed for the
+     * same reason a loss was: eight of the nine are swept now, where seven were.
+     * The one that remains excluded, Individual's $20, is still guarded by the
+     * three module-scope contracts asserted below — which is what the mutation
+     * at the end of this test proves, for both tiers.
+     *
+     * ⚠️ $30 IS NOT A PLAN PRICE, so the reprice added no new collision. */
     expect(ALL_PRICE_DIGITS).toHaveLength(9);
-    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['20', '40']);
-    expect(PRICE_DIGITS).toHaveLength(7);
+    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['20']);
+    expect(PRICE_DIGITS).toHaveLength(8);
     expect(PRICE_DIGITS).not.toContain('20');
-    expect(PRICE_DIGITS).not.toContain('40');
+    // 🔵 BACK IN THE SWEEP — the figure THE-223 had to give up.
+    expect(PRICE_DIGITS).toContain('40');
+    // And the new add-on price collides with nothing.
+    expect(ALL_PRICE_DIGITS).not.toContain('30');
     // ⚠️ AND THE RESTORED ADD-ON'S PRICE DID NOT MOVE. $20/$240 is what Dodo
     // charges and what DODO_ADD_ON_CATALOG has pinned throughout — advertised,
     // withdrawn and advertised again, the figure never changed.
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(2000);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(24000);
-    // The one dropped is Small Team's monthly price, and it is the only one.
+    // The one still dropped is Individual's monthly price, and it is the only one.
     expect(String(plans.find((p) => p.planId === 'plus')!.price.monthly)).toBe('20');
     expect(String(plans.find((p) => p.planId === 'pro')!.price.monthly)).toBe('40');
     // ⚠️ NEITHER IS LEFT UNGUARDED — asserted for both, and now load-bearing for
@@ -337,7 +344,12 @@ describe('the plan feature matrix is unchanged', () => {
 // nothing ELSE moved, and a hardcoded list would restate that claim against
 // the wrong baseline the moment the switch flips back.
     expect(plans.find((p) => p.planId === 'plus')!.features).toEqual([
-      '150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
+      /* 🔴 THE CONTACT LINE IS RE-TRANSCRIBED — THE-370 raised every cap on the
+         founder's instruction ("lets not put cap on users that badly"):
+         Individual 150 → 500, Small Team 500 → 2,000, Ministry 2,000 → 4,000.
+         Transcribed rather than relaxed, so this baseline keeps asserting that
+         nothing ELSE on a priced card moved. */
+      '500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
       // 🔴 THE-314 — the SMS line MOVED CARDS as well as changing its name. It
       // was 'SMS (bring your own Twilio)' on INDIVIDUAL while a church held its
       // own carrier account; Harvest resells now and SMS is Ministry-only, so
@@ -346,7 +358,7 @@ describe('the plan feature matrix is unchanged', () => {
       'Donation page & Fundraising',
     ]);
     expect(plans.find((p) => p.planId === 'pro')!.features).toEqual([
-      'Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
+      'Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
       'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map',
       // 🔴 THE-335 — the Newsletter line moved behind NEWSLETTER_MARKETING_ENABLED.
       // Spread on the flag rather than deleted, for the reason the note above
@@ -354,7 +366,7 @@ describe('the plan feature matrix is unchanged', () => {
       ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : []),
     ]);
     expect(plans.find((p) => p.planId === 'max')!.features).toEqual([
-      'Everything in Small Team', '2,000 contacts · 15 admins', '15 courses',
+      'Everything in Small Team', '4,000 contacts · 15 admins', '15 courses',
       'Custom Branding & Domain', 'Community Groups & Events',
       // 🔴 THE-335 — the newsletter half of this line is gated; the automated
       // SEO blog on the same line ships and stays either way.

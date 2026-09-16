@@ -188,7 +188,7 @@ describe('the AI Assistant add-on is advertised again', () => {
     // 3. two add-ons pinned to one Dodo product
     expect(() => dodoAddOnCatalogContract(ADD_ONS, {
       ...DODO_ADD_ON_CATALOG,
-      Campus: { ...DODO_ADD_ON_CATALOG.Campus, monthlyId: DODO_ADD_ON_CATALOG['AI Assistant'].monthlyId },
+      'Unlimited contacts': { ...DODO_ADD_ON_CATALOG['Unlimited contacts'], monthlyId: DODO_ADD_ON_CATALOG['AI Assistant'].monthlyId },
     })).toThrow(/both pinned to the Dodo product/);
     // 4. advertised AND declared unadvertised at once — the contradiction a
     //    half-finished restore leaves behind, which is what this ticket is.

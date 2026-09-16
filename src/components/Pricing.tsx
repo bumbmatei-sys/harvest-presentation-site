@@ -230,9 +230,9 @@ const FREE_TIER_PLAN_ID = 'free';
 // remove EVERY SMS surface and simultaneously restore the Coming Soon entry, or
 // the same claim gets made twice in two tenses. No price changed here.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
-  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '500 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 60, quarterly: 162, yearly: 564 }, fee: 0, popular: true, earlyBird: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '2,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
+  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])] },
+  { name: 'Ministry',   planId: 'max',  price: { monthly: 60, quarterly: 162, yearly: 564 }, fee: 0, popular: true, earlyBird: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
@@ -859,10 +859,11 @@ export interface AddOn {
    * Which plans can buy it, as `planId`s of `plans`.
    *
    * Availability is enforced in Dodo (THE-133) and is not a presentation
-   * choice: Contacts +500 is not sold on Individual, and unlimited contacts is
-   * Ministry only. A visitor on the Individual card who reads "add 500 contacts
-   * for $20" and then cannot has been misled, so the restriction is STATED on
-   * every add-on rather than left to be inferred from silence.
+   * choice: unlimited contacts is Ministry only, while AI Assistant and Admin
+   * seat are attached to all three paid products. A visitor on the Individual
+   * card who reads about an add-on and then cannot buy it has been misled, so
+   * the restriction is STATED on every add-on rather than left to be inferred
+   * from silence.
    *
    * Held as ids and rendered through `plans`, so this can neither name a tier
    * that does not exist nor drift from a plan rename — that is what keeps it
@@ -890,9 +891,10 @@ export interface AddOn {
    a lookup, not a judgement call.
 
    ⚠️ THE APP HOLDS THE IDS AND DELIBERATELY HOLDS NO PRICES. Harvest-agent
-   src/lib/dodo/catalogue.ts DODO_LIVE_ADDONS carries these same ten ids — so the
+   src/lib/dodo/catalogue.ts DODO_LIVE_ADDONS carries these same six ids — so the
    id half of this table is a genuine cross-repo pin, the same mechanism as
-   EXPECTED_PLAN_PRICES. The price half cannot be: the app reads add-on prices
+   EXPECTED_PLAN_PRICES. It was ten until THE-370 retired Campus and
+   Contacts +500 in BOTH repos in one pass. The price half cannot be: the app reads add-on prices
    live from Dodo at runtime ("named and priced by Dodo, never by code" —
    utils/addon-change.ts) and its only add-on figures are a ban-list and test
    fixtures. So there is nothing in the app to pin a price against, and the
@@ -902,10 +904,13 @@ export interface AddOn {
    2000`). Transcribing the API's own value keeps the check a comparison rather
    than a conversion someone has to trust.
 
-   READ 2026-08-24 from the authenticated live API: `client.addons.list()` for
-   the ten products below, and `client.products.retrieve()` on all nine plan
-   products for the attachment matrix that `planIds` states. Re-read both when
-   this table is next touched. */
+   READ 2026-08-24 from the authenticated live API: `client.addons.list()` and
+   `client.products.retrieve()` on all nine plan products for the attachment
+   matrix that `planIds` states. RE-STATED 2026-09-16 for THE-370 from the
+   founder's own verification after he applied the changes in Dodo directly:
+   all nine plan products carry AI Assistant and Admin seat, the three Ministry
+   products add Unlimited Contacts, and Campus and Contacts +500 are attached to
+   NONE of the nine. Re-read both when this table is next touched. */
 export interface DodoAddOnProduct {
   /** Live Dodo `addon_id` for the monthly product. */
   readonly monthlyId: string;
@@ -928,17 +933,28 @@ export const DODO_ADD_ON_CATALOG: Record<string, DodoAddOnProduct> = {
     monthlyId: 'adn_0NlKtw7AayNYI6YYwphQ5', annualId: 'adn_0NlKtw9lWLs0VRN9hWciX',
     monthlyCents: 1000, annualCents: 12000,
   },
-  Campus: {
-    monthlyId: 'adn_0NlKwDcuqIWoVK7Qay13L', annualId: 'adn_0NlKwDgKMpuqzR5VmlCBD',
-    monthlyCents: 1200, annualCents: 14400,
-  },
-  'Contacts +500': {
-    monthlyId: 'adn_0NlKtwD3VfBLgx2LTw69O', annualId: 'adn_0NlKtwGbLRk2nPC07uC6o',
-    monthlyCents: 1500, annualCents: 18000,
-  },
+  /* 🔴 CAMPUS AND CONTACTS +500 ARE GONE FROM THIS TABLE — THE-370, and gone
+     rather than moved to INTENTIONALLY_UNADVERTISED. That list is for a product
+     Dodo SELLS that this site chooses not to advertise; the founder DETACHED
+     both of these from all nine live plan products, so Dodo sells neither and
+     an entry there would be a stale excuse outliving its product, which
+     `dodoAddOnCatalogContract`'s second failure exists to refuse. The error
+     message on the third failure names this exact path: "remove it from
+     DODO_ADD_ON_CATALOG if Dodo has genuinely retired it."
+
+     The four retired ids, recorded here in prose so a future reader can verify
+     the detachment rather than wonder what was removed: Campus was
+     adn_0NlKwDcuqIWoVK7Qay13L / adn_0NlKwDgKMpuqzR5VmlCBD at 1200/14400, and
+     Contacts +500 was adn_0NlKtwD3VfBLgx2LTw69O / adn_0NlKtwGbLRk2nPC07uC6o at
+     1500/18000. */
+  /* 🔴 REPRICED IN DODO — THE-370. 4000/48000 became 3000/36000, on the SAME
+     two product ids: the founder edited the products rather than replacing
+     them, so the id half of this pin is unchanged and only the figures moved.
+     Still ×12 exactly, which `addOnPricingContract` and this table's own
+     annual-versus-monthly check both require — add-ons are not discounted. */
   'Unlimited contacts': {
     monthlyId: 'adn_0NlKtwKAhJgz0jeaqDX2c', annualId: 'adn_0NlKtwMjMlsjzZ8z2Wt7P',
-    monthlyCents: 4000, annualCents: 48000,
+    monthlyCents: 3000, annualCents: 36000,
   },
 };
 
@@ -950,20 +966,22 @@ export const DODO_ADD_ON_CATALOG: Record<string, DodoAddOnProduct> = {
    units, and the two disagreeing is a build failure — that is the mechanism,
    the same one EXPECTED_PLAN_PRICES is half of.
 
-   ⚠️ CAMPUS WAS ABSENT FROM #58 UNTIL NOW, and the reason it was absent is
-   gone. It was omitted because the two live Dodo add-on ids had never been
-   recorded, so the app refused a live Campus purchase. Both ids exist now
-   (Harvest-agent DODO_LIVE_ADDONS, recorded in PR 328), all nine live plan
-   products carry the period-matched Campus add-on, and getEffectiveFeatures
-   raises `maxChurches` by one per campus owned. It is buyable on every paid
-   plan, so it is advertised.
+   🔴 CAMPUS IS GONE FROM THIS SECTION AGAIN, AND FOR THE OPPOSITE REASON —
+   THE-370. #58 omitted it because its live ids had never been recorded and the
+   app could not honour a purchase; THE-223 added it once they were. It is
+   withdrawn now because the founder RETIRED the product: "remove the campus
+   addon. let them add as many as they want." `maxChurches` is `UNLIMITED_CAP`
+   on every paid tier in the app's matrix, the two Campus products are detached
+   from all nine live plan products, and `getEffectiveFeatures` no longer reads
+   a campus count at all. Nothing is buyable, so nothing is advertised.
 
-   🔴 `MULTI_CAMPUS_ENABLED` STAYS FALSE, and that is not a contradiction. That
-   flag gates the multi-campus FEATURE marketing — the features.ts section and
-   the catalogue's Multi-Campus tool entry — not this add-on. Flipping it would
-   add a tool to CATALOG_TOOL_COUNT, which is a derived 28 (27 until THE-306
-   added the Shareable Giving Page) and not this change's to move. What is advertised here is the capacity a church can buy
-   today, which is what this section is for. */
+   🔴 `MULTI_CAMPUS_ENABLED` STAYS FALSE, and that is still not a contradiction
+   — it gates the multi-campus FEATURE marketing (the features.ts section and
+   the catalogue's Multi-Campus tool entry), not an add-on that no longer
+   exists. Flipping it would add a tool to CATALOG_TOOL_COUNT, and THE-370
+   changes no tool count. What is advertised here is the capacity a church can
+   buy today, which is what this section is for — and campuses are no longer
+   capacity anyone buys. */
 export const ADD_ONS: AddOn[] = [
   /* 🔴 "AI Assistant" IS BACK, FIRST ROW, AT THE SAME $20/$240 — THE-253.
      THE-224 withdrew this card and was right to, on the facts as they stood:
@@ -1007,14 +1025,27 @@ export const ADD_ONS: AddOn[] = [
      fails if it does. */
   { name: 'AI Assistant', monthly: 20, annual: 240, blurb: 'Turns on the AI chat and its knowledge base for every member of your congregation, in the app — one purchase for the whole plan, not billed per person.', planIds: ['plus', 'pro', 'max'] },
   { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
-  /* ⚠️ THE BLURB MAY NOT IMPLY A TIER INCLUDES MORE THAN ONE CAMPUS. Every
-     paid tier is `maxChurches: 1` in the app's matrix and this add-on is the
-     ONLY path past that, one campus per purchase — so the sentence has to say
-     "one more", not "run every campus", which is the feature page's line for a
-     feature page's job. Attached to all three paid products in Dodo. */
-  { name: 'Campus', monthly: 12, annual: 144, blurb: 'One more campus, with its own address, service times and pastor. Your plan includes one — each additional campus is one of these.', planIds: ['plus', 'pro', 'max'] },
-  { name: 'Contacts +500', monthly: 15, annual: 180, blurb: '500 more contacts, on top of your plan’s limit.', planIds: ['pro', 'max'] },
-  { name: 'Unlimited contacts', monthly: 40, annual: 480, blurb: 'No contact limit at all.', planIds: ['max'] },
+  /* 🔴 THE CAMPUS AND CONTACTS +500 CARDS ARE WITHDRAWN — THE-370.
+     "remove the campus addon. let them add as many as they want."
+
+     Campus sold ONE MORE CAMPUS past a `maxChurches: 1` that every paid tier
+     carried. The app's matrix now reads `UNLIMITED_CAP` on all three, so there
+     is no cap left to sell past and the card's central claim — "Your plan
+     includes one" — is false. Contacts +500 sold a 500-contact block; the tier
+     caps were RAISED instead (Individual 150 → 500, Small Team 500 → 2,000,
+     Ministry 2,000 → 4,000), which is more than one pack ever added on every
+     tier, so nobody is worse off for losing it.
+
+     ⚠️ BOTH ARE DETACHED FROM ALL NINE LIVE PLAN PRODUCTS IN DODO, so this is
+     not the site declining to advertise something buyable — which is the defect
+     THE-223 built `dodoAddOnCatalogContract` to catch. It is the reverse, and
+     the one this page was actually shipping: two cards a visitor could read and
+     then not buy. */
+  /* 🔴 $30/$360, NOT $40/$480 — repriced in Dodo by the founder (THE-370) and
+     transcribed here from `DODO_ADD_ON_CATALOG` above, which holds the same
+     figures in Dodo's own minor units. Ministry only, because that is the only
+     plan product Dodo attaches it to. */
+  { name: 'Unlimited contacts', monthly: 30, annual: 360, blurb: 'No contact limit at all.', planIds: ['max'] },
 ];
 
 /**

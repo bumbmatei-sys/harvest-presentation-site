@@ -329,8 +329,10 @@ export const CATALOG: CatalogGroup[] = [
       // The add-on itself is live and is advertised in Pricing.tsx's ADD_ONS at
       // its real Dodo price; this entry is the tool-catalogue treatment, which
       // stays behind the flag. THE-223 corrected the figure here from $20 to
-      // $12: it was a Campus price nothing rendered and nothing checked.
-      ...(MULTI_CAMPUS_ENABLED ? [item('building-2', 'Multi-Campus', 'Run every campus from one plan — one included, $12/mo for each one after.')] : []),
+      // $12: it was a Campus price nothing rendered and nothing checked. THE-370
+      // retired the Campus add-on outright — campuses are unlimited on every
+      // paid plan now — so the copy no longer names a price at all.
+      ...(MULTI_CAMPUS_ENABLED ? [item('building-2', 'Multi-Campus', 'Run every campus from one plan — as many as you need, at no extra charge.')] : []),
       item('chart-column', 'Evangelism Analytics', 'Track engagement, growth and impact with real data.'),
     ],
   },

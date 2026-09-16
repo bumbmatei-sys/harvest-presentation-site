@@ -171,13 +171,25 @@ describe('the add-on prices are unchanged, and annual is still ×12', () => {
     // advertised, withdrawn, advertised again, one unchanged pair of numbers.
     // "A reprice may not move an add-on" has now survived a removal AND a
     // restore, which is a stronger statement than it could make before.
+    //
+    // 🔴 AND THE-370 RETIRED TWO ROWS AND REPRICED A THIRD — the first time an
+    // add-on FIGURE has moved since this pin was written, and it moved in Dodo
+    // first. The founder detached Campus and Contacts +500 from all nine live
+    // plan products and cut Unlimited Contacts from $40/$480 to $30/$360 on the
+    // same two product ids. THE-222's claim is untouched: that was a PLAN
+    // reprice, the nine plan prices are asserted unchanged elsewhere in this
+    // file, and this list moved for a decision about add-ons rather than as a
+    // side effect of one about plans. The pin moves with it rather than being
+    // deleted, exactly as it did for THE-223.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual }))).toEqual([
       { name: 'AI Assistant', monthly: 20, annual: 240 },
       { name: 'Admin seat', monthly: 10, annual: 120 },
-      { name: 'Campus', monthly: 12, annual: 144 },
-      { name: 'Contacts +500', monthly: 15, annual: 180 },
-      { name: 'Unlimited contacts', monthly: 40, annual: 480 },
+      { name: 'Unlimited contacts', monthly: 30, annual: 360 },
     ]);
+    // 🔴 THE REPRICED ROW, AGAINST DODO'S OWN UNITS — the two must agree or the
+    // prerender throws, which is what makes this a match and not a restatement.
+    expect(DODO_ADD_ON_CATALOG['Unlimited contacts'].monthlyCents).toBe(3000);
+    expect(DODO_ADD_ON_CATALOG['Unlimited contacts'].annualCents).toBe(36000);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(2000);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(24000);
   });
