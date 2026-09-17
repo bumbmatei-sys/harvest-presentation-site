@@ -352,17 +352,15 @@ describe("no term's price is a whole number of months at the monthly rate", () =
 });
 
 /* ── 8 ─────────────────────────────────────────────────────────────────────── */
-describe('the five add-on prices are unchanged and annual is still ×12', () => {
+describe('the three add-on prices are as Dodo holds them and annual is still ×12', () => {
   /** Read off the live Dodo add-on products, independently of ADD_ONS. */
   const LIVE_ADDON_CENTS: Record<string, [number, number]> = {
     'AI Assistant': [2000, 24000],
     'Admin seat': [1000, 12000],
-    Campus: [1200, 14400],
-    'Contacts +500': [1500, 18000],
-    'Unlimited contacts': [4000, 48000],
+    'Unlimited contacts': [3000, 36000],
   };
 
-  it('all five Dodo add-on products carry their unchanged prices', () => {
+  it('all three Dodo add-on products carry the prices Dodo charges', () => {
     expect(Object.keys(DODO_ADD_ON_CATALOG).sort()).toEqual(Object.keys(LIVE_ADDON_CENTS).sort());
     for (const [name, [monthly, annual]] of Object.entries(LIVE_ADDON_CENTS)) {
       expect(DODO_ADD_ON_CATALOG[name].monthlyCents, `${name} monthly`).toBe(monthly);
@@ -520,8 +518,6 @@ describe('the plan feature matrix and the Dodo product ids are unchanged', () =>
     expect(Object.entries(DODO_ADD_ON_CATALOG).map(([n, p]) => [n, p.monthlyId, p.annualId])).toEqual([
       ['AI Assistant', 'adn_0NlKtuImtSn7PcdvjnSni', 'adn_0NlKtw3IOHfv1GGCevNol'],
       ['Admin seat', 'adn_0NlKtw7AayNYI6YYwphQ5', 'adn_0NlKtw9lWLs0VRN9hWciX'],
-      ['Campus', 'adn_0NlKwDcuqIWoVK7Qay13L', 'adn_0NlKwDgKMpuqzR5VmlCBD'],
-      ['Contacts +500', 'adn_0NlKtwD3VfBLgx2LTw69O', 'adn_0NlKtwGbLRk2nPC07uC6o'],
       ['Unlimited contacts', 'adn_0NlKtwKAhJgz0jeaqDX2c', 'adn_0NlKtwMjMlsjzZ8z2Wt7P'],
     ]);
   });
@@ -539,8 +535,6 @@ describe('the plan feature matrix and the Dodo product ids are unchanged', () =>
     expect(ADD_ONS.map((a) => [a.name, [...a.planIds]])).toEqual([
       ['AI Assistant', ['plus', 'pro', 'max']],
       ['Admin seat', ['plus', 'pro', 'max']],
-      ['Campus', ['plus', 'pro', 'max']],
-      ['Contacts +500', ['pro', 'max']],
       ['Unlimited contacts', ['max']],
     ]);
   });

@@ -292,7 +292,10 @@ describe('15 — neither feature was added to the add-on catalogue', () => {
 
   it('the catalogue still holds exactly the add-ons it shipped with', () => {
     expect(ADD_ONS.map((a) => a.name)).toEqual([
-      'AI Assistant', 'Admin seat', 'Campus', 'Contacts +500', 'Unlimited contacts',
+      // 🔴 THREE SINCE THE-370 — Campus and Contacts +500 are retired (detached
+      // from all nine live plan products). Neither of THIS ticket's two features
+      // was added to the catalogue, which is what the assertion says.
+      'AI Assistant', 'Admin seat', 'Unlimited contacts',
     ]);
   });
 });

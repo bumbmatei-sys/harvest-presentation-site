@@ -102,7 +102,12 @@ describe('the prerender list', () => {
        route.
        🔴 26 SINCE board card 86bbz2yj6, part three — the new
        /solutions/missionaries route. */
-    expect(prerendered).toHaveLength(26);
+    /* 🔵 27 SINCE 525f630 — the `skool-alternative-for-churches` post, pushed
+       STRAIGHT TO main and so never CI-tested: this workflow runs on
+       `pull_request` only, and its own header says "a direct push to it now
+       gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
+       here only because CI gates both repos' PRs on it — see the PR. */
+    expect(prerendered).toHaveLength(27);
     expect(new Set(prerendered).size).toBe(prerendered.length);
   });
 

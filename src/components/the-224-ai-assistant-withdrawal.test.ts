@@ -131,7 +131,7 @@ describe('no surface claims the AI Assistant add-on grants a capability the plan
        never "the word AI is banned" — it was that a card may not promise a
        capability the purchase does not grant. So the sweep is kept and narrowed
        to the FOUR OTHERS: if someone later writes the same promise onto Admin
-       seat or Campus, this still fails, exactly as before. */
+       seat, this still fails, exactly as before. */
     const AI = 'AI Assistant';
     for (const a of ADD_ONS.filter((x) => x.name !== AI)) {
       const card = words(cardHtml(a));
@@ -223,7 +223,7 @@ describe('the add-on catalogue contract still throws on a price mismatch and an 
   it('throws when two add-ons are pinned to one product', () => {
     const collided = {
       ...DODO_ADD_ON_CATALOG,
-      Campus: { ...DODO_ADD_ON_CATALOG.Campus, monthlyId: DODO_ADD_ON_CATALOG['Admin seat'].monthlyId },
+      'Unlimited contacts': { ...DODO_ADD_ON_CATALOG['Unlimited contacts'], monthlyId: DODO_ADD_ON_CATALOG['Admin seat'].monthlyId },
     };
     expect(() => dodoAddOnCatalogContract(ADD_ONS, collided)).toThrow(/both pinned to the Dodo product/);
   });
@@ -234,7 +234,7 @@ describe('the add-on catalogue contract still throws on a price mismatch and an 
      *
      * WAS: `dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})` throws
      * for "AI Assistant" — the withdrawal WITHOUT its declaration, failing
-     * exactly as Campus's silent absence had.
+     * exactly as Campus's silent absence had (before THE-370 retired it).
      *
      * That case is gone because the card is advertised again, so an empty
      * omission list is now the REAL state and must PASS. The check itself is
@@ -275,10 +275,10 @@ describe('an intentionally unadvertised live product is expressible without disa
      * difference between "no longer needed" and "no longer works". */
     expect(INTENTIONALLY_UNADVERTISED).toEqual({});
     // A real omission, declared in words, still lets the contract pass.
-    const withoutCampus = ADD_ONS.filter((a) => a.name !== 'Campus');
-    expect(() => dodoAddOnCatalogContract(withoutCampus)).toThrow(/Dodo sells the add-on "Campus"/);
-    expect(() => dodoAddOnCatalogContract(withoutCampus, DODO_ADD_ON_CATALOG, {
-      Campus: 'a synthetic declaration, to prove the mechanism is still live',
+    const withoutSeat = ADD_ONS.filter((a) => a.name !== 'Admin seat');
+    expect(() => dodoAddOnCatalogContract(withoutSeat)).toThrow(/Dodo sells the add-on "Admin seat"/);
+    expect(() => dodoAddOnCatalogContract(withoutSeat, DODO_ADD_ON_CATALOG, {
+      'Admin seat': 'a synthetic declaration, to prove the mechanism is still live',
     })).not.toThrow();
     // Every product is still fully described here — the page's contents are one
     // question, the repo's knowledge of what Dodo sells is another.
@@ -311,7 +311,7 @@ describe('an intentionally unadvertised live product is expressible without disa
     // so the blank-reason branch is what fails rather than the contradiction
     // branch above. (It used to be 'AI Assistant', which is advertised now.)
     expect(() => dodoAddOnCatalogContract(
-      ADD_ONS.filter((a) => a.name !== 'Campus'), DODO_ADD_ON_CATALOG, { Campus: '   ' },
+      ADD_ONS.filter((a) => a.name !== 'Admin seat'), DODO_ADD_ON_CATALOG, { 'Admin seat': '   ' },
     )).toThrow(/no reason/);
   });
 
@@ -337,27 +337,31 @@ describe('no price changed', () => {
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
-  it('all five add-on prices are exactly what they were, the RESTORED one included', () => {
-    /* WAS '...the withdrawn one included': the AI Assistant's figures lived on
-       in the catalogue while nothing quoted them, which is what said the
+  it('the AI Assistant\u2019s price is exactly what it was, across withdrawal and restore', () => {
+    /* WAS 'all five add-on prices...': the AI Assistant's figures lived on in
+       the catalogue while nothing quoted them, which is what said the
        withdrawal was not a reprice. The card is back and the figures did not
-       move — $20/$240 throughout — so the same assertion now says a RESTORE is
-       not a reprice either. Both directions, one unchanged pair of numbers. */
+       move — $20/$240 throughout — so the same assertion says a RESTORE is not
+       a reprice either. Both directions, one unchanged pair of numbers.
+
+       🔴 THREE ROWS SINCE THE-370, AND ONE OF THEM DID MOVE. Campus and
+       Contacts +500 were retired (detached from all nine live plan products)
+       and Unlimited Contacts was repriced $40/$480 to $30/$360 in Dodo. NEITHER
+       TOUCHES THIS FILE'S SUBJECT, which is that the AI Assistant's figure
+       survived being withdrawn and restored — $20/$240, asserted below and
+       unmoved by any of it. The other rows are transcribed to their current
+       values so this stays a live no-regression pin rather than a stale one. */
     expect(Object.fromEntries(
-      Object.entries(DODO_ADD_ON_CATALOG).map(([n, p]) => [n, [p.monthlyCents, p.annualCents]]),
+      Object.entries(DODO_ADD_ON_CATALOG).map(([n, pr]) => [n, [pr.monthlyCents, pr.annualCents]]),
     )).toEqual({
       'AI Assistant': [2000, 24000],
       'Admin seat': [1000, 12000],
-      Campus: [1200, 14400],
-      'Contacts +500': [1500, 18000],
-      'Unlimited contacts': [4000, 48000],
+      'Unlimited contacts': [3000, 36000],
     });
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
       ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
-      ['Campus', 12, 144],
-      ['Contacts +500', 15, 180],
-      ['Unlimited contacts', 40, 480],
+      ['Unlimited contacts', 30, 360],
     ]);
     // 🔴 The advertised row and the live product agree, which is the whole
     // point of restoring from the catalogue rather than retyping a figure.

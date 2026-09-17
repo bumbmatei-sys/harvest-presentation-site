@@ -5,6 +5,7 @@ import { ADD_ONS, DODO_ADD_ON_CATALOG, INTENTIONALLY_UNADVERTISED, plans, planPr
 import { CATEGORIES } from './features';
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
 import { STRIPE_GIVING_MARKETING_ENABLED } from '../lib/flags';
+import { stripComments } from '../components/the-343-ministry-reprice.test';
 
 /* THE-197 — two editorial surfaces (the Planning Center blog post and
  * content/features.ts) quoted the plan prices THE-195 retired. Both are
@@ -42,6 +43,23 @@ const FEATURES_SRC = readFileSync(
   fileURLToPath(new URL('./features.ts', import.meta.url)),
   'utf8',
 );
+
+/**
+ * 🔴 THE SAME SOURCE WITH COMMENTS STRIPPED — THE-370.
+ *
+ * `FEATURES_SRC` above is raw, which is correct for the assertions that want to
+ * reach copy behind a false flag: the flag hides the DATA, not the file. It is
+ * wrong for a NEGATIVE assertion. THE-370 corrects the multi-campus section's
+ * per-campus prices and records the old sentences in the comment above them, so
+ * a raw-source `not.toMatch(/\$12 a campus/)` would match that explanation and
+ * fail on a file that is correct.
+ *
+ * ⚠️ IMPORTED, NEVER COPIED. `stripComments` is the verified stripper from
+ * `the-343-ministry-reprice.test.ts`, checked there against a written-out
+ * fixture and against the real file's line count — a second implementation here
+ * is how one of these silently eats 150 lines of its own subject.
+ */
+const FEATURES_CODE = stripComments(FEATURES_SRC);
 
 describe('THE-197 — the blog post no longer contradicts PLAN_PRICING', () => {
   it('quotes Small Team, Ministry and the per-tier course prices correctly', () => {
@@ -215,23 +233,33 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
     expect(analytics.member.join(' ')).toContain('including Forever Free');
   });
 
-  it('the multi-campus arithmetic uses the real Ministry monthly price and resolves cleanly', () => {
-    // First campus is included in the plan; 11 more at the flat Campus add-on
-    // price. Hidden behind MULTI_CAMPUS_ENABLED, so read straight from source
-    // (see above) — nothing renders it, which is exactly why it went stale.
-    //
-    // 🔴 DERIVED FROM `ADD_ONS`, NOT FROM A LITERAL, AND THAT IS THE THE-223
-    // FIX. This test used to assert `11 * 20 === 220` — arithmetic that is
-    // internally perfect and was checking the wrong price, because $20 was
-    // never what Dodo charged for a campus. Reading the figure from the add-on
-    // table means a reprice fails here instead of leaving a sentence behind the
-    // flag that quotes a price no product has.
-    const campus = ADD_ONS.find((a) => a.name === 'Campus');
-    expect(campus, 'no Campus add-on to price the arithmetic from').toBeDefined();
-    const elevenMore = 11 * campus!.monthly;
-    expect(FEATURES_SRC).toContain(`bill is $${ministry.price.monthly} + $${elevenMore}`);
-    expect(FEATURES_SRC).toContain(`the other eleven are $${campus!.monthly} each`);
-    expect(FEATURES_SRC).toContain(`Flat $${campus!.monthly}/mo each`);
+  it('🔴 THE-370 — the multi-campus section quotes NO per-campus price at all', () => {
+    /* WAS 'the multi-campus arithmetic uses the real Ministry monthly price and
+       resolves cleanly', deriving `11 * campus.monthly` from `ADD_ONS` — itself
+       THE-223's fix for an earlier version that asserted `11 * 20 === 220`
+       against a price no Dodo product charged.
+
+       🔴 THERE IS NO ARITHMETIC LEFT TO CHECK. The founder retired the campus
+       add-on, so a campus costs nothing on any plan that has campuses and every
+       figure this section carried was a charge that does not exist.
+
+       ⚠️ THE SECTION IS BEHIND `MULTI_CAMPUS_ENABLED`, STILL FALSE, so nothing
+       renders it — which is precisely why it is checked here. A false price
+       waiting behind a flag is how THE-197's stale figures survived in the
+       first place. */
+    expect(ADD_ONS.find((a) => a.name === 'Campus'), 'the Campus add-on is back').toBeUndefined();
+
+    // The exact sentences that carried a campus price, by shape.
+    expect(FEATURES_CODE).not.toMatch(/\$12 a campus/);
+    expect(FEATURES_CODE).not.toMatch(/Flat \$\d+\/mo each/);
+    expect(FEATURES_CODE).not.toMatch(/flat \$\d+\/month per campus/i);
+    expect(FEATURES_CODE).not.toMatch(/the other eleven are \$\d+ each/);
+    expect(FEATURES_CODE).not.toMatch(/bill is \$\d+ \+ \$\d+/);
+
+    // And the replacement says the true thing, so this cannot pass by deleting
+    // the section outright.
+    expect(FEATURES_CODE).toContain('as many campuses as you need');
+    expect(FEATURES_CODE).toContain('No per-campus charge');
   });
 
   it('the affiliate arithmetic uses the real Ministry monthly price and totals correctly', () => {
@@ -282,12 +310,17 @@ describe('THE-197 — no price data changed', () => {
     // products the whole time. All five rows are byte-for-byte what they were
     // before the withdrawal, which is exactly what a no-price-moved test should
     // be able to say after a round trip.
+    //
+    // 🔴 THE-370 RETIRED TWO ROWS AND REPRICED A THIRD, and THE-197 still moved
+    // no price data — which is all this pins. The founder detached Campus and
+    // Contacts +500 from all nine live plan products and cut Unlimited Contacts
+    // $40/$480 to $30/$360 on the same two Dodo ids. The availability column is
+    // re-confirmed against the products: AI Assistant and Admin seat on all
+    // three paid plans, Unlimited Contacts on Ministry only.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual, planIds: a.planIds }))).toEqual([
       { name: 'AI Assistant', monthly: 20, annual: 240, planIds: ['plus', 'pro', 'max'] },
       { name: 'Admin seat', monthly: 10, annual: 120, planIds: ['plus', 'pro', 'max'] },
-      { name: 'Campus', monthly: 12, annual: 144, planIds: ['plus', 'pro', 'max'] },
-      { name: 'Contacts +500', monthly: 15, annual: 180, planIds: ['pro', 'max'] },
-      { name: 'Unlimited contacts', monthly: 40, annual: 480, planIds: ['max'] },
+      { name: 'Unlimited contacts', monthly: 30, annual: 360, planIds: ['max'] },
     ]);
     expect(DODO_ADD_ON_CATALOG['AI Assistant']).toEqual({
       monthlyId: 'adn_0NlKtuImtSn7PcdvjnSni', annualId: 'adn_0NlKtw3IOHfv1GGCevNol',

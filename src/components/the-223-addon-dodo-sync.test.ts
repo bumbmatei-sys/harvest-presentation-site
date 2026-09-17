@@ -77,20 +77,38 @@ const dollars = (markup: string) =>
 
 /* ─── THE READ ────────────────────────────────────────────────────────────────
  *
- * Live Dodo, authenticated API, 2026-08-24. `client.addons.list()` returned ten
- * add-on products — five add-ons × two terms, and nothing else, which is how
- * "anything else omitted for the same reason as Campus?" is answered: no. The
- * `planIds` column was read separately from `client.products.retrieve()` on all
- * nine plan products, whose `addons` arrays ARE the availability matrix.
+ * Live Dodo, authenticated API, 2026-08-24, RE-STATED 2026-09-16 for THE-370.
+ *
+ * 🔴 SIX PRODUCTS NOW, NOT TEN — three add-ons × two terms. The founder applied
+ * every Dodo change himself and verified the result across all nine plan
+ * products: AI Assistant and Admin seat are attached to all nine; Unlimited
+ * Contacts to the three Ministry products only; and CAMPUS AND CONTACTS +500
+ * ARE ATTACHED TO NONE OF THE NINE. Neither is purchasable, which is why they
+ * are removed from this fixture rather than declared as omissions — an omission
+ * says "Dodo sells this and we do not show it", and Dodo sells neither.
+ *
+ * 🔴 UNLIMITED CONTACTS WAS REPRICED, $40 → $30 monthly and $480 → $360 annual,
+ * ON THE SAME TWO PRODUCT IDS. That is the one row where the figures moved and
+ * the ids did not — a reprice that silently re-pointed an id would fail the id
+ * assertions below while the prices agreed, which is the whole reason this
+ * fixture carries both halves.
+ *
+ * The four retired ids, for verification: Campus was adn_0NlKwDcuqIWoVK7Qay13L
+ * / adn_0NlKwDgKMpuqzR5VmlCBD at $12/$144, and Contacts +500 was
+ * adn_0NlKtwD3VfBLgx2LTw69O / adn_0NlKtwGbLRk2nPC07uC6o at $15/$180.
  *
  * Prices are dollars here and minor units in DODO_ADD_ON_CATALOG, on purpose:
  * two transcriptions of the same read in the same unit would share a typo. */
 const LIVE_DODO = [
   { name: 'AI Assistant', monthly: 20, annual: 240, monthlyId: 'adn_0NlKtuImtSn7PcdvjnSni', annualId: 'adn_0NlKtw3IOHfv1GGCevNol' },
   { name: 'Admin seat', monthly: 10, annual: 120, monthlyId: 'adn_0NlKtw7AayNYI6YYwphQ5', annualId: 'adn_0NlKtw9lWLs0VRN9hWciX' },
-  { name: 'Campus', monthly: 12, annual: 144, monthlyId: 'adn_0NlKwDcuqIWoVK7Qay13L', annualId: 'adn_0NlKwDgKMpuqzR5VmlCBD' },
-  { name: 'Contacts +500', monthly: 15, annual: 180, monthlyId: 'adn_0NlKtwD3VfBLgx2LTw69O', annualId: 'adn_0NlKtwGbLRk2nPC07uC6o' },
-  { name: 'Unlimited contacts', monthly: 40, annual: 480, monthlyId: 'adn_0NlKtwKAhJgz0jeaqDX2c', annualId: 'adn_0NlKtwMjMlsjzZ8z2Wt7P' },
+  { name: 'Unlimited contacts', monthly: 30, annual: 360, monthlyId: 'adn_0NlKtwKAhJgz0jeaqDX2c', annualId: 'adn_0NlKtwMjMlsjzZ8z2Wt7P' },
+] as const;
+
+/** The four ids THE-370 retired. Held here, never in the shipped tables. */
+const RETIRED_DODO_ADDON_IDS = [
+  'adn_0NlKwDcuqIWoVK7Qay13L', 'adn_0NlKwDgKMpuqzR5VmlCBD',
+  'adn_0NlKtwD3VfBLgx2LTw69O', 'adn_0NlKtwGbLRk2nPC07uC6o',
 ] as const;
 
 /* The live products this site is expected to QUOTE — every one Dodo sells, less
@@ -122,6 +140,26 @@ describe('every add-on price matches live Dodo', () => {
     expect(ADD_ONS.map((a) => a.name)).toEqual(
       LIVE_DODO.filter((d) => INTENTIONALLY_UNADVERTISED[d.name] === undefined).map((d) => d.name),
     );
+    // 🔴 AND IT IS THREE — THE-370. Spelled out as well as derived, because the
+    // derivation above would also pass if BOTH tables lost the same card.
+    expect(ADD_ONS.map((a) => a.name)).toEqual(
+      ['AI Assistant', 'Admin seat', 'Unlimited contacts'],
+    );
+  });
+
+  it('🔴 THE-370 — the four retired product ids appear in NEITHER table', () => {
+    // The strongest form of "retired": not advertised, not pinned, not excused.
+    const pinned = Object.values(DODO_ADD_ON_CATALOG)
+      .flatMap((pr) => [pr.monthlyId, pr.annualId]);
+    for (const id of RETIRED_DODO_ADDON_IDS) {
+      expect(pinned, `${id} is still pinned in DODO_ADD_ON_CATALOG`).not.toContain(id);
+    }
+    expect(Object.keys(DODO_ADD_ON_CATALOG).sort())
+      .toEqual(['AI Assistant', 'Admin seat', 'Unlimited contacts']);
+    // Not parked in the omissions list either — Dodo sells neither, so an entry
+    // there is the stale excuse the contract's second failure refuses.
+    expect(INTENTIONALLY_UNADVERTISED.Campus).toBeUndefined();
+    expect(INTENTIONALLY_UNADVERTISED['Contacts +500']).toBeUndefined();
   });
 
   // 🔴 One named test per add-on: a single loop reports "add-ons are wrong",
@@ -156,16 +194,19 @@ describe('every add-on price matches live Dodo', () => {
   it('the Dodo contract throws when an advertised price is not the product price', () => {
     // The guard has teeth, proved by mutation rather than by reading it. This
     // is the check that did not exist while four prices drifted.
-    const wrong = ADD_ONS.map((a) => (a.name === 'Campus' ? { ...a, monthly: 20, annual: 240 } : a));
-    expect(() => dodoAddOnCatalogContract(wrong)).toThrow(/Campus/);
+    const wrong = ADD_ONS.map((a) => (
+      a.name === 'Unlimited contacts' ? { ...a, monthly: 40, annual: 480 } : a));
+    expect(() => dodoAddOnCatalogContract(wrong)).toThrow(/Unlimited contacts/);
+    // 🔴 THE-370's OWN MUTATION: the pre-reprice figures must not pass.
+    expect(() => dodoAddOnCatalogContract(wrong)).toThrow(/\$30/);
     expect(() => dodoAddOnCatalogContract(ADD_ONS)).not.toThrow();
   });
 
   it('the Dodo contract throws when a live add-on is not advertised at all', () => {
     // 🔴 THE CAMPUS FAILURE, as a test. Absence is the defect this site had no
     // way to notice: dropping an add-on silently shrinks every other guard.
-    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Campus')))
-      .toThrow(/Dodo sells the add-on "Campus"/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Admin seat')))
+      .toThrow(/Dodo sells the add-on "Admin seat"/);
   });
 
   it('the Dodo contract throws when two add-ons are pinned to one product', () => {
@@ -177,7 +218,10 @@ describe('every add-on price matches live Dodo', () => {
        that does not charge them. */
     const collided = {
       ...DODO_ADD_ON_CATALOG,
-      Campus: { ...DODO_ADD_ON_CATALOG.Campus, monthlyId: DODO_ADD_ON_CATALOG['Admin seat'].monthlyId },
+      'Unlimited contacts': {
+        ...DODO_ADD_ON_CATALOG['Unlimited contacts'],
+        monthlyId: DODO_ADD_ON_CATALOG['Admin seat'].monthlyId,
+      },
     };
     expect(() => dodoAddOnCatalogContract(ADD_ONS, collided)).toThrow(/both pinned to the Dodo product/);
   });
@@ -239,53 +283,69 @@ describe('no add-on is advertised below what Dodo charges', () => {
 });
 
 /* ── 3 ─────────────────────────────────────────────────────────────────────── */
-describe('Campus is advertised', () => {
-  const campus = () => ADD_ONS.find((a) => a.name === 'Campus')!;
+describe('THE-370 — Campus and Contacts +500 are withdrawn', () => {
+  /* 🔴 THIS BLOCK IS INVERTED FOR THE SECOND TIME, AND THE RECORD IS THE POINT.
+   *
+   * It read "Campus is advertised". Before THE-223 the opposite was asserted:
+   * Campus was NOT purchasable, because its two live Dodo ids had never been
+   * recorded and the app refused the sale. THE-223 recorded them and the card
+   * went up.
+   *
+   * THE-370 takes it down for a reason neither earlier state had: the founder
+   * RETIRED the product. "remove the campus addon. let them add as many as they
+   * want." Campus and Contacts +500 are DETACHED from all nine live plan
+   * products, `maxChurches` is UNLIMITED_CAP on every paid tier in the app's
+   * matrix, and `getEffectiveFeatures` no longer reads a campus count at all.
+   * So this is not the site failing to advertise something buyable — the defect
+   * THE-223 exists to catch — it is the site no longer advertising two things
+   * that cannot be bought, which is what it was doing until now. */
+  it('🔴 neither is in ADD_ONS, and neither is on any rendered surface', () => {
+    expect(ADD_ONS.find((a) => a.name === 'Campus')).toBeUndefined();
+    expect(ADD_ONS.find((a) => a.name === 'Contacts +500')).toBeUndefined();
 
-  it('appears on the pricing page with both its figures', () => {
-    // Absent since the section shipped in #58, because its live Dodo ids had
-    // never been recorded. Both exist now (Harvest-agent DODO_LIVE_ADDONS), all
-    // nine live plan products carry the period-matched Campus add-on, and the
-    // app raises `maxChurches` per campus owned. It is buyable, so it is shown.
-    expect(campus()).toBeDefined();
     for (const term of BILLING_TERMS) {
       const read = words(sectionHtml(term));
-      expect(read, `the ${term} section does not mention Campus`).toMatch(/campus/i);
+      expect(read, `the ${term} section still offers a campus`).not.toMatch(/one more campus/i);
+      expect(read, `the ${term} section still offers a contact pack`).not.toMatch(/contacts \+\s?500/i);
     }
-    expect(dollars(cardHtml(campus()))).toEqual([12, 144]);
-    expect(words(pageHtml())).toMatch(/campus/i);
+    const page = words(pageHtml());
+    expect(page).not.toMatch(/one more campus/i);
+    expect(page).not.toMatch(/contacts \+\s?500/i);
   });
 
-  it('is sold on every paid plan, as the live products say', () => {
-    expect(campus().planIds).toEqual(['plus', 'pro', 'max']);
-    expect(words(cardHtml(campus()))).toContain('Available on every paid plan');
+  it('🔴 no surface prints either retired price', () => {
+    // Campus was $12/$144 and the pack was $15/$180. Read off the rendered
+    // markup rather than the data, because the card is where a church is quoted.
+    for (const markup of [pageHtml(), ...BILLING_TERMS.map((t) => sectionHtml(t))]) {
+      const figures = dollars(markup);
+      for (const retired of [12, 144, 15, 180]) {
+        expect(figures, `a retired add-on price ($${retired}) is still printed`)
+          .not.toContain(retired);
+      }
+    }
   });
 
-  it('does not imply any tier includes more than one campus', () => {
-    /* 🔴 `maxChurches` is 1 on every paid tier in the app's matrix, and this
-       add-on is the ONLY path past it — one campus per purchase. A card reading
-       "run every campus from one plan" (the feature page's line, still behind
-       MULTI_CAMPUS_ENABLED) would make a tier claim the ladder cannot honour. */
-    const read = words(cardHtml(campus()));
-    expect(read).toContain('One more campus');
-    expect(read).toContain('Your plan includes one');
-    expect(read).not.toMatch(/every campus|all your campuses|unlimited campuses/i);
+  it('🔴 and no surface says a campus costs money, in words either', () => {
+    const page = words(pageHtml());
+    expect(page).not.toMatch(/\$\d+\s*(\/|per )?\s*(mo|month)[^.]{0,30}campus/i);
+    expect(page).not.toMatch(/campus[^.]{0,40}\$\d/i);
+    expect(page).not.toMatch(/each additional campus/i);
+    expect(page).not.toMatch(/your plan includes one/i);
   });
 
-  it('nothing is omitted at all any more', () => {
-    /* The live catalogue is ten products: five add-ons × two terms. Campus was
-       the one this site did not advertise BY ACCIDENT (THE-223 fixed it); the AI
-       Assistant was the one it did not advertise ON PURPOSE (THE-224 declared
-       it, THE-253 restored it). Both are on the page now, so the page carries
-       ALL FIVE and the declared set is empty — the strongest state this pair of
-       lists has been in. "Five cards" is only correct while nothing is declared,
-       so both halves stay pinned together. */
-    expect(LIVE_DODO).toHaveLength(5);
+  it('the exactly-three state is pinned on both lists together', () => {
+    /* WAS 'nothing is omitted at all any more', pinned at five. The live
+       catalogue is SIX products now: three add-ons × two terms. Nothing is
+       declared unadvertised, so the page must carry all three — the strictest
+       this pair of lists can be, and unchanged in form. "Three cards" is only
+       correct while nothing is declared, so both halves stay pinned together. */
+    expect(LIVE_DODO).toHaveLength(3);
     expect(Object.keys(DODO_ADD_ON_CATALOG).sort()).toEqual(LIVE_DODO.map((d) => d.name).sort());
     expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual([]);
-    expect(ADD_ONS).toHaveLength(5);
-    expect(ADD_ONS.some((a) => a.name === 'Campus')).toBe(true);
+    expect(ADD_ONS).toHaveLength(3);
     expect(ADD_ONS.some((a) => a.name === 'AI Assistant')).toBe(true);
+    expect(ADD_ONS.some((a) => a.name === 'Admin seat')).toBe(true);
+    expect(ADD_ONS.some((a) => a.name === 'Unlimited contacts')).toBe(true);
   });
 });
 

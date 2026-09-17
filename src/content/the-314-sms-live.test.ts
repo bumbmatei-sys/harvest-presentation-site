@@ -390,7 +390,12 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
        ticket either — the new /solutions/churches route.
        🔴 26 SINCE board card 86bbz2yj6, part three, and not because of this
        ticket either — the new /solutions/missionaries route. */
-    expect(pagesInDist()).toHaveLength(26);
+    /* 🔵 27 SINCE 525f630 — the `skool-alternative-for-churches` post, pushed
+       STRAIGHT TO main and so never CI-tested: this workflow runs on
+       `pull_request` only, and its own header says "a direct push to it now
+       gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
+       here only because CI gates both repos' PRs on it — see the PR. */
+    expect(pagesInDist()).toHaveLength(27);
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {

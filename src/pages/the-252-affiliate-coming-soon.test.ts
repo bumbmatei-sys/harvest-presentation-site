@@ -1052,25 +1052,26 @@ describe('11 — no price changed and both contracts still throw', () => {
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
-  it('and so are the five add-on prices, the RESTORED one included', () => {
+  it('and so are the add-on prices, the RESTORED one included', () => {
     expect(Object.fromEntries(
-      Object.entries(DODO_ADD_ON_CATALOG).map(([n, p]) => [n, [p.monthlyCents, p.annualCents]]),
+      Object.entries(DODO_ADD_ON_CATALOG).map(([n, pr]) => [n, [pr.monthlyCents, pr.annualCents]]),
     )).toEqual({
       'AI Assistant': [2000, 24000],
       'Admin seat': [1000, 12000],
-      Campus: [1200, 14400],
-      'Contacts +500': [1500, 18000],
-      'Unlimited contacts': [4000, 48000],
+      'Unlimited contacts': [3000, 36000],
     });
-    // ⚠️ FIVE ROWS NOW. The AI Assistant returned in THE-253 at the same
-    // $20/$240 the catalogue above has always pinned — a restore, not a
-    // reprice, exactly as its withdrawal was a removal and not one.
+    // ⚠️ THREE ROWS SINCE THE-370. The AI Assistant returned in THE-253 at the
+    // same $20/$240 the catalogue above has always pinned — a restore, not a
+    // reprice, exactly as its withdrawal was a removal and not one; that figure
+    // is still untouched. What DID move is the founder's own Dodo work: Campus
+    // and Contacts +500 detached from all nine live plan products, and Unlimited
+    // Contacts cut $40/$480 to $30/$360 on the same two product ids. None of it
+    // is this ticket's subject, and the rows are transcribed so the pin stays
+    // live rather than stale.
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
       ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
-      ['Campus', 12, 144],
-      ['Contacts +500', 15, 180],
-      ['Unlimited contacts', 40, 480],
+      ['Unlimited contacts', 30, 360],
     ]);
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
   });

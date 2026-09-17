@@ -338,12 +338,18 @@ describe('what this change must not have touched', () => {
     // every tier — so the card is honest and is advertised again at exactly the
     // $20/$240 it was always worth. Five rows, one unchanged set of figures.
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
+    /* 🔴 THREE ROWS SINCE THE-370, NOT FIVE, AND ONE PRICE MOVED. The founder
+       retired the Campus and Contacts +500 products — both are detached from
+       all nine live plan products — and repriced Unlimited Contacts $40 → $30
+       monthly, $480 → $360 annual, on the same two Dodo product ids. The
+       three-term change this test was written for still did not touch any of
+       it, which is what this pin guards, so it is restated at the current
+       values rather than dropped. Still ×12 on every row: add-ons are not
+       discounted, which the contract below re-proves by mutation. */
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
       ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
-      ['Campus', 12, 144],
-      ['Contacts +500', 15, 180],
-      ['Unlimited contacts', 40, 480],
+      ['Unlimited contacts', 30, 360],
     ]);
     expect(() => addOnPricingContract(ADD_ONS)).not.toThrow();
     const discounted: AddOn = { ...ADD_ONS[0], annual: Math.round(ADD_ONS[0].annual * 0.7) };

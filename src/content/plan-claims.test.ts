@@ -286,7 +286,9 @@ describe('what the site claims is on every plan', () => {
     expect(individual).not.toMatch(/community groups/i);
 
     // What it does still sell, so "claims nothing" was not bought by emptying it.
-    for (const kept of ['150 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', 'CRM (Donors & Members)', 'Donation page & Fundraising']) {
+    // '500 contacts', not '150': THE-370 raised Individual's cap. Every other
+    // line on the card is byte-identical, which is what this loop asserts.
+    for (const kept of ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', 'CRM (Donors & Members)', 'Donation page & Fundraising']) {
       expect(individual, `the Individual card stopped selling ${kept}`).toContain(kept);
     }
   });

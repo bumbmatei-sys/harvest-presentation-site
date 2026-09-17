@@ -908,8 +908,8 @@ describe('the AI Assistant add-on is sold on the pricing page and nowhere near t
     expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})).not.toThrow();
     expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'AI Assistant')))
       .toThrow(/Dodo sells the add-on "AI Assistant"/);
-    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Campus')))
-      .toThrow(/Dodo sells the add-on "Campus"/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Admin seat')))
+      .toThrow(/Dodo sells the add-on "Admin seat"/);
   });
 
   it('🔴 the withdrawn card is not sold anywhere on the new page', () => {
@@ -958,15 +958,13 @@ describe('no price changed and both contracts still throw', () => {
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
-  it('all five add-on prices are exactly what they were, the RESTORED one included', () => {
+  it('the add-on prices are exactly what Dodo charges, the RESTORED one included', () => {
     expect(Object.fromEntries(
       Object.entries(DODO_ADD_ON_CATALOG).map(([n, p]) => [n, [p.monthlyCents, p.annualCents]]),
     )).toEqual({
       'AI Assistant': [2000, 24000],
       'Admin seat': [1000, 12000],
-      Campus: [1200, 14400],
-      'Contacts +500': [1500, 18000],
-      'Unlimited contacts': [4000, 48000],
+      'Unlimited contacts': [3000, 36000],
     });
     // ⚠️ FIVE ROWS NOW. The AI Assistant returned in THE-253 at the same
     // $20/$240 the catalogue above has always pinned — a restore, not a
@@ -974,9 +972,7 @@ describe('no price changed and both contracts still throw', () => {
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
       ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
-      ['Campus', 12, 144],
-      ['Contacts +500', 15, 180],
-      ['Unlimited contacts', 40, 480],
+      ['Unlimited contacts', 30, 360],
     ]);
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
   });
@@ -993,8 +989,8 @@ describe('no price changed and both contracts still throw', () => {
     const unbacked: AddOn[] = [...ADD_ONS, { name: 'Invented', monthly: 5, annual: 60, blurb: 'x', planIds: ['max'] }];
     expect(() => dodoAddOnCatalogContract(unbacked)).toThrow(/no entry in DODO_ADD_ON_CATALOG/);
 
-    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Campus')))
-      .toThrow(/Dodo sells the add-on "Campus"/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Admin seat')))
+      .toThrow(/Dodo sells the add-on "Admin seat"/);
 
     const discounted: AddOn = { ...ADD_ONS[0], annual: Math.round(ADD_ONS[0].annual * 0.7) };
     expect(() => addOnPricingContract([discounted])).toThrow(/NOT discounted/);
