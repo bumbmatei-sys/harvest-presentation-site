@@ -672,17 +672,28 @@ describe('6 — the prerendered page count is unchanged', () => {
        route, equally unrelated to custom domains.
        🔴 26 SINCE board card 86bbz2yj6, part three — the new
        /solutions/missionaries route, equally unrelated to custom domains. */
-    expect(routes).toHaveLength(26);
-    // 🔵 25 with the scheduler page taken out, and all three Solutions pages
-    // counted — 22 with the scheduler taken out and no Solutions pages, 21
-    // before the Sep 10 post.
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(25);
+    /* 🔵 27 SINCE 525f630 — the `skool-alternative-for-churches` post, pushed
+       STRAIGHT TO main and so never CI-tested: this workflow runs on
+       `pull_request` only, and its own header says "a direct push to it now
+       gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
+       here only because CI gates both repos' PRs on it — see the PR. */
+    expect(routes).toHaveLength(27);
+    // 🔵 26 with the scheduler page taken out, and all three Solutions pages
+    // counted — 25 before the Sep 15 `skool-alternative-for-churches` post,
+    // 22 with the scheduler taken out and no Solutions pages, 21 before the
+    // Sep 10 post.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(26);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
   it.runIf(built)('and the build emits exactly those, one file each', () => {
     const count = distPages().filter(([f]) => f.endsWith(`index.html`)).length;
-    expect(count, `this checkout built ${count} pages, not 26`).toBe(26);
+    /* 🔵 27 SINCE 525f630 — the `skool-alternative-for-churches` post, pushed
+       STRAIGHT TO main and so never CI-tested: this workflow runs on
+       `pull_request` only, and its own header says "a direct push to it now
+       gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
+       here only because CI gates both repos' PRs on it — see the PR. */
+    expect(count, `this checkout built ${count} pages, not 27`).toBe(27);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {
