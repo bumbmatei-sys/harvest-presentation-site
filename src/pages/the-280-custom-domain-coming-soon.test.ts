@@ -627,14 +627,17 @@ describe('5 — the nine plan prices are unchanged and the contracts still throw
   });
 
   it('🔴 this change touched no price and no tier column', () => {
-    /* THE-280 edits Pricing.tsx in exactly one place — it withholds the "Custom
-       Domain" comparison ROW — and that row carries no money. Every plan, every
-       price, every add-on and every other row is untouched, which is what keeps
-       this ticket clear of the repricing work. */
+    /* THE-280 originally edited Pricing.tsx in exactly one place — it withheld
+       the "Custom Domain" comparison ROW — and that row carries no money. The
+       Ministry CARD still said "Custom Branding & Domain" after that, which is
+       the same claim the row was withdrawn for. The third reader is that card
+       line, gated on the same flag. Every plan, every price, every add-on and
+       every other row is still untouched. */
     const pricing = readSrc('components/Pricing.tsx');
     const flagUses = [...pricing.matchAll(/CUSTOM_DOMAIN_MARKETING_ENABLED/g)];
-    // Once in the import, once in the row guard. No third reader.
-    expect(flagUses, 'the domain flag reached a second place in Pricing.tsx').toHaveLength(2);
+    // Import, comparison-row guard, Ministry card line. No fourth reader, and
+    // none of the three is a price.
+    expect(flagUses, 'the domain flag reached a new place in Pricing.tsx').toHaveLength(3);
     expect(pricing, 'the flag reached a price').not.toMatch(
       /CUSTOM_DOMAIN_MARKETING_ENABLED[^\n]{0,120}(price|monthly|quarterly|yearly|\$)/i);
     // Custom BRANDING keeps its row, unchanged — it ships.

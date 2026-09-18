@@ -7,7 +7,7 @@ import {
 } from './Pricing';
 import { CATEGORIES } from '../content/features';
 import {
-  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
 
 /**
@@ -349,7 +349,7 @@ describe("the three priced tiers' cards are unchanged", () => {
     pro: ['Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
       'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map',
       ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])],
-    max: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', 'Custom Branding & Domain',
+    max: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
       'Community Groups & Events',
       NEWSLETTER_MARKETING_ENABLED ? 'Automated SEO Blog & Newsletter' : 'Automated SEO Blog',
       'Custom Forms → CRM',

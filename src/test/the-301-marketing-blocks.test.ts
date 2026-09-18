@@ -405,8 +405,13 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
 
        ⚠️ THIS IS THE SECOND TIME A PRICE HAS MOVED IN THIS PIN, and the first
        time an ADD-ON price has. THE-343 moved a plan price; this moves an add-on
-       price and no plan price. The previous hash was a4e92aaa…. */
-    'src/components/Pricing.tsx': 'aec7e5484681bcb3b95f38355fe2d5c1c8190dbbffd105a0f8c7fc2244b789f0',
+       price and no plan price. The previous hash was a4e92aaa….
+
+       🔵 REPINNED AGAIN when the Ministry card's "Custom Branding & Domain" line
+       was gated on CUSTOM_DOMAIN_MARKETING_ENABLED — the comparison row was
+       already withheld, the card was not. NOT ONE OF THE NINE PLAN PRICES
+       MOVED. The previous hash was aec7e548…. */
+    'src/components/Pricing.tsx': '747cb9530e40f64e98e07e004a1c8b201038e4c38c0f404ec3445aa56f5080a3',
     // 7 — the CLI did not overwrite button or card. It writes theme-scoped ui
     // components (`mist-card` → src/components/ui/card.tsx) for any block that
     // pulls one, which is why both adopted blocks were chosen from the 28 in

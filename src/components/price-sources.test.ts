@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ADD_ONS, BILLING_TERMS, ComparisonTable, DODO_ADD_ON_CATALOG, planPriceContract, plans, type BillingTerm } from './Pricing';
 import {
-  NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
 
 /* The contract's expectations, DERIVED from `plans` rather than typed out a
@@ -367,7 +367,7 @@ describe('the plan feature matrix is unchanged', () => {
     ]);
     expect(plans.find((p) => p.planId === 'max')!.features).toEqual([
       'Everything in Small Team', '4,000 contacts · 15 admins', '15 courses',
-      'Custom Branding & Domain', 'Community Groups & Events',
+      CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding', 'Community Groups & Events',
       // 🔴 THE-335 — the newsletter half of this line is gated; the automated
       // SEO blog on the same line ships and stays either way.
       NEWSLETTER_MARKETING_ENABLED ? 'Automated SEO Blog & Newsletter' : 'Automated SEO Blog',
