@@ -928,6 +928,43 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       '11d33877e3fe849fb798ae240570fab97f1532eea7f0abc3ac87c8cf9dafbea4',
   };
 
+  /**
+   * 🔴 HONEST-OFFER — SIX PAGES MOVED, ADDED AND DROPPED NONE.
+   *
+   * The live site was still selling SMS, newsletters and a custom domain while
+   * `SMS_MARKETING_ENABLED`, `NEWSLETTER_MARKETING_ENABLED` and
+   * `CUSTOM_DOMAIN_MARKETING_ENABLED` are all false. The six pages that PRINT
+   * those claims are the ones that move:
+   *
+   *   index                      homepage meta description no longer lists SMS
+   *   pricing                    Ministry card: "Custom Branding", not
+   *                              "Custom Branding & Domain"
+   *   faq                        Ministry plan answer drops "and domain"
+   *   features/ai-automation     category intro/SEO no longer sell a newsletter
+   *   features/coming-soon       SMS / scheduler copy no longer describes a
+   *                              live Mailchimp newsletter
+   *   features/index             the AI category card renders the same intro
+   *
+   * 🔴 AND THE OTHER TWENTY-ONE DID NOT MOVE, which is the claim worth having:
+   * solutions pages, the blog, legal, contact, and the remaining four feature
+   * pages are byte-identical. Prices are unchanged. Taken from the same Linux
+   * `npm run build` as BASELINE_ALL below.
+   */
+  const THE_HONEST_OFFER_MOVED: Readonly<Record<string, string>> = {
+    'faq/index.html':
+      'fbb60eff988bde3adef2d8ba82ef895d05fa7fbd13537601d3bb958680ea88d9',
+    'features/ai-automation/index.html':
+      '5dd81f80917e919b6093af26cef2518b5abb53789692906a7f44fc92718c6fb7',
+    'features/coming-soon/index.html':
+      'c8ccdc6f8a69303f3326b0a906c7b4ea57149f671f9646e64a7c5262449f4c66',
+    'features/index.html':
+      '727859e4df3bab7d37812c03c548c278b708cea27f1ebf4aa411fab00f1eed21',
+    'index.html':
+      '77c716993ace537f5601bcb2a178536b27a560640ac419fbb28d22b113fe3fe8',
+    'pricing/index.html':
+      'bf19cd29c9c0d7a0d4fa8c7d8989698442e00a0b0770ec441345d901dd56b107',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
@@ -936,6 +973,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
     ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED,
     ...SKOOL_POST_MOVED, ...SKOOL_POST_ADDED, ...THE_370_MOVED,
+    ...THE_HONEST_OFFER_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -1006,7 +1044,13 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
    *  add-on section, wherever they render. A one-number hash over the whole set
    *  cannot tell a new route from an edited page, which is exactly why the
    *  tables above are separate and named. */
-  const BASELINE_ALL = 'fa57650d6da8e1c3c553e71751bd199fb80fd60497f1bbf42d667ed863651169';
+  /*  Retaken again at THE_HONEST_OFFER_MOVED from the same Linux build as that
+   *  table; the previous value was
+   *  fa57650d6da8e1c3c553e71751bd199fb80fd60497f1bbf42d667ed863651169.
+   *  🔴 THE PAGE COUNT IS STILL 27 — this change adds and removes no route.
+   *  Six pages moved (the ones that still sold SMS, a newsletter or a custom
+   *  domain while those flags are off) and the other twenty-one did not. */
+  const BASELINE_ALL = 'ac7e508c55d98f9eb876d302bf4f31b3a4e4b05c66c76fba1ac557d46372dd0e';
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
     /* The delta, asserted as a delta. Without this, a future ticket could add a
@@ -1209,12 +1253,11 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'features/discipleship-content/index.html', 'features/giving-finance/index.html',
       'features/platform-brand/index.html',
     ]) {
-      // 🔵 THE_370_MOVED JOINS AT THE FRONT — it moved two of these five, the
-      // giving page (the contact caps in the CRM deep-dive) and
-      // community-engagement (the campus-map admin line, which read "One campus
-      // location on every plan"). THE-293's claim is untouched.
+      // 🔵 THE_HONEST_OFFER_MOVED JOINS AT THE FRONT — it moved ai-automation
+      // (the category intro/SEO no longer sell a newsletter while
+      // NEWSLETTER_MARKETING_ENABLED is off). THE-293's claim is untouched.
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
@@ -1419,17 +1462,38 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // this loop and are asserted against SKOOL_POST_MOVED in the chain below.
     expect(others).toHaveLength(23);
     for (const page of others) {
-      // 🔵 THE_370_MOVED JOINS AT THE FRONT, on identical terms to every table
-      // before it: the pages it moved are asserted against ITS values, and the
-      // claim here — that adding the Missionaries page moved nothing else —
-      // is unchanged.
+      // 🔵 THE_HONEST_OFFER_MOVED JOINS AT THE FRONT, on identical terms to every
+      // table before it: the six pages it moved (homepage meta, Ministry card,
+      // FAQ domain clause, AI intro/SEO, Coming Soon Mailchimp, features index)
+      // are asserted against ITS values. The claim here — that adding the
+      // Missionaries page moved nothing else — is unchanged.
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
           ?? PRE_TAILWIND[page]);
     }
+  });
+
+
+  it('🔴 HONEST-OFFER moved exactly six pages, and added and dropped none', () => {
+    /* The delta, asserted as a delta — the shape every ticket above this one
+       uses. Without it a later edit could add a seventh override and the suite
+       would still pass, so the SIZE of the change is checked, not merely its
+       content. */
+    expect(Object.keys(THE_HONEST_OFFER_MOVED).sort()).toEqual([
+      'faq/index.html', 'features/ai-automation/index.html',
+      'features/coming-soon/index.html', 'features/index.html',
+      'index.html', 'pricing/index.html',
+    ]);
+    for (const page of Object.keys(THE_HONEST_OFFER_MOVED)) {
+      const previous = THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? THE_301_MOVED[page]
+        ?? THE_284_MOVED[page] ?? PRE_TAILWIND[page];
+      expect(THE_HONEST_OFFER_MOVED[page], `${page} is listed as moved but did not move`)
+        .not.toBe(previous);
+    }
+    expect(Object.keys(BASELINE)).toHaveLength(27);
   });
 
   it.runIf(comparable)('and the whole set matches as one number', () => {
