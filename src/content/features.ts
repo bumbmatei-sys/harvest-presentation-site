@@ -315,13 +315,21 @@ const ALL_CATEGORIES: Category[] = [
     // THE-245 — the category blurb named SMS among what it carries. While the
     // feature is hidden it names what is actually there.
     intro: SMS_MARKETING_ENABLED
-      ? 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
-      : 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.',
+      ? (NEWSLETTER_MARKETING_ENABLED
+        ? 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
+        : 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus SMS and forms that turn effort you’ve already spent into people you can reach.')
+      : (NEWSLETTER_MARKETING_ENABLED
+        ? 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.'
+        : 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus forms that turn effort you’ve already spent into people you can reach.'),
     ctaHeading: 'AI your congregation can trust.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     seo: SMS_MARKETING_ENABLED
-      ? 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters, SMS and forms that feed your CRM.'
-      : 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters and forms that feed your CRM.',
+      ? (NEWSLETTER_MARKETING_ENABLED
+        ? 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters, SMS and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, SMS and forms that feed your CRM.')
+      : (NEWSLETTER_MARKETING_ENABLED
+        ? 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, and forms that feed your CRM.'),
     features: [
       {
         id: 'knowledge', name: 'AI Knowledge Base', n: '1',

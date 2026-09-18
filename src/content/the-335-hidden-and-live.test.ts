@@ -144,6 +144,13 @@ describe('15b — Newsletter is a coming-soon entry, not a live feature', () => 
       .not.toMatch(/newsletter/i);
   });
 
+  it('🔴 the AI category intro and SEO do not sell a newsletter either', () => {
+    const cat = CATEGORIES.find((c) => c.slug === 'ai-automation');
+    expect(cat, 'the AI & Automation category is gone').toBeDefined();
+    expect(cat!.intro, 'the category intro still sells a newsletter').not.toMatch(/newsletter/i);
+    expect(cat!.seo, 'the category SEO still sells a newsletter').not.toMatch(/newsletter/i);
+  });
+
   it('🔴 and a Newsletter entry ARRIVED in Coming Soon, appended not inserted', () => {
     const entry = soonById.get('newsletter');
     expect(entry, 'the newsletter is hidden with no page that explains why').toBeDefined();

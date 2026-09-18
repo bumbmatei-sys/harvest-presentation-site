@@ -272,7 +272,9 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
       'A keyword that answers with your giving link, so the closing slide can say "text one word" instead of spelling out a URL',
       'US numbers first. Per-segment rates vary about tenfold by country and pretending otherwise is how a church gets a bill it did not expect',
     ],
-    notThis: 'This is not the donation page, which already ships and is how a church takes a gift today. Nor is it the newsletter, which sends real email through your own Mailchimp audience on the Small Team and Ministry plans. What is missing is the messaging itself, in both directions.',
+    notThis: NEWSLETTER_MARKETING_ENABLED
+      ? 'This is not the donation page, which already ships and is how a church takes a gift today. Nor is it the newsletter, which sends real email through your own Mailchimp audience on the Small Team and Ministry plans. What is missing is the messaging itself, in both directions.'
+      : 'This is not the donation page, which already ships and is how a church takes a gift today. What is missing is the messaging itself, in both directions.',
     navDesc: 'Broadcasts and giving by text. Not built yet.',
   },
   {
@@ -345,7 +347,9 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
     eyebrow: 'One post, every account',
     title: 'Sunday gets posted six times, from six different phones.',
     oneliner: 'One place to write a post, put it on a calendar and send it to every account your church runs — and to read what comes back.',
-    today: 'Nothing in Harvest reaches a social account. A volunteer opens each app in turn, pastes the same caption, crops the same picture again, and answers comments wherever they happen to land. Harvest posts to your own community feed and sends your newsletter through your own Mailchimp audience — neither of those is a social account, and nothing in the admin can see a comment left on one.',
+    today: NEWSLETTER_MARKETING_ENABLED
+      ? 'Nothing in Harvest reaches a social account. A volunteer opens each app in turn, pastes the same caption, crops the same picture again, and answers comments wherever they happen to land. Harvest posts to your own community feed and sends your newsletter through your own Mailchimp audience — neither of those is a social account, and nothing in the admin can see a comment left on one.'
+      : 'Nothing in Harvest reaches a social account. A volunteer opens each app in turn, pastes the same caption, crops the same picture again, and answers comments wherever they happen to land. Harvest posts to your own community feed — that is not a social account, and nothing in the admin can see a comment left on one.',
     considering: [
       'One composer that writes a post once and sends it to every account a church has connected, with the picture and the first comment attached',
       'A month calendar and a queue, so a team can see what goes out on Sunday before Sunday',
@@ -356,7 +360,9 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
       'Which destinations are worth carrying is a question about what each one costs to reach, not only about who is on it — and it is a decision rather than a list',
       'It would rest on a posting platform Harvest does not run, which is the part that decides what is possible and what it costs',
     ],
-    notThis: 'This is not the community feed, which already ships: that is your own audience inside your own app, with no algorithm deciding who sees Sunday\'s post, and none of it changes. Nor is it the newsletter, which sends real email through your own Mailchimp audience. What is missing is the accounts your church runs on somebody else\'s platform, and everything that comes back through them.',
+    notThis: NEWSLETTER_MARKETING_ENABLED
+      ? 'This is not the community feed, which already ships: that is your own audience inside your own app, with no algorithm deciding who sees Sunday\'s post, and none of it changes. Nor is it the newsletter, which sends real email through your own Mailchimp audience. What is missing is the accounts your church runs on somebody else\'s platform, and everything that comes back through them.'
+      : 'This is not the community feed, which already ships: that is your own audience inside your own app, with no algorithm deciding who sees Sunday\'s post, and none of it changes. What is missing is the accounts your church runs on somebody else\'s platform, and everything that comes back through them.',
     navDesc: 'Post to every account from one place. Not built yet.',
   },
 ];
