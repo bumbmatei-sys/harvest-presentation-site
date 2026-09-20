@@ -482,9 +482,14 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
            beneath, which is the treatment the other two already had.
        ⚠️ THE FUNDRAISING CAPTION MOVED TOO — "Fundraising" → "Fundraising
        Campaigns" — and no assertion in that file names it, because captions are
-       read off the catalogue by id. Previous hash: 2aad68fa…. */
+       read off the catalogue by id. Previous hash: 2aad68fa….
+
+       🔵 REPINNED for the SEO vocabulary inserts: the #replaces H2 aria-label
+       assertion moved with the new heading. Row coverage, competitor-name
+       bans and the integrations-row flag derivation did not loosen.
+       Previous hash: a37eee3d…. */
     'src/components/the-258-platform-brand-complete.test.ts':
-      'a37eee3da8ab6bc75c790fcb80d4d68d9768428716dee56dc81c56fc8c9abf44',
+      'bd811da28b6fbfa3ad9b881fba68cc1b6f6b19baa26060de813c8b81be980f1e',
   };
 
   for (const [file, hash] of Object.entries(PINNED)) {

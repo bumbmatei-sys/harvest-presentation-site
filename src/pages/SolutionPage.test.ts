@@ -483,11 +483,30 @@ for (const fixture of FIXTURES) {
       });
 
       it('no plan name', () => {
-        expect(OWN_COPY).not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
+        /* Churches names Ministry once, in the Service Planning honesty line
+           approved with the SEO vocabulary inserts — plan scope, not a CTA. */
+        const PLAN_SCOPE_SENTENCE = 'Service Planning ships on the Ministry plan';
+        const scrubbed = slug === 'churches' && OWN_COPY.includes(PLAN_SCOPE_SENTENCE)
+          ? OWN_COPY.split(PLAN_SCOPE_SENTENCE).join('')
+          : OWN_COPY;
+        if (slug === 'churches') {
+          expect(OWN_COPY, 'the allowlisted Service Planning plan-scope sentence must actually be present')
+            .toContain(PLAN_SCOPE_SENTENCE);
+        }
+        expect(scrubbed).not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
       });
 
       it('no percentage', () => {
-        expect(OWN_COPY).not.toMatch(/\d+(\.\d+)?%/);
+        /* Churches states the live 0% platform fee on the giving deep-dive. */
+        const FEE_PHRASE = '0% Harvest platform fee';
+        const scrubbed = slug === 'churches' && OWN_COPY.includes(FEE_PHRASE)
+          ? OWN_COPY.split(FEE_PHRASE).join('')
+          : OWN_COPY;
+        if (slug === 'churches') {
+          expect(OWN_COPY, 'the allowlisted 0% fee phrase must actually be present')
+            .toContain(FEE_PHRASE);
+        }
+        expect(scrubbed).not.toMatch(/\d+(\.\d+)?%/);
       });
 
       it('no competitor name', () => {

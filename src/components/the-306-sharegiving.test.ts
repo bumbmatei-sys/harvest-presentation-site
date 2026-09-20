@@ -518,7 +518,7 @@ describe("7 — features.ts's copy, bullets and tier chips are byte-identical", 
     expect(share.eyebrow).toBe('Sunday morning, from the platform');
     expect(share.title).toBe('Put your giving page on the screen, in one tap.');
     expect(share.oneliner).toBe(
-      'Share the page that carries every way your church takes a gift — as a link, a native share sheet, or a QR code big enough to read from the back row.');
+      'Tithe and offering software your members already know how to use — share the page that carries every way your church takes a gift, as a link, a native share sheet, or a QR code big enough to read from the back row.');
     expect(share.moment).toBe(
       'The offering is announced and nobody knows the link. One tap puts a QR on the screen at the front of the room — and the page behind it already lists every account your church actually uses.');
     expect(share.admin).toEqual([

@@ -250,7 +250,7 @@ export const CHURCHES_POCKET: readonly PocketTile[] = [
 export const CHURCHES_DEEP_DIVES: readonly DeepDiveGroup[] = [
   {
     heading: 'Fund the ministry.',
-    sub: "Gifts, campaigns and pledges, straight to your church's own accounts. Harvest takes no cut.",
+    sub: 'Online giving for churches with a 0% Harvest platform fee — church donation software that publishes your own PayPal, Cash App, Venmo, Zelle, Revolut and Wise links. Campaigns and pledges included; Harvest takes no cut.',
     featureIds: ['donation', 'sharegiving', 'fundraising', 'pledges'],
   },
   {
@@ -265,7 +265,7 @@ export const CHURCHES_DEEP_DIVES: readonly DeepDiveGroup[] = [
   },
   {
     heading: 'Know every person.',
-    sub: 'One record per person, and every admin sees only their piece.',
+    sub: 'Church membership software and CRM in the same record — one person, one row, and every admin sees only their piece.',
     featureIds: ['crm', 'dashboard', 'forms'],
   },
   {
@@ -290,20 +290,20 @@ export const CHURCHES: SolutionPageContent = {
   slug: 'churches',
   seo: {
     title: 'Harvest for Churches',
-    description: "Members, giving, check-in, groups, livestream and service planning. One subscription, one member record, one login, under your church's name.",
+    description: 'Church management software for small churches: membership CRM, online giving with a 0% Harvest platform fee, QR check-in, service planning, groups and livestream — one subscription, one member record.',
     canonical: `https://theharvest.site${solutionHref('churches')}`,
   },
   hero: {
     eyebrow: 'CHURCHES',
     headline: 'Everything your church runs on, in one place.',
-    intro: "Members, giving, check-in, groups, livestream and service planning. One subscription, one member record, one login, under your church's name.",
+    intro: "Built as church software for small churches — one plan, one member record. Members, giving, check-in, groups, livestream and service planning under your church's name, without a stack of logins.",
     secondary: { label: 'See pricing', to: '/#pricing' },
     audience: 'For church plants, growing congregations and established churches.',
   },
   oneApp: {
     kicker: 'ONE APP',
-    heading: 'One subscription instead of a stack of them.',
-    sub: "Giving, check-in, groups, service planning, livestream, events and your member records. One login, one record per person, under your church's name.",
+    heading: 'Church management software (ChMS) without the stack',
+    sub: "Membership, online giving, check-in, volunteer service planning, livestream, events and your member CRM — church software for small churches in one subscription, one login, one record per person, under your church's name.",
     tabs: CHURCHES_TABS,
   },
   gap: {
@@ -313,8 +313,8 @@ export const CHURCHES: SolutionPageContent = {
   },
   numbers: {
     kicker: 'SUNDAY, SORTED',
-    heading: "Stop chasing volunteers by text. Sunday's plan is already there.",
-    body: 'Build the order of service once. Everyone on it gets an email with one link to say yes or no, and you see who has answered.',
+    heading: 'Church volunteer scheduling and Sunday service planning — without the group text',
+    body: 'Build the order of service once. Harvest emails everyone on the rota with one link to accept or decline, flags double-bookings, and shows who still has not answered. (Service Planning ships on the Ministry plan.)',
     tiles: CHURCHES_TILES,
   },
   pocket: {

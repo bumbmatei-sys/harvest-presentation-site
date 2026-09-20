@@ -143,7 +143,7 @@ const faqMarkup = built
   ? fs.readFileSync(DIST_FAQ, 'utf8').replace(/<script[^>]*application\/ld\+json[^>]*>[\s\S]*?<\/script>/g, '')
   : FAQS.map((faq, i) => renderToStaticMarkup(React.createElement(Answer, { faq, first: i === 0 }))).join('');
 
-const faqText = decodeEntities(faqMarkup);
+const faqText = decodeEntities(faqMarkup).replace(/<[^>]+>/g, '');
 
 describe(`the answers in the prerendered HTML (${built ? 'dist/faq/index.html' : 'rendered from FaqPage.tsx'})`, () => {
   it.each(FAQS.map((f) => [f.id, f] as const))(
@@ -152,18 +152,23 @@ describe(`the answers in the prerendered HTML (${built ? 'dist/faq/index.html' :
       expect(faqText, `"${faq.question}" is not in the prerendered HTML`)
         .toContain(faq.question);
       for (const para of faq.answer) {
+        const visible = para.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
         expect(faqText, `an answer paragraph of "${id}" is not in the prerendered HTML`)
-          .toContain(para);
+          .toContain(visible);
+        for (const m of para.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)) {
+          expect(faqMarkup, `link ${m[2]} from "${id}" is not in the prerendered HTML`)
+            .toContain(`href="${m[2]}"`);
+        }
       }
     },
   );
 
-  it('collapses all 12 on load, and ships none of them open', () => {
+  it('collapses all answers on load, and ships none of them open', () => {
     // `open` is the whole difference between "collapsed" and "expanded", and it
     // is one keystroke to add. Every answer arrives shut; the reader opens one.
     const tags = [...faqMarkup.matchAll(/<details\b[^>]*>/g)].map((m) => m[0]);
     expect(tags, 'the answers are not in <details> elements').toHaveLength(FAQS.length);
-    expect(FAQS).toHaveLength(12);
+    expect(FAQS).toHaveLength(16);
     for (const tag of tags) {
       expect(/(?:^|\s)open(?:=|\s|\/|>)/.test(tag), `${tag} ships expanded`).toBe(false);
     }

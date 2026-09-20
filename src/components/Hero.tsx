@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Clouds, Reveal } from './effects';
 import { Particles, AnimatedText, HBtn, TiltIn, SafariFrame } from './magic';
 import { I } from './icons';
@@ -82,8 +83,13 @@ export function Hero() {
           }}
         />
         <Reveal delay={520} y={18}>
-          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 560, margin: '22px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
-            One branded platform for community, courses, giving and AI — turning a moment of decision into a lifetime of devotion.
+          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 640, margin: '22px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
+            Church management software and a member app in one platform — community, courses, giving and AI, turning a moment of decision into a lifetime of devotion. Built for churches that want one subscription, not a stack.
+          </p>
+          <p style={{ margin: '14px auto 0' }}>
+            <Link to="/solutions/churches" style={{ fontSize: 15, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>
+              See Harvest for churches →
+            </Link>
           </p>
         </Reveal>
         <Reveal delay={680} y={18}>

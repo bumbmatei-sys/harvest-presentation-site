@@ -3,14 +3,14 @@ title: Planning Center Alternative for Small Churches
 category: harvest-vs
 status: published
 publish_date: 2026-07-27
-updated: 2026-08-18
+updated: 2026-09-20
 description: Looking for a Planning Center alternative for small churches? Here is what your full church software stack really costs, and what one platform costs instead.
 reading_time: 6 min
 ---
 
 No church runs on one tool.
 
-It runs on a website, a member database, online giving, kids' check-in, a community space, courses, a newsletter and tax receipts at the end of the year. That is the real list. And the reason most churches end up searching for a Planning Center alternative is not that Planning Center is bad at what it does — it is that it covers part of that list, and the rest arrives as three more subscriptions, three more logins, and three more member lists that quietly stop matching each other.
+It runs on a website, a member database, online giving, kids' check-in, a community space, courses, a newsletter and tax receipts at the end of the year. That is the real list. And the reason most churches end up searching for a **church management software alternative for small churches** is not that Planning Center is bad at what it does — it is that it covers part of that list, and the rest arrives as three more subscriptions, three more logins, and three more member lists that quietly stop matching each other.
 
 This post is about what the whole list actually costs, assembled versus bundled. Competitor prices were read from each vendor's own pricing page on the dates given.
 
@@ -31,20 +31,20 @@ Say that same church wants what most growing churches want within a year or two:
 | Member database | Included, all plans | Free, unlimited | — |
 | Online giving | Included, all plans | $15/mo at 75 gifts | — |
 | CRM (donors & members) | Included, all plans | Part of People | — |
-| Kids' check-in (QR) | Small Team, $40/mo | $15/mo at 30 daily | — |
+| QR check-in & attendance (Small Team) | Small Team, $40/mo | $15/mo at 30 daily | — |
 | Community feed | Included, all plans | Not a product they offer | Skool Pro, **$99/mo** |
 | Courses | 2 on $20 · 5 on $40 · 15 on $60 | Not a product they offer | Teachable Builder, **$89/mo** |
-| Church website + blog | Included, all plans | Not a product they offer | A website builder |
-| Newsletter | Small Team, $40/mo | Not on their pricing page | An email tool |
+| Public blog & ministry home on theharvest.app | Included, all plans | Not a product they offer | A website builder |
+| Newsletter | Coming soon | Not on their pricing page | An email tool |
 | Tax receipts & statements | Ministry, $60/mo | Included with Giving | — |
 
 Sources: [Skool](https://www.skool.com/pricing), [Teachable](https://teachable.com/pricing), read July 27, 2026.
 
 Add it up. Planning Center at roughly $30, [Skool](https://www.skool.com/pricing) Pro at $99, [Teachable](https://teachable.com/pricing) Builder at $89 — **$218 a month, across three vendors, and you still do not have a website.**
 
-Harvest's Ministry plan is $47.00/month billed annually, and it covers every row in that table. Including the website. Including tax receipts, event registration, community groups and 15 courses.
+Harvest's Ministry plan is $47.00/month billed annually, and it covers the live rows in that table — including the blog, tax receipts on Ministry, event registration, community groups and courses.
 
-If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $31.67/month billed annually and carries both, plus giving, kids' check-in, the CRM, livestream, the blog, the church map, the newsletter and the mobile app.
+If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $31.67/month billed annually and carries both, plus giving, QR check-in, the CRM, livestream, the blog, the church map and the mobile app.
 
 ## The cheap tiers are not the escape hatch
 
@@ -62,7 +62,13 @@ One platform means one member record. Their giving, their check-in history, thei
 
 ## One honest note
 
-Planning Center Services does volunteer scheduling and service planning, and Harvest has no product in that category — if rostering the Sunday team is the specific problem you are solving this month, Services does it well. It is also, on the list above, one row. The other eight still have to come from somewhere, and Services does not bring them.
+Planning Center Services is a deep volunteer-scheduling and service-planning suite — song libraries, CCLI workflows, rehearsals and the rest of that world. Harvest does **not** claim feature-for-feature Services parity.
+
+What Harvest **does** ship on the Ministry plan is **Service Planning**: an order-of-service run sheet, role assignments with double-booking flags, empty-slot visibility, and email invitations with one link to accept or decline (plus a reminder). That is Sunday volunteer scheduling for churches that want the rota inside the same app as giving, CRM and community — not a standalone Services clone.
+
+If you need the full Planning Center Services depth (music/CCLI/rehearsal tooling), stay on Services for that row. If you want one membership record across giving, check-in, community and a practical Sunday rota, Harvest is built for that bet.
+
+See live product copy: [Service Planning](/features/community-engagement#services) and [Harvest for Churches](/solutions/churches).
 
 ## What we would actually say
 
