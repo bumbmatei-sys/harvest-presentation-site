@@ -260,7 +260,7 @@ export const FAQS: Faq[] = [
     id: 'chms',
     question: 'Is Harvest church management software (ChMS)?',
     answer: [
-      'Yes. Harvest is church management software built for ministries that want membership, online giving, check-in, service planning, events, community and discipleship courses in one subscription — not a stack of logins.',
+      'Yes. Harvest is church management software built for ministries that want membership, online giving, check-in, events, community and discipleship courses in one subscription — not a stack of logins. Service planning with volunteer rotas ships on the Ministry plan.',
       'Harvest charges a 0% platform fee on giving on every paid plan. Gifts go through your church\'s own payment links (PayPal, Cash App, Venmo, Zelle, Revolut and Wise); Harvest never sits in the money path.',
       'See how it fits a church on the [Churches](/solutions/churches) page, or compare plans on [pricing](/#pricing).',
     ],
