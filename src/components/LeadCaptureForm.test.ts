@@ -17,6 +17,7 @@ import { WaitlistPage } from '../pages/WaitlistPage';
 import { Landing } from '../pages/Landing';
 import { NEWSLETTER_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 import { routes } from '../App';
+import { blogRoutes } from '../../build/blog-plugin';
 
 /**
  * FOUNDER GO — product-updates / waitlist email capture claim safety.
@@ -144,6 +145,10 @@ describe('LeadCaptureForm — flags and routing', () => {
     expect(waitlistIdx).toBeLessThan(catchAllIdx);
     // Appended near the end — after SOLUTIONS / SCHEDULER block, not beside /contact.
     expect(waitlistIdx).toBeGreaterThan(paths.indexOf('/contact'));
+  });
+
+  it('blogRoutes() prerender list includes /waitlist', () => {
+    expect(blogRoutes()).toContain('/waitlist');
   });
 
   it('source files never enable newsletter marketing for this capture', () => {
