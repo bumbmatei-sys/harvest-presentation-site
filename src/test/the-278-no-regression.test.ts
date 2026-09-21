@@ -1707,11 +1707,15 @@ describe('9 — the prerender list and the built page count are unchanged', () =
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(blogRoutes()).toHaveLength(27);
+    /* 🔵 28 SINCE feat/lead-capture-waitlist — `/waitlist` added to
+       `STATIC_ROUTES` and `blogRoutes()` so SSG prerenders WaitlistPage
+       (App.tsx already had the router entry; dist/waitlist/ was missing). */
+    expect(blogRoutes()).toHaveLength(28);
   });
 
-  it.runIf(built)('and the build emits all 27 of them', () => {
-    /* The list and the build agree: 27 routes in, 27 pages out.
+  it.runIf(built)('and the build emits all 28 of them', () => {
+    /* The list and the build agree: 28 routes in, 28 pages out.
+       🔵 27 → 28 WITH `/waitlist` on feat/lead-capture-waitlist (prerender fix).
        🔵 26 → 27 AT 525f630, the `skool-alternative-for-churches` post pushed
        straight to main (see the note on `blogRoutes()` above). NOT THE-370's.
        ⚠️ ON A win32 CHECKOUT THIS FAILS LOW, and the failure is correct —
@@ -1727,7 +1731,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
       }
       return n;
     })(DIST);
-    expect(count, `this checkout built ${count} pages, not 27`).toBe(27);
+    expect(count, `this checkout built ${count} pages, not 28`).toBe(28);
   });
 });
 
@@ -1758,7 +1762,7 @@ describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identi
   it.each([
     ['vercel.json', 'b7c29796ec5df5d87332d573d130ea805956078bd5d3753cef537b2ac73a87be'],
     ['vite.config.ts', '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66'],
-    ['build/blog-plugin.ts', '9ddd785595a33a6db189eb04133459608bc1b9e5aa53a3779e9a82b3ad675403'],
+    ['build/blog-plugin.ts', '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2'],
   ])('%s is unchanged', (file, hash) => {
     expect(sha(readFileSync(path.join(ROOT, file))), `${file} was modified`).toBe(hash);
   });

@@ -12,6 +12,7 @@ import { ComingSoonPage } from './pages/ComingSoonPage';
 import { SchedulerPage } from './pages/SchedulerPage';
 import { FeaturesRedirect } from './pages/FeaturesRedirect';
 import { ContactPage } from './pages/ContactPage';
+import { WaitlistPage } from './pages/WaitlistPage';
 import { LegalPage } from './pages/LegalPage';
 import { FaqPage } from './pages/FaqPage';
 import { CATEGORIES, categoryHref } from './content/features';
@@ -106,6 +107,10 @@ export const routes: RouteRecord[] = [
         path: solutionHref(s.slug),
         element: <SolutionPage slug={s.slug} />,
       })),
+      /* Product-updates / waitlist email capture. Appended above the catch-all
+         for the same SCHEDULER_HREF reason: inserting mid-table renumbers
+         vite-react-ssg hydration ids on every later prerendered page. */
+      { path: '/waitlist', element: <WaitlistPage /> },
       { path: '*', element: <Landing /> },
     ],
   },

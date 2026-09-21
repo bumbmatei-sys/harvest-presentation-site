@@ -57,6 +57,7 @@ const STATIC_ROUTES = [
   // Harvest offers evangelistic organizations should find this page.
   ...SOLUTIONS.map((s) => solutionHref(s.slug)),
   '/contact',
+  '/waitlist',
   FAQ_HREF,
   ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
 ];
@@ -122,6 +123,7 @@ export function blogRoutes(): string[] {
     SCHEDULER_HREF,
     ...SOLUTIONS.map((s) => solutionHref(s.slug)),
     '/contact',
+    '/waitlist',
     FAQ_HREF,
     ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
     '/blog',
