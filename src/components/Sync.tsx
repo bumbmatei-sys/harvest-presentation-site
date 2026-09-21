@@ -132,7 +132,7 @@ export function Sync() {
               </div>
             )}
             <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: 500, margin: '30px 0 0', textShadow: '0 1px 8px rgba(12,21,38,0.5)' }}>
-              {mode === 'mobile' ? 'Installable on iOS & Android — no app store required.' : 'Optimized for desktop — your full ministry on the big screen.'}
+              {mode === 'mobile' ? 'Church app for members — installable on iPhone and Android, no app store required.' : 'Optimized for desktop — your full ministry on the big screen.'}
             </p>
           </div>
         </Reveal>

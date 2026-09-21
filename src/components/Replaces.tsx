@@ -188,7 +188,10 @@ export function Replaces() {
       <div style={{ ...container, maxWidth: 920 }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <Kicker>All-in-one</Kicker>
-          <H2 style={{ marginTop: 14 }}>{'Everything your ministry runs on,\nin one plan'}</H2>
+          <H2 style={{ marginTop: 14 }}>{'Ministry software for churches that want one subscription, not a stack'}</H2>
+          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 640, margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
+            Church management, giving, community and discipleship — everything your ministry runs on, in one plan.
+          </p>
         </div>
         <Reveal delay={80}>
           {/* Rendered as CSS-grid rows (not a <table>) so it stacks to cards on

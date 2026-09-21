@@ -63,8 +63,8 @@ const FEATURES_CODE = stripComments(FEATURES_SRC);
 
 describe('THE-197 — the blog post no longer contradicts PLAN_PRICING', () => {
   it('quotes Small Team, Ministry and the per-tier course prices correctly', () => {
-    expect(blogPost).toContain(`Kids' check-in (QR) | Small Team, $${smallTeam.price.monthly}/mo`);
-    expect(blogPost).toContain(`Newsletter | Small Team, $${smallTeam.price.monthly}/mo`);
+    expect(blogPost).toContain(`QR check-in & attendance (Small Team) | Small Team, $${smallTeam.price.monthly}/mo`);
+    expect(blogPost).toContain('Newsletter | Coming soon');
     expect(blogPost).toContain(`Tax receipts & statements | Ministry, $${ministry.price.monthly}/mo`);
     expect(blogPost).toContain(
       `2 on $${individual.price.monthly} · 5 on $${smallTeam.price.monthly} · 15 on $${ministry.price.monthly}`,

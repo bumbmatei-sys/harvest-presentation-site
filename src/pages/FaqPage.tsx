@@ -22,9 +22,9 @@ import {
    content/faq.ts and this file is only the typography and the wiring.
 
    Built on the LegalPage treatment — sky band, Clouds, one measured column —
-   but the twelve answers are collapsed. Expanded, they are several screens of
+   but the answers are collapsed. Expanded, they are several screens of
    prose that a buyer has to scroll past to find the one question they came
-   with; collapsed, the page is twelve questions you can read in a glance and
+   with; collapsed, the page is the questions you can read in a glance and
    open the one you want.
 
    ⚠️ NATIVE <details>/<summary>, AND NOTHING ELSE. No open/closed state in
@@ -75,6 +75,22 @@ const bodyCss: React.CSSProperties = {
 
 const linkCss: React.CSSProperties = { color: 'var(--brand)', fontWeight: 600, textDecoration: 'none' };
 
+/** Split a FAQ paragraph so `[label](/path)` renders as a link.
+ *  Answers stay stored as strings (JSON-LD maps `FAQS` only); this is display.
+ *  Plain `<a href>` so Answer can prerender without a Router (FaqPage.test.ts). */
+function FaqRichText({ text }: { text: string }) {
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        const m = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(part);
+        if (!m) return part;
+        return <a key={i} href={m[2]} style={linkCss}>{m[1]}</a>;
+      })}
+    </>
+  );
+}
+
 /**
  * One question, collapsed.
  *
@@ -109,7 +125,7 @@ export function Answer({ faq, first }: { faq: (typeof FAQS)[number]; first: bool
       </summary>
       <div style={{ paddingBottom: 10 }}>
         {faq.answer.map((para, i) => (
-          <p key={i} style={{ ...bodyCss, margin: '0 0 14px' }}>{para}</p>
+          <p key={i} style={{ ...bodyCss, margin: '0 0 14px' }}><FaqRichText text={para} /></p>
         ))}
       </div>
     </details>

@@ -68,7 +68,7 @@ const ALL_CATEGORIES: Category[] = [
     heroBg: 'linear-gradient(180deg,#cadff1 0%,#dcebf5 46%,#eef4f3 74%,var(--cream) 100%)',
     headline: 'Eight ways for your\npeople to belong.',
     headWidth: 900, introWidth: 620,
-    intro: 'A feed, prayer wall, groups, campus map, events, check-in, service planning and livestream — the whole engagement stack, in one app that carries your name instead of a platform’s.',
+    intro: 'A private church community — feed, prayer wall, groups, campus map, church event registration, QR check-in, service planning and livestream — the whole engagement stack in one app that carries your name instead of a platform’s.',
     ctaHeading: 'Everything your people need, in one home.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     seo: 'Community feed, groups, prayer requests, church map, events, check-in, service planning and livestream — the engagement stack for your ministry, under your own brand.',
@@ -77,8 +77,8 @@ const ALL_CATEGORIES: Category[] = [
         id: 'feed', name: 'Community Feed', n: '1',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
         eyebrow: 'Owned audience',
-        title: 'Your ministry\'s own feed — no algorithm.',
-        oneliner: 'Announcements, polls, photos and comments in a space that belongs to you, not to a platform deciding who sees Sunday\'s post.',
+        title: 'A private church community app — your feed, no algorithm',
+        oneliner: 'Announcements, polls, photos and comments in a space that belongs to you — without a Facebook group deciding who sees Sunday\'s post.',
         moment: 'No algorithm decides who sees Sunday\'s announcement. You own the audience — every member, every post, every time.',
         admin: ['Inline composer — text, up to 3 images, live polls', 'Pin posts; embed a live campaign or event', 'Geographic targeting by country or city', 'Auto push notification on every new post', 'Delete or privately reply to any comment'],
         member: ['Realtime feed — new posts appear live', 'Like, vote in polls, comment and RSVP', 'Share any post to a public link', 'Save posts and open images full-screen'],
@@ -142,10 +142,10 @@ const ALL_CATEGORIES: Category[] = [
         eyebrow: STRIPE_GIVING_MARKETING_ENABLED ? 'The money never touches us' : 'Registered, scanned, through the door',
         title: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Ticketing where the money never touches us.'
-          : 'Sign up on a phone, walk in on a scan.',
+          : 'Church event registration software — sign up on a phone, walk in on a scan',
         oneliner: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Ticket types, waitlists, discount codes and QR check-in — with payment going straight to your own Stripe account.'
-          : 'Ticket types, per-event waitlists and group booking — a registration that confirms on the spot and arrives as a QR code at the door.',
+          : 'Ticket types, waitlists and group booking — church event registration with a confirmation QR at the door.',
         moment: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Paid tickets are a destination charge straight to the ministry\'s own Stripe account. The money never touches our platform. That is a trust argument worth its own paragraph.'
           : 'A first-time visitor opens the event page on their phone, registers with no account and no app, and has a confirmation with a scannable code before they have put the phone down. On the day, somebody at the door scans it. Nothing else has to happen.',
@@ -165,7 +165,7 @@ const ALL_CATEGORIES: Category[] = [
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
         eyebrow: 'Attendance becomes data',
         title: 'Print a QR, tape it to the door.',
-        oneliner: 'People check themselves in — no app, no account — and the attendance lands in your CRM.',
+        oneliner: 'Church check-in system and attendance tracking that lands in your CRM — visitors and members scan, enter a first name, and they are done. No app, no account.',
         moment: 'The bar for a first-time visitor is “point your camera at this.” No app, no account, no line at a kiosk — and attendance quietly becomes data.',
         admin: ['Create a session, optionally linked to an event', 'Live attendee count and manual check-in', 'CSV export of the full attendee list', 'Bundled QR generator for five destinations'],
         member: ['Scan, enter a first name, done — no login', 'A branded self check-in page', 'Attendance auto-links to CRM contacts'],
@@ -206,8 +206,8 @@ const ALL_CATEGORIES: Category[] = [
            email is replacing. */
         id: 'services', name: 'Service Planning', n: '7',
         accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 1],
-        eyebrow: 'The Sunday run sheet',
-        title: 'The order of service, and who is on it.',
+        eyebrow: 'Service planning + volunteer invites',
+        title: 'Church volunteer scheduling for the Sunday run sheet',
         oneliner: 'Build Sunday\u2019s run sheet with your team \u2014 every item, how long it runs and who is doing it \u2014 then invite those people and see who has said yes.',
         moment: 'The run sheet stops being a document somebody emails round on Thursday. Timings add up on their own, so moving one item moves everything after it, and the person on the door finds out by email instead of by group chat.',
         admin: ['An order of service you reorder \u2014 durations become clock times', 'Assign people to items; double-bookings are flagged', 'See who has not served recently, and which slots are still empty', 'Invite by email and read each answer; send a reminder'],
@@ -449,7 +449,7 @@ const ALL_CATEGORIES: Category[] = [
        deleted" contract in lib/flags.ts. */
     intro: STRIPE_GIVING_MARKETING_ENABLED
       ? 'Giving, fundraising, a CRM that builds itself, and books that reconcile themselves — with no platform fee at all, on any plan. The money lands in your account, not ours.'
-      : 'Giving, campaigns, pledges, a CRM that builds itself and books that reconcile themselves — with no platform fee at all, on any plan. Gifts go to the accounts your church already has; Harvest is never in the path.',
+      : 'Online giving for churches, campaigns, pledges, a CRM that builds itself and a receipt ledger you can export — with no platform fee at all, on any paid plan. Gifts go to the accounts your church already has; Harvest is never in the path.',
     ctaHeading: 'Keep more of every gift.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     // 🔴 THE-335 — the SEO line named the sync too. A claim in a meta
@@ -497,13 +497,13 @@ const ALL_CATEGORIES: Category[] = [
         eyebrow: STRIPE_GIVING_MARKETING_ENABLED ? 'You keep more' : 'Your accounts, not ours',
         title: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Keep 100% of every gift, on every paid plan.'
-          : 'Every gift goes straight to you.',
+          : 'Online giving for churches — without Harvest taking a cut',
         oneliner: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Give in three taps. Every dollar lands in your church\'s own Stripe account — Harvest takes 0% of every donation on every paid plan, and never holds your money.'
           : 'Publish your own PayPal, Cash App, Venmo, Zelle, Revolut and Wise links on one giving page. Harvest is never in the flow — no platform fee, nothing held.',
         moment: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Most platforms take 2–5% of every gift, forever, with no way down. Harvest takes zero — on the cheapest paid plan and every plan above it. On a church doing $200k a year online, a 5% platform quietly takes $10,000. Harvest takes none of it; you pay us a flat subscription and nothing else.'
-          : 'Most platforms sit between a church and the gift and take 2–5% of it, forever. Harvest does not sit there at all — a member taps the account your church already uses, and the money goes to it. There is nothing for us to route, nothing to hold and nothing to take a share of. You pay a flat subscription and nothing else.',
+          : 'Church donation software should not sit between the giver and the church. Most platforms sit between a church and the gift and take 2–5% of it, forever. Harvest does not sit there at all — a member taps the account your church already uses, and the money goes to it. There is nothing for us to route, nothing to hold and nothing to take a share of. You pay a flat subscription and nothing else.',
         admin: STRIPE_GIVING_MARKETING_ENABLED
           ? ['Gifts are destination charges to your own Stripe', 'Fail-closed — no Stripe connected, no gift routed elsewhere', 'A gift writes a receipt, a CRM record & campaign credit', 'Stripe\'s own processing fees are Stripe\'s, not ours']
           : ['Paste your own payment links — six providers', 'Every link checked against its provider before it goes live', 'Record a gift by hand and it posts to your dashboard, accounting and the giver’s history'],
@@ -546,7 +546,7 @@ const ALL_CATEGORIES: Category[] = [
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
         eyebrow: 'Sunday morning, from the platform',
         title: 'Put your giving page on the screen, in one tap.',
-        oneliner: 'Share the page that carries every way your church takes a gift — as a link, a native share sheet, or a QR code big enough to read from the back row.',
+        oneliner: 'Tithe and offering software your members already know how to use — share the page that carries every way your church takes a gift, as a link, a native share sheet, or a QR code big enough to read from the back row.',
         moment: 'The offering is announced and nobody knows the link. One tap puts a QR on the screen at the front of the room — and the page behind it already lists every account your church actually uses.',
         admin: ['Share to any app from your phone\u2019s own share sheet', 'Copy the page and every payment link in one press', 'A downloadable QR code for the screen, a flyer or a bulletin', 'Every link is re-checked against its provider before it is shared'],
         member: ['One page with every way to give, however they prefer', 'Opens with no login, on any phone', 'Taps straight through to PayPal, Cash App, Venmo, Revolut or Wise', 'Scan the QR from a seat and give before the song ends'],
@@ -706,7 +706,7 @@ const ALL_CATEGORIES: Category[] = [
         eyebrow: 'Your treasurer stops asking',
         title: QUICKBOOKS_MARKETING_ENABLED
           ? 'Every receipt, pushed into QuickBooks.'
-          : 'Every receipt, in one ledger.',
+          : 'Church accounting trail: every receipt, in one ledger',
         oneliner: QUICKBOOKS_MARKETING_ENABLED
           ? 'A ledger of every donation receipt and event ticket Harvest issues — synced to QuickBooks as sales receipts, with per-item retry when one fails.'
           : 'A ledger of every donation receipt and event ticket Harvest issues, each with its own numbered PDF and a status you can read at a glance.',

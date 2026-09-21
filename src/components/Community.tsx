@@ -42,7 +42,7 @@ export function Community() {
             <H2 align="left" style={{ marginTop: 14 }}>Keep every believer moving forward</H2>
             <Reveal delay={140}>
               <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-body)', lineHeight: 1.6, margin: '18px 0 26px', maxWidth: 480 }}>
-                Feeds, events, prayer requests and groups in a private space that belongs to your ministry — not a Facebook group, not a forum.
+                Feeds, events, prayer requests and groups in a private space that belongs to your ministry — not a Facebook group, not a forum. A private church community your members open as an app on their home screen.
               </p>
               <Checklist size="md" items={['Private community feed & prayer wall', 'Groups, events & livestream', 'Real connection that belongs to you']} />
               <div style={{ marginTop: 26 }}><HBtn to="/features/community-engagement#feed" variant="dark">Explore community</HBtn></div>

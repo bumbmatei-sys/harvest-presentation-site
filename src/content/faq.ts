@@ -49,7 +49,7 @@ export const FAQ_CANONICAL = `${SITE_ORIGIN}${FAQ_HREF}`;
 
 export const FAQ_SEO_TITLE = 'Frequently Asked Questions — Harvest';
 export const FAQ_SEO_DESCRIPTION =
-  `What Harvest costs, what each plan includes, and the answers churches ask before buying: a 0% platform fee on every gift, a ${TRIAL_LENGTH_DAYS}-day trial, who owns member data, and what happens to it if you cancel.`;
+  `What Harvest costs, what each plan includes, and the answers churches ask before buying church management software: a 0% platform fee on every gift, a ${TRIAL_LENGTH_DAYS}-day trial, who owns member data, and what happens to it if you cancel.`;
 
 export const FAQ_TITLE = 'Questions churches ask before they buy';
 export const FAQ_STANDFIRST =
@@ -254,6 +254,43 @@ export const FAQS: Faq[] = [
       `Contacts and admin accounts are the ladder between the three plans. ${limitLines.join(' ')}`,
       'A contact is one person in your CRM, whether they signed up in the app themselves or you added them by hand — app members and manual contacts are merged into a single record, deduplicated by email, rather than counted twice.',
       'An admin account is someone who can sign in to the dashboard. Each one carries its own permissions across content, money, broadcasting and administration, so the volunteer running check-in never sees donation records and the treasurer never sees prayer requests.',
+    ],
+  },
+  {
+    id: 'chms',
+    question: 'Is Harvest church management software (ChMS)?',
+    answer: [
+      'Yes. Harvest is church management software built for ministries that want membership, online giving, check-in, events, community and discipleship courses in one subscription — not a stack of logins. Service planning with volunteer rotas ships on the Ministry plan.',
+      'Harvest charges a 0% platform fee on giving on every paid plan. Gifts go through your church\'s own payment links (PayPal, Cash App, Venmo, Zelle, Revolut and Wise); Harvest never sits in the money path.',
+      'See how it fits a church on the [Churches](/solutions/churches) page, or compare plans on [pricing](/#pricing).',
+    ],
+  },
+  {
+    id: 'small-churches',
+    question: 'Is Harvest built for small churches?',
+    answer: [
+      'Yes. Harvest is church software for small churches and growing congregations that are tired of paying for a tool stack just to run Sunday.',
+      'Small Team covers the day-to-day ops most plants need — including QR check-in, livestream and the church map — at $40/month (or less when billed quarterly or annually). Ministry adds service planning with volunteer rotas, groups and events, custom forms, tax receipts and branding.',
+      'One member record follows giving, attendance, groups and courses, so you are not reconciling three spreadsheets after every service.',
+    ],
+  },
+  {
+    id: 'membership-volunteers',
+    question: 'Does Harvest include church membership software and volunteer scheduling?',
+    answer: [
+      'Church membership software and church CRM live in the same record: anyone who gives, registers, checks in or fills a form becomes a contact, deduplicated by email.',
+      'Church check-in is QR self check-in — no app required — and attendance lands in the CRM (Small Team and Ministry).',
+      'Volunteer scheduling for Sunday sits inside Service Planning on the Ministry plan: build the order of service, assign people, flag double-bookings, and invite volunteers by email with one link to accept or decline.',
+      'Details: [CRM](/features/giving-finance#crm), [Check-In](/features/community-engagement#checkin), [Service Planning](/features/community-engagement#services).',
+    ],
+  },
+  {
+    id: 'alternatives',
+    question: 'How is Harvest different from Planning Center, Skool, or other church tools?',
+    answer: [
+      'Most churches do not stop at a member database — they also need community, courses, giving and a public presence. Harvest puts those in one subscription and one member record.',
+      'For a stack-cost walkthrough, read [Planning Center alternative for small churches](/blog/planning-center-alternative-small-churches) and [Skool alternative for churches](/blog/skool-alternative-for-churches).',
+      'We do not claim feature-for-feature parity with every Planning Center product. Where Harvest ships Service Planning, we say so; where something is still Coming Soon (SMS, newsletter, custom domains), we say that too — including on this FAQ.',
     ],
   },
   {

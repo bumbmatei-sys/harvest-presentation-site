@@ -327,10 +327,10 @@ describe('what THE-258 did not touch', () => {
       'the "Giving & Finance" row changed by more than the pledge split')
       .toEqual(captionsFor(['donation', 'fundraising', 'pledges', 'crm', 'accounting']));
 
-    // The section's own copy is untouched too: the kicker and the H2 THE-257
-    // wrote, and no reintroduced competitor claim.
+    // The kicker is untouched; the H2 was rewritten for the SEO vocabulary
+    // inserts. No reintroduced competitor claim.
     expect(SECTION).toContain('All-in-one');
-    expect(MARKUP).toContain('aria-label="Everything your ministry runs on, in one plan"');
+    expect(MARKUP).toContain('aria-label="Ministry software for churches that want one subscription, not a stack"');
     for (const name of ['Tithe.ly', 'Pushpay', 'Subsplash', 'HubSpot', 'Planning Center',
       'Skool', 'Teachable', 'Typeform', 'WordPress', 'Donorbox', 'Notion', 'The Church Co']) {
       expect(SECTION, `"${name}" is named in the section`).not.toContain(name);

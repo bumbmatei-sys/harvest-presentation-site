@@ -189,7 +189,7 @@ describe('2 — the Donation Page entry describes the church\'s own links', () =
   const donation = byId('donation');
 
   it('🔴 the copy is the flag-off copy, not a half-applied edit', () => {
-    expect(donation.title).toBe('Every gift goes straight to you.');
+    expect(donation.title).toBe('Online giving for churches — without Harvest taking a cut');
     expect(donation.oneliner).toBe(
       'Publish your own PayPal, Cash App, Venmo, Zelle, Revolut and Wise links on one giving page. '
       + 'Harvest is never in the flow — no platform fee, nothing held.');
