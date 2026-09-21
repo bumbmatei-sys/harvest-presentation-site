@@ -9,6 +9,7 @@ import { CHEAPEST_MONTHLY, Pricing } from '../components/Pricing';
 import { Affiliate } from '../components/Affiliate';
 import { AFFILIATE_PROGRAM_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 import { FinalCTA } from '../components/FinalCTA';
+import { LeadCaptureBand } from '../components/LeadCaptureForm';
 import { Seo } from '../components/Seo';
 
 export function Landing() {
@@ -29,6 +30,7 @@ export function Landing() {
       <Replaces />
       <Pricing />
       {AFFILIATE_PROGRAM_ENABLED && <Affiliate />}
+      <LeadCaptureBand />
       <FinalCTA />
     </main>
   );
