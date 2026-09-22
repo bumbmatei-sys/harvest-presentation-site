@@ -337,7 +337,7 @@ describe('4 — both cross-repo contracts still throw when the repos disagree', 
     expect(() => planPriceContract(asShipped(), {
       plus: { monthly: 21, quarterly: 54, yearly: 190 },
       pro: { monthly: 40, quarterly: 108, yearly: 380 },
-      max: { monthly: 60, quarterly: 162, yearly: 564 },
+      max: { monthly: 80, quarterly: 216, yearly: 752 },
     })).toThrow(/renders \$20 monthly, but the app/);
     // And when a plan is missing from the app's table entirely.
     expect(() => planPriceContract(asShipped(), {})).toThrow(/no expected prices/);
@@ -395,12 +395,12 @@ describe('5 — the tool count is still derived, and no price changed', () => {
     const byName = Object.fromEntries(plans.map((p) => [p.name, p.price]));
     expect(byName['Individual']).toEqual({ monthly: 20, quarterly: 54, yearly: 190 });
     expect(byName['Small Team']).toEqual({ monthly: 40, quarterly: 108, yearly: 380 });
-    expect(byName['Ministry']).toEqual({ monthly: 60, quarterly: 162, yearly: 564 });
+    expect(byName['Ministry']).toEqual({ monthly: 80, quarterly: 216, yearly: 752 });
   });
 
   it('and the cards still RENDER those prices — not just hold them', () => {
     const text = allCardText();
-    for (const n of ['20', '40', '60', '54', '108', '162', '190', '380', '564']) {
+    for (const n of ['20', '40', '80', '54', '108', '216', '190', '380', '752']) {
       expect(text, `$${n} is no longer rendered on any card`).toContain(n);
     }
   });

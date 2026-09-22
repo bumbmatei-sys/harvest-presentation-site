@@ -1009,6 +1009,42 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       '32db69cc078c864e84e928e15fd2c18684bf3798f5e94719af0138d426ea29ed',
   };
 
+  /**
+   * 🔴 THE-372 — MINISTRY BACK TO $80, AND THE OFFER LABEL GOES. Seven pages,
+   * every one of them because it prints a Ministry price or the card:
+   *
+   *   pricing, index   the Ministry card ($80 / $216 / $752, $72 and $62.67
+   *                    headlines), THE-343's offer pill REMOVED, and on index
+   *                    the #replaces bottom line ($62.67/mo billed annually)
+   *   terms            TIER_PRICE_CLAIMS, quoted in §Fees
+   *   faq              FAQ_PLAN_CLAIMS, in the prose and the FAQPage JSON-LD
+   *   blog/planning-center-alternative-small-churches,
+   *   blog/skool-alternative-for-churches,
+   *   blog/year-end-giving-statements-what-to-include
+   *                    each quotes Ministry's monthly or yearly figure
+   *
+   * 🔴 THE OTHER TWENTY-ONE ARE BYTE-IDENTICAL — no feature, solutions or
+   * category page renders a plan price, and a reprice that reached one would
+   * be a price leaking onto a surface nobody chose. No route added or dropped.
+   * Taken from a Linux `npm run build` of this branch.
+   */
+  const THE_372_MOVED: Readonly<Record<string, string>> = {
+    'blog/planning-center-alternative-small-churches/index.html':
+      'e1c0b29843175666c805ed0b9e8ba9875fbb0af4f0cc7f27a8fee3a4a23eecb4',
+    'blog/skool-alternative-for-churches/index.html':
+      '8a259de8df526448a06b0ce0c40a68d02aaa9737386e35a246cbe8218a424e68',
+    'blog/year-end-giving-statements-what-to-include/index.html':
+      'af1d7b280832faac577a54c3aebc411c7710e546d147d44f4b2b02fbf53fdee0',
+    'faq/index.html':
+      '4cd185693d2f2a63e0d3d130b04db60e186fd6ae80f8a8337eda04179b55c9f5',
+    'index.html':
+      '8c1c8e128624c41843e052f3ee72d996b600f3a2cf3b18034ce70f7bbe1fdbb7',
+    'pricing/index.html':
+      '30807efd9a900c40f89004362a33b611bcfd3d061d6d5c0a5685316799af936f',
+    'terms/index.html':
+      '1010bbff4b67a89f5d716db5dc1c4ebdff01b80df0cfb58edaeec62db4c401b9',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
@@ -1019,6 +1055,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...SKOOL_POST_MOVED, ...SKOOL_POST_ADDED, ...THE_370_MOVED,
     ...THE_HONEST_OFFER_MOVED,
     ...MAIN_105_106_MOVED, ...WAITLIST_106_ADDED,
+    ...THE_372_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -1104,6 +1141,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // MAIN_105_106 — nine pages moved and /waitlist added (28 pages), as
     // found on `main` at bc24341. See MAIN_105_106_MOVED.
     '64fcd176627836b6db07c230e56642dcdc22e6ad4be8385fc9ffda764ee144a7',
+    // THE-372 — seven pages moved (THE_372_MOVED), none added or dropped.
+    '97cf6c8132878950236cb9cf0fb2c738810d398ae3066d818e42d238ce46cb68',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1315,7 +1354,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // (the category intro/SEO no longer sell a newsletter while
       // NEWSLETTER_MARKETING_ENABLED is off). THE-293's claim is untouched.
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
@@ -1532,7 +1571,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // are asserted against ITS values. The claim here — that adding the
       // Missionaries page moved nothing else — is unchanged.
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
@@ -1583,6 +1622,23 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(MAIN_105_106_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(chain[page]);
     }
     expect(chain['waitlist/index.html'], 'waitlist is listed as added but already existed').toBeUndefined();
+  });
+
+  it('🔴 THE-372 moved exactly seven pages, and added and dropped none', () => {
+    expect(Object.keys(THE_372_MOVED).sort()).toEqual([
+      'blog/planning-center-alternative-small-churches/index.html',
+      'blog/skool-alternative-for-churches/index.html',
+      'blog/year-end-giving-statements-what-to-include/index.html',
+      'faq/index.html', 'index.html', 'pricing/index.html', 'terms/index.html',
+    ]);
+    for (const page of Object.keys(THE_372_MOVED)) {
+      const previous = MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page]
+        ?? SKOOL_POST_MOVED[page] ?? SKOOL_POST_ADDED[page] ?? THE_358_MOVED[page] ?? THE_355_MOVED[page]
+        ?? THE_343_MOVED[page] ?? AF7A7BA_ADDED[page] ?? PRE_TAILWIND[page];
+      expect(previous, `${page} is not a page that existed`).toBeDefined();
+      expect(THE_372_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(previous);
+    }
+    expect(Object.keys(BASELINE)).toHaveLength(28);
   });
 
   it.runIf(comparable)('and the whole set matches as one number', () => {
@@ -1730,7 +1786,7 @@ describe('8 — the nine plan prices are unchanged and the contract still has te
   const NINE = {
     plus: { monthly: 20, quarterly: 54, yearly: 190 },
     pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 60, quarterly: 162, yearly: 564 },
+    max: { monthly: 80, quarterly: 216, yearly: 752 },
   } as const;
 
   it('all nine prices are exactly what the app charges', () => {

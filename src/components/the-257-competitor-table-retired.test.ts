@@ -234,13 +234,13 @@ describe('the section lists what is in one plan', () => {
 describe('the one price in the section', () => {
   const topPlan = plans.find((p) => p.planId === 'max')!;
 
-  it('the bottom line reads $47/mo billed annually, and no /yr figure appears', () => {
+  it('the bottom line reads $62.67/mo billed annually, and no /yr figure appears', () => {
     const monthly = formatMonthlyHeadline(topPlan.price.yearly, 'yearly');
 
     // Pinned against the computation, and against the figure it produces today.
     // A repricing must move both deliberately — this line is read aloud to 8,000
     // people, so it is not a number that should change without anyone noticing.
-    expect(monthly).toBe('$47');
+    expect(monthly).toBe('$62.67');
     expect(SECTION).toContain(`Everything above, on the ${topPlan.name} plan — ${monthly}/mo, billed annually.`);
 
     // 🔴 NO ANNUAL TOTAL, ANYWHERE. The retired Harvest row carried
@@ -262,7 +262,7 @@ describe('the one price in the section', () => {
        `formatMonthlyHeadline(<the live price>)` cannot fail on a typed literal
        while the literal happens to be right — the two agree today either way.
        So the fixture MOVES the Ministry yearly price and re-imports the
-       component: a hardcoded "$47" keeps printing $47 and fails here.
+       component: a hardcoded "$62.67" keeps printing $62.67 and fails here.
 
        The mock spreads the real module and replaces only `plans`, so
        Pricing.tsx's own module-scope contracts are untouched and content/
@@ -285,7 +285,7 @@ describe('the one price in the section', () => {
 
       expect(expected).toBe('$83.34');           // $1,000 / 12, ceiled at the cent
       expect(movedText).toContain(`${expected}/mo, billed annually.`);
-      expect(movedText).not.toContain('$47'); // the live figure did not survive the move
+      expect(movedText).not.toContain('$62.67'); // the live figure did not survive the move
     } finally {
       vi.doUnmock('./Pricing');
       vi.resetModules();

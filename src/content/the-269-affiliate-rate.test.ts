@@ -73,13 +73,14 @@ describe('1 — every affiliate surface claims 30%', () => {
       `$${fiveMonthly} a month for twelve months, roughly $${yearTotal.toLocaleString()} in total`,
     );
     // The concrete numbers, so a silent change to the derivation is still
-    // caught. ⚠️ These moved at THE-343, not here: five churches on the $60
-    // Ministry plan at 30% is $90 a month and $1,080 over the twelve. The RATE
+    // caught. ⚠️ These moved at THE-343 and again at THE-372, not here: five
+    // churches on the $80 Ministry plan at 30% is $120 a month and $1,440 over
+    // the twelve. The RATE
     // is what this file guards and it is untouched — 0.30 both before and
     // after — which is exactly what the derivation above proves.
     expect(AFFILIATE_COMMISSION_RATE).toBe(0.30);
-    expect(fiveMonthly).toBe(90);
-    expect(yearTotal.toLocaleString()).toBe('1,080');
+    expect(fiveMonthly).toBe(120);
+    expect(yearTotal.toLocaleString()).toBe('1,440');
   });
 
   it('🔴 NO file in the repo still claims a 15% commission — repo-wide sweep', () => {
@@ -160,7 +161,7 @@ describe('3 — what this change must NOT have moved', () => {
     expect(table).toMatchObject({
       plus: { monthly: 20, quarterly: 54,  yearly: 190 },
       pro:  { monthly: 40, quarterly: 108, yearly: 380 },
-      max:  { monthly: 60, quarterly: 162, yearly: 564 },
+      max:  { monthly: 80, quarterly: 216, yearly: 752 },
     });
   });
 

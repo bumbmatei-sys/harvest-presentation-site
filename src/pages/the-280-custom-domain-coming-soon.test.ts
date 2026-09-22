@@ -583,9 +583,10 @@ describe('5 — the nine plan prices are unchanged and the contracts still throw
   const NINE = {
     plus: { monthly: 20, quarterly: 54, yearly: 190 },
     pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    // ⚠️ Moved by THE-343 (Ministry $80 → $60). plus and pro are enumerated
+    // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
+    // the quarter and year at $216 / $752). plus and pro are enumerated
     // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 60, quarterly: 162, yearly: 564 },
+    max: { monthly: 80, quarterly: 216, yearly: 752 },
   } as const;
 
   it('all nine prices are exactly what the app charges', () => {

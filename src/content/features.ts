@@ -741,7 +741,7 @@ const ALL_CATEGORIES: Category[] = [
         eyebrow: '30% for their first 12 months',
         title: 'Refer a ministry. Earn 30% for a year.',
         oneliner: 'A flat 30% of what every church you refer pays, for their first 12 months — tracked automatically and paid out to you, not held as credit.',
-        moment: 'Most SaaS affiliate programs pay once, on the first payment. Harvest pays for a full year — refer five churches on the $60 plan and that’s about $90 a month for twelve months, roughly $1,080 in total.',
+        moment: 'Most SaaS affiliate programs pay once, on the first payment. Harvest pays for a full year — refer five churches on the $80 plan and that’s about $120 a month for twelve months, roughly $1,440 in total.',
         admin: ['Flat 30% — every plan, no tiers, no ladder', 'On everything they pay in their first 12 months', 'Trial starts don\'t count — only converted customers', 'Real money paid out to you, never platform credit'],
         member: ['A referral link, generated automatically', 'This-month pending & total earnings at a glance', 'Add your payout details whenever — earnings accrue either way'],
         adminLabel: 'For referrers', memberLabel: 'Your dashboard',

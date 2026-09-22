@@ -89,7 +89,7 @@ describe('THE-196 — the headline is the per-month figure', () => {
     expect(table).toEqual([
       ['$20', '$18', '$15.84'],
       ['$40', '$36', '$31.67'],
-      ['$60', '$54', '$47'],
+      ['$80', '$72', '$62.67'],
     ]);
   });
 
@@ -185,8 +185,8 @@ describe('THE-196 — the honesty guard', () => {
     expect(() => monthlyHeadlineContract()).not.toThrow();
     // 🔴 THE-343 TOOK THE LAST OFFENDING CELL AWAY, so the shipped table can no
     // longer supply this mutation's hazard. Every quarter divides exactly
-    // ($54/3, $108/3, $162/3), two years round UP ($190/12 → $16, $380/12 →
-    // $32), and Ministry's year now divides exactly ($564/12 = $47). Under the
+    // ($54/3, $108/3, $216/3), and every year rounds UP ($190/12 → $16,
+    // $380/12 → $32, and since THE-372 $752/12 → $63). Under the
     // old rule NOTHING understates. Pointed at `plans` this mutation would pass
     // while exercising nothing — so the hazardous table is written out here,
     // and the RULE stays the subject.
@@ -249,7 +249,7 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
     const APP_HEADLINES: Record<string, Record<BillingTerm, string>> = {
       plus: { monthly: '$20', quarterly: '$18', yearly: '$15.84' },
       pro:  { monthly: '$40', quarterly: '$36', yearly: '$31.67' },
-      max:  { monthly: '$60', quarterly: '$54', yearly: '$47' },
+      max:  { monthly: '$80', quarterly: '$72', yearly: '$62.67' },
     };
     for (const p of plans) {
       for (const term of BILLING_TERMS) {

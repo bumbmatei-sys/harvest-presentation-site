@@ -305,7 +305,7 @@ describe('5 — the nine plan prices are unchanged and the contract still bites'
   const NINE: Readonly<Record<string, Record<string, number>>> = {
     plus: { monthly: 20, quarterly: 54, yearly: 190 },
     pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 60, quarterly: 162, yearly: 564 },
+    max: { monthly: 80, quarterly: 216, yearly: 752 },
   };
 
   it('all nine are exactly what they were', () => {
@@ -514,9 +514,27 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'build/blog-plugin.ts': '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2',
   };
 
+  /* 🔴 THE-372 — MINISTRY BACK TO $80, AND THE OFFER LABEL GOES. A PRICE
+     MOVED IN THIS PIN FOR THE THIRD TIME. Ministry is $80 / $216 / $752 in
+     `plans` AND in the transcribed `EXPECTED_PLAN_PRICES`, matching the three
+     live Dodo products; plus, pro, every add-on, cell, row and feature line are
+     untouched, and `planPriceContract` still throws at module scope if the two
+     halves disagree. Also in this pin: THE-343's offer pill on the Ministry
+     card is removed, with the `Plan` flag that drove it and `CardEyebrow`'s
+     `top` prop. The two guards below moved with the price they derive: the
+     #replaces bottom line reads Ministry's annual monthly-equivalent, $62.67
+     where it was $47, and neither threshold nor mutation loosened. */
+  const THE_372_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': '31af1e2c79fb54aa1fc5ab4f70c66dea81e89972e1aec13186d4269e23b57804',
+    'src/components/the-257-competitor-table-retired.test.ts':
+      '9a00c7b3530b2a2796cd2aef12335ea2a0218d17afc09907c53d80f22dd3f3c7',
+    'src/components/the-258-platform-brand-complete.test.ts':
+      '57449dc7706fdbd2a42af69045d9bb5d135316d581cb4669f0bcaa76c9a64526',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
-      expect(sha(read(file)), `${file} moved`).toBe(WAITLIST_106_REPINNED[file] ?? hash);
+      expect(sha(read(file)), `${file} moved`).toBe(THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash);
     });
   }
 

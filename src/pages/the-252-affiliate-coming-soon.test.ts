@@ -1045,9 +1045,9 @@ describe('10 — the tool count is unchanged and still derived', () => {
 /* ── 11 ──────────────────────────────────────────────────────────────────── */
 describe('11 — no price changed and both contracts still throw', () => {
   it('the nine plan prices are exactly what they were', () => {
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 60]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 162]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 564]);
+    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
+    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
     expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
