@@ -68,7 +68,7 @@ const toggleMarkup = (value: BillingTerm = 'yearly') =>
 const LIVE_DODO_USD: Record<string, Record<BillingTerm, number>> = {
   plus: { monthly: 20, quarterly: 54, yearly: 190 },
   pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 60, quarterly: 162, yearly: 564 },
+  max: { monthly: 80, quarterly: 216, yearly: 752 },
 };
 
 /* ── 1 ─────────────────────────────────────────────────────────────────────── */
@@ -90,7 +90,7 @@ describe('the nine plan prices match the new table exactly', () => {
   });
 
   it('🔴 the MONTHLY column did not move — $20 / $40 / $80', () => {
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 60]);
+    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
   });
 
   it('every discounted price went UP, which is what a smaller discount means', () => {
@@ -99,19 +99,15 @@ describe('the nine plan prices match the new table exactly', () => {
       pro: { quarterly: 99, yearly: 329 },
       max: { quarterly: 199, yearly: 659 },
     };
-    // ⚠️ SCOPED TO THE TWO TIERS THE-248 STILL OWNS. THE-343 took Ministry the
-    // other way deliberately — $60 is a price CUT — so its quarter and year now
-    // sit BELOW THE-248's predecessors. Asserting a rise there would be
-    // asserting that the later ticket did not happen.
-    for (const p of plans.filter((pl) => pl.planId !== 'max')) {
+    // ⚠️ ALL THREE TIERS AGAIN SINCE THE-372. THE-343 had cut Ministry, which
+    // put its quarter and year BELOW THE-248's predecessors and scoped this
+    // check to two tiers; THE-372 put Ministry back up (monthly $80, with the
+    // quarter and year keeping THE-343's discount ratios), so every discounted
+    // cell sits above its pre-THE-248 figure once more.
+    for (const p of plans) {
       for (const term of DISCOUNTED_TERMS) {
         expect(p.price[term], `${p.name} ${term} did not rise`).toBeGreaterThan(BEFORE[p.planId][term]);
       }
-    }
-    const ministry = plans.find((pl) => pl.planId === 'max')!;
-    for (const term of DISCOUNTED_TERMS) {
-      expect(ministry.price[term], `Ministry ${term} did not fall`)
-        .toBeLessThan(BEFORE.max[term]);
     }
   });
 
@@ -344,10 +340,11 @@ describe("no term's price is a whole number of months at the monthly rate", () =
     expect(inMonths('plus', 'yearly')).toBe(9.5);      // 190 / 20
     expect(inMonths('pro', 'quarterly')).toBe(2.7);    // 108 / 40
     expect(inMonths('pro', 'yearly')).toBe(9.5);       // 380 / 40
-    expect(inMonths('max', 'quarterly')).toBe(2.7);    // 162 / 60
+    expect(inMonths('max', 'quarterly')).toBe(2.7);    // 216 / 80
     // ⚠️ 9.4, not 9.5 — THE-343 repriced Ministry alone, so the yearly column
-    // no longer lands on one multiple. Still not an integer, which is the rule.
-    expect(inMonths('max', 'yearly')).toBe(9.4);       // 564 / 60
+    // no longer lands on one multiple, and THE-372 kept that ratio when it put
+    // Ministry back to $80. Still not an integer, which is the rule.
+    expect(inMonths('max', 'yearly')).toBe(9.4);       // 752 / 80
   });
 });
 

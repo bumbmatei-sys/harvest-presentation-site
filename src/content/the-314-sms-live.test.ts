@@ -395,7 +395,11 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(pagesInDist()).toHaveLength(27);
+    /* 🔵 28 SINCE #106 — the /waitlist product-updates page, merged with this
+       workflow red (and #105 before it), so main never ran these suites green.
+       It is the 28th route. NOT THE-372's, and corrected here only because CI
+       gates this PR on it — see the PR. */
+    expect(pagesInDist()).toHaveLength(28);
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {

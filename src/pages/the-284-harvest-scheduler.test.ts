@@ -741,7 +741,11 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(routes).toHaveLength(27);
+    /* 🔵 28 SINCE #106 — the /waitlist product-updates page, merged with this
+       workflow red (and #105 before it), so main never ran these suites green.
+       It is the 28th route. NOT THE-372's, and corrected here only because CI
+       gates this PR on it — see the PR. */
+    expect(routes).toHaveLength(28);
     expect(new Set(routes).size, 'a route is listed twice').toBe(routes.length);
     for (const r of BEFORE) expect(routes, `${r} dropped out of the prerender list`).toContain(r);
     /* 🔵 SIX ADDITIONS NOW, AND THE-284's IS STILL EXACTLY ONE OF THEM. `BEFORE`
@@ -760,6 +764,8 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
       '/solutions/evangelistic-organizations',
       '/solutions/churches',
       '/solutions/missionaries',
+      // 🔵 SEVENTH: #106's /waitlist page, merged with CI red. Not THE-284's.
+      '/waitlist',
       '/blog/skool-alternative-for-churches',
       '/blog/year-end-giving-statements-what-to-include',
     ]);
@@ -772,7 +778,11 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(pages, `this checkout built ${pages.length} pages, not 27`).toHaveLength(27);
+    /* 🔵 28 SINCE #106 — the /waitlist product-updates page, merged with this
+       workflow red (and #105 before it), so main never ran these suites green.
+       It is the 28th route. NOT THE-372's, and corrected here only because CI
+       gates this PR on it — see the PR. */
+    expect(pages, `this checkout built ${pages.length} pages, not 28`).toHaveLength(28);
     expect(pages.map(([f]) => f)).toContain('features/harvest-scheduler/index.html');
   });
 
@@ -803,9 +813,10 @@ describe('11 — no plan price moved and nothing was added to the add-on catalog
   const NINE = {
     plus: { monthly: 20, quarterly: 54, yearly: 190 },
     pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    // ⚠️ Moved by THE-343 (Ministry $80 → $60). plus and pro are enumerated
+    // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
+    // the quarter and year at $216 / $752). plus and pro are enumerated
     // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 60, quarterly: 162, yearly: 564 },
+    max: { monthly: 80, quarterly: 216, yearly: 752 },
   } as const;
 
   it('all nine plan prices are exactly what the app charges', () => {

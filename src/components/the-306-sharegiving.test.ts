@@ -741,8 +741,18 @@ describe('11 — vite.config.ts, ssgOptions and the blog plugin are byte-identic
        to STATIC_ROUTES and blogRoutes(). vite.config.ts is untouched. */
     expect(sha(src('../../vite.config.ts')))
       .toBe('709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66');
+    /* 🔵 APPENDED, NOT SUBSTITUTED: #106 added '/waitlist' to STATIC_ROUTES
+       and blogRoutes() (two lines) and merged with CI red, so this pin was
+       never moved with it. Every earlier pin stays in the list with its
+       reason; the file must match the LAST one. */
+    const BLOG_PLUGIN_PINS = [
+      // board card 86bbyv8pp — /solutions/evangelistic-organizations
+      '9ddd785595a33a6db189eb04133459608bc1b9e5aa53a3779e9a82b3ad675403',
+      // #106 — the /waitlist product-updates page
+      '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2',
+    ];
     expect(sha(src('../../build/blog-plugin.ts')))
-      .toBe('9ddd785595a33a6db189eb04133459608bc1b9e5aa53a3779e9a82b3ad675403');
+      .toBe(BLOG_PLUGIN_PINS[BLOG_PLUGIN_PINS.length - 1]);
   });
 });
 

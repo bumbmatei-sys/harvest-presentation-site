@@ -369,7 +369,7 @@ describe("the three priced tiers' cards are unchanged", () => {
     expect(plans.map((p) => [p.planId, p.name, p.price.monthly, p.price.quarterly, p.price.yearly])).toEqual([
       ['plus', 'Individual', 20, 54, 190],
       ['pro', 'Small Team', 40, 108, 380],
-      ['max', 'Ministry', 60, 162, 564],
+      ['max', 'Ministry', 80, 216, 752],
     ]);
     expect(plans.filter((p) => p.popular).map((p) => p.name)).toEqual(['Ministry']);
   });

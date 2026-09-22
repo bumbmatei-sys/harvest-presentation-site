@@ -37,6 +37,25 @@ import { CUSTOM_DOMAIN_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/f
 
 const text = (doc: LegalDoc) => plainText(doc);
 
+/**
+ * The Terms' rendered-prose digest, one entry per change that moved it, oldest
+ * first. The document must match the LAST entry. Earlier pins were substituted
+ * in place with the old value in a comment; from THE-372 on they are appended
+ * here instead, so no pin is ever lost.
+ */
+const TERMS_PINS: ReadonlyArray<{ ticket: string; why: string; sha256: string }> = [
+  {
+    ticket: 'THE-343',
+    why: 'Ministry $80 -> $60 ($216 -> $162, $760 -> $564) in TIER_PRICE_CLAIMS, quoted in §Fees',
+    sha256: 'ddf58b1e891c065955dc063e86658ed24c5a6c0954b4a974ebd831c7da573259',
+  },
+  {
+    ticket: 'THE-372',
+    why: 'Ministry back to $80 ($216 quarterly, $752 annually) in TIER_PRICE_CLAIMS; nothing else in the document moved',
+    sha256: '68e14d8151bf84a03e37192fe7be238a008fbc42a1e62f6e2160b2494913831c',
+  },
+];
+
 describe('the legal document set', () => {
   it('is exactly terms, privacy and refunds', () => {
     expect(LEGAL_DOCS.map((d) => d.slug)).toEqual(['terms', 'privacy', 'refunds']);
@@ -750,8 +769,10 @@ describe('what the analytics disclosure must not have touched', () => {
     // prerender rather than reaching this hash. The REFUND hash is unchanged
     // again, which is the control that says the edit was confined to the Terms.
     //   Previous pin: 04a5b733fc639b9ca695374cd836ff9810c047205acbf0b9863e5937f6f44f61 (pre-THE-343)
+    // 🔵 FROM THE-372 ON, THE TERMS PIN IS APPENDED, NEVER SUBSTITUTED — see
+    // TERMS_PINS at the top of this file.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('ddf58b1e891c065955dc063e86658ed24c5a6c0954b4a974ebd831c7da573259');
+      .toBe(TERMS_PINS[TERMS_PINS.length - 1].sha256);
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
   });
@@ -767,9 +788,9 @@ describe('what the analytics disclosure must not have touched', () => {
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
-      // ⚠️ Moved by THE-343. plus and pro are enumerated beside it so a reprice
+      // ⚠️ Moved by THE-343, and back by THE-372. plus and pro are enumerated beside it so a reprice
       // that reached past Ministry still fails here.
-      'max:60/162/564',
+      'max:80/216/752',
     ]);
   });
 });
@@ -937,8 +958,10 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // 🔴 Terms hash moved at THE-280 — one clause out of §1, for the reason
     // recorded in full on the THE-198 block above. Kept in step deliberately:
     // the two sites pin the same document and must not disagree about it.
+    // 🔵 FROM THE-372 ON, THE TERMS PIN IS APPENDED, NEVER SUBSTITUTED — see
+    // TERMS_PINS at the top of this file.
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
-      .toBe('ddf58b1e891c065955dc063e86658ed24c5a6c0954b4a974ebd831c7da573259');
+      .toBe(TERMS_PINS[TERMS_PINS.length - 1].sha256);
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
       .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
     // And neither was restated as revised.
@@ -985,9 +1008,9 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
       'plus:20/54/190',
       'pro:40/108/380',
-      // ⚠️ Moved by THE-343. plus and pro are enumerated beside it so a reprice
+      // ⚠️ Moved by THE-343, and back by THE-372. plus and pro are enumerated beside it so a reprice
       // that reached past Ministry still fails here.
-      'max:60/162/564',
+      'max:80/216/752',
     ]);
   });
 

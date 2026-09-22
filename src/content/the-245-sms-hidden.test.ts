@@ -369,7 +369,7 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
     expect(() => planPriceContract(withoutSmsLine(), {
       plus: { monthly: 21, quarterly: 54, yearly: 190 },
       pro: { monthly: 40, quarterly: 108, yearly: 380 },
-      max: { monthly: 60, quarterly: 162, yearly: 564 },
+      max: { monthly: 80, quarterly: 216, yearly: 752 },
     })).toThrow(/renders \$20 monthly, but the app/);
     // And when a plan is missing from the contract entirely.
     expect(() => planPriceContract(withoutSmsLine(), {})).toThrow(/no expected prices/);
@@ -446,7 +446,7 @@ describe('6 — no price changed', () => {
     const priced = Object.fromEntries(plans.map((p) => [p.planId, p.price]));
     expect(priced.plus).toEqual({ monthly: 20, quarterly: 54, yearly: 190 });
     expect(priced.pro).toEqual({ monthly: 40, quarterly: 108, yearly: 380 });
-    expect(priced.max).toEqual({ monthly: 60, quarterly: 162, yearly: 564 });
+    expect(priced.max).toEqual({ monthly: 80, quarterly: 216, yearly: 752 });
   });
 
   it('and the contract that compares them to the app still passes as shipped', () => {

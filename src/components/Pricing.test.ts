@@ -65,7 +65,7 @@ describe('plan ids', () => {
 const DODO_CATALOGUE_USD: Record<string, Record<BillingTerm, number>> = {
   plus: { monthly: 20, quarterly: 54, yearly: 190 },
   pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 60, quarterly: 162, yearly: 564 },
+  max: { monthly: 80, quarterly: 216, yearly: 752 },
 };
 
 describe('the nine plan prices match the Dodo catalogue exactly', () => {
@@ -206,8 +206,8 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
 
   it('yearly may be claimed flat — the WORST tier saves 20.83% against an advertised 20%', () => {
     // Yearly clears with room, but NO LONGER BY THE SAME MARGIN ON EACH TIER:
-    // $190 against $240 and $380 against $480 are 20.8333%, while THE-343 made
-    // Ministry $564 against $720, which is 21.6667%. The claim is bounded by
+    // $190 against $240 and $380 against $480 are 20.8333%, while Ministry is
+    // $752 against $960, which is 21.6667% (THE-343's ratio, kept by THE-372). The claim is bounded by
     // the WORST tier, so 20.83 is what keeps it flat — a tier saving MORE
     // cannot weaken a 20% claim. Yearly is still not the term a future reprice
     // breaks first; quarterly, sitting on equality, is.

@@ -43,6 +43,15 @@ import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
  *                   and 564 / 12 = 47 EXACTLY, so the per-month headline
  *                   carries no cents and reconciles to the dollar
  *
+ * 🔴 SUPERSEDED BY THE-372. Ministry is back to $80 monthly, with the quarter
+ * and year at $216 and $752 — THE-343's discount RATIOS kept exactly (2.7x
+ * and 9.4x monthly) — and the founder removed the offer label this ticket
+ * added to the card ("no early bird price label"). Every assertion below that
+ * named THE-343's figures or its label now names what the page actually
+ * shows, and says so where it moved; `THE-372.ministry-80.test.ts` owns the
+ * new guards. The stripper, the contract's teeth and the no-strike-through
+ * rule are unchanged, because they were never about the $60.
+ *
  * 🔴 THIS FILE IS THE SITE HALF. The app (Harvest-agent) carries the same nine
  * numbers in src/utils/plan-features.ts, and `planPriceContract` throws at
  * module scope during this repo's prerender if the two disagree — so a
@@ -199,9 +208,10 @@ describe('🔴 the comment stripper is verified before anything is grepped throu
 });
 
 /* ── 12 · the site shows $60 for Ministry ─────────────────────────────────── */
-describe('12 · the site shows $60 for Ministry, and $162 / $564 on the other terms', () => {
+describe('12 · the site shows Ministry at the price THE-372 restored', () => {
   it('holds them in the plan data', () => {
-    expect(ministry.price).toEqual({ monthly: 60, quarterly: 162, yearly: 564 });
+    // ⚠️ MOVED AT THE-372: THE-343's 60 / 162 / 564 became 80 / 216 / 752.
+    expect(ministry.price).toEqual({ monthly: 80, quarterly: 216, yearly: 752 });
   });
 
   it('🔴 RENDERS them on the card, per term — not merely holds them', () => {
@@ -209,12 +219,12 @@ describe('12 · the site shows $60 for Ministry, and $162 / $564 on the other te
       renderToStaticMarkup(React.createElement(PlanCard, { plan: ministry, term }))
         .replace(/<[^>]*>/g, ' ');
     // Monthly: the headline IS the charged figure.
-    expect(text('monthly')).toContain('$60');
+    expect(text('monthly')).toContain('$80');
     // The other two print the per-month equivalent AND the charged total.
-    expect(text('quarterly')).toContain('billed as $162 every 3 months');
-    expect(text('quarterly')).toContain('$54');
-    expect(text('yearly')).toContain('billed as $564 every 12 months');
-    expect(text('yearly')).toContain('$47');
+    expect(text('quarterly')).toContain('billed as $216 every 3 months');
+    expect(text('quarterly')).toContain('$72');
+    expect(text('yearly')).toContain('billed as $752 every 12 months');
+    expect(text('yearly')).toContain('$62.67');
   });
 
   it('the Terms and the FAQ quote the same three, and neither disagrees with the cards', () => {
@@ -223,9 +233,9 @@ describe('12 · the site shows $60 for Ministry, and $162 / $564 on the other te
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(faqPlanMismatches(plans)).toEqual([]);
     const terms = TIER_PRICE_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([terms.monthly, terms.quarterly, terms.annual]).toEqual([60, 162, 564]);
+    expect([terms.monthly, terms.quarterly, terms.annual]).toEqual([80, 216, 752]);
     const faq = FAQ_PLAN_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([faq.monthly, faq.quarterly, faq.annual]).toEqual([60, 162, 564]);
+    expect([faq.monthly, faq.quarterly, faq.annual]).toEqual([80, 216, 752]);
   });
 
   it('🔴 plus and pro are UNCHANGED — enumerated, so an overreaching reprice fails', () => {
@@ -258,13 +268,19 @@ describe('13 · the cross-repo contract agrees, and still has teeth', () => {
   });
 
   it('🔴 and it would have caught the OLD Ministry prices specifically', () => {
-    // The precise one-sided edit this ticket could have shipped: the site
-    // repriced, the app not — or the reverse.
-    expect(() => planPriceContract(plans, {
-      plus: { ...individual.price },
-      pro: { ...smallTeam.price },
-      max: { monthly: 80, quarterly: 216, yearly: 760 },
-    })).toThrow(/Ministry/);
+    // The precise one-sided edit a reprice can ship: the site repriced, the app
+    // not — or the reverse. Both of Ministry's earlier tables: THE-248's and
+    // THE-343's.
+    for (const old of [
+      { monthly: 80, quarterly: 216, yearly: 760 },
+      { monthly: 60, quarterly: 162, yearly: 564 },
+    ]) {
+      expect(() => planPriceContract(plans, {
+        plus: { ...individual.price },
+        pro: { ...smallTeam.price },
+        max: old,
+      })).toThrow(/Ministry/);
+    }
   });
 });
 
@@ -302,13 +318,14 @@ describe('3, 4, 5 · the delivered discounts and Ministry\'s monthly equivalent'
       .toThrow(/yearly advertises 22%/);
   });
 
-  it("🔴 Ministry's monthly equivalent is a CLEAN 47 — no decimal, no rounding", () => {
-    expect(ministry.price.yearly / 12).toBe(47);
-    expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).toBe('$47');
-    expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).not.toContain('.');
-    // It reconciles EXACTLY: no other yearly cell does.
-    expect(47 * 12).toBe(ministry.price.yearly);
-    // 🔴 THE MUTATION THE NUMBER WAS CHOSEN TO AVOID. 570 is the "natural"
+  it("🔴 Ministry's monthly equivalent is CEILED at the cent, never rounded down", () => {
+    // ⚠️ MOVED AT THE-372. THE-343's $564 divided to a clean $47; THE-372's
+    // $752 is $62.6667 a month, which the ceiling shows as $62.67 — within
+    // four cents of the charged total, and never below it.
+    expect(ministry.price.yearly / 12).toBeCloseTo(62.6667, 4);
+    expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).toBe('$62.67');
+    expect(62.67 * 12).toBeGreaterThanOrEqual(ministry.price.yearly);
+    // 🔴 THE MUTATION THE-343's NUMBER WAS CHOSEN TO AVOID, and still the rule. 570 is the "natural"
     // 20.83%-off figure and puts the headline on $47.50 — a decimal, and on the
     // exact half-cent boundary that a rounding rule would resolve upward to
     // $48, implying $576 against a charged $570.
@@ -319,72 +336,72 @@ describe('3, 4, 5 · the delivered discounts and Ministry\'s monthly equivalent'
   });
 });
 
-/* ── 11 · the EARLY BIRD eyebrow ──────────────────────────────────────────── */
-describe('11 · Ministry carries an EARLY BIRD eyebrow, through the free card\'s own component', () => {
+/* ── 11 · the card eyebrows ──────────────────────────────────────────────── */
+describe('11 · every card eyebrow goes through one component — and Ministry carries only RECOMMENDED', () => {
+  /* ⚠️ INVERTED AT THE-372. THE-343 put a second, outlined offer pill on the
+     Ministry card under RECOMMENDED; the founder removed it ("no early bird
+     price label"). What THE-343 established and this block still guards is
+     the ONE-COMPONENT rule; what it no longer guards is the pill, whose
+     absence `THE-372.ministry-80.test.ts` sweeps for by every spelling. */
   const render = (el: React.ReactElement) => renderToStaticMarkup(el);
   const ministryCard = (term: BillingTerm = 'monthly') =>
     render(React.createElement(PlanCard, { plan: ministry, term }));
   const freeCard = () => render(React.createElement(FreeTierCard, { tier: FREE_TIER }));
+  const pills = (html: string) =>
+    [...html.matchAll(/<span style="position:absolute[^"]*">([^<]*)<\/span>/g)].map((m) => m[1]);
 
-  it('the eyebrow is on the card, and reads EARLY BIRD', () => {
-    expect(ministryCard()).toContain('EARLY BIRD');
-    expect(ministry.earlyBird).toBe(true);
+  it('the Ministry card carries exactly one eyebrow, and it is RECOMMENDED', () => {
+    for (const term of BILLING_TERMS) {
+      expect(pills(ministryCard(term)), `Ministry ${term}`).toEqual(['RECOMMENDED']);
+    }
   });
 
   it('🔴 it is the SAME CODE PATH as the free card\'s eyebrow, not a copy', () => {
-    // (a) One component renders all three eyebrows. Asserted on COMMENT-STRIPPED
+    // (a) One component renders both eyebrows. Asserted on COMMENT-STRIPPED
     //     source: this file's docblocks name every one of these strings.
     expect(PRICING_CODE.match(/<CardEyebrow\b/g) ?? [], 'not every eyebrow goes through CardEyebrow')
-      .toHaveLength(3);
+      .toHaveLength(2);
     expect(PRICING_CODE).toContain('>RECOMMENDED<');
     expect(PRICING_CODE).toContain('>FOR EVANGELISTS<');
-    expect(PRICING_CODE).toContain('>EARLY BIRD<');
 
     // (b) 🔴 AND NO SECOND IMPLEMENTATION SURVIVES. `position: 'absolute'` with
     //     a `right: 18` corner appears exactly ONCE in the code — inside
     //     CardEyebrow — so neither card can still be hand-rolling a pill.
     expect(PRICING_CODE.match(/right:\s*18\b/g) ?? []).toHaveLength(1);
 
-    // (c) The rendered pills are the same element with the same geometry. The
-    //     free card's eyebrow and Ministry's differ ONLY in their text and their
-    //     vertical offset — which is what "same treatment" has to mean.
+    // (c) The rendered pills are the same element with the same geometry: the
+    //     free card's and Ministry's differ ONLY in text and ground.
     const eyebrow = (html: string, text: string) => {
       const m = html.match(new RegExp(`<span style="([^"]*)">${text}</span>`));
       expect(m, `no ${text} eyebrow rendered`).not.toBeNull();
       return m![1];
     };
     const free = eyebrow(freeCard(), 'FOR EVANGELISTS');
-    const early = eyebrow(ministryCard(), 'EARLY BIRD');
-    expect(early.replace(/top:\d+px/, 'top:X')).toBe(free.replace(/top:\d+px/, 'top:X'));
-    // Both are the OUTLINE variant: brand text on no ground, with a brand rule.
-    for (const style of [free, early]) {
-      expect(style).toContain('background:transparent');
-      expect(style).toContain('color:var(--brand)');
-      expect(style).toContain('border:1px solid var(--brand)');
-    }
+    const rec = eyebrow(ministryCard(), 'RECOMMENDED');
+    const geometry = (st: string) => st.replace(/background:[^;]*;?|color:[^;]*;?|border:[^;]*;?/g, '');
+    expect(geometry(rec)).toBe(geometry(free));
+    // 🔴 BOTH AT THE CORNER. THE-343's `top` prop existed only to stack the
+    // offer pill under RECOMMENDED; THE-372 removed the pill and the prop.
+    expect(free).toContain('top:18px');
+    expect(rec).toContain('top:18px');
+    expect(free).toContain('background:transparent');
+    expect(free).toContain('border:1px solid var(--brand)');
   });
 
-  it('🔴 it does not displace RECOMMENDED — Ministry carries both, stacked', () => {
+  it('RECOMMENDED sits at the corner, with nothing stacked beneath it', () => {
     const html = ministryCard();
-    expect(html).toContain('RECOMMENDED');
-    expect(html).toContain('EARLY BIRD');
-    // RECOMMENDED sits at the corner; EARLY BIRD directly beneath it.
     expect(html).toMatch(/top:18px[^"]*">RECOMMENDED</);
-    expect(html).toMatch(/top:46px[^"]*">EARLY BIRD</);
+    expect(html).not.toMatch(/top:46px/);
   });
 
-  it('the free card is undisturbed — it gains no early-bird claim', () => {
-    const html = freeCard();
-    expect(html).toContain('FOR EVANGELISTS');
-    expect(html).not.toContain('EARLY BIRD');
-    expect(html).not.toContain('RECOMMENDED');
+  it('the free card is undisturbed', () => {
+    expect(pills(freeCard())).toEqual(['FOR EVANGELISTS']);
   });
 
   it('and the other two priced cards carry no eyebrow at all', () => {
     for (const plan of [individual, smallTeam]) {
       const html = render(React.createElement(PlanCard, { plan, term: 'monthly' as BillingTerm }));
-      expect(html, `${plan.name} grew an eyebrow`).not.toContain('EARLY BIRD');
-      expect(html, `${plan.name} is not the recommended tier`).not.toContain('RECOMMENDED');
+      expect(pills(html), `${plan.name} grew an eyebrow`).toEqual([]);
     }
   });
 
@@ -411,14 +428,16 @@ describe('11b · NO strike-through, NO countdown, NO percentage, NO "rises soon"
     .concat(renderToStaticMarkup(React.createElement(FreeTierCard, { tier: FREE_TIER })))
     .join('\n');
 
-  it('🔴 no struck-through price anywhere — NOBODY EVER PAID $80', () => {
+  it('🔴 no struck-through price anywhere — the price is the price', () => {
     const html = renderedCards();
     expect(html).not.toMatch(/line-through/i);
     expect(html).not.toMatch(/text-decoration/i);
     expect(html).not.toContain('<s>');
     expect(html).not.toContain('<del');
     // And the retired figures are not printed at all — struck or otherwise.
-    for (const gone of ['$80', '$216', '$760', '$63.34']) {
+    // ⚠️ MOVED AT THE-372: $80 and $216 are Ministry's price again, and
+    // THE-343's own figures are now the retired ones.
+    for (const gone of ['$60', '$162', '$564', '$47', '$760', '$63.34']) {
       expect(html, `${gone} is a retired Ministry price and is still rendered`).not.toContain(gone);
     }
   });
@@ -427,7 +446,6 @@ describe('11b · NO strike-through, NO countdown, NO percentage, NO "rises soon"
     // A number in the eyebrow is a second figure to maintain, and a computed
     // discount badge was rejected on this page once already because every tier
     // saves a different amount — which, since this ticket, they do again.
-    expect('EARLY BIRD').not.toMatch(/\d/);
     const html = renderedCards();
     const eyebrows = [...html.matchAll(/<span style="position:absolute[^"]*">([^<]*)<\/span>/g)]
       .map((m) => m[1]);
@@ -455,14 +473,6 @@ describe('11b · NO strike-through, NO countdown, NO percentage, NO "rises soon"
       expect(html, `a card carries the date-like word "${month}"`).not.toContain(month);
     }
   });
-
-  it('🔴 and the claim survives a reprice untouched — it is a fixed word', () => {
-    // The whole reason the eyebrow is a word: nothing about it derives from a
-    // price, so the next reprice cannot leave it stale.
-    expect(PRICING_CODE).toContain('>EARLY BIRD<');
-    // The literal is not interpolated from anything.
-    expect(PRICING_CODE).not.toMatch(/EARLY BIRD[^<]*\$\{/);
-  });
 });
 
 /* ── 11c · popular: true and the gold column ──────────────────────────────── */
@@ -483,13 +493,15 @@ describe('11c · Ministry\'s popular flag and the gold comparison column are unt
     expect(flagReads.length, 'a new reader of `popular` appeared').toBe(2);
   });
 
-  it('🔴 earlyBird is a SEPARATE flag and drives no comparison column', () => {
-    expect(plans.filter((p) => p.earlyBird)).toHaveLength(1);
-    expect(plans.find((p) => p.earlyBird)!.planId).toBe('max');
-    // The two flags coincide on Ministry today and are not the same thing: one
-    // is a price offer, the other is which tier the page recommends.
-    expect(PRICING_CODE).not.toMatch(/findIndex\([^)]*earlyBird/);
-    expect(PRICING_CODE).not.toMatch(/popularIdx[^\n]*earlyBird/);
+  it('no second flag rides beside `popular` any more (THE-372)', () => {
+    // THE-343 added a separate offer flag beside `popular`; THE-372 removed it
+    // with the label it drove. No plan carries a key the `Plan` type no longer
+    // declares.
+    for (const p of plans) {
+      expect(Object.keys(p).sort(), `${p.name} carries an undeclared key`).toEqual(
+        ['blurb', 'features', 'fee', 'name', 'planId', 'price', ...(p.popular ? ['popular'] : [])].sort(),
+      );
+    }
   });
 
   it('the gold column still lands on Ministry in the rendered table', () => {
@@ -534,7 +546,7 @@ describe('14 · a price change does not move the tool count', () => {
     const catalogueText = JSON.stringify(CATALOG);
     for (const figure of [
       ...plans.flatMap((p) => BILLING_TERMS.map((t) => String(p.price[t]))),
-      '80', '216', '760',
+      '60', '162', '564', '760',
     ]) {
       expect(catalogueText, `the tool catalogue mentions the plan price ${figure}`)
         .not.toMatch(new RegExp(`\\$${figure}\\b`));

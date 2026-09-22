@@ -91,12 +91,12 @@ describe('THE-197 — the blog post no longer contradicts PLAN_PRICING', () => {
     // assertion is `toBe` on the derived figure and a `toContain` on the
     // sentence, not a scan for retired numbers: only the derivation catches a
     // stale figure that is too LOW.
-    // 🔴 THE-343 MADE THIS THE ONE YEARLY CELL THAT DIVIDES EXACTLY. $564/12 is
-    // $47 on the nose, so the ceiling is a no-op here and `toFixed(2)` renders
-    // it "47.00" in the sentence below. The DERIVATION is what this asserts,
-    // not the figure: a stale sentence that is too LOW is the failure mode only
-    // a derivation catches, and Ministry's year fell $196 at this reprice.
-    expect(perMonth(ministry.price.yearly)).toBe(47);
+    // 🔴 THE-372 PUT MINISTRY'S YEAR BACK UP, TO $752. $752/12 is $62.6667,
+    // ceiled to $62.67 — so the sentence left at THE-343's figure would have
+    // read $47.00 against a real $62.67, an UNDERSELL of $15.67 a month. That
+    // is the exact failure mode only a derivation catches, which is why the
+    // DERIVATION is what this asserts, not a scan for retired figures.
+    expect(perMonth(ministry.price.yearly)).toBe(62.67);
     expect(blogPost).toContain(
       `Harvest's Ministry plan is $${perMonth(ministry.price.yearly).toFixed(2)}/month billed annually`,
     );
@@ -291,7 +291,7 @@ describe('THE-197 — no price data changed', () => {
     expect(plans.map((p) => ({ planId: p.planId, price: p.price, fee: p.fee }))).toEqual([
       { planId: 'plus', price: { monthly: 20, quarterly: 54, yearly: 190 }, fee: 0 },
       { planId: 'pro', price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0 },
-      { planId: 'max', price: { monthly: 60, quarterly: 162, yearly: 564 }, fee: 0 },
+      { planId: 'max', price: { monthly: 80, quarterly: 216, yearly: 752 }, fee: 0 },
     ]);
   });
 
@@ -341,7 +341,7 @@ describe('THE-197 — no price data changed', () => {
       planPriceContract(plans, {
         plus: { monthly: 20, quarterly: 54, yearly: 190 },
         pro: { monthly: 40, quarterly: 108, yearly: 380 },
-        max: { monthly: 60, quarterly: 162, yearly: 565 },
+        max: { monthly: 80, quarterly: 216, yearly: 753 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();

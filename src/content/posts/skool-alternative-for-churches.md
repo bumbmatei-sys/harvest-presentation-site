@@ -31,14 +31,14 @@ Say a church on Skool Pro now wants the rest of the list: member records, Sunday
 | Member database (CRM) | Individual and up · 150 / 500 / 2,000 contacts | Not on their pricing page (read Sept 15, 2026) | Planning Center People, free |
 | Kids' check-in | Small Team and up, $40/mo — QR | Not on their pricing page (read Sept 15, 2026) | PC Check-Ins, **$15/mo** at 30 daily |
 | A giving page | Individual and up, $20/mo | Not on their pricing page (read Sept 15, 2026) | PC Giving, **$15/mo** at 75 gifts |
-| Tax receipts & giving statements | Ministry, $60/mo | Not on their pricing page (read Sept 15, 2026) | Statements come with PC Giving |
-| Event registration | Ministry, $60/mo | Not on their pricing page (read Sept 15, 2026) | [PC Registrations](https://www.planningcenter.com/pricing), free to 5 attendees (read Sept 15, 2026) |
+| Tax receipts & giving statements | Ministry, $80/mo | Not on their pricing page (read Sept 15, 2026) | Statements come with PC Giving |
+| Event registration | Ministry, $80/mo | Not on their pricing page (read Sept 15, 2026) | [PC Registrations](https://www.planningcenter.com/pricing), free to 5 attendees (read Sept 15, 2026) |
 | A blog for the church | Individual and up, $20/mo | Not on their pricing page (read Sept 15, 2026) | A blog or website tool |
 | Fee on money you collect | 0% platform fee on every paid plan | 10% on Hobby · 2.9% on Pro | PC Giving processes US cards at 2.15% + $0.30 |
 
 Add it up. [Skool](https://www.skool.com/pricing) Pro at $99, plus [Planning Center Giving](https://www.planningcenter.com/giving) at $15 and [Planning Center Check-Ins](https://www.planningcenter.com/check-ins) at $15 — all read September 15, 2026 — is **$129 a month, across two vendors, on two separate bills.** That figure is deliberately conservative: it does not price the blog or website tool the table's last row still calls for.
 
-Harvest's Ministry plan is **$60/mo** on the monthly term — under half that $129, compared like for like — or **$47/mo, billed as $564 every 12 months** on a yearly commitment. Skool discounts a year too, advertising two months free on its own yearly toggle, so monthly against monthly is the fair comparison. Either way it is one plan and one bill, carrying the community feed, 15 courses, the CRM to 2,000 contacts, QR check-in, the giving page, event registration, giving statements, the blog and custom branding.
+Harvest's Ministry plan is **$80/mo** on the monthly term — $49 a month under that $129, compared like for like — or **$62.67/mo, billed as $752 every 12 months** on a yearly commitment. Skool discounts a year too, advertising two months free on its own yearly toggle, so monthly against monthly is the fair comparison. Either way it is one plan and one bill, carrying the community feed, 15 courses, the CRM to 2,000 contacts, QR check-in, the giving page, event registration, giving statements, the blog and custom branding.
 
 A church under a hundred people usually does not need Ministry. Small Team is **$40/mo** monthly, or **$31.67/mo, billed as $380 every 12 months**, carrying the community feed, the CRM to 500 contacts, five courses, QR check-in, livestream, the church map, the blog and the mobile app. Match that scope on the other side — Skool Pro at $99, Planning Center Check-Ins at $15 — and it is $114 against $40, on the same monthly terms.
 
