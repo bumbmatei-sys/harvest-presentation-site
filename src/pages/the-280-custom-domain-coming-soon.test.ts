@@ -680,12 +680,17 @@ describe('6 — the prerendered page count is unchanged', () => {
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(routes).toHaveLength(27);
+    /* 🔵 28 SINCE #106 — the /waitlist product-updates page, merged with this
+       workflow red (and #105 before it), so main never ran these suites green.
+       It is the 28th route. NOT THE-372's, and corrected here only because CI
+       gates this PR on it — see the PR. */
+    expect(routes).toHaveLength(28);
     // 🔵 26 with the scheduler page taken out, and all three Solutions pages
     // counted — 25 before the Sep 15 `skool-alternative-for-churches` post,
     // 22 with the scheduler taken out and no Solutions pages, 21 before the
     // Sep 10 post.
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(26);
+    // 🔵 27 since #106 added /waitlist.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(27);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
@@ -696,7 +701,11 @@ describe('6 — the prerendered page count is unchanged', () => {
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(count, `this checkout built ${count} pages, not 27`).toBe(27);
+    /* 🔵 28 SINCE #106 — the /waitlist product-updates page, merged with this
+       workflow red (and #105 before it), so main never ran these suites green.
+       It is the 28th route. NOT THE-372's, and corrected here only because CI
+       gates this PR on it — see the PR. */
+    expect(count, `this checkout built ${count} pages, not 28`).toBe(28);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {

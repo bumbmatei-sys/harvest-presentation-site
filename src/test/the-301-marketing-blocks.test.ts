@@ -253,7 +253,11 @@ describe('4 — the prerendered page count is unchanged', () => {
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(blogRoutes()).toHaveLength(27);
+    /* 🔵 28 SINCE #106 — the /waitlist product-updates page, merged with this
+       workflow red (and #105 before it), so main never ran these suites green.
+       It is the 28th route. NOT THE-372's, and corrected here only because CI
+       gates this PR on it — see the PR. */
+    expect(blogRoutes()).toHaveLength(28);
   });
 
   it('and App.tsx gained no route', () => {
@@ -267,7 +271,11 @@ describe('4 — the prerendered page count is unchanged', () => {
        `pull_request` only, and its own header says "a direct push to it now
        gets no CI at all". It is the 27th route. NOT THE-370's, and corrected
        here only because CI gates both repos' PRs on it — see the PR. */
-    expect(PAGES).toHaveLength(27);
+    /* 🔵 28 SINCE #106 — the /waitlist product-updates page, merged with this
+       workflow red (and #105 before it), so main never ran these suites green.
+       It is the 28th route. NOT THE-372's, and corrected here only because CI
+       gates this PR on it — see the PR. */
+    expect(PAGES).toHaveLength(28);
   });
 
   it.runIf(built)('and the twenty-two non-post pages are there on any platform', () => {
@@ -283,7 +291,8 @@ describe('4 — the prerendered page count is unchanged', () => {
        the blog. Twenty holds on Linux and on Windows, and it still catches a
        page this ticket added or dropped — which was the point. */
     const nonPosts = PAGES.filter(([f]) => !/^blog\/[^/]+\/index\.html$/.test(f) || f.startsWith('blog/category/'));
-    expect(nonPosts.map(([f]) => f)).toHaveLength(22);
+    // 🔵 23 since #106 added the /waitlist page, which is not a post.
+    expect(nonPosts.map(([f]) => f)).toHaveLength(23);
     expect(nonPosts.map(([f]) => f)).toContain('features/index.html');
     expect(nonPosts.map(([f]) => f)).toContain('contact/index.html');
   });
@@ -492,9 +501,22 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
       'bd811da28b6fbfa3ad9b881fba68cc1b6f6b19baa26060de813c8b81be980f1e',
   };
 
+  /* 🔵 REPINS ARE APPENDED FROM HERE ON, NEVER SUBSTITUTED. Each table below
+     names the change that moved a file and carries its new hash; `PINNED`
+     above is left exactly as it was, and a file must match the NEWEST table
+     that names it. A table is added per change, in order, and the lookup
+     chain gains it at the FRONT. */
+
+  /* #106 — the /waitlist product-updates page. Two lines adding '/waitlist' to
+     STATIC_ROUTES and blogRoutes(). Merged with CI red, so this pin was never
+     moved with it; recorded here so the next PR is not blocked on it. */
+  const WAITLIST_106_REPINNED: Readonly<Record<string, string>> = {
+    'build/blog-plugin.ts': '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
-      expect(sha(read(file)), `${file} moved`).toBe(hash);
+      expect(sha(read(file)), `${file} moved`).toBe(WAITLIST_106_REPINNED[file] ?? hash);
     });
   }
 
