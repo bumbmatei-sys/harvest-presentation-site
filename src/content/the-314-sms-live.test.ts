@@ -399,7 +399,8 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(pagesInDist()).toHaveLength(28);
+    /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-314's. */
+    expect(pagesInDist()).toHaveLength(29);
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {

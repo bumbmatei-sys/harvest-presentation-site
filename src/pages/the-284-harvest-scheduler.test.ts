@@ -745,7 +745,11 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(routes).toHaveLength(28);
+    /* 🔵 29 SINCE c5b7143 — `track-sunday-attendance-without-a-sign-in-sheet`,
+       restored straight onto main, so this workflow never saw it. It is the
+       29th route. NOT THE-373's, and corrected here only because CI gates
+       this PR on it. */
+    expect(routes).toHaveLength(29);
     expect(new Set(routes).size, 'a route is listed twice').toBe(routes.length);
     for (const r of BEFORE) expect(routes, `${r} dropped out of the prerender list`).toContain(r);
     /* 🔵 SIX ADDITIONS NOW, AND THE-284's IS STILL EXACTLY ONE OF THEM. `BEFORE`
@@ -766,6 +770,8 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
       '/solutions/missionaries',
       // 🔵 SEVENTH: #106's /waitlist page, merged with CI red. Not THE-284's.
       '/waitlist',
+      // 🔵 EIGHTH: c5b7143's check-in post, pushed straight to main. Not THE-284's.
+      '/blog/track-sunday-attendance-without-a-sign-in-sheet',
       '/blog/skool-alternative-for-churches',
       '/blog/year-end-giving-statements-what-to-include',
     ]);
@@ -782,7 +788,8 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(pages, `this checkout built ${pages.length} pages, not 28`).toHaveLength(28);
+    /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-284's. */
+    expect(pages, `this checkout built ${pages.length} pages, not 29`).toHaveLength(29);
     expect(pages.map(([f]) => f)).toContain('features/harvest-scheduler/index.html');
   });
 

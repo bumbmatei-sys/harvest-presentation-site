@@ -685,13 +685,18 @@ describe('6 — the prerendered page count is unchanged', () => {
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(routes).toHaveLength(28);
+    /* 🔵 29 SINCE c5b7143 — `track-sunday-attendance-without-a-sign-in-sheet`,
+       restored straight onto main, so this workflow never saw it. It is the
+       29th route. NOT THE-373's, and corrected here only because CI gates
+       this PR on it. */
+    expect(routes).toHaveLength(29);
     // 🔵 26 with the scheduler page taken out, and all three Solutions pages
     // counted — 25 before the Sep 15 `skool-alternative-for-churches` post,
     // 22 with the scheduler taken out and no Solutions pages, 21 before the
     // Sep 10 post.
     // 🔵 27 since #106 added /waitlist.
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(27);
+    // 🔵 28 since c5b7143's check-in post, with the scheduler page taken out.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(28);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
@@ -706,7 +711,8 @@ describe('6 — the prerendered page count is unchanged', () => {
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(count, `this checkout built ${count} pages, not 28`).toBe(28);
+    /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-280's. */
+    expect(count, `this checkout built ${count} pages, not 29`).toBe(29);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {

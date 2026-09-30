@@ -561,7 +561,8 @@ describe('9 — the prerendered page count is still 22', () => {
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(pages(DIST)).toHaveLength(28);
+    /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-297's. */
+    expect(pages(DIST)).toHaveLength(29);
   });
 
   it('🔴 and no route was added — "see all" points at a page that already existed', () => {
