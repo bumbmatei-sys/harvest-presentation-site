@@ -257,7 +257,11 @@ describe('4 — the prerendered page count is unchanged', () => {
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(blogRoutes()).toHaveLength(28);
+    /* 🔵 29 SINCE c5b7143 — `track-sunday-attendance-without-a-sign-in-sheet`,
+       restored straight onto main, so this workflow never saw it. It is the
+       29th route. NOT THE-373's, and corrected here only because CI gates
+       this PR on it. */
+    expect(blogRoutes()).toHaveLength(29);
   });
 
   it('and App.tsx gained no route', () => {
@@ -275,7 +279,8 @@ describe('4 — the prerendered page count is unchanged', () => {
        workflow red (and #105 before it), so main never ran these suites green.
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
-    expect(PAGES).toHaveLength(28);
+    /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-301's. */
+    expect(PAGES).toHaveLength(29);
   });
 
   it.runIf(built)('and the twenty-two non-post pages are there on any platform', () => {
