@@ -818,15 +818,15 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
    The prices and the add-on catalogue are untouched.                        */
 describe('11 — no plan price moved and nothing was added to the add-on catalogue', () => {
   const NINE = {
-    plus: { monthly: 20, quarterly: 54, yearly: 190 },
-    pro: { monthly: 40, quarterly: 108, yearly: 380 },
+    plus: { monthly: 20, yearly: 190 },
+    pro: { monthly: 40, yearly: 380 },
     // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
     // the quarter and year at $216 / $752). plus and pro are enumerated
     // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 80, quarterly: 216, yearly: 752 },
+    max: { monthly: 80, yearly: 752 },
   } as const;
 
-  it('all nine plan prices are exactly what the app charges', () => {
+  it('all six plan prices are exactly what the app charges', () => {
     for (const [planId, terms] of Object.entries(NINE)) {
       const plan = plans.find((p) => p.planId === planId);
       if (plan === undefined) throw new Error(`plan ${planId} vanished from the table`);

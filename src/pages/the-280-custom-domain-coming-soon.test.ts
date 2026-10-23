@@ -579,17 +579,17 @@ describe('4 — the subdomain still ships, and the entry says so', () => {
 
 /* ── 5 ─────────────────────────────────────────────────────────────────────
    🔴 No price moved, and all three contracts still throw.                    */
-describe('5 — the nine plan prices are unchanged and the contracts still throw', () => {
+describe('5 — the six plan prices are unchanged and the contracts still throw', () => {
   const NINE = {
-    plus: { monthly: 20, quarterly: 54, yearly: 190 },
-    pro: { monthly: 40, quarterly: 108, yearly: 380 },
+    plus: { monthly: 20, yearly: 190 },
+    pro: { monthly: 40, yearly: 380 },
     // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
     // the quarter and year at $216 / $752). plus and pro are enumerated
     // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 80, quarterly: 216, yearly: 752 },
+    max: { monthly: 80, yearly: 752 },
   } as const;
 
-  it('all nine prices are exactly what the app charges', () => {
+  it('all six prices are exactly what the app charges', () => {
     for (const [planId, terms] of Object.entries(NINE)) {
       const plan = plans.find((p) => p.planId === planId);
       if (plan === undefined) throw new Error(`plan ${planId} vanished from the table`);

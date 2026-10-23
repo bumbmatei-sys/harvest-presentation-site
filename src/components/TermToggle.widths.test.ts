@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { BILLING_TERMS, TERM_LABEL, TermToggle } from './Pricing';
 
-/* ─── THE-195 TEST 8: three segments, no clipping, at five viewports ──────────
+/* ─── THE-195 TEST 8: the segments, no clipping, at five viewports ────────────
  *
  * 🔴 WHY THIS IS ARITHMETIC AND NOT A SCREENSHOT. This repo's test runner has
  * no DOM and no layout engine, so nothing here can "measure" a rendered box.
@@ -12,7 +12,9 @@ import { BILLING_TERMS, TERM_LABEL, TermToggle } from './Pricing';
  * them. That is stronger than it sounds, because the previous control could not
  * have passed it: it was `display: inline-flex`, which sizes to its CONTENT and
  * therefore has no relationship to the viewport — a third segment simply made
- * the track wider than the screen. A grid whose columns are `minmax(0, 1fr)`
+ * the track wider than the screen. (The third segment, Quarterly, was withdrawn
+ * on 2026-10-23, so the control has two again; the structural argument is the
+ * same and the figures below are recomputed for two columns.) A grid whose columns are `minmax(0, 1fr)`
  * inside a `width: 100%` box cannot exceed its container by construction.
  *
  * PR 361 fixed a clip on the in-app plan cards at 1120px by removing a
@@ -25,30 +27,32 @@ const html = renderToStaticMarkup(React.createElement(TermToggle, { value: 'year
  *  components/shared.tsx is `padding: '0 28px'`. Read from there rather than
  *  guessed: the gutter is what makes 380px the binding viewport. */
 const GUTTER = 28;
-/** The toggle's own chrome: `padding: 4` each side, and two 4px column gaps. */
+/** The toggle's own chrome: `padding: 4` each side, and one 4px column gap. */
 const TRACK_PADDING = 4 * 2;
-const GAPS = 4 * 2;
+const GAPS = 4 * (BILLING_TERMS.length - 1);
 /** `maxWidth: 420` on the track. */
 const MAX_TRACK = 420;
 
-/** The width one of the three segments gets at a given viewport. */
+/** The width one of the segments gets at a given viewport. */
 function segmentWidth(viewport: number): number {
   const track = Math.min(MAX_TRACK, viewport - GUTTER * 2);
   return (track - TRACK_PADDING - GAPS) / BILLING_TERMS.length;
 }
 
-/* An 12.5px semibold sans label sets at roughly 0.55em per character; "Quarterly"
- * is the widest of the three at 9 characters. Deliberately generous — the point
+/* An 12.5px semibold sans label sets at roughly 0.55em per character; "Monthly"
+ * is the widest of the two at 7 characters. Deliberately generous — the point
  * is headroom, not a precise text metric this runner cannot produce. */
 const CHAR_WIDTH = 12.5 * 0.55;
 const widest = Math.max(...BILLING_TERMS.map((t) => TERM_LABEL[t].length)) * CHAR_WIDTH;
 /** `padding: '8px 10px'` — horizontal padding eats into the label's room. */
 const SEGMENT_PADDING = 10 * 2;
 
-describe('the term toggle renders three segments without clipping at every measured width', () => {
-  it('renders exactly three segments', () => {
+describe('the term toggle renders two segments without clipping at every measured width', () => {
+  it('renders exactly two segments, and no quarterly one', () => {
     const segments = html.match(/data-testid="term-toggle-segment"/g);
-    expect(segments).toHaveLength(3);
+    expect(segments).toHaveLength(2);
+    expect(html).not.toContain('data-term="quarterly"');
+    expect(html).not.toContain('Quarterly');
     for (const t of BILLING_TERMS) {
       expect(html).toContain(`data-term="${t}"`);
       expect(html).toContain(TERM_LABEL[t]);
@@ -58,7 +62,7 @@ describe('the term toggle renders three segments without clipping at every measu
   it.each([380, 768, 1024, 1280, 1440])('fits its labels at %ipx', (viewport) => {
     const seg = segmentWidth(viewport);
     const room = seg - SEGMENT_PADDING;
-    expect(room, `"Quarterly" (~${widest.toFixed(0)}px) does not fit a ${seg.toFixed(0)}px segment`)
+    expect(room, `"Monthly" (~${widest.toFixed(0)}px) does not fit a ${seg.toFixed(0)}px segment`)
       .toBeGreaterThan(widest);
   });
 
@@ -66,12 +70,12 @@ describe('the term toggle renders three segments without clipping at every measu
     // The five figures the change is reported with. 380px is the binding case —
     // the track is viewport-bound there (380 − 56 = 324px). From 768px up it is
     // capped at its 420px maximum, so every wider viewport yields the same
-    // segment and none of them can be the tight one. "Quarterly" sets to ~62px
-    // against 83px of usable room at 380px: slack, not a snug fit.
+    // segment and none of them can be the tight one. "Monthly" sets to ~48px
+    // against 136px of usable room at 380px: slack, not a snug fit.
     const measured = Object.fromEntries(
       [380, 768, 1024, 1280, 1440].map((v) => [v, Math.round(segmentWidth(v))]),
     );
-    expect(measured).toEqual({ 380: 103, 768: 135, 1024: 135, 1280: 135, 1440: 135 });
+    expect(measured).toEqual({ 380: 156, 768: 204, 1024: 204, 1280: 204, 1440: 204 });
   });
 
   it('🔴 keeps the track from ever exceeding its container — the property that stops a clip', () => {
@@ -79,22 +83,22 @@ describe('the term toggle renders three segments without clipping at every measu
     // `1fr` (a grid column's implicit min-width is `auto`, which refuses to
     // shrink below its content and overflows instead).
     expect(html).toContain('display:grid');
-    expect(html).toContain('grid-template-columns:repeat(3, minmax(0, 1fr))');
+    expect(html).toContain('grid-template-columns:repeat(2, minmax(0, 1fr))');
     expect(html).toContain('width:100%');
     expect(html).toContain('max-width:420px');
     expect(html).not.toContain('display:inline-flex');
     // Every segment may shrink.
-    expect(html.match(/min-width:0/g)).toHaveLength(3);
+    expect(html.match(/min-width:0/g)).toHaveLength(2);
   });
 
   it('🔴 hangs no badge outside the track — the PR 361 failure mode', () => {
     // The two-term control positioned its badge `absolute -top-2 -right-2`. An
     // absolutely-positioned child contributes nothing to the track's width and
     // overhangs the rounded container on both axes; with two segments there was
-    // slack to overhang into, and with three there is not.
+    // slack to overhang into, and with three there was not.
     expect(html).not.toContain('position:absolute');
     // The badge is a block-level second line, in normal flow, inside the button.
-    expect(html.match(/data-testid="term-toggle-badge"/g)).toHaveLength(2);
+    expect(html.match(/data-testid="term-toggle-badge"/g)).toHaveLength(1);
   });
 
   it('keeps every label and badge at 11px or above', () => {

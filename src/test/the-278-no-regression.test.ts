@@ -1823,14 +1823,14 @@ describe('7 — index.css\'s original 400 lines are untouched', () => {
 });
 
 /* ═══ 8 — the cross-repo price contract ══════════════════════════════════ */
-describe('8 — the nine plan prices are unchanged and the contract still has teeth', () => {
+describe('8 — the six plan prices are unchanged and the contract still has teeth', () => {
   const NINE = {
-    plus: { monthly: 20, quarterly: 54, yearly: 190 },
-    pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 80, quarterly: 216, yearly: 752 },
+    plus: { monthly: 20, yearly: 190 },
+    pro: { monthly: 40, yearly: 380 },
+    max: { monthly: 80, yearly: 752 },
   } as const;
 
-  it('all nine prices are exactly what the app charges', () => {
+  it('all six prices are exactly what the app charges', () => {
     for (const [planId, terms] of Object.entries(NINE)) {
       const plan = plans.find((p) => p.planId === planId);
       if (plan === undefined) throw new Error(`plan ${planId} vanished from the table`);

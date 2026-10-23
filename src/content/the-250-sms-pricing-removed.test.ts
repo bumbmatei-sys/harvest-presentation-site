@@ -325,7 +325,7 @@ describe('4 — both cross-repo contracts still throw when the repos disagree', 
     // moved — three of them this time — and the PRICE contract is unmoved by it.
     // That is exactly the separation the contract exists to hold, and it throws
     // at module scope during the prerender if the two repos ever disagree on any
-    // of the nine. The SMS presence is read off the flag so this stays a real
+    // of the six. The SMS presence is read off the flag so this stays a real
     // check of the shipped plans in either state.
     expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f)))
       .toBe(SMS_MARKETING_ENABLED);
@@ -335,9 +335,9 @@ describe('4 — both cross-repo contracts still throw when the repos disagree', 
   it('🔴 and it STILL throws when the repos disagree — the mutation control', () => {
     // A contract that never fails proves nothing. One cent of disagreement.
     expect(() => planPriceContract(asShipped(), {
-      plus: { monthly: 21, quarterly: 54, yearly: 190 },
-      pro: { monthly: 40, quarterly: 108, yearly: 380 },
-      max: { monthly: 80, quarterly: 216, yearly: 752 },
+      plus: { monthly: 21, yearly: 190 },
+      pro: { monthly: 40, yearly: 380 },
+      max: { monthly: 80, yearly: 752 },
     })).toThrow(/renders \$20 monthly, but the app/);
     // And when a plan is missing from the app's table entirely.
     expect(() => planPriceContract(asShipped(), {})).toThrow(/no expected prices/);
@@ -391,16 +391,16 @@ describe('5 — the tool count is still derived, and no price changed', () => {
     expect(readSrc('components/catalog.ts')).toContain("'SMS Automation'");
   });
 
-  it('🔴 no price changed — monthly, quarterly and yearly, all three tiers', () => {
+  it('🔴 no price changed — monthly and yearly, all three tiers', () => {
     const byName = Object.fromEntries(plans.map((p) => [p.name, p.price]));
-    expect(byName['Individual']).toEqual({ monthly: 20, quarterly: 54, yearly: 190 });
-    expect(byName['Small Team']).toEqual({ monthly: 40, quarterly: 108, yearly: 380 });
-    expect(byName['Ministry']).toEqual({ monthly: 80, quarterly: 216, yearly: 752 });
+    expect(byName['Individual']).toEqual({ monthly: 20, yearly: 190 });
+    expect(byName['Small Team']).toEqual({ monthly: 40, yearly: 380 });
+    expect(byName['Ministry']).toEqual({ monthly: 80, yearly: 752 });
   });
 
   it('and the cards still RENDER those prices — not just hold them', () => {
     const text = allCardText();
-    for (const n of ['20', '40', '80', '54', '108', '216', '190', '380', '752']) {
+    for (const n of ['20', '40', '80', '190', '380', '752']) {
       expect(text, `$${n} is no longer rendered on any card`).toContain(n);
     }
   });

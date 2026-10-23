@@ -45,22 +45,23 @@ const individual = plans.find((p) => p.planId === 'plus')!;
 const smallTeam = plans.find((p) => p.planId === 'pro')!;
 
 /**
- * The three live Dodo products, as read back after the founder repriced them.
+ * The live Dodo products, as read back after the founder repriced them. (Three
+ * when this was written; the quarterly product, `pdt_0NloCatUWEkEUq1usWJ0n` at
+ * $216, was archived on 2026-10-23 when the term was withdrawn.)
  * Transcribed from the products, NOT from `plans`, so this is an independent
  * check rather than a restatement. Minor units, the unit in the field name.
  */
 const DODO_MINISTRY_LIVE: ReadonlyArray<{ term: BillingTerm; productId: string; priceCents: number }> = [
   { term: 'monthly', productId: 'pdt_0NlJZMUUiT36FGMoiFXgl', priceCents: 8000 },
-  { term: 'quarterly', productId: 'pdt_0NloCatUWEkEUq1usWJ0n', priceCents: 21600 },
   { term: 'yearly', productId: 'pdt_0NlJZMXTnpRBAwTfBVpPs', priceCents: 75200 },
 ];
 
-/* The nine, written out here once more on purpose: an equality check against a
+/* The six, written out here once more on purpose: an equality check against a
    table derived from `plans` cannot fail. EVERY cell, no exclusion. */
-const ALL_NINE_USD: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, quarterly: 54, yearly: 190 },
-  pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 80, quarterly: 216, yearly: 752 },
+const ALL_SIX_USD: Record<string, Record<BillingTerm, number>> = {
+  plus: { monthly: 20, yearly: 190 },
+  pro: { monthly: 40, yearly: 380 },
+  max: { monthly: 80, yearly: 752 },
 };
 
 const card = (planId: string, term: BillingTerm) =>
@@ -175,9 +176,9 @@ function offerLabelHits(sources: ReadonlyArray<{ file: string; code: string }>):
 }
 
 /* ── 1 ──────────────────────────────────────────────────────────────────────── */
-describe('1 · Ministry is $80 monthly, $216 quarterly, $752 annual', () => {
+describe('1 · Ministry is $80 monthly and $752 annual', () => {
   it('in the plan data, and in the cross-repo contract that fails the prerender', () => {
-    expect(ministry.price).toEqual({ monthly: 80, quarterly: 216, yearly: 752 });
+    expect(ministry.price).toEqual({ monthly: 80, yearly: 752 });
     expect(() => planPriceContract(plans)).not.toThrow();
   });
 
@@ -188,38 +189,36 @@ describe('1 · Ministry is $80 monthly, $216 quarterly, $752 annual', () => {
     }
   });
 
-  it('the quarter and year keep Ministry\'s discount RATIOS exactly — 2.7x and 9.4x', () => {
-    // The founder named only the month; these two are derived, and this is
-    // the relationship they were derived to keep. Integer arithmetic, so no
-    // float can round a wrong figure into a pass.
-    expect(ministry.price.quarterly * 10).toBe(ministry.price.monthly * 27);
+  it('the year keeps Ministry\'s discount RATIO exactly — 9.4x', () => {
+    // The founder named only the month; the year is derived, and this is the
+    // relationship it was derived to keep. Integer arithmetic, so no float can
+    // round a wrong figure into a pass. (The quarter's 2.7x went with the
+    // quarterly term.)
     expect(ministry.price.yearly * 10).toBe(ministry.price.monthly * 94);
   });
 
   it('RENDERED on the card on every term, headline and charged total', () => {
     expect(words(card('max', 'monthly'))).toContain(' $80 /mo');
-    expect(words(card('max', 'quarterly'))).toContain('billed as $216 every 3 months');
     expect(words(card('max', 'yearly'))).toContain('billed as $752 every 12 months');
-    expect(formatMonthlyHeadline(ministry.price.quarterly, 'quarterly')).toBe('$72');
     // $752 / 12 = $62.6667, CEILED at the cent: never implies less than the bill.
     expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).toBe('$62.67');
   });
 
-  it('the Terms and the FAQ quote the same three, and agree with the cards', () => {
+  it('the Terms and the FAQ quote the same two, and agree with the cards', () => {
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(faqPlanMismatches(plans)).toEqual([]);
     const terms = TIER_PRICE_CLAIMS.find((c) => c.planId === 'max')!;
     const faq = FAQ_PLAN_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([terms.monthly, terms.quarterly, terms.annual]).toEqual([80, 216, 752]);
-    expect([faq.monthly, faq.quarterly, faq.annual]).toEqual([80, 216, 752]);
+    expect([terms.monthly, terms.annual]).toEqual([80, 752]);
+    expect([faq.monthly, faq.annual]).toEqual([80, 752]);
   });
 });
 
 /* ── 2 ──────────────────────────────────────────────────────────────────────── */
 describe('2 · Individual and Small Team are unchanged', () => {
   it('six cells, enumerated', () => {
-    expect(individual.price).toEqual({ monthly: 20, quarterly: 54, yearly: 190 });
-    expect(smallTeam.price).toEqual({ monthly: 40, quarterly: 108, yearly: 380 });
+    expect(individual.price).toEqual({ monthly: 20, yearly: 190 });
+    expect(smallTeam.price).toEqual({ monthly: 40, yearly: 380 });
   });
 });
 
@@ -358,30 +357,30 @@ describe('5 · no crossed-out or "was" price remains — $80 is the price, not a
 });
 
 /* ── 6 ──────────────────────────────────────────────────────────────────────── */
-describe('6 · all nine prices pass the strict equality check — no exclusion', () => {
+describe('6 · all six prices pass the strict equality check — no exclusion', () => {
   it('every cell of every tier, against the table written above', () => {
     expect(plans.map((p) => p.planId)).toEqual(['plus', 'pro', 'max']);
     let cells = 0;
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        expect(p.price[term], `${p.name} ${term}`).toBe(ALL_NINE_USD[p.planId][term]);
+        expect(p.price[term], `${p.name} ${term}`).toBe(ALL_SIX_USD[p.planId][term]);
         cells += 1;
       }
     }
-    expect(cells).toBe(9);
-    expect(() => planPriceContract(plans, ALL_NINE_USD)).not.toThrow();
+    expect(cells).toBe(6);
+    expect(() => planPriceContract(plans, ALL_SIX_USD)).not.toThrow();
   });
 
-  it('and the contract throws on a $1 drift in ANY of the nine — Ministry included', () => {
+  it('and the contract throws on a $1 drift in ANY of the six — Ministry included', () => {
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        const drifted = Object.fromEntries(Object.entries(ALL_NINE_USD).map(([k, v]) => [k, { ...v }]));
+        const drifted = Object.fromEntries(Object.entries(ALL_SIX_USD).map(([k, v]) => [k, { ...v }]));
         drifted[p.planId][term] += 1;
         expect(() => planPriceContract(plans, drifted), `${p.name} ${term}`).toThrow(new RegExp(`${p.name}.*${term}`));
       }
     }
     // Restoring THE-343's Ministry on one side only is a failed prerender.
-    expect(() => planPriceContract(plans, { ...ALL_NINE_USD, max: { monthly: 60, quarterly: 162, yearly: 564 } }))
+    expect(() => planPriceContract(plans, { ...ALL_SIX_USD, max: { monthly: 60, yearly: 564 } }))
       .toThrow(/Ministry/);
   });
 });

@@ -284,14 +284,14 @@ describe('THE-197 — features.ts no longer contradicts PLAN_PRICING', () => {
 });
 
 describe('THE-197 — no price data changed', () => {
-  it('PLAN_PRICING (plans) is the nine prices THE-222 repriced to, and the fee is still 0%', () => {
+  it('PLAN_PRICING (plans) is the six prices THE-222 repriced to, and the fee is still 0%', () => {
     // ⚠️ THE-197 could not touch a price; THE-222 IS the reprice, so this pin
     // moves with it. What the assertion is really holding is the FEE — 0% on
     // every tier — which no reprice may disturb, and the shape of the row.
     expect(plans.map((p) => ({ planId: p.planId, price: p.price, fee: p.fee }))).toEqual([
-      { planId: 'plus', price: { monthly: 20, quarterly: 54, yearly: 190 }, fee: 0 },
-      { planId: 'pro', price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0 },
-      { planId: 'max', price: { monthly: 80, quarterly: 216, yearly: 752 }, fee: 0 },
+      { planId: 'plus', price: { monthly: 20, yearly: 190 }, fee: 0 },
+      { planId: 'pro', price: { monthly: 40, yearly: 380 }, fee: 0 },
+      { planId: 'max', price: { monthly: 80, yearly: 752 }, fee: 0 },
     ]);
   });
 
@@ -339,9 +339,9 @@ describe('THE-197 — no price data changed', () => {
   it('the cross-repo price contract still throws when the two repos disagree', () => {
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, quarterly: 54, yearly: 190 },
-        pro: { monthly: 40, quarterly: 108, yearly: 380 },
-        max: { monthly: 80, quarterly: 216, yearly: 753 },
+        plus: { monthly: 20, yearly: 190 },
+        pro: { monthly: 40, yearly: 380 },
+        max: { monthly: 80, yearly: 753 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();

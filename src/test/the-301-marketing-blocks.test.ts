@@ -303,21 +303,21 @@ describe('4 — the prerendered page count is unchanged', () => {
   });
 });
 
-/* ═══ 5 — the nine prices, and a contract with teeth ═════════════════════ */
-describe('5 — the nine plan prices are unchanged and the contract still bites', () => {
-  /** Three plans × three terms. Pinned as literals HERE — the one place in the
+/* ═══ 5 — the six prices, and a contract with teeth ═════════════════════ */
+describe('5 — the six plan prices are unchanged and the contract still bites', () => {
+  /** Three plans × two terms. Pinned as literals HERE — the one place in the
    *  repo where writing a price down is the point rather than the hazard. */
   const NINE: Readonly<Record<string, Record<string, number>>> = {
-    plus: { monthly: 20, quarterly: 54, yearly: 190 },
-    pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 80, quarterly: 216, yearly: 752 },
+    plus: { monthly: 20, yearly: 190 },
+    pro: { monthly: 40, yearly: 380 },
+    max: { monthly: 80, yearly: 752 },
   };
 
-  it('all nine are exactly what they were', () => {
+  it('all six are exactly what they were', () => {
     expect(plans).toHaveLength(3);
     for (const p of plans) {
       expect(NINE[p.planId], `${p.planId} is not a plan this ticket saw`).toBeDefined();
-      for (const term of ['monthly', 'quarterly', 'yearly'] as const) {
+      for (const term of ['monthly', 'yearly'] as const) {
         expect(p.price[term], `${p.name} ${term} moved`).toBe(NINE[p.planId][term]);
       }
     }
@@ -537,9 +537,24 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
       '57449dc7706fdbd2a42af69045d9bb5d135316d581cb4669f0bcaa76c9a64526',
   };
 
+  /* 🔴 QUARTERLY TERM RETIRED (2026-10-23) — A PRICE COLUMN LEFT THIS PIN. The
+     founder withdrew the quarterly plan, so `Pricing.tsx` lost its `quarterly`
+     cell on every tier, the three-segment term toggle became two, the quarterly
+     badge and the add-on footnote sentence about quarterly billing went, and
+     `EXPECTED_PLAN_PRICES` lost the same column — in the same file, so
+     `planPriceContract` still compares six cells against six at module scope and
+     would have failed the prerender rather than reached this hash. The nine
+     plan prices became six; the monthly and yearly cells did not move. The
+     previous hash was 31af1e2c…. */
+  const QUARTERLY_RETIRED_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': '96f80fa6516d16dcf90e25570c1178a6ec719c25d5ec39bfe0954cf02a3b8fcc',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
-      expect(sha(read(file)), `${file} moved`).toBe(THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash);
+      expect(sha(read(file)), `${file} moved`).toBe(
+        QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+      );
     });
   }
 

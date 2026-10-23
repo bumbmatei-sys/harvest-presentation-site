@@ -33,7 +33,7 @@ import {
  * THE-222's own proofs (the table repriced rather than shifting rows; the claim
  * shape is derived, not typed) are kept intact against ITS table and ITS
  * advertised percentages, because a historical proof that silently re-points at
- * today's constants stops proving anything. The nine live prices are pinned in
+ * today's constants stops proving anything. The six live prices are pinned in
  * the-248-discount-alignment.test.ts.
  *
  * ⚠️ ASSERTED AGAINST RENDERED MARKUP WHEREVER A CHURCH WOULD READ IT. PR 55
@@ -57,25 +57,31 @@ const pageText = () => words(renderToStaticMarkup(React.createElement(Pricing)))
 
 /** What THE-222 itself shipped. HISTORY — do not reprice this; the proofs below
  *  are about the move from OLD_TABLE to this one. */
-const THE_222_TABLE: Record<string, Record<BillingTerm, number>> = {
+/** The tables below that are HISTORY still carry a quarterly cell, because the
+ *  term existed when they were true; the live term set no longer has one, so
+ *  they are keyed by plain strings rather than by `BillingTerm`. */
+const LEGACY_TERMS = ['monthly', 'quarterly', 'yearly'] as const;
+
+const THE_222_TABLE: Record<string, Record<string, number>> = {
   plus: { monthly: 20, quarterly: 49, yearly: 165 },
   pro: { monthly: 40, quarterly: 99, yearly: 329 },
   max: { monthly: 80, quarterly: 199, yearly: 659 },
 };
 
 /** What came before THE-222. HISTORY. */
-const OLD_TABLE: Record<string, Record<BillingTerm, number>> = {
+const OLD_TABLE: Record<string, Record<string, number>> = {
   plus: { monthly: 39, quarterly: 99, yearly: 329 },
   pro: { monthly: 79, quarterly: 199, yearly: 659 },
   max: { monthly: 159, quarterly: 399, yearly: 1329 },
 };
 
-/** What is LIVE, as of THE-248 — the monthly column THE-222 set, with the six
- *  discounted cells raised to a flat 10% and 20% off. */
+/** What is LIVE — the monthly column THE-222 set and the yearly column THE-248
+ *  and THE-372 left. The quarterly column (54 / 108 / 216, a flat 10% off) was
+ *  withdrawn with the term on 2026-10-23. */
 const CURRENT_TABLE: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, quarterly: 54, yearly: 190 },
-  pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 80, quarterly: 216, yearly: 752 },
+  plus: { monthly: 20, yearly: 190 },
+  pro: { monthly: 40, yearly: 380 },
+  max: { monthly: 80, yearly: 752 },
 };
 
 /** What THE-222 advertised. Stated here rather than read from the live constant
@@ -84,7 +90,7 @@ const CURRENT_TABLE: Record<string, Record<BillingTerm, number>> = {
 const THE_222_ADVERTISED = { quarterly: 15, yearly: 30 } as const;
 
 /* ── 1 ─────────────────────────────────────────────────────────────────────── */
-describe('the nine plan prices match the new table exactly', () => {
+describe('the six plan prices match the new table exactly', () => {
   it.each(
     plans.flatMap((p) => BILLING_TERMS.map((term) => [p.planId, p.name, term] as const)),
   )('%s (%s) on %s — in the data and on the card', (planId, _name, term) => {
@@ -118,7 +124,7 @@ describe('the nine plan prices match the new table exactly', () => {
     // price can be mistaken for an inherited one.
     const historic = new Set(
       [OLD_TABLE, THE_222_TABLE].flatMap((t) =>
-        Object.values(t).flatMap((row) => BILLING_TERMS.map((term) => row[term])),
+        Object.values(t).flatMap((row) => LEGACY_TERMS.map((term) => row[term])),
       ),
     );
     for (const p of plans) {
@@ -202,23 +208,24 @@ describe('the add-on prices are unchanged, and annual is still ×12', () => {
 });
 
 /* ── 3 ─────────────────────────────────────────────────────────────────────── */
-describe('quarterly claims a flat 10% and yearly a flat 20%', () => {
-  it('both claims are flat, in the helper and in the rendered toggle', () => {
-    expect(discountClaim('quarterly')).toBe('Save 10%');
+describe('yearly claims a flat 20% and there is no quarterly claim', () => {
+  it('the claim is flat, in the helper and in the rendered toggle', () => {
     expect(discountClaim('yearly')).toBe('Save 20%');
     const toggle = words(renderToStaticMarkup(
       React.createElement(TermToggle, { value: 'yearly', onChange: () => {} }),
     ));
-    expect(toggle).toContain('-10%');
     expect(toggle).toContain('-20%');
+    // The quarterly badge went with the term.
+    expect(toggle).not.toContain('-10%');
   });
 
   it('🔴 "up to" is gone from the rendered pricing page entirely', () => {
     // The hedge lived in the copy `discountClaim` produces. Reading it back off
     // the page is what proves it actually left, rather than merely going unused.
-    // 🔴 THE-248 makes this the live regression test for the float knife edge:
-    // quarterly now MEETS its 10% claim exactly, so an `actualSavingPct` that
-    // returns 9.999999999999998 puts "Save up to 10%" straight onto this page.
+    // 🔴 THE-248 made this the live regression test for the float knife edge: a
+    // claim the prices MEET exactly (the withdrawn quarterly's 10%) puts "Save
+    // up to 10%" straight onto the page if `actualSavingPct` returns
+    // 9.999999999999998. It still guards the yearly claim the same way.
     const text = pageText().toLowerCase();
     expect(text).not.toContain('up to 20%');
     expect(text).not.toContain('up to 10%');
@@ -230,12 +237,14 @@ describe('quarterly claims a flat 10% and yearly a flat 20%', () => {
 describe('the claim shape is derived from the price table, not hardcoded', () => {
   /** The shipped rule, restated over an arbitrary plan list. */
   const shapeOf = (
-    table: Record<string, Record<BillingTerm, number>>,
+    table: Record<string, Record<string, number>>,
     term: 'quarterly' | 'yearly',
     advertised: number,
   ) => {
     const saving = (id: string) => {
-      const atMonthlyRate = table[id].monthly * TERM_MONTHS[term];
+      // The historic tables carry a quarter, which the live TERM_MONTHS no
+      // longer knows; its three months are stated here.
+      const atMonthlyRate = table[id].monthly * ({ ...TERM_MONTHS, quarterly: 3 } as Record<string, number>)[term];
       return ((atMonthlyRate - table[id][term]) * 100) / atMonthlyRate;
     };
     const worst = Math.min(...Object.keys(table).map(saving));
@@ -256,20 +265,18 @@ describe('the claim shape is derived from the price table, not hardcoded', () =>
     expect(shapeOf(THE_222_TABLE, 'yearly', THE_222_ADVERTISED.yearly)).toBe('flat');
     expect(shapeOf(OLD_TABLE, 'quarterly', THE_222_ADVERTISED.quarterly)).toBe('flat');
     expect(shapeOf(THE_222_TABLE, 'quarterly', THE_222_ADVERTISED.quarterly)).toBe('flat');
-    // And the live table against the live percentages.
-    expect(shapeOf(CURRENT_TABLE, 'quarterly', ADVERTISED_DISCOUNT_PCT.quarterly)).toBe('flat');
+    // And the live table against the live percentage.
     expect(shapeOf(CURRENT_TABLE, 'yearly', ADVERTISED_DISCOUNT_PCT.yearly)).toBe('flat');
     // 🔴 THE RULE STILL SAYS "upTo" WHEN IT SHOULD. One point over the live
-    // quarterly saving — which is exactly 10 — is the smallest claim that must
-    // hedge, and it proves the derivation has not been pinned to 'flat'.
-    expect(shapeOf(CURRENT_TABLE, 'quarterly', 11)).toBe('upTo');
+    // worst yearly saving (20.83) is the smallest whole claim that must hedge,
+    // and it proves the derivation has not been pinned to 'flat'.
     expect(shapeOf(CURRENT_TABLE, 'yearly', 21)).toBe('upTo');
   });
 
   it('🔴 and the SHIPPED function flips too, on a mutated plan list', () => {
     // The site's `actualSavingPct` takes a plan object, so the real exported
     // arithmetic can be run against the old prices rather than a replica of it.
-    const oldPlans = plans.map((p) => ({ ...p, price: OLD_TABLE[p.planId] }));
+    const oldPlans = plans.map((p) => ({ ...p, price: OLD_TABLE[p.planId] as Plan['price'] }));
     const worstOld = Math.min(...oldPlans.map((p) => actualSavingPct(p, 'yearly')));
     const worstNew = Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')));
     expect(worstOld).toBeCloseTo(29.7008, 3);
@@ -292,25 +299,21 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
     }
   });
 
-  it('the smallest savings are exactly 10% quarterly and 20.83% yearly, on every tier', () => {
-    // 🔴 NO SINGLE TIER IS "THE WORST" ANY MORE — THE-248 made both columns
-    // flat, so the minimum is also the maximum. Asserted per tier rather than
-    // as one minimum, because a table where one tier drifted would otherwise
-    // still satisfy a min/max pair.
+  it('the smallest saving is 20.83% yearly, asserted per tier', () => {
+    // Asserted per tier rather than as one minimum, because a table where one
+    // tier drifted would otherwise still satisfy a min/max pair.
     for (const p of plans) {
-      expect(actualSavingPct(p, 'quarterly'), `${p.name} quarterly`).toBe(10);
       expect(actualSavingPct(p, 'yearly'), `${p.name} yearly`)
         .toBeCloseTo(p.planId === 'max' ? 21.6667 : 20.8333, 3);
     }
-    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'quarterly')))).toBe(10);
     expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(20.8333, 3);
   });
 
   it('no rendered percentage on the page exceeds the smallest actual saving', () => {
     // Read every "-N%" the page draws and hold each against the worst tier ON
-    // THE TERM IT BELONGS TO. Comparing a yearly badge against quarterly's
-    // worst tier would be the wrong test twice over — it would fail a truthful
-    // -30% and it would pass a -17% that only quarterly could honour.
+    // THE TERM IT BELONGS TO. Comparing one term's badge against another
+    // term's worst tier would be the wrong test twice over — it would fail a
+    // truthful claim and pass one only the other term could honour.
     const page = pageText();
     const rendered = [...page.matchAll(/-(\d+)%/g)].map((m) => Number(m[1]));
     expect(rendered.length).toBe(DISCOUNTED_TERMS.length);
@@ -360,7 +363,7 @@ describe('the cross-repo price contract still throws when the repos disagree', (
       .toThrow(/Harvest-agent src\/utils\/plan-features\.ts PLAN_PRICING/);
   });
 
-  it('passes for the nine prices actually shipped', () => {
+  it('passes for the six prices actually shipped', () => {
     expect(() => planPriceContract(plans)).not.toThrow();
   });
 });

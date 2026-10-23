@@ -211,17 +211,17 @@ describe('12 — neither feature duplicates an existing entry', () => {
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 13 · 🔴 the nine plan prices, and the contract's teeth
+// 13 · 🔴 the six plan prices, and the contract's teeth
 // ═════════════════════════════════════════════════════════════════════════════
-describe('13 — the nine plan prices are unchanged and the contract still throws', () => {
+describe('13 — the six plan prices are unchanged and the contract still throws', () => {
   /* Harvest-agent src/utils/plan-features.ts PLAN_PRICING, at 7f8455e. */
   const APP_PRICING = {
-    plus: { monthly: 20, quarterly: 54, yearly: 190 },
-    pro: { monthly: 40, quarterly: 108, yearly: 380 },
-    max: { monthly: 80, quarterly: 216, yearly: 752 },
+    plus: { monthly: 20, yearly: 190 },
+    pro: { monthly: 40, yearly: 380 },
+    max: { monthly: 80, yearly: 752 },
   } as const;
 
-  it('all nine are exactly what the app publishes', () => {
+  it('all six are exactly what the app publishes', () => {
     let checked = 0;
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
@@ -230,7 +230,7 @@ describe('13 — the nine plan prices are unchanged and the contract still throw
         checked += 1;
       }
     }
-    expect(checked, 'not nine prices were checked').toBe(9);
+    expect(checked, 'not six prices were checked').toBe(6);
   });
 
   it('the live contract passes against the shipped table', () => {
@@ -250,9 +250,9 @@ describe('13 — the nine plan prices are unchanged and the contract still throw
   it('THE-281 changed no price in the source at all', () => {
     const src = readFileSync(
       fileURLToPath(new URL('../components/Pricing.tsx', import.meta.url)), 'utf8');
-    expect(src).toContain("plus: { monthly: 20, quarterly: 54,  yearly: 190 }");
-    expect(src).toContain("pro:  { monthly: 40, quarterly: 108, yearly: 380 }");
-    expect(src).toContain("max:  { monthly: 80, quarterly: 216, yearly: 752 }");
+    expect(src).toContain("plus: { monthly: 20, yearly: 190 }");
+    expect(src).toContain("pro:  { monthly: 40, yearly: 380 }");
+    expect(src).toContain("max:  { monthly: 80, yearly: 752 }");
   });
 });
 
