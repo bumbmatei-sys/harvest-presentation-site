@@ -261,7 +261,12 @@ describe('4 — the prerendered page count is unchanged', () => {
        restored straight onto main, so this workflow never saw it. It is the
        29th route. NOT THE-373's, and corrected here only because CI gates
        this PR on it. */
-    expect(blogRoutes()).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — `how-to-keep-track-of-church-prayer-requests`, pushed
+       straight onto main, so this workflow (pull_request only) never saw it. It
+       is the 30th route; main was red on these five count assertions before the
+       quarterly withdrawal, which is corrected here only because CI gates this
+       PR on it. */
+    expect(blogRoutes()).toHaveLength(30);
   });
 
   it('and App.tsx gained no route', () => {

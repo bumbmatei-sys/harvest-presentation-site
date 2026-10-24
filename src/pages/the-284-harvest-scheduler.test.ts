@@ -749,7 +749,12 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        restored straight onto main, so this workflow never saw it. It is the
        29th route. NOT THE-373's, and corrected here only because CI gates
        this PR on it. */
-    expect(routes).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — `how-to-keep-track-of-church-prayer-requests`, pushed
+       straight onto main, so this workflow (pull_request only) never saw it. It
+       is the 30th route; main was red on these five count assertions before the
+       quarterly withdrawal, which is corrected here only because CI gates this
+       PR on it. */
+    expect(routes).toHaveLength(30);
     expect(new Set(routes).size, 'a route is listed twice').toBe(routes.length);
     for (const r of BEFORE) expect(routes, `${r} dropped out of the prerender list`).toContain(r);
     /* 🔵 SIX ADDITIONS NOW, AND THE-284's IS STILL EXACTLY ONE OF THEM. `BEFORE`
@@ -770,6 +775,8 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
       '/solutions/missionaries',
       // 🔵 SEVENTH: #106's /waitlist page, merged with CI red. Not THE-284's.
       '/waitlist',
+      // 🔵 NINTH: ddf3529's prayer-requests post, pushed straight to main. Not THE-284's.
+      '/blog/how-to-keep-track-of-church-prayer-requests',
       // 🔵 EIGHTH: c5b7143's check-in post, pushed straight to main. Not THE-284's.
       '/blog/track-sunday-attendance-without-a-sign-in-sheet',
       '/blog/skool-alternative-for-churches',

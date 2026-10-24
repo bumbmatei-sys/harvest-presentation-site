@@ -689,14 +689,20 @@ describe('6 — the prerendered page count is unchanged', () => {
        restored straight onto main, so this workflow never saw it. It is the
        29th route. NOT THE-373's, and corrected here only because CI gates
        this PR on it. */
-    expect(routes).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — `how-to-keep-track-of-church-prayer-requests`, pushed
+       straight onto main, so this workflow (pull_request only) never saw it. It
+       is the 30th route; main was red on these five count assertions before the
+       quarterly withdrawal, which is corrected here only because CI gates this
+       PR on it. */
+    expect(routes).toHaveLength(30);
     // 🔵 26 with the scheduler page taken out, and all three Solutions pages
     // counted — 25 before the Sep 15 `skool-alternative-for-churches` post,
     // 22 with the scheduler taken out and no Solutions pages, 21 before the
     // Sep 10 post.
     // 🔵 27 since #106 added /waitlist.
     // 🔵 28 since c5b7143's check-in post, with the scheduler page taken out.
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(28);
+    // 🔵 29 since ddf3529's prayer-requests post.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(29);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 

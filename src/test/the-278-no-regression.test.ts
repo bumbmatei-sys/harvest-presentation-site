@@ -1900,7 +1900,12 @@ describe('9 — the prerender list and the built page count are unchanged', () =
        restored straight onto main, so this workflow never saw it. It is the
        29th route. NOT THE-373's, and corrected here only because CI gates
        this PR on it. */
-    expect(blogRoutes()).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — `how-to-keep-track-of-church-prayer-requests`, pushed
+       straight onto main, so this workflow (pull_request only) never saw it. It
+       is the 30th route; main was red on these five count assertions before the
+       quarterly withdrawal, which is corrected here only because CI gates this
+       PR on it. */
+    expect(blogRoutes()).toHaveLength(30);
   });
 
   it.runIf(built)('and the build emits all 29 of them', () => {
