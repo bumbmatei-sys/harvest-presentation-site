@@ -64,8 +64,6 @@ export interface FaqPlanClaim {
   planId: string;
   name: string;
   monthly: number;
-  /** Charged once every three months. */
-  quarterly: number;
   /** Charged once for a year of service. */
   annual: number;
   /** Contact ceiling, exactly as the pricing card writes it (grouped). */
@@ -93,9 +91,9 @@ export interface FaqPlanClaim {
  * mismatch is a build failure rather than a warning.
  */
 export const FAQ_PLAN_CLAIMS: FaqPlanClaim[] = [
-  { planId: 'plus', name: 'Individual', monthly: 20, quarterly: 54, annual: 190, contacts: '500', admins: '2', courses: '2' },
-  { planId: 'pro', name: 'Small Team', monthly: 40, quarterly: 108, annual: 380, contacts: '2,000', admins: '5', courses: '5' },
-  { planId: 'max', name: 'Ministry', monthly: 80, quarterly: 216, annual: 752, contacts: '4,000', admins: '15', courses: '15' },
+  { planId: 'plus', name: 'Individual', monthly: 20, annual: 190, contacts: '500', admins: '2', courses: '2' },
+  { planId: 'pro', name: 'Small Team', monthly: 40, annual: 380, contacts: '2,000', admins: '5', courses: '5' },
+  { planId: 'max', name: 'Ministry', monthly: 80, annual: 752, contacts: '4,000', admins: '15', courses: '15' },
 ];
 
 /** Shape of the bits of `Plan` this check needs. Passed in rather than imported
@@ -105,7 +103,7 @@ export const FAQ_PLAN_CLAIMS: FaqPlanClaim[] = [
 export interface FaqPricedPlan {
   planId: string;
   name: string;
-  price: { monthly: number; quarterly: number; yearly: number };
+  price: { monthly: number; yearly: number };
   /** Platform fee as a decimal fraction. The 0% answer is the page's strongest
    *  claim; a nonzero fee on any tier makes it a lie. */
   fee: number;
@@ -131,13 +129,12 @@ export function faqPlanMismatches(plans: readonly FaqPricedPlan[]): string[] {
     // Every term, compared against the pricing cards' own stored table. This
     // used to recompute the annual figure as `monthly × annualBilledMonths` and
     // check that; there is no multiplier now, so the check is table-to-table and
-    // covers the quarterly price it previously had no way to see.
+    // covers every term's price.
     for (const [term, claimed] of [
       ['mo', claim.monthly],
-      ['qtr', claim.quarterly],
       ['yr', claim.annual],
     ] as const) {
-      const charged = term === 'mo' ? plan.price.monthly : term === 'qtr' ? plan.price.quarterly : plan.price.yearly;
+      const charged = term === 'mo' ? plan.price.monthly : plan.price.yearly;
       if (claimed !== charged) {
         problems.push(`the FAQ quotes $${claimed}/${term} for ${plan.name}, the pricing cards charge $${charged}/${term}`);
       }
@@ -170,7 +167,7 @@ export function faqPlanMismatches(plans: readonly FaqPricedPlan[]): string[] {
 const usd = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 const priceLines = FAQ_PLAN_CLAIMS.map(
-  (c) => `${c.name} — $${usd(c.monthly)} a month, $${usd(c.quarterly)} every three months, or $${usd(c.annual)} a year.`,
+  (c) => `${c.name} — $${usd(c.monthly)} a month or $${usd(c.annual)} a year.`,
 );
 
 const limitLines = FAQ_PLAN_CLAIMS.map(
@@ -224,12 +221,12 @@ export const FAQS: Faq[] = [
     id: 'pricing',
     question: 'What does Harvest cost, and what is in each plan?',
     answer: [
-      `Harvest is sold on three plans, priced in US dollars, each payable monthly, quarterly or annually. ${priceLines.join(' ')}`,
+      `Harvest is sold on three plans, priced in US dollars, each payable monthly or annually. ${priceLines.join(' ')}`,
       // 🔴 The wording comes from `discountClaim`, which decides from the PRICES
       // whether a percentage may be claimed flat or has to say "up to". Yearly
       // reads "up to 30%" because the cheapest tier saves 29.7% and a flat claim
       // would overstate it. Never restate a percentage here as a literal.
-      `${discountClaim('quarterly')} by paying every three months, and ${discountClaim('yearly').toLowerCase()} by paying for a year up front, against paying month by month. The longer terms are one charge, not a smaller monthly one: a year of Individual is a single payment of $${usd(FAQ_PLAN_CLAIMS[0].annual)}.`,
+      `${discountClaim('yearly')} by paying for a year up front, against paying month by month. The annual term is one charge, not a smaller monthly one: a year of Individual is a single payment of $${usd(FAQ_PLAN_CLAIMS[0].annual)}.`,
       /* 🔴 THE-335 — three claims came out of this answer, each because the app
          stopped answering for it: the newsletter on Small Team, the automated
          newsletter on Ministry, and the QuickBooks sync. Service planning went
@@ -270,7 +267,7 @@ export const FAQS: Faq[] = [
     question: 'Is Harvest built for small churches?',
     answer: [
       'Yes. Harvest is church software for small churches and growing congregations that are tired of paying for a tool stack just to run Sunday.',
-      'Small Team covers the day-to-day ops most plants need — including QR check-in, livestream and the church map — at $40/month (or less when billed quarterly or annually). Ministry adds service planning with volunteer rotas, groups and events, custom forms, tax receipts and branding.',
+      'Small Team covers the day-to-day ops most plants need — including QR check-in, livestream and the church map — at $40/month (or less when billed annually). Ministry adds service planning with volunteer rotas, groups and events, custom forms, tax receipts and branding.',
       'One member record follows giving, attendance, groups and courses, so you are not reconciling three spreadsheets after every service.',
     ],
   },

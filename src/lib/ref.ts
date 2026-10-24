@@ -35,14 +35,14 @@ export function getStoredRef(): string {
  * are kept apart deliberately: translate at the boundary (see `cardTerms` in
  * components/Pricing.tsx), never leak one into the other.
  *
- * 🔴 THESE THREE WORDS MUST STAY EXACTLY THE APP'S THREE. `quarterly` was added
- * here and to the app's `BILLING_TERMS` in the same change, and neither side may
- * gain a term alone: a term this site can put in a link but the app does not
- * recognise falls closed to MONTHLY there, which means a church that clicked a
- * quarterly card is charged the monthly rate on a monthly cycle — the exact
- * silent mis-sell described above, pointed at the new term.
+ * 🔴 THESE TWO WORDS MUST STAY EXACTLY THE APP'S TWO. A term was added here and
+ * to the app's `BILLING_TERMS` in the same change once (quarterly, withdrawn
+ * again on 2026-10-23), and neither side may gain or lose a term alone: a term
+ * this site can put in a link but the app does not recognise falls closed to
+ * MONTHLY there, which means a church that clicked that card is charged the
+ * monthly rate on a monthly cycle — the exact silent mis-sell described above.
  */
-export type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
+export type BillingPeriod = 'monthly' | 'yearly';
 
 function buildSignupUrl(planId: string | undefined, ref: string, billing?: BillingPeriod): string {
   const params = new URLSearchParams();

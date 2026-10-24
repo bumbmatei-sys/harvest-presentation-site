@@ -352,12 +352,11 @@ describe('when an add-on can be bought', () => {
 
 describe('what this change must not have touched', () => {
   it('the plan prices and the annual discount are unchanged', () => {
-    // 🔴 Data and rendered cards both. Nine stored prices, three terms; the
-    // badges are 15% and 30% and are NOT computed from the prices.
+    // 🔴 Data and rendered cards both. Six stored prices, two terms; the
+    // badge is 20% and is NOT computed from the prices.
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
     expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
         // 🔴 THE-196 flipped the hierarchy: the headline is now the per-month
@@ -377,7 +376,6 @@ describe('what this change must not have touched', () => {
     // And on the page itself, with its toggle in the state it prerenders in.
     const page = pageHtml();
     expect(words(page)).toContain(`-${ADVERTISED_DISCOUNT_PCT.yearly}%`);
-    expect(words(page)).toContain(`-${ADVERTISED_DISCOUNT_PCT.quarterly}%`);
     for (const p of plans) expect(dollars(page)).toContain(p.price.yearly);
   });
 
@@ -398,7 +396,7 @@ describe('what this change must not have touched', () => {
   it('the cross-repo plan contract still throws when a plan price disagrees', () => {
     // Same assertions as Pricing.test.ts, restated here because this change is
     // the one that could have loosened them. The contract now compares the
-    // TABLE — nine cells against nine — rather than the output of a multiplier,
+    // TABLE — six cells against six — rather than the output of a multiplier,
     // and it is exercised by MUTATION rather than only by pattern-matching its
     // source: handing it a wrong table must throw.
     expect(PRICING_SRC).toMatch(/^planPriceContract\(plans\);$/m);
@@ -407,9 +405,9 @@ describe('what this change must not have touched', () => {
     expect(PRICING_SRC).not.toMatch(/console\.(warn|error)\(/);
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, quarterly: 54, yearly: 190 },
-        pro: { monthly: 40, quarterly: 108, yearly: 380 },
-        max: { monthly: 80, quarterly: 216, yearly: 753 },
+        plus: { monthly: 20, yearly: 190 },
+        pro: { monthly: 40, yearly: 380 },
+        max: { monthly: 80, yearly: 753 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();

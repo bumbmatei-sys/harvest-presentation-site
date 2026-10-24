@@ -14,10 +14,9 @@ export interface Plan {
   name: string;
   planId: string; // load-bearing: forwarded to the app via appSignupUrl(planId)
   /**
-   * The CHARGED price on each term, in whole USD — three numbers, not a monthly
-   * figure plus a multiplier. The multiplier is gone: 30% off a year is x8.4
-   * months and 15% off a quarter is x2.55, so there is no integer to name and
-   * the prices are stored. The cross-repo contract below compares this table
+   * The CHARGED price on each term, in whole USD — two numbers, not a monthly
+   * figure plus a multiplier. The multiplier is gone: 20% off a year is x9.6
+   * months, so there is no integer to name and the prices are stored. The cross-repo contract below compares this table
    * against the app's, cell for cell.
    */
   price: Record<BillingTerm, number>;
@@ -40,31 +39,32 @@ export interface Plan {
  * toggle renders in.
  *
  * ⚠️ CROSS-REPO VOCABULARY: the app's `BillingPeriod` (lib/ref.ts) is the same
- * three words, and `cardTerms` is the one place a card's term is translated into
+ * two words, and `cardTerms` is the one place a card's term is translated into
  * the `?billing=` value its button carries.
+ *
+ * A quarterly term was sold until 2026-10-23 and is gone from both repos; its
+ * three Dodo products are archived. It must not come back here without coming
+ * back in the app's `BILLING_TERMS` in the same change.
  */
-export const BILLING_TERMS = ['monthly', 'quarterly', 'yearly'] as const;
+export const BILLING_TERMS = ['monthly', 'yearly'] as const;
 
 export type BillingTerm = (typeof BILLING_TERMS)[number];
 
 /** Months of service one charge on a term buys — what a saving is measured against. */
 export const TERM_MONTHS: Readonly<Record<BillingTerm, number>> = Object.freeze({
   monthly: 1,
-  quarterly: 3,
   yearly: 12,
 });
 
 /** The suffix a term's CHARGED figure carries. "$329/yr", never "$329/mo". */
 export const TERM_SUFFIX: Readonly<Record<BillingTerm, string>> = Object.freeze({
   monthly: 'mo',
-  quarterly: 'qtr',
   yearly: 'yr',
 });
 
 /** The label each segment of the term toggle wears. */
 export const TERM_LABEL: Readonly<Record<BillingTerm, string>> = Object.freeze({
   monthly: 'Monthly',
-  quarterly: 'Quarterly',
   yearly: 'Yearly',
 });
 
@@ -73,19 +73,17 @@ export const TERM_LABEL: Readonly<Record<BillingTerm, string>> = Object.freeze({
  *
  * This was `Math.round(price / months)`, which was fine while the per-month
  * figure was a footnote under the charged total. THE-196 makes it the HEADLINE,
- * and a rounded-to-nearest headline understates two of the six discounted cells:
+ * and a rounded-to-nearest headline understated one of the discounted cells:
  *
  *     Individual yearly    $329/12 = $27.4167  →  $27  → implies $324, bills $329
- *     Small Team quarterly $199/3  = $66.3333  →  $66  → implies $198, bills $199
  *
  * A church reading "$27/mo" expects $324 a year. That is a pricing
  * misrepresentation, not a rounding preference, so the headline is CEILED — it
  * may never imply less than the bill.
  *
- * ⚠️ THOSE TWO CELLS ARE HISTORY; THE RULE IS NOT, AND THE-343 IS WHY THAT
- * DISTINCTION EARNS ITS KEEP. All three quarters divide exactly ($54/3, $108/3,
- * $216/3 → $18, $36, $72); every year rounds UP ($190/12 → $16, $380/12 → $32)
- * and so does Ministry's ($752/12 → $62.67). So NO cell understates under
+ * ⚠️ THAT CELL IS HISTORY; THE RULE IS NOT, AND THE-343 IS WHY THAT
+ * DISTINCTION EARNS ITS KEEP. Every year rounds UP ($190/12 → $16, $380/12 →
+ * $32) and so does Ministry's ($752/12 → $62.67). So NO cell understates under
  * `Math.round` today — the one that did, Ministry's $760/12 = $63.3333 → $63 →
  * $756, was repriced away by THE-343, and THE-372's $752 rounds to $63 → $756,
  * which overstates rather than understates.
@@ -109,8 +107,6 @@ export const TERM_LABEL: Readonly<Record<BillingTerm, string>> = Object.freeze({
  *
  * The `toFixed(6)` guards the exact divisions: $108/3 is $36.00, and a binary
  * float landing a hair above 3600 cents would ceil an exact $36 to $36.01.
- * THE-248 makes all three quarters exact, so this guard now carries three cells
- * rather than one.
  */
 export const ceilToCent = (exact: number) =>
   Math.ceil(Number((exact * 100).toFixed(6))) / 100;
@@ -216,18 +212,18 @@ const FREE_TIER_PLAN_ID = 'free';
 // remove EVERY SMS surface and simultaneously restore the Coming Soon entry, or
 // the same claim gets made twice in two tenses. No price changed here.
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 20, quarterly: 54,  yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
-  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, quarterly: 108, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, quarterly: 216, yearly: 752 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
+  { name: 'Individual', planId: 'plus', price: { monthly: 20, yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
+  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])] },
+  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, yearly: 752 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
 
    Free is deliberately NOT a member of `plans`.
 
-   `Plan.price` is `Record<BillingTerm, number>` — three numbers, all required.
+   `Plan.price` is `Record<BillingTerm, number>` — two numbers, all required.
    Free has no price and no billing term, so putting it in `plans` would mean
-   writing three zeros, and three zeros is a lie of a different kind: it says
+   writing two zeros, and two zeros is a lie of a different kind: it says
    "this tier is billed, at nothing" when the truth is that it is not billed at
    all. It would also walk straight into the cross-repo price contract below,
    which compares `plans` cell-for-cell against the app's PLAN_PRICING — and
@@ -324,21 +320,21 @@ export const ALL_TIER_NAMES = [FREE_TIER.name, ...plans.map((p) => p.name)];
    them against `annualMonthly(p.monthly)`, i.e. against the OUTPUT of a
    multiplier. There is no multiplier any more: the discounts stopped dividing
    into whole months, so both repos now carry a stored table and the contract
-   compares TABLE TO TABLE, nine cells against nine, tier by tier and term by
+   compares TABLE TO TABLE, six cells against six, tier by tier and term by
    term. That is strictly MORE than it guarded before — it previously could not
    see a wrong monthly price at all, only a wrong derivation from one — and it
    still throws, still names the tier and term, and still stops the build.
 
-   These nine are deliberately written as literals and NOTHING RENDERS THEM.
+   These six are deliberately written as literals and NOTHING RENDERS THEM.
    They are the app's side of the contract, transcribed; the cards render
-   `plans` above. Two independently-written copies of the same nine numbers is
+   `plans` above. Two independently-written copies of the same six numbers is
    the entire mechanism — a one-sided edit makes them disagree and the build
    stops here. Update these together with the app's PLAN_PRICING
    (Harvest-agent src/utils/plan-features.ts), in the same change.               */
 const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, quarterly: 54,  yearly: 190 },
-  pro:  { monthly: 40, quarterly: 108, yearly: 380 },
-  max:  { monthly: 80, quarterly: 216, yearly: 752 },
+  plus: { monthly: 20, yearly: 190 },
+  pro:  { monthly: 40, yearly: 380 },
+  max:  { monthly: 80, yearly: 752 },
 };
 
 /**
@@ -376,17 +372,18 @@ planPriceContract(plans);
  *
  * 🔴 STORED, NOT COMPUTED FROM THE PRICES. The founder chose rounded prices over
  * exact percentages — $405.45 on a pricing page reads like a spreadsheet error —
- * so every tier saves a different amount, and a computed badge would read 16%
- * beside the Ministry card and 15% beside the Individual one, on a toggle that
- * sits above all three at once. One number is the only honest presentation of a
- * control that governs all three cards, and one number cannot be derived from
- * three. Kept identical to the app's ADVERTISED_DISCOUNT_PCT.
+ * so the tiers save slightly different amounts (20.8% on Individual and Small
+ * Team, 21.7% on Ministry), and a computed badge would read a different number
+ * beside each card, on a toggle that sits above all three at once. One number is
+ * the only honest presentation of a control that governs all three cards, and
+ * one number cannot be derived from three. Kept identical to the app's
+ * ADVERTISED_DISCOUNT_PCT.
  */
-export const ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { quarterly: 10, yearly: 20 };
+export const ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { yearly: 20 };
 
 export type DiscountedTerm = Exclude<BillingTerm, 'monthly'>;
 
-/** The two terms carrying a discount. Derived, so a term cannot be forgotten. */
+/** The terms carrying a discount. Derived, so a term cannot be forgotten. */
 export const DISCOUNTED_TERMS = BILLING_TERMS.filter((t): t is DiscountedTerm => t !== 'monthly');
 
 /**
@@ -396,8 +393,8 @@ export const DISCOUNTED_TERMS = BILLING_TERMS.filter((t): t is DiscountedTerm =>
  *
  * This read `(1 - price / atMonthlyRate) * 100`. That is the same arithmetic on
  * paper and NOT the same in binary floating point, and THE-248 is the reprice
- * that walked into the difference: quarterly is EXACTLY 10% off on all three
- * tiers — $54 against $60, $108 against $120, and since THE-372 $216 against
+ * that walked into the difference: the withdrawn quarterly term was EXACTLY 10%
+ * off on all three tiers — $54 against $60, $108 against $120, $216 against
  * $240 — and the old form computes that as 9.999999999999998.
  *
  *     54 / 60   →  0.9   (the nearest double to nine tenths, a hair BELOW it)
@@ -423,7 +420,7 @@ export const DISCOUNTED_TERMS = BILLING_TERMS.filter((t): t is DiscountedTerm =>
  * Subtracting in DOLLARS keeps the numerator a whole number: 60 - 54 is 6, and
  * 6 × 100 / 60 is 600 / 60, which is 10 exactly — every value on that path is
  * an integer a double holds exactly. Plan prices are whole dollars (pinned by
- * `Pricing.test.ts`), so this holds for all nine cells, not just today's.
+ * `Pricing.test.ts`), so this holds for every cell, not just today's.
  *
  * ⚠️ The app carries the identical reordering in `actualSavingPct`
  * (Harvest-agent src/utils/plan-features.ts). Both repos run this guard at
@@ -439,30 +436,27 @@ export const actualSavingPct = (plan: Plan, term: BillingTerm) => {
  * smallest actual one.
  *
  * A flat "save 30%" is a claim about EVERY tier, so it is only true when the
- * worst tier saves at least 30%. The numbers, as of THE-222:
+ * worst tier saves at least 30%. The numbers today:
  *
- *              Quarterly   Yearly
- *   Individual    10.0%     20.8%
- *   Small Team    10.0%     20.8%
- *   Ministry      10.0%     20.8%
+ *                 Yearly
+ *   Individual     20.8%
+ *   Small Team     20.8%
+ *   Ministry       21.7%
  *
- *   quarterly  advertises 10, worst tier saves 10.0  → 'flat'  → "Save 10%"
  *   yearly     advertises 20, worst tier saves 20.8  → 'flat'  → "Save 20%"
  *
- * ⚠️ QUARTERLY IS THE CASE THIS NOW TURNS ON, and it turns on EQUALITY rather
- * than clearance. THE-248 puts every tier's quarter at exactly 10.0% off, so
- * the claim does not clear the worst saving — it MEETS it, to the cent. `<=`
- * is load-bearing in a way it was not before: under `<`, a claim the prices
- * honour exactly would print "up to 10%", hedging against nothing at all.
+ * ⚠️ `<=` IS LOAD-BEARING. A claim the prices honour exactly MEETS the worst
+ * saving rather than clearing it (the withdrawn quarterly term was exactly
+ * 10.0% off on every tier), and under `<` that claim would print "up to 10%",
+ * hedging against nothing at all.
  *
  * 🔴 AND EQUALITY IS WHERE FLOATING POINT BITES. `actualSavingPct` above had to
  * subtract in dollars before this comparison could see a true 10 instead of
  * 9.999999999999998. The operator was always right; the arithmetic feeding it
  * was not. Do not loosen this to `<` for the next knife edge.
  *
- * Yearly clears with room — 20 advertised against 20.83 delivered on all three
- * tiers — so it is quarterly, not yearly, that a future reprice will break
- * first.
+ * Yearly clears with room — 20 advertised against 20.83 delivered on the worst
+ * tier.
  *
  * 🔴 NOT A COPY EDIT. Nothing in this function changed — the prices moved under
  * it. That is the whole reason the wording is derived: this page has shipped a
@@ -761,13 +755,12 @@ export function ComparisonTable() {
  * Returning them from one call is what makes that drift unrepresentable: a card
  * cannot render a term's price without holding that term in the same hand.
  *
- * ⚠️ `price` IS THE CHARGED AMOUNT and `suffix` names its cycle — "$99" and
- * "qtr". `monthlyHeadline` is the per-month EQUIVALENT — "$33" — and is what
+ * ⚠️ `price` IS THE CHARGED AMOUNT and `suffix` names its cycle — "$329" and
+ * "yr". `monthlyHeadline` is the per-month EQUIVALENT — "$27.42" — and is what
  * the card now prints large, with `price` on the line beneath it (THE-196).
  * They travel together out of this one call so a card cannot show one term's
- * headline above another term's total. Three terms make that sharper, not
- * softer: $329/yr, $99/qtr and $39/mo are three different amounts on three
- * different cycles, and only one of them is a month.
+ * headline above another term's total: $329/yr and $39/mo are two different
+ * amounts on two different cycles, and only one of them is a month.
  */
 export function cardTerms(plan: Plan, term: BillingTerm): {
   price: number;
@@ -783,7 +776,7 @@ export function cardTerms(plan: Plan, term: BillingTerm): {
     // still leave this one call together, for the reason above — a card must
     // not be able to hold one term's headline and another term's total.
     monthlyHeadline: formatMonthlyHeadline(price, term),
-    // The site's term vocabulary and the app's are the same three words, so
+    // The site's term vocabulary and the app's are the same two words, so
     // this is an identity today — but it stays an explicit translation, because
     // the app's `?billing=` allowlist is what decides whether a forged or stale
     // value can select a term at all, and the two must be able to move apart.
@@ -801,21 +794,16 @@ export function cardTerms(plan: Plan, term: BillingTerm): {
  * a year regardless, so an add-on's annual price is exactly monthly × 12:
  * $19/mo is $228 a year.
  *
- * 🔴 STILL TWELVE UNDER THREE TERMS, and quarterly is why that is worth saying
- * rather than assuming. Dodo charges an add-on on its PRODUCT's cycle, and a
- * quarterly plan product bills as three MONTHLY cycles — so the live quarterly
- * products carry the MONTHLY add-on ids, verified against the API. A quarterly
- * church pays $10 a month for an admin seat, the same $10 a monthly church
- * pays. There is no quarterly add-on price, and this section must not invent
- * one: both figures on each card below are the monthly and the yearly, and they
- * are the only two an add-on has.
+ * 🔴 Dodo charges an add-on on its PRODUCT's cycle, so both figures on each card
+ * below are the monthly and the yearly, and they are the only two an add-on
+ * has. This section must not invent a third.
  *
  * The discount badge is the second half of the same hazard: a price sitting
  * under "save 30%" with no qualifier is read as discounted. That is why the
  * section says out loud, whenever a DISCOUNTED term is selected, that add-ons
  * are not — an unstated exception to a headline discount is a false impression,
- * not a mere omission. Quarterly needed that sentence too, which is why the
- * condition below is "not monthly" rather than "annual".
+ * not a mere omission. The condition below is "not monthly" rather than
+ * "annual", so a discounted term added later is covered without an edit.
  */
 export const ADD_ON_BILLED_MONTHS = 12;
 
@@ -860,7 +848,7 @@ export interface AddOn {
 
 /* ─── 🔴 THE DODO ADD-ON CONTRACT (THE-223) ───────────────────────────────────
 
-   WHY THIS EXISTS. The nine PLAN prices are pinned three times over — the
+   WHY THIS EXISTS. The six PLAN prices are pinned three times over — the
    cross-repo contract above, TIER_PRICE_CLAIMS in content/legal.ts and
    FAQ_PLAN_CLAIMS in content/faq.ts — and those guards are what FOUND the two
    unknown price locations in THE-222, by failing the build. Add-ons had no
@@ -1099,7 +1087,7 @@ export function addOnPricingContract(addOns: AddOn[]): void {
       throw new Error(
         `Pricing: add-on "${a.name}" is listed at ${a.monthly}/mo and ${a.annual}/year, but ` +
         `${ADD_ON_BILLED_MONTHS} × ${a.monthly} is ${expected}. Add-ons are NOT discounted ` +
-        `annually or quarterly — if this figure came from a plan discount, that discount ` +
+        `annually — if this figure came from a plan discount, that discount ` +
         `does not apply here.`
       );
     }
@@ -1315,14 +1303,13 @@ export function AddOns({ term }: { term: BillingTerm }) {
         ))}
       </div>
       {/* Shown for EVERY discounted term, not just the yearly one. A visitor
-          looking at a −15% quarterly badge reads the add-on prices under it as
-          discounted too, exactly as an annual visitor does; the qualifier is
-          conditional on a discount being visible, which is now two states. */}
+          looking at a discount badge reads the add-on prices under it as
+          discounted too; the qualifier is conditional on a discount being
+          visible, not on a particular term. */}
       {term !== 'monthly' && (
         <p style={{ textAlign: 'center', marginTop: 20, fontSize: 12.5, lineHeight: 1.55, color: 'var(--text-muted)' }}>
           {`Add-ons are not discounted — the −${ADVERTISED_DISCOUNT_PCT[term]}% applies to plans only. ` +
-           `A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price, which is the yearly figure shown on each one. ` +
-           `On quarterly billing an add-on is charged at its monthly price, every month.`}
+           `A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price, which is the yearly figure shown on each one.`}
         </p>
       )}
     </div>
@@ -1575,19 +1562,18 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
 }
 
 /**
- * The term toggle — three segments, Monthly / Quarterly / Yearly.
+ * The term toggle — two segments, Monthly / Yearly.
  *
- * ─── 🔴 FITTING THREE SEGMENTS (THE-195) ─────────────────────────────────────
+ * ─── 🔴 FITTING THE SEGMENTS (THE-195) ───────────────────────────────────────
  *
- * The two-segment version was `display: inline-flex` with `padding: '9px 22px'`
+ * The original version was `display: inline-flex` with `padding: '9px 22px'`
  * per button and a badge appended inline. Inline-flex sizes to CONTENT, so the
  * track grew with each segment and had no relationship to the viewport at all:
- * adding a third segment — and the widest label of the three, "Quarterly" —
- * would have pushed the control past a 380px screen and clipped it against the
- * container, which is the same class of defect PR 361 fixed on the in-app cards
- * at 1120px.
+ * a wider label would have pushed the control past a 380px screen and clipped
+ * it against the container, which is the same class of defect PR 361 fixed on
+ * the in-app cards at 1120px.
  *
- * So the track is `display: grid` with `gridTemplateColumns: repeat(3,
+ * So the track is `display: grid` with `gridTemplateColumns: repeat(2,
  * minmax(0, 1fr))` inside a `maxWidth: 420` box that is `width: 100%`. Three
  * consequences, all of them the point:
  *
@@ -1600,14 +1586,14 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
  *     line, so the widest label has room at the narrowest width.
  *
  * Measured segment widths (track = min(420, viewport − 2 × 28px gutter), less
- * 8px of track padding and 2 × 4px of gaps, divided by three):
+ * 8px of track padding and 4px of gap, divided by two):
  *
- *     380px → 103px   ·   768px → 135px   ·   1024px → 135px
- *    1280px → 135px   ·  1440px → 135px
+ *     380px → 156px   ·   768px → 204px   ·   1024px → 204px
+ *    1280px → 204px   ·  1440px → 204px
  *
  * 380px is the only viewport where the track is viewport-bound; from 768px up
- * it sits at its 420px cap. "Quarterly" at 12.5px sets to roughly 62px against
- * 83px of usable room at 380px, so the narrowest case has slack rather than
+ * it sits at its 420px cap. "Monthly" at 12.5px sets to roughly 50px against
+ * 136px of usable room at 380px, so the narrowest case has slack rather than
  * fitting exactly — which is what stops the next font-size change from
  * clipping it. Nothing is below 11px: labels 12.5px, badges 11px.
  * `TermToggle.widths.test.ts` pins all of it.
@@ -1626,7 +1612,7 @@ export function TermToggle({
       aria-label="Billing term"
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
         gap: 4,
         width: '100%',
         maxWidth: 420,

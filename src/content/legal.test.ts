@@ -54,6 +54,11 @@ const TERMS_PINS: ReadonlyArray<{ ticket: string; why: string; sha256: string }>
     why: 'Ministry back to $80 ($216 quarterly, $752 annually) in TIER_PRICE_CLAIMS; nothing else in the document moved',
     sha256: '68e14d8151bf84a03e37192fe7be238a008fbc42a1e62f6e2160b2494913831c',
   },
+  {
+    ticket: 'QUARTERLY-RETIRED',
+    why: 'quarterly term withdrawn 2026-10-23: the three tier rows lose their "per three months" figure, and §4 loses the words "quarterly" and "a quarterly plan every three months"; nothing else in the document moved',
+    sha256: '6172c0fad453e6d75cf705f503938d0b5bf86b530a0f7d9aa6dac85d5c9fb6e9',
+  },
 ];
 
 describe('the legal document set', () => {
@@ -183,7 +188,7 @@ describe('what the policies must not claim', () => {
      Derived from the plan table, so a future reprice off $20 restores the
      pattern on its own, and one onto $19 / $59 / $10 drops that one in turn. */
   const PLAN_PRICE_FIGURES = new Set(
-    plans.flatMap((p) => [p.price.monthly, p.price.quarterly, p.price.yearly].map(String)),
+    plans.flatMap((p) => [p.price.monthly, p.price.yearly].map(String)),
   );
   const ADD_ON_PATTERNS = ALL_ADD_ON_PATTERNS.filter(([, re]) => {
     const figure = re.source.match(/\\\$(\d+)/)?.[1];
@@ -282,10 +287,10 @@ describe('the tier prices quoted in the Terms', () => {
     },
   );
 
-  it('quotes the quarterly price for every tier as well', () => {
+  it('quotes no quarterly price — the term was withdrawn on 2026-10-23', () => {
+    expect(text(terms)).not.toMatch(/quarterly|per three months|every three months/i);
     for (const claim of TIER_PRICE_CLAIMS) {
-      expect(text(terms), `the Terms do not quote $${claim.quarterly} per three months for ${claim.name}`)
-        .toContain(`$${grouped(claim.quarterly)} per three months`);
+      expect(Object.keys(claim), `${claim.name} still carries a quarterly claim`).not.toContain('quarterly');
     }
   });
 
@@ -298,8 +303,8 @@ describe('the tier prices quoted in the Terms', () => {
     // What replaced it states the shape of the charge instead of a rate, which
     // is the fact a treasurer needs and the one that cannot go stale.
     expect(body).toMatch(/single payment for the whole term, not as a reduced monthly payment/i);
-    expect(body).toMatch(/paid monthly, quarterly or annually/i);
-    expect(body).toMatch(/a quarterly plan every three months/i);
+    expect(body).toMatch(/paid monthly or annually/i);
+    expect(body).toMatch(/a monthly plan renews every month and an annual plan every year/i);
   });
 });
 
@@ -785,12 +790,12 @@ describe('what the analytics disclosure must not have touched', () => {
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
     expect(CATALOG_TOOL_COUNT).toBe(27);
-    expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
-      'plus:20/54/190',
-      'pro:40/108/380',
+    expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.annual}`)).toEqual([
+      'plus:20/190',
+      'pro:40/380',
       // ⚠️ Moved by THE-343, and back by THE-372. plus and pro are enumerated beside it so a reprice
       // that reached past Ministry still fails here.
-      'max:80/216/752',
+      'max:80/752',
     ]);
   });
 });
@@ -1005,12 +1010,12 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
     expect(CATALOG_TOOL_COUNT).toBe(27);
-    expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.quarterly}/${c.annual}`)).toEqual([
-      'plus:20/54/190',
-      'pro:40/108/380',
+    expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.annual}`)).toEqual([
+      'plus:20/190',
+      'pro:40/380',
       // ⚠️ Moved by THE-343, and back by THE-372. plus and pro are enumerated beside it so a reprice
       // that reached past Ministry still fails here.
-      'max:80/216/752',
+      'max:80/752',
     ]);
   });
 

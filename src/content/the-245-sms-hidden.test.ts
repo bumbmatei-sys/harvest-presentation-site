@@ -367,9 +367,9 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
     // A contract that never fails proves nothing. This is the same call with a
     // deliberately wrong expectation, so "did not throw" above means something.
     expect(() => planPriceContract(withoutSmsLine(), {
-      plus: { monthly: 21, quarterly: 54, yearly: 190 },
-      pro: { monthly: 40, quarterly: 108, yearly: 380 },
-      max: { monthly: 80, quarterly: 216, yearly: 752 },
+      plus: { monthly: 21, yearly: 190 },
+      pro: { monthly: 40, yearly: 380 },
+      max: { monthly: 80, yearly: 752 },
     })).toThrow(/renders \$20 monthly, but the app/);
     // And when a plan is missing from the contract entirely.
     expect(() => planPriceContract(withoutSmsLine(), {})).toThrow(/no expected prices/);
@@ -444,9 +444,9 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
 describe('6 — no price changed', () => {
   it('the three tiers still carry the prices they carried', () => {
     const priced = Object.fromEntries(plans.map((p) => [p.planId, p.price]));
-    expect(priced.plus).toEqual({ monthly: 20, quarterly: 54, yearly: 190 });
-    expect(priced.pro).toEqual({ monthly: 40, quarterly: 108, yearly: 380 });
-    expect(priced.max).toEqual({ monthly: 80, quarterly: 216, yearly: 752 });
+    expect(priced.plus).toEqual({ monthly: 20, yearly: 190 });
+    expect(priced.pro).toEqual({ monthly: 40, yearly: 380 });
+    expect(priced.max).toEqual({ monthly: 80, yearly: 752 });
   });
 
   it('and the contract that compares them to the app still passes as shipped', () => {

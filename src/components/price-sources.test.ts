@@ -36,7 +36,7 @@ function walk(dir: string): string[] {
  *
  * Three, and each is a checked claim rather than a loose copy:
  *   · components/Pricing.tsx — the `plans` table, plus the cross-repo contract's
- *     independently-written transcription of the app's nine numbers. The
+ *     independently-written transcription of the app's six numbers. The
  *     contract exists BECAUSE they are written twice; that is the mechanism.
  *   · content/faq.ts and content/legal.ts — the FAQ's and the Terms' own price
  *     claims, each pinned by a module-scope mismatch check that fails the
@@ -192,6 +192,10 @@ const RETIRED = [
   '441', '891', '1791', '37', '74', '149', '39', '79', '159', '399', '1329',
   // THE-248's retirees. See above for the three deliberately absent.
   '165', '329', '659',
+  // The quarterly term's three prices, retired with it on 2026-10-23. Each is a
+  // price on no tier and no term now, and none appears on this site in any
+  // other sense, so they are banned outright like the others above.
+  '54', '108', '216',
 ];
 
 describe('no price literal appears outside the single source', () => {
@@ -252,10 +256,10 @@ describe('no price literal appears outside the single source', () => {
    * 🔴 THE COLLISION EXCLUSION IS ITSELF A HOLE, so its size is pinned.
    *
    * `PRICE_DIGITS` drops any figure that is also an add-on price. If add-ons
-   * were ever repriced onto all nine plan figures the sweep would quietly
+   * were ever repriced onto all six plan figures the sweep would quietly
    * become a no-op and every assertion above would pass over an empty list.
-   * Both halves are stated: exactly which figure collides today, and that eight
-   * of the nine are still swept.
+   * Both halves are stated: exactly which figure collides today, and that five
+   * of the six are still swept.
    */
   it('excludes only the figures that genuinely collide with an add-on price', () => {
     /* 🔵 ONE COLLISION AGAIN — THE-370 CLOSED THE ONE THE-223 OPENED, and this
@@ -270,15 +274,18 @@ describe('no price literal appears outside the single source', () => {
      * `ADD_ON_PRICE_DIGITS` is derived, so the set moved on its own.
      *
      * 🔵 THAT IS A COVERAGE GAIN, and it is stated rather than absorbed for the
-     * same reason a loss was: eight of the nine are swept now, where seven were.
+     * same reason a loss was: eight of the nine were swept then, where seven
+     * were. (Nine became six when the quarterly term was withdrawn on
+     * 2026-10-23: its three figures left the table, and five of the six
+     * remaining are swept.)
      * The one that remains excluded, Individual's $20, is still guarded by the
      * three module-scope contracts asserted below — which is what the mutation
      * at the end of this test proves, for both tiers.
      *
      * ⚠️ $30 IS NOT A PLAN PRICE, so the reprice added no new collision. */
-    expect(ALL_PRICE_DIGITS).toHaveLength(9);
+    expect(ALL_PRICE_DIGITS).toHaveLength(6);
     expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['20']);
-    expect(PRICE_DIGITS).toHaveLength(8);
+    expect(PRICE_DIGITS).toHaveLength(5);
     expect(PRICE_DIGITS).not.toContain('20');
     // 🔵 BACK IN THE SWEEP — the figure THE-223 had to give up.
     expect(PRICE_DIGITS).toContain('40');

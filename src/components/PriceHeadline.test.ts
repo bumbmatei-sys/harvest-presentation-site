@@ -69,7 +69,7 @@ function resolveColour(color: string, ground: number[]): number[] {
 
 describe('THE-196 — the headline is the per-month figure', () => {
   it('the headline is the per-month figure on every term and tier', () => {
-    // Nine cells, read off nine rendered cards. The headline is the first
+    // Six cells, read off six rendered cards. The headline is the first
     // dollar figure in a <span> and may carry cents.
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
@@ -82,24 +82,24 @@ describe('THE-196 — the headline is the per-month figure', () => {
     }
   });
 
-  it('the nine headlines are the figures the founder signed off', () => {
+  it('the six headlines are the figures the founder signed off', () => {
     // Named explicitly, so a change to the rounding RULE has to come here and
     // restate what it now shows rather than sliding through a derivation.
     const table = plans.map((p) => BILLING_TERMS.map((t) => formatMonthlyHeadline(p.price[t], t)));
     expect(table).toEqual([
-      ['$20', '$18', '$15.84'],
-      ['$40', '$36', '$31.67'],
-      ['$80', '$72', '$62.67'],
+      ['$20', '$15.84'],
+      ['$40', '$31.67'],
+      ['$80', '$62.67'],
     ]);
   });
 
   it('an exact division shows no cents and a remainder always does', () => {
-    // The three live quarters all divide exactly as of THE-248, so the
-    // whole-dollar branch is exercised by real prices rather than by a synthetic
-    // one; $1,329 stays as the "exact but not whole" case, which no current
-    // price produces.
-    expect(formatMonthlyHeadline(108, 'quarterly')).toBe('$36');      // 36.00 exactly
-    expect(formatMonthlyHeadline(162, 'quarterly')).toBe('$54');      // 54.00 exactly
+    // The quarters that used to exercise the whole-dollar branch with real
+    // prices went with the quarterly term, so it is pinned on written-out yearly
+    // figures instead: $240 and $360 divide by twelve exactly. $1,329 stays as
+    // the "exact but not whole" case, which no current price produces.
+    expect(formatMonthlyHeadline(240, 'yearly')).toBe('$20');         // 20.00 exactly
+    expect(formatMonthlyHeadline(360, 'yearly')).toBe('$30');         // 30.00 exactly
     expect(formatMonthlyHeadline(1329, 'yearly')).toBe('$110.75');    // exact, but not whole
     expect(formatMonthlyHeadline(380, 'yearly')).toBe('$31.67');      // 31.6667 ceiled
     expect(ceilToCent(36)).toBe(36);                                  // no float drift upward
@@ -107,7 +107,7 @@ describe('THE-196 — the headline is the per-month figure', () => {
 });
 
 describe('THE-196 — the term total beneath it', () => {
-  it('the term total is rendered beneath it on quarterly and yearly', () => {
+  it('the term total is rendered beneath it on the yearly term', () => {
     for (const p of plans) {
       for (const term of DISCOUNTED_TERMS) {
         const line = termTotalLine(card(p, term));
@@ -184,8 +184,7 @@ describe('THE-196 — the honesty guard', () => {
     // against the shipped ceiling it could never fail.
     expect(() => monthlyHeadlineContract()).not.toThrow();
     // 🔴 THE-343 TOOK THE LAST OFFENDING CELL AWAY, so the shipped table can no
-    // longer supply this mutation's hazard. Every quarter divides exactly
-    // ($54/3, $108/3, $216/3), and every year rounds UP ($190/12 → $16,
+    // longer supply this mutation's hazard. Every year rounds UP ($190/12 → $16,
     // $380/12 → $32, and since THE-372 $752/12 → $63). Under the
     // old rule NOTHING understates. Pointed at `plans` this mutation would pass
     // while exercising nothing — so the hazardous table is written out here,
@@ -195,8 +194,8 @@ describe('THE-196 — the honesty guard', () => {
         // 1325/12 = 110.4167 rounds DOWN to 110, implying $1,320 against a
         // charged $1,325. The other two divide exactly, so they cannot throw
         // first and the message can only name Ministry.
-        ? { ...p, price: { monthly: 159, quarterly: 399, yearly: 1325 } }
-        : { ...p, price: { monthly: 39, quarterly: 90, yearly: 360 } },
+        ? { ...p, price: { monthly: 159, yearly: 1325 } }
+        : { ...p, price: { monthly: 39, yearly: 360 } },
     );
     expect(() => monthlyHeadlineContract(Math.round, HAZARD))
       .toThrow(/never promise less than the bill/);
@@ -219,7 +218,7 @@ describe('THE-196 — the honesty guard', () => {
     // $760 year overshoots by $0.08 and would have failed a rule it does not
     // actually break. Ceiling at the cent can add at most one cent per month,
     // so the honest ceiling on the disagreement is `months × $0.01` — twelve
-    // cents on a year, three on a quarter. That still excludes ceiling to the
+    // cents on a year. That still excludes ceiling to the
     // DOLLAR (up to $0.99 a month), which is the presentation this rules out.
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
@@ -247,9 +246,9 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
        and its own suite asserts those against its rendered cards. If either
        repo changes the shape, one of the two fails. */
     const APP_HEADLINES: Record<string, Record<BillingTerm, string>> = {
-      plus: { monthly: '$20', quarterly: '$18', yearly: '$15.84' },
-      pro:  { monthly: '$40', quarterly: '$36', yearly: '$31.67' },
-      max:  { monthly: '$80', quarterly: '$72', yearly: '$62.67' },
+      plus: { monthly: '$20', yearly: '$15.84' },
+      pro:  { monthly: '$40', yearly: '$31.67' },
+      max:  { monthly: '$80', yearly: '$62.67' },
     };
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
@@ -302,7 +301,9 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
       priceText.push(['Replaces cost', m[1]] as const);
     }
 
-    expect(priceText.length).toBeGreaterThan(20);
+    // A floor so an empty scan cannot pass: six cards, two spans each, three
+    // yearly term totals and the Replaces costs are 16 today.
+    expect(priceText.length).toBeGreaterThan(12);
     for (const [where, style] of priceText) {
       const size = Number(style.match(/font-size:\s*([0-9.]+)px/)?.[1]);
       if (!Number.isNaN(size)) {
