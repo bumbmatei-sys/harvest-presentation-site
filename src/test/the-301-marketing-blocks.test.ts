@@ -285,7 +285,8 @@ describe('4 — the prerendered page count is unchanged', () => {
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-301's. */
-    expect(PAGES).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-301's. */
+    expect(PAGES).toHaveLength(30);
   });
 
   it.runIf(built)('and the twenty-two non-post pages are there on any platform', () => {

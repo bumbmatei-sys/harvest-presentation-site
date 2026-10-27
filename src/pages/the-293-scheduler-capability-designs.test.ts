@@ -591,7 +591,8 @@ describe('12 & 13 — the page count is 22 and no existing page moved', () => {
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-293's. */
-    expect(pagesInDist()).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-293's. */
+    expect(pagesInDist()).toHaveLength(30);
     expect(pagesInDist()).toContain('features/harvest-scheduler/index.html');
   });
 

@@ -1076,6 +1076,69 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       '2f6fb25a5438421d7b2228b3b129eab64cd7050ad747aca569c3e2b7f8d7488b',
   };
 
+  /**
+   * 🔵 ddf3529 — THE PRAYER-REQUESTS POST, PUSHED STRAIGHT ONTO `main`.
+   *
+   * `how-to-keep-track-of-church-prayer-requests` is the 30th route. This
+   * workflow runs on pull_request only, so that push was never CI-tested. It is
+   * recorded here only because CI gates this PR on a green suite.
+   *
+   *   blog/index                        the post joins the listing
+   *   blog/category/inside-harvest      and its category page
+   *   blog/year-end-giving-statements-what-to-include
+   *   blog/track-sunday-attendance-without-a-sign-in-sheet
+   *                                     the other two inside-harvest posts, each
+   *                                     gaining the new post in its related list
+   *   blog/how-to-keep-track-of-church-prayer-requests
+   *                                     ADDED — the 30th route
+   *
+   * The other twenty-five did not move. Verified by building 00f2db8 (before
+   * the post) and ddf3529 (with it) and diffing the normalised output: only
+   * these five differ, and only by the new listing row / related link / page.
+   */
+  const PRAYER_POST_MOVED: Readonly<Record<string, string>> = {
+    'blog/category/inside-harvest/index.html':
+      '412983a299ce2de87a7b4926f3a0d21f3c3714fa998c5074f892ed01620226a9',
+    'blog/index.html':
+      'cb49a6ca0798765c7d8551d3b04b0511535a5f34746a6d78352ae85d63a055bf',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html':
+      '01c385a608d412139b5006b89c39192ada2f3a6429df343a9e8721f7da2f785f',
+    'blog/year-end-giving-statements-what-to-include/index.html':
+      'ed6e07675d4763beb1780d6711ef9a9e4f28a560fbb967a37ad4a009d2a23379',
+  };
+  const PRAYER_POST_ADDED: Readonly<Record<string, string>> = {
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html':
+      '2123514ad449a01587d361239234e7f612e162c3af34f63aa6716aa5360dc955',
+  };
+
+  /**
+   * 🔵 40d8d2c — THE QUARTERLY PLAN WITHDRAWN; MONTHLY AND YEARLY ONLY.
+   *
+   * Adds and drops no route. Four pages moved, each only in its billing-term
+   * copy (verified by a word-level diff of ddf3529 against this branch):
+   *
+   *   index, pricing   the term toggle loses its Quarterly segment and its −10%
+   *                    badge (3 → 2 columns); the add-on footnote loses its
+   *                    "On quarterly billing…" sentence
+   *   faq              the plans answer and the JSON-LD copy of it lose the
+   *                    $54 / $108 / $216 every-three-months prices and the 10%
+   *                    quarterly discount; "quarterly or" is dropped
+   *   terms            the plan list and the renewal paragraph lose the
+   *                    three-month term
+   *
+   * The other twenty-six did not move.
+   */
+  const QUARTERLY_WITHDRAWN_MOVED: Readonly<Record<string, string>> = {
+    'faq/index.html':
+      '3ae7045337459ca47a77a940530a2b60f4d7331cf43e05bc4ac2a1f32c005e30',
+    'index.html':
+      'bda9ee9454bd302bbe3fe0895d5819314012c62fe630f0380f25c095c11f43ca',
+    'pricing/index.html':
+      '9e3d72736dec4f0f1d7567877ccc3a95c2d60b0dfba5ebf43ccab0d12771be96',
+    'terms/index.html':
+      'c809f11e3152fd1a3f49fa86f16334ad398c59ba414e4a91c15c40c3c5e7b471',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
@@ -1088,6 +1151,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...MAIN_105_106_MOVED, ...WAITLIST_106_ADDED,
     ...THE_372_MOVED,
     ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED,
+    ...PRAYER_POST_MOVED, ...PRAYER_POST_ADDED,
+    ...QUARTERLY_WITHDRAWN_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -1178,6 +1243,12 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // c5b7143 — the check-in post. Three pages moved, one added (29 pages).
     // NOT THE-373's. See CHECKIN_POST_MOVED / CHECKIN_POST_ADDED.
     '0ee0fdf3c66115e3e1338e59fd7a9896ee99cb20e9d90ec5ccc3aee3f4fdf4dc',
+    // ddf3529 — the prayer-requests post. Four pages moved, one added (30
+    // pages). See PRAYER_POST_MOVED / PRAYER_POST_ADDED.
+    'fe69ecaab053d88683313b7e83679507bde5f275400b140a3dcc0dcb1d8d4b8a',
+    // 40d8d2c — the quarterly plan withdrawn. Four pages moved, none added or
+    // dropped (30 pages). See QUARTERLY_WITHDRAWN_MOVED.
+    'ca66bf7fc181286bba9154396a3daefbd89cf3f2d8f67826d93c4ca10fd7cd94',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1332,7 +1403,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         && !(p in SOLUTIONS_MISSIONARIES_ADDED)
         && !(p in SKOOL_POST_MOVED) && !(p in SKOOL_POST_ADDED)
         && !(p in WAITLIST_106_ADDED)
-        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED));
+        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED)
+        && !(p in PRAYER_POST_ADDED));
     // 🔵 Fifteen until THE-314 took three more out of the list, on the same
     // terms: they are asserted against THE_314_MOVED, not dropped. Five of its
     // eight were already excluded as THE-301's or THE-306's.
@@ -1398,7 +1470,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     /* 🔵 25 KEYS SINCE SOLUTIONS_MISSIONARIES_ADDED added the third new page.
        The claim here is unchanged — THE-293 added and dropped nothing. */
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(29);
+    expect(Object.keys(BASELINE)).toHaveLength(30);
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED)
         && !(p in THE_314_MOVED) && !(p in THE_335_MOVED) && !(p in THE_343_MOVED)
@@ -1408,7 +1480,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         && !(p in SOLUTIONS_MISSIONARIES_ADDED)
         && !(p in SKOOL_POST_MOVED) && !(p in SKOOL_POST_ADDED)
         && !(p in WAITLIST_106_ADDED)
-        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED));
+        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED)
+        && !(p in PRAYER_POST_ADDED));
     // 🔵 Twenty until THE-301 took two out of the list, THE-306 three more and
     // THE-314 four more (four of its eight were already excluded).
     // 🔵 Nine since THE-343 excluded the Planning Center blog post.
@@ -1454,7 +1527,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         && !(p in SOLUTIONS_MISSIONARIES_ADDED)
         && !(p in SKOOL_POST_MOVED) && !(p in SKOOL_POST_ADDED)
         && !(p in WAITLIST_106_ADDED)
-        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED));
+        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED)
+        && !(p in PRAYER_POST_ADDED));
     // 🔵 Eleven since THE-314 moved eight of the twenty-two; the claim is
     // unchanged — everything outside the named tables is still at its recorded
     // value.
@@ -1475,7 +1549,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 🔵 25 keys since SOLUTIONS_MISSIONARIES_ADDED added the third new page —
     // nothing added or dropped BY THE-301 itself.
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(29);
+    expect(Object.keys(BASELINE)).toHaveLength(30);
   });
 
   const pagesInDist = (): string[] => {
@@ -1531,7 +1605,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         && !(p in SOLUTIONS_MISSIONARIES_ADDED)
         && !(p in SKOOL_POST_MOVED) && !(p in SKOOL_POST_ADDED)
         && !(p in WAITLIST_106_ADDED)
-        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED));
+        && !(p in CHECKIN_POST_MOVED) && !(p in CHECKIN_POST_ADDED)
+        && !(p in PRAYER_POST_ADDED));
     // 🔵 Twelve since THE-335 moved ten more, eight of which were already
     // outside this list. THE-306's own claim — that it moved three and no
     // others — is unchanged; the pages it must be measured against are the ones
@@ -1566,7 +1641,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 🔵 25 keys since SOLUTIONS_MISSIONARIES_ADDED added the third new page —
     // nothing added or dropped BY THE-306 itself.
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(29);
+    expect(Object.keys(BASELINE)).toHaveLength(30);
   });
 
   it('🔴 SOLUTIONS / MISSIONARIES added exactly one page, and moved none of the other twenty-five', () => {
@@ -1593,7 +1668,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in SOLUTIONS_MISSIONARIES_ADDED) && !(p in SOLUTIONS_TABS_CENTERED_MOVED)
         && !(p in SKOOL_POST_ADDED) && !(p in WAITLIST_106_ADDED)
-        && !(p in CHECKIN_POST_ADDED));
+        && !(p in CHECKIN_POST_ADDED) && !(p in PRAYER_POST_ADDED));
     // 🔵 Twenty-three since SOLUTIONS_TABS_CENTERED_MOVED excluded the two
     // other pages it moved — churches and evangelistic-organizations. This
     // ticket's own claim, that adding the Missionaries page moved nothing
@@ -1612,7 +1687,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // are asserted against ITS values. The claim here — that adding the
       // Missionaries page moved nothing else — is unchanged.
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(QUARTERLY_WITHDRAWN_MOVED[page] ?? PRAYER_POST_MOVED[page] ?? CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
@@ -1638,7 +1713,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         .not.toBe(previous);
     }
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(29);
+    expect(Object.keys(BASELINE)).toHaveLength(30);
   });
 
   it('🔴 MAIN_105_106 moved exactly nine pages and added one, and dropped none', () => {
@@ -1679,7 +1754,59 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(previous, `${page} is not a page that existed`).toBeDefined();
       expect(THE_372_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(previous);
     }
-    expect(Object.keys(BASELINE)).toHaveLength(29);
+    expect(Object.keys(BASELINE)).toHaveLength(30);
+  });
+
+  it('🔴 PRAYER_POST moved exactly four pages and added one, and dropped none', () => {
+    expect(Object.keys(PRAYER_POST_MOVED).sort()).toEqual([
+      'blog/category/inside-harvest/index.html',
+      'blog/index.html',
+      'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html',
+      'blog/year-end-giving-statements-what-to-include/index.html',
+    ]);
+    expect(Object.keys(PRAYER_POST_ADDED))
+      .toEqual(['blog/how-to-keep-track-of-church-prayer-requests/index.html']);
+    const before = { ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
+      ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
+      ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
+      ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
+      ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
+      ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED,
+      ...SKOOL_POST_MOVED, ...SKOOL_POST_ADDED, ...THE_370_MOVED, ...THE_HONEST_OFFER_MOVED,
+      ...MAIN_105_106_MOVED, ...WAITLIST_106_ADDED, ...THE_372_MOVED,
+      ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED } as Record<string, string>;
+    for (const page of Object.keys(PRAYER_POST_MOVED)) {
+      expect(before[page], `${page} is not a page that existed`).toBeDefined();
+      expect(PRAYER_POST_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(before[page]);
+    }
+    for (const page of Object.keys(PRAYER_POST_ADDED)) {
+      expect(before[page], `${page} is listed as added but already existed`).toBeUndefined();
+    }
+    // The quarterly withdrawal is a different change; no page belongs to both.
+    for (const page of Object.keys(QUARTERLY_WITHDRAWN_MOVED)) {
+      expect(PRAYER_POST_MOVED[page], `${page} is the quarterly withdrawal's, not the post's`).toBeUndefined();
+    }
+  });
+
+  it('🔴 QUARTERLY_WITHDRAWN moved exactly four pages, and added and dropped none', () => {
+    expect(Object.keys(QUARTERLY_WITHDRAWN_MOVED).sort()).toEqual([
+      'faq/index.html', 'index.html', 'pricing/index.html', 'terms/index.html',
+    ]);
+    const before = { ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
+      ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
+      ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
+      ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
+      ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
+      ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED,
+      ...SKOOL_POST_MOVED, ...SKOOL_POST_ADDED, ...THE_370_MOVED, ...THE_HONEST_OFFER_MOVED,
+      ...MAIN_105_106_MOVED, ...WAITLIST_106_ADDED, ...THE_372_MOVED,
+      ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED,
+      ...PRAYER_POST_MOVED, ...PRAYER_POST_ADDED } as Record<string, string>;
+    for (const page of Object.keys(QUARTERLY_WITHDRAWN_MOVED)) {
+      expect(before[page], `${page} is not a page that existed`).toBeDefined();
+      expect(QUARTERLY_WITHDRAWN_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(before[page]);
+    }
+    expect(Object.keys(BASELINE)).toHaveLength(30);
   });
 
   it.runIf(comparable)('and the whole set matches as one number', () => {
@@ -1908,8 +2035,9 @@ describe('9 — the prerender list and the built page count are unchanged', () =
     expect(blogRoutes()).toHaveLength(30);
   });
 
-  it.runIf(built)('and the build emits all 29 of them', () => {
-    /* The list and the build agree: 29 routes in, 29 pages out.
+  it.runIf(built)('and the build emits all 30 of them', () => {
+    /* The list and the build agree: 30 routes in, 30 pages out.
+       🔵 29 → 30 AT ddf3529, the prayer-requests post pushed straight onto main.
        🔵 28 → 29 AT c5b7143, the check-in post restored straight onto main.
        🔵 27 → 28 WITH `/waitlist` on feat/lead-capture-waitlist (prerender fix).
        🔵 26 → 27 AT 525f630, the `skool-alternative-for-churches` post pushed
@@ -1927,7 +2055,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
       }
       return n;
     })(DIST);
-    expect(count, `this checkout built ${count} pages, not 29`).toBe(29);
+    expect(count, `this checkout built ${count} pages, not 30`).toBe(30);
   });
 });
 

@@ -796,7 +796,8 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-284's. */
-    expect(pages, `this checkout built ${pages.length} pages, not 29`).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-284's. */
+    expect(pages, `this checkout built ${pages.length} pages, not 30`).toHaveLength(30);
     expect(pages.map(([f]) => f)).toContain('features/harvest-scheduler/index.html');
   });
 

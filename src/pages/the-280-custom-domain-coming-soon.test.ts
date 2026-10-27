@@ -718,7 +718,8 @@ describe('6 — the prerendered page count is unchanged', () => {
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-280's. */
-    expect(count, `this checkout built ${count} pages, not 29`).toBe(29);
+    /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-280's. */
+    expect(count, `this checkout built ${count} pages, not 30`).toBe(30);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {
