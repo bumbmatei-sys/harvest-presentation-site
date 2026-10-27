@@ -1139,6 +1139,40 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'c809f11e3152fd1a3f49fa86f16334ad398c59ba414e4a91c15c40c3c5e7b471',
   };
 
+  /* Hero and shared fixed navigation redesign moves every prerendered page. */
+  const HERO_FABALE_MOVED: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': 'd49b5419ba21b41ad4bb806b45336d68b41c741bf89a9c2c84d68436690483b7',
+    'blog/category/inside-harvest/index.html': '5099aa7f7a42936e2239c8d8d3b150e503f68e9fe6a987b6d9b5ba0277e7ce7b',
+    'blog/category/rooted/index.html': '4c3a1532e98402770d6241b893cefb673a542e622087797dc40c317ba9132823',
+    'blog/generosity-without-pressure/index.html': 'b148956f4c6a01c3868c15389ed093504c3bbc6f4b4fab89dc25f9bed45df097',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '5a7223c158d8d1873bc8ea0820e76a54cb0ca3d1071dce47168eaace7e6d9346',
+    'blog/index.html': '2ad786591be43089b7846ff94653e3b7406d264cfc889eba3c758c21f700cdc8',
+    'blog/planning-center-alternative-small-churches/index.html': '09e90578baa72976a29784da41d1c19ab90bdd6fa3dd23aa96d86e5914f29cb5',
+    'blog/skool-alternative-for-churches/index.html': '84295e192095083532840eb89c3a47b27714d79a7518c133812dd77f8bbf10cf',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': '3f6479deeb8c7fc7defe3ab67ccad45804d813aa4a12d74c3bc5e7a74d6bddbc',
+    'blog/work-that-outlives-you/index.html': '6afaececbb0f9f7fddf9ab322cd9c3373e4e1e62f5358d69aec87b4c46b8eba8',
+    'blog/year-end-giving-statements-what-to-include/index.html': '6ca0489ba92bad012e5f17bebe528467c8d33c655a1871c013bd5e26faeed64c',
+    'contact/index.html': 'c6e48b721cc5c9d845549d3c278e59055c1353844c8e6ed5d762558bf2749b34',
+    'faq/index.html': 'd8864997a710de94c7e3b109f95a5cfd7780ea487cc073a79f1214f514e1c102',
+    'features/ai-automation/index.html': '1cd7bcd4cbd872eed8d215ec1c2de613155d955d878019239e47dfee83b572c1',
+    'features/coming-soon/index.html': 'e14704b89dbb377c3af55cac91f63a4ff1d7ddfba0c9edde58d01fb14e5fce65',
+    'features/community-engagement/index.html': '783f8f60c7e75e77c033d16dc2c66a7881480eac6bbc4c351335499423e1db3f',
+    'features/discipleship-content/index.html': '1542a24d2883b73ca90a4892b00205beb45b3b685dddbd40b89ac056a5719e09',
+    'features/giving-finance/index.html': '2dd9e427f429133dc52f3a4032ac2aa76c55ac81bf6967003ccbfcbcf4a36cc4',
+    'features/harvest-scheduler/index.html': '4e449e4e06d1424da9950cd47d3ad842ed5c85c62ec228f589f687875aabbd78',
+    'features/index.html': 'd6fe6a6fada084256b8cc0cf51f129c25f18830c603a78c737d9e6136d72dcd4',
+    'features/platform-brand/index.html': 'ba73aa07eba216285749f2fc268e25b56f3fd53331c7900fff8ca1100562b3d2',
+    'index.html': 'c29c564e7811e5566a49152e4e28449c6ec098d65836b0b6abc12cc4dea530d5',
+    'pricing/index.html': '4ef180338310334f214bb008dd4c67308b61d9737470cbbed0fecbfcb6ed4b3c',
+    'privacy/index.html': 'bb86f53498ee52f5e04f9e39c04605e354fd58842dea19096134876a24f1fa81',
+    'refunds/index.html': '5a0636bbb060df4bef664c29ffb110ce2861f32bd76ae6404b05128e6789b146',
+    'solutions/churches/index.html': '239577158aac6f7c20f9ea843b647739571c648b4d3db6d8081e0be2930b36b1',
+    'solutions/evangelistic-organizations/index.html': '121bfe108c7b9156406dd7ceadece1daa77ae4023bf1bed3bc468fdf72daad1d',
+    'solutions/missionaries/index.html': 'e93a4c1eae082d5d826981339e5bc337b194fac1c99c5682dc6dcfdfb5f20892',
+    'terms/index.html': 'ca5b60a1e38bf186aed426bea4fe7500ddfa85d27ae0643ca1597e1b5d775033',
+    'waitlist/index.html': '63b5fc48a58b516a0b744fa294428e5ff0f8c343c0e8fba20fa55bba54590332',
+  };
+
   const BASELINE: Readonly<Record<string, string>> = {
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
@@ -1153,6 +1187,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED,
     ...PRAYER_POST_MOVED, ...PRAYER_POST_ADDED,
     ...QUARTERLY_WITHDRAWN_MOVED,
+    ...HERO_FABALE_MOVED,
   };
 
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
@@ -1249,6 +1284,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 40d8d2c — the quarterly plan withdrawn. Four pages moved, none added or
     // dropped (30 pages). See QUARTERLY_WITHDRAWN_MOVED.
     'ca66bf7fc181286bba9154396a3daefbd89cf3f2d8f67826d93c4ca10fd7cd94',
+    // Hero and shared navigation redesign; all 30 pages move.
+    '16d5701d57d52816148aa1ee80504317cbfe9412835e57b4688640a2907cca4d',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1323,7 +1360,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(untouched).toHaveLength(0);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
-        .toBe(PRE_TAILWIND[page]);
+        .toBe(HERO_FABALE_MOVED[page] ?? PRE_TAILWIND[page]);
     }
     /* 🔴 And THE-281's page is still not THE-280's to have moved.
        ⚠️ IT LEFT `untouched` AT THE-306, which drew the Shareable Giving Page's
@@ -1360,7 +1397,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        touched it, which is all this assertion has ever claimed.
        🔵 AND #105 MOVED IT AGAIN (MAIN_105_106_MOVED), so that table takes the
        front — THE-280 still never touched it. */
-    expect(BASELINE[giving]).toBe(MAIN_105_106_MOVED[giving] ?? THE_370_MOVED[giving]);
+    expect(BASELINE[giving]).toBe(HERO_FABALE_MOVED[giving] ?? MAIN_105_106_MOVED[giving] ?? THE_370_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -1418,7 +1455,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(others).toHaveLength(0);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
-        .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
   });
 
@@ -1463,7 +1500,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // (the category intro/SEO no longer sell a newsletter while
       // NEWSLETTER_MARKETING_ENABLED is off). THE-293's claim is untouched.
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
@@ -1492,7 +1529,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(others).toHaveLength(0);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
-        .toBe(THE_335_MOVED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_335_MOVED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
   });
 
@@ -1541,7 +1578,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(others).toHaveLength(0);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-301 had no business moving it`)
-        .toBe(THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? THE_293_MOVED[page]
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? THE_293_MOVED[page]
           ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
           ?? PRE_TAILWIND[page]);
     }
@@ -1634,7 +1671,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'ai-automation is excluded here but THE-314 does not record it').toBeDefined();
     for (const page of untouched) {
       expect(BASELINE[page], `${page} moved, and THE-306 had no business moving it`)
-        .toBe(THE_301_MOVED[page] ?? THE_293_MOVED[page] ?? THE_284_ADDED[page]
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_301_MOVED[page] ?? THE_293_MOVED[page] ?? THE_284_ADDED[page]
           ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
@@ -1687,7 +1724,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // are asserted against ITS values. The claim here — that adding the
       // Missionaries page moved nothing else — is unchanged.
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(QUARTERLY_WITHDRAWN_MOVED[page] ?? PRAYER_POST_MOVED[page] ?? CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(HERO_FABALE_MOVED[page] ?? QUARTERLY_WITHDRAWN_MOVED[page] ?? PRAYER_POST_MOVED[page] ?? CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
@@ -1809,6 +1846,24 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(Object.keys(BASELINE)).toHaveLength(30);
   });
 
+  it('🔴 HERO_FABALE moved all 30 existing pages and added none', () => {
+    const before = { ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
+      ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
+      ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
+      ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
+      ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
+      ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED, ...SKOOL_POST_MOVED, ...SKOOL_POST_ADDED,
+      ...THE_370_MOVED, ...THE_HONEST_OFFER_MOVED, ...MAIN_105_106_MOVED, ...WAITLIST_106_ADDED,
+      ...THE_372_MOVED, ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED, ...PRAYER_POST_MOVED,
+      ...PRAYER_POST_ADDED, ...QUARTERLY_WITHDRAWN_MOVED } as Record<string, string>;
+    expect(Object.keys(HERO_FABALE_MOVED).sort()).toEqual(Object.keys(BASELINE).sort());
+    expect(Object.keys(HERO_FABALE_MOVED)).toHaveLength(30);
+    for (const page of Object.keys(HERO_FABALE_MOVED)) {
+      expect(before[page]).toBeDefined();
+      expect(HERO_FABALE_MOVED[page]).not.toBe(before[page]);
+    }
+  });
+
   it.runIf(comparable)('and the whole set matches as one number', () => {
     /* The per-page results say WHICH page moved; this says whether the SET
        moved, so an added or dropped page is caught as well as an edited one. */
@@ -1899,7 +1954,8 @@ describe('6b — the hand-written stylesheet still ships, outside Tailwind\'s la
        established by test 7: the source region is unmodified. */
     const banner = /^\/\*![^*]*\*\//;
     expect(sha(unlayered.replace(banner, '').trim())).toBe(
-      'b2bf9da491ce9fa3dd43e84ac10d1dd6120ce0332675c25fb90ecb20997c8aaf',
+      // Hero scenery and fixed navigation rules appended for the redesign.
+      'b1d0d6b37764d81eb4bcd9f126d696ec37d6a70d741f0d7ba73de3a6a37c5ea9',
     );
   });
 

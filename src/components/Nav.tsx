@@ -308,7 +308,7 @@ export function Nav() {
   const resourcesBtnRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
@@ -372,41 +372,24 @@ export function Nav() {
   return (
     <nav
       ref={navRef}
-      style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60,
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        padding: scrolled ? '10px 20px' : '18px 20px', transition: 'padding 300ms var(--ease-out)',
-      }}
+      className={scrolled || pathname !== '/' ? 'harvest-nav harvest-nav-solid' : 'harvest-nav'}
     >
-      <div style={{
-        width: '100%', maxWidth: 1160, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '9px 10px 9px 20px', borderRadius: 'var(--radius-pill)',
-        background: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.78)',
-        backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-        border: '1px solid rgba(255,255,255,0.85)',
-        boxShadow: scrolled ? '0 12px 34px rgba(45,37,25,0.1)' : '0 6px 22px rgba(45,37,25,0.06)',
-        transition: 'background 300ms var(--ease-out), box-shadow 300ms var(--ease-out)',
-      }}>
-        <Link to="/#hero" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <Mark h={32} />
-          <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 21, color: 'var(--navy-900)' }}>
-            Harvest<span style={{ color: 'var(--brand)' }}>.</span>
-          </span>
+      <div className="harvest-nav-inner">
+        <Link to="/#hero" className="harvest-nav-logo">
+          <Mark h={32} style={{ filter: 'brightness(0) invert(1)' }} />
+          <span>Harvest<span>.</span></span>
         </Link>
 
-        <div style={{ display: 'flex', gap: 26, alignItems: 'center' }} className="nav-links">
+        <div className="nav-links">
           <button
             ref={featuresBtnRef}
             type="button"
             aria-haspopup="true"
             aria-expanded={mega}
             onClick={toggleMega}
-            style={{ ...linkStyle, color: mega ? 'var(--brand)' : 'var(--navy-800)' }}
-            onMouseEnter={(e) => { if (!mega) e.currentTarget.style.color = 'var(--brand)'; }}
-            onMouseLeave={(e) => { if (!mega) e.currentTarget.style.color = 'var(--navy-800)'; }}
+            style={linkStyle}
           >
             Features
-            <L name="chevron-down" size={13} color="currentColor" style={{ transform: mega ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
           </button>
           <button
             ref={solutionsBtnRef}
@@ -414,17 +397,12 @@ export function Nav() {
             aria-haspopup="true"
             aria-expanded={solutions}
             onClick={toggleSolutions}
-            style={{ ...linkStyle, color: solutions || onSolutions ? 'var(--brand)' : 'var(--navy-800)' }}
-            onMouseEnter={(e) => { if (!solutions) e.currentTarget.style.color = 'var(--brand)'; }}
-            onMouseLeave={(e) => { if (!solutions) e.currentTarget.style.color = onSolutions ? 'var(--brand)' : 'var(--navy-800)'; }}
+            style={linkStyle}
           >
             Solutions
-            <L name="chevron-down" size={13} color="currentColor" style={{ transform: solutions ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
           </button>
           {PAGE_LINKS.map(([label, href]) => (
-            <Link key={label} to={href} style={linkStyle}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-800)')}>{label}</Link>
+            <Link key={label} to={href} style={linkStyle}>{label}</Link>
           ))}
           {/* 🔴 RESOURCES IS A DROPDOWN, NOT A LINK TO THE BLOG.
               It was a flat <Link to="/blog"> labelled "Resources" — a label
@@ -437,29 +415,26 @@ export function Nav() {
             aria-haspopup="true"
             aria-expanded={resources}
             onClick={toggleResources}
-            style={{ ...linkStyle, color: resources || onBlog ? 'var(--brand)' : 'var(--navy-800)' }}
-            onMouseEnter={(e) => { if (!resources) e.currentTarget.style.color = 'var(--brand)'; }}
-            onMouseLeave={(e) => { if (!resources) e.currentTarget.style.color = onBlog ? 'var(--brand)' : 'var(--navy-800)'; }}
+            style={linkStyle}
           >
             Resources
-            <L name="chevron-down" size={13} color="currentColor" style={{ transform: resources ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
           </button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {/* Hidden on mobile (see .nav-cta in index.css) — the CTA lives in the
               hamburger menu there, so the sticky header shows it only once. */}
-          <span className="nav-cta"><HBtn to="/#pricing" size="sm" variant="dark">Start free trial</HBtn></span>
+          <span className="nav-cta"><Link className="hero-primary" to="/#pricing">Start free trial</Link></span>
           <button
             type="button"
             className="nav-hamburger"
             aria-label={mobile ? 'Close menu' : 'Open menu'}
             aria-expanded={mobile}
             onClick={() => setMobile((v) => !v)}
-            style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 12, border: '1px solid rgba(45,37,25,0.12)', background: '#fff', cursor: 'pointer' }}
+            style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, border: 0, background: 'transparent', cursor: 'pointer' }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy-900)" strokeWidth="2" strokeLinecap="round">
-              {mobile ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round">
+              {mobile ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M2 8h20M2 16h20" />}
             </svg>
           </button>
         </div>
