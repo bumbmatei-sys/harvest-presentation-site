@@ -556,10 +556,18 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/Pricing.tsx': '96f80fa6516d16dcf90e25570c1178a6ec719c25d5ec39bfe0954cf02a3b8fcc',
   };
 
+  /* 🔴 RETIRED BOARD PATH REDIRECT (2026-10-27) — the founder retired that page, so
+     `vercel.json` gained one redirect of its old path to /, beside the existing
+     /features.html one. Nothing else in the file moved. The previous hash was
+     b7c29796…. */
+  const RETIRED_BOARD_REDIRECT_REPINNED: Readonly<Record<string, string>> = {
+    'vercel.json': 'e24c36c7bdfc981973ac94ccefeb11b24d107a0c99c17d03d57dc12e43ae0965',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        RETIRED_BOARD_REDIRECT_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

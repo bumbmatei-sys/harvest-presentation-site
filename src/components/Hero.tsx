@@ -29,10 +29,10 @@ export function Hero() {
     <div className="hero-cloud hero-cloud-low-left" aria-hidden="true" />
     <div className="hero-cloud hero-cloud-low-right" aria-hidden="true" />
     <div className="hero-copy">
-      <div className="hero-badge">New: The digital foundation for ministries <span aria-hidden="true">→</span></div>
-      <h1>Run your ministry<br />like never before</h1>
-      <p>Church management software and a member app in one platform — community, courses, giving and AI, turning a moment of decision into a lifetime of devotion. Built for churches that want one subscription, not a stack.</p>
-      <div className="hero-actions"><Link className="hero-primary" to="/#pricing">{TRIAL_CTA_LABEL}</Link><Link className="hero-secondary" to="/solutions/churches">See Harvest for churches <span aria-hidden="true">▶</span></Link></div>
+      <div className="hero-badge">From Conversion to Devotion <span aria-hidden="true">→</span></div>
+      <h1>Every New Believer<br />Deserves a Next Step</h1>
+      <p>Community, courses, giving and an AI assistant in one app, under your ministry's name.</p>
+      <div className="hero-actions"><Link className="hero-primary" to="/#pricing">{TRIAL_CTA_LABEL}</Link><Link className="hero-secondary" to="#features">See the features <span aria-hidden="true">▶</span></Link></div>
     </div>
     <div className="hero-dashboard-wrap"><DashboardMock /></div>
     <img className="hero-hills-front" src="/hero/hero-hills-front.webp" alt="" aria-hidden="true" />

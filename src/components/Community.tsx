@@ -38,13 +38,13 @@ export function Community() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }} className="split-grid">
           <ParallaxLayer speed={0.05}><Reveal><CommunityCard /></Reveal></ParallaxLayer>
           <div>
-            <Kicker align="left" color="var(--sky-600)">Community management</Kicker>
-            <H2 align="left" style={{ marginTop: 14 }}>Keep every believer moving forward</H2>
+            <Kicker align="left" color="var(--sky-600)">Community</Kicker>
+            <H2 align="left" style={{ marginTop: 14 }}>Keep Every New Believer Close</H2>
             <Reveal delay={140}>
               <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-body)', lineHeight: 1.6, margin: '18px 0 26px', maxWidth: 480 }}>
-                Feeds, events, prayer requests and groups in a private space that belongs to your ministry — not a Facebook group, not a forum. A private church community your members open as an app on their home screen.
+                A feed, a prayer wall, groups and events in a private space you own. No algorithm decides who sees your post.
               </p>
-              <Checklist size="md" items={['Private community feed & prayer wall', 'Groups, events & livestream', 'Real connection that belongs to you']} />
+              <Checklist size="md" items={['Feed and prayer wall', 'Groups, events and livestream', 'Your people, on your own platform']} />
               <div style={{ marginTop: 26 }}><HBtn to="/features/community-engagement#feed" variant="dark">Explore community</HBtn></div>
             </Reveal>
           </div>

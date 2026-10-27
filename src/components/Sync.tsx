@@ -82,7 +82,7 @@ function CoursesMock() {
         </div>
         <div style={{ marginTop: 14, background: '#fff', border: '1px solid rgba(45,37,25,0.06)', borderRadius: 14, padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ color: 'var(--brand)' }}>{I.sparkles({ size: 16 })}</span>
-          <span style={{ fontSize: 12, color: 'var(--text-body)' }}>AI suggestion: members who finish “Foundations of Faith” are 3× more likely to join a group.</span>
+          <span style={{ fontSize: 12, color: 'var(--text-body)' }}>AI suggestion: invite this week's Foundations of Faith finishers to a group.</span>
         </div>
       </div>
     </div>
@@ -109,8 +109,8 @@ export function Sync() {
     <section id="believers" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
       <div style={container}>
         <div style={{ textAlign: 'center', marginBottom: 44 }}>
-          <Kicker>Believers · anywhere</Kicker>
-          <H2 style={{ marginTop: 14 }}>{'A home for their faith,\nin their pocket'}</H2>
+          <Kicker>The member app</Kicker>
+          <H2 style={{ marginTop: 14 }}>{'Your Ministry,\nOn Their Home Screen'}</H2>
         </div>
         <Reveal delay={100}>
           <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', padding: '54px 28px 30px', background: `linear-gradient(180deg, rgba(12,21,38,0.2), rgba(12,21,38,0.6)), url(${FIELD}) center/cover` }}>
@@ -132,7 +132,7 @@ export function Sync() {
               </div>
             )}
             <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: 500, margin: '30px 0 0', textShadow: '0 1px 8px rgba(12,21,38,0.5)' }}>
-              {mode === 'mobile' ? 'Church app for members — installable on iPhone and Android, no app store required.' : 'Optimized for desktop — your full ministry on the big screen.'}
+              {mode === 'mobile' ? 'Installs on iPhone and Android in seconds. No app store needed.' : 'The full admin, on the big screen.'}
             </p>
           </div>
         </Reveal>

@@ -27,14 +27,14 @@ export function Analytics() {
       <div style={container}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }} className="split-grid">
           <div>
-            <Kicker align="left" color="var(--green-600)">Financial management</Kicker>
-            <H2 align="left" style={{ marginTop: 14 }}>See real discipleship happen</H2>
+            <Kicker align="left" color="var(--green-600)">Giving</Kicker>
+            <H2 align="left" style={{ marginTop: 14 }}>{'Fund the Work.\nKeep Every Gift.'}</H2>
             <Reveal delay={140}>
               <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-body)', lineHeight: 1.6, margin: '18px 0 26px', maxWidth: 480 }}>
-                Giving, courses and engagement in one place. Track growth, measure discipleship, and keep every gift — Harvest takes 0% of every donation, on every plan.
+                Donations, campaigns and pledges go straight to your own accounts. Harvest takes 0% of every donation.
               </p>
-              <Checklist size="md" items={['Donations, fundraising & tax receipts', 'Course progress & engagement analytics', 'CRM for donors and members']} />
-              <div style={{ marginTop: 26 }}><HBtn to="/features/platform-brand#analytics" variant="dark">See the dashboard</HBtn></div>
+              <Checklist size="md" items={['Donations, campaigns and pledges', 'Giving statements and Giving records', 'One record for every donor and member']} />
+              <div style={{ marginTop: 26 }}><HBtn to="/features/giving-finance" variant="dark">See giving</HBtn></div>
             </Reveal>
           </div>
           <ParallaxLayer speed={0.06} style={{ order: 2 }}><Reveal delay={100}><AnalyticsCard /></Reveal></ParallaxLayer>

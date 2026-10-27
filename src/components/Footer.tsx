@@ -58,7 +58,7 @@ export function Footer() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 16 }}>
               <Mark h={30} /><span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 21, color: 'var(--navy-900)' }}>Harvest<span style={{ color: 'var(--brand)' }}>.</span></span>
             </div>
-            <p style={{ color: 'var(--text-body)', fontSize: 14.5, lineHeight: 1.6, maxWidth: 300, margin: '0 0 8px' }}>The digital foundation for ministries. From a moment of decision to a lifetime of devotion.</p>
+            <p style={{ color: 'var(--text-body)', fontSize: 14.5, lineHeight: 1.6, maxWidth: 300, margin: '0 0 8px' }}>One home for your whole ministry. From a moment of decision to a lifetime of devotion.</p>
           </div>
           {col('PAGES', [['Home', '/#hero'], ['Features', '/features/community-engagement'], ['Pricing', '/#pricing'], ['Contact', '/contact']])}
           {col('MINISTRY', [['Believers', '/#believers'], ...(AFFILIATE_PROGRAM_ENABLED ? [['Affiliate', '/#affiliate'] as [string, string]] : []), ['Start free trial', '/#pricing']])}

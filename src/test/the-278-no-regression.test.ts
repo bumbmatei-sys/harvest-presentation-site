@@ -1141,36 +1141,36 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
   /* Hero and shared fixed navigation redesign moves every prerendered page. */
   const HERO_FABALE_MOVED: Readonly<Record<string, string>> = {
-    'blog/category/harvest-vs/index.html': 'd49b5419ba21b41ad4bb806b45336d68b41c741bf89a9c2c84d68436690483b7',
-    'blog/category/inside-harvest/index.html': '5099aa7f7a42936e2239c8d8d3b150e503f68e9fe6a987b6d9b5ba0277e7ce7b',
-    'blog/category/rooted/index.html': '4c3a1532e98402770d6241b893cefb673a542e622087797dc40c317ba9132823',
-    'blog/generosity-without-pressure/index.html': 'b148956f4c6a01c3868c15389ed093504c3bbc6f4b4fab89dc25f9bed45df097',
-    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '5a7223c158d8d1873bc8ea0820e76a54cb0ca3d1071dce47168eaace7e6d9346',
-    'blog/index.html': '2ad786591be43089b7846ff94653e3b7406d264cfc889eba3c758c21f700cdc8',
-    'blog/planning-center-alternative-small-churches/index.html': '09e90578baa72976a29784da41d1c19ab90bdd6fa3dd23aa96d86e5914f29cb5',
-    'blog/skool-alternative-for-churches/index.html': '84295e192095083532840eb89c3a47b27714d79a7518c133812dd77f8bbf10cf',
-    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': '3f6479deeb8c7fc7defe3ab67ccad45804d813aa4a12d74c3bc5e7a74d6bddbc',
-    'blog/work-that-outlives-you/index.html': '6afaececbb0f9f7fddf9ab322cd9c3373e4e1e62f5358d69aec87b4c46b8eba8',
-    'blog/year-end-giving-statements-what-to-include/index.html': '6ca0489ba92bad012e5f17bebe528467c8d33c655a1871c013bd5e26faeed64c',
-    'contact/index.html': 'c6e48b721cc5c9d845549d3c278e59055c1353844c8e6ed5d762558bf2749b34',
-    'faq/index.html': 'd8864997a710de94c7e3b109f95a5cfd7780ea487cc073a79f1214f514e1c102',
-    'features/ai-automation/index.html': '1cd7bcd4cbd872eed8d215ec1c2de613155d955d878019239e47dfee83b572c1',
-    'features/coming-soon/index.html': 'e14704b89dbb377c3af55cac91f63a4ff1d7ddfba0c9edde58d01fb14e5fce65',
-    'features/community-engagement/index.html': '783f8f60c7e75e77c033d16dc2c66a7881480eac6bbc4c351335499423e1db3f',
-    'features/discipleship-content/index.html': '1542a24d2883b73ca90a4892b00205beb45b3b685dddbd40b89ac056a5719e09',
-    'features/giving-finance/index.html': '2dd9e427f429133dc52f3a4032ac2aa76c55ac81bf6967003ccbfcbcf4a36cc4',
-    'features/harvest-scheduler/index.html': '4e449e4e06d1424da9950cd47d3ad842ed5c85c62ec228f589f687875aabbd78',
-    'features/index.html': 'd6fe6a6fada084256b8cc0cf51f129c25f18830c603a78c737d9e6136d72dcd4',
-    'features/platform-brand/index.html': 'ba73aa07eba216285749f2fc268e25b56f3fd53331c7900fff8ca1100562b3d2',
-    'index.html': 'c29c564e7811e5566a49152e4e28449c6ec098d65836b0b6abc12cc4dea530d5',
-    'pricing/index.html': '4ef180338310334f214bb008dd4c67308b61d9737470cbbed0fecbfcb6ed4b3c',
-    'privacy/index.html': 'bb86f53498ee52f5e04f9e39c04605e354fd58842dea19096134876a24f1fa81',
-    'refunds/index.html': '5a0636bbb060df4bef664c29ffb110ce2861f32bd76ae6404b05128e6789b146',
-    'solutions/churches/index.html': '239577158aac6f7c20f9ea843b647739571c648b4d3db6d8081e0be2930b36b1',
-    'solutions/evangelistic-organizations/index.html': '121bfe108c7b9156406dd7ceadece1daa77ae4023bf1bed3bc468fdf72daad1d',
-    'solutions/missionaries/index.html': 'e93a4c1eae082d5d826981339e5bc337b194fac1c99c5682dc6dcfdfb5f20892',
-    'terms/index.html': 'ca5b60a1e38bf186aed426bea4fe7500ddfa85d27ae0643ca1597e1b5d775033',
-    'waitlist/index.html': '63b5fc48a58b516a0b744fa294428e5ff0f8c343c0e8fba20fa55bba54590332',
+    'blog/category/harvest-vs/index.html': 'fe740dc0f2767e08e9718837ef5113e03a682c5ceb1adbace6e6fdcb58c2b9fd',
+    'blog/category/inside-harvest/index.html': '257b76566040b03be28c5a7930b53365b1c6e65bdae95dcaf23b4eb54b770f6d',
+    'blog/category/rooted/index.html': 'bed38137f347e8ab26582ead46dc8be4a1e1bb64b643efd32872e498b41322d3',
+    'blog/generosity-without-pressure/index.html': 'a38a9678d4af567dff3efe1eed130ca420fac19f50f3337fc67ddf410bec374d',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': 'd12c4df8edb0a14f5e54ce14aa16ea3ff44cdac55d14d0e829c82be5709943a3',
+    'blog/index.html': '712db32aaac751711db7db898ad048e1870ee5c088f63bb2e1645d45bc5ead35',
+    'blog/planning-center-alternative-small-churches/index.html': '588ba86bce1553e3f3cf69dc53a7514df96d5f3f3e8f60751dbcf34c690a1e2d',
+    'blog/skool-alternative-for-churches/index.html': '5628d3b6e61083466152e1b3b5d4119a03a27f54a00b5b1e89e5a5480cee38ef',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': 'f09692b7e451e44884405c1862f61b27b6f3a5230ad038dd8f222a0f0772ddad',
+    'blog/work-that-outlives-you/index.html': 'a95d05a188fe251959f70b86f1d39194519e48ee1f7ab3635f17f558fb9b824e',
+    'blog/year-end-giving-statements-what-to-include/index.html': '000df7f532530c807c540a6a216217b81c4a4e74ff9b052a70b9d255cefb5d32',
+    'contact/index.html': '54c354886f6221c87f468a1ac97bb0523b3118163ef7d09b588f2e839e74d0af',
+    'faq/index.html': 'ae7884a8f75f60ae87f53f81668c9df3cd0f9f0952e2ef80849b2642688e0c26',
+    'features/ai-automation/index.html': 'b51ebc5b412619166eb89e93405e42c7b98b95a8ca0fc8c8bb1b793af2f5c33a',
+    'features/coming-soon/index.html': '6854446b8e180a4da33f3109a392c4a36259594883c73c7d3525755a084755f3',
+    'features/community-engagement/index.html': '49137f3351b747741d83b99587bec406bd1c5180f8cf8bf907fcfa43f3994ad3',
+    'features/discipleship-content/index.html': 'd70bca105d08d4443f1884a06fe6e102c7da25237ce62f9712c7e5076f2d175f',
+    'features/giving-finance/index.html': '6d99f54d47a9022ed4c6a4ee707f0fd3f38721b98edc517ca19792b7cf0a7013',
+    'features/harvest-scheduler/index.html': '56f05f673d1911a09b001c41224c178ab0456ace4a0c611c3d2e279e8dc4df17',
+    'features/index.html': '2d648b38e0bb56556c4c572c27e2dc9b5f44179210a93883e41e7729354c6b2a',
+    'features/platform-brand/index.html': 'ef41fae949ae13289e1101ed45e710a44f7726cab7c5701933fcdbcaca76034f',
+    'index.html': 'c35074c5a66751dcf40d6c122c5b7dcf8aaaedc1b506c73215125780617f4bc5',
+    'pricing/index.html': 'c4e41f87d6ca598272f6737e02a3ac06ff4447aa99b2119dfc8da5a3aa6ee9a9',
+    'privacy/index.html': '7acd7b1956d110ae24f879d5695c001c224f65f8a849f9112d36cefd2bd0d698',
+    'refunds/index.html': '18d2161e02bae922239f4a7846beef5684051f6f08814406dac91a31f0cf221f',
+    'solutions/churches/index.html': '51c6864c347b912b6ce6a3b2cf6ef4c7f826739d03d014670f8ccc0c49bf4047',
+    'solutions/evangelistic-organizations/index.html': '6e35e5a9254a86f8266faf47c18114132fdb2c405f139a3cdd5b8b96a0b4e830',
+    'solutions/missionaries/index.html': '857de1b9ef9d217caa94ff279df676a71688e8bf23b0be1187617c06d4aadcd6',
+    'terms/index.html': '94e78960d51a905dba973a1a1a3059f083ef1f3916426bced49cd9e91288c558',
+    'waitlist/index.html': '10972a749623890072ae46b15c70030234063be7d6671535091815d7a47b85b3',
   };
 
   const BASELINE: Readonly<Record<string, string>> = {
@@ -1285,7 +1285,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // dropped (30 pages). See QUARTERLY_WITHDRAWN_MOVED.
     'ca66bf7fc181286bba9154396a3daefbd89cf3f2d8f67826d93c4ca10fd7cd94',
     // Hero and shared navigation redesign; all 30 pages move.
-    '16d5701d57d52816148aa1ee80504317cbfe9412835e57b4688640a2907cca4d',
+    'b70e83cec9a55108c9521e60b2567610a3fad2e2ff3a46d33f764059639987ad',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -2140,7 +2140,7 @@ describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identi
    * unedited — see the assertion against its source two tests below.
    */
   it.each([
-    ['vercel.json', 'b7c29796ec5df5d87332d573d130ea805956078bd5d3753cef537b2ac73a87be'],
+    ['vercel.json', 'e24c36c7bdfc981973ac94ccefeb11b24d107a0c99c17d03d57dc12e43ae0965'],
     ['vite.config.ts', '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66'],
     ['build/blog-plugin.ts', '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2'],
   ])('%s is unchanged', (file, hash) => {

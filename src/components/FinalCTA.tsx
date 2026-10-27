@@ -12,9 +12,9 @@ export function FinalCTA() {
         <Reveal>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}><Mark h={62} /></div>
         </Reveal>
-        <H2 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)' }}>Ready to get started?</H2>
+        <H2 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)' }}>Ready When You Are</H2>
         <Reveal delay={160}>
-          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', margin: '18px auto 32px', maxWidth: 460, opacity: 0.85 }}>Start your ministry platform today — your community is waiting.</p>
+          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', margin: '18px auto 32px', maxWidth: 460, opacity: 0.85 }}>Start your 14-day free trial. Your people are waiting.</p>
           <HBtn href="#pricing" size="lg" variant="gold">{TRIAL_CTA_LABEL}</HBtn>
         </Reveal>
       </div>

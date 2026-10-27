@@ -34,7 +34,7 @@ function MiniChat() {
       <div style={{ alignSelf: 'flex-start', background: 'var(--stone-100)', borderRadius: '14px 14px 14px 4px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-800)', maxWidth: '85%' }}>What does baptism mean for a new believer?</div>
       <div style={{ alignSelf: 'flex-end', background: 'var(--gold-100)', border: '1px solid rgba(201,150,58,0.25)', borderRadius: '14px 14px 4px 14px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-900)', maxWidth: '88%' }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--gold-700)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em' }}>{I.sparkles({ size: 11 })} YOUR MINISTRY'S AI</span>
-        <div style={{ marginTop: 4 }}>Based on your pastor's teaching series…</div>
+        <div style={{ marginTop: 4 }}>Based on your teaching series…</div>
       </div>
     </div>
   );
@@ -75,18 +75,18 @@ export function Features() {
       <div style={container}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <Kicker>Features</Kicker>
-          <H2 style={{ marginTop: 14 }}>{'Built for ministries,\npowered by simplicity'}</H2>
+          <H2 style={{ marginTop: 14 }}>{'Everything You Need to\nDisciple and Grow'}</H2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }} className="bento-grid">
           <Reveal style={{ display: 'flex' }}>
-            <BentoCard icon={I.ai({ size: 24 })} name="AI Knowledge Base" to="/features/ai-automation#knowledge" minH={320}
-              desc="Trained on your teachings — members get answers in your ministry's voice.">
+            <BentoCard icon={I.ai({ size: 24 })} name="AI Assistant" to="/features/ai-automation#knowledge" minH={320}
+              desc="Answers in your ministry's voice, trained on your own teaching.">
               <div style={{ flex: 1, paddingTop: 6 }}>{chip('var(--gold-100)', 'var(--gold-600)', I.ai)}<div style={{ marginTop: 16 }}><MiniChat /></div></div>
             </BentoCard>
           </Reveal>
           <Reveal style={{ display: 'flex' }}>
-            <BentoCard icon={I.feed({ size: 24 })} name="Community in realtime" to="/features/community-engagement#feed" minH={320}
-              desc="Feeds, prayer, events and groups — a private space that belongs to you.">
+            <BentoCard icon={I.feed({ size: 24 })} name="Community" to="/features/community-engagement#feed" minH={320}
+              desc="Feed, prayer, groups and events your people open every day.">
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <MiniFeed />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -98,7 +98,7 @@ export function Features() {
           </Reveal>
           <Reveal delay={80} style={{ display: 'flex' }}>
             <BentoCard icon={I.bible({ size: 24 })} name="Bible & Courses" to="/features/discipleship-content#bible" minH={320}
-              desc="Reading plans and structured discipleship paths with progress tracking.">
+              desc="The full Bible, plus courses with progress tracking.">
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <VerseCard />
                 <div>
@@ -109,8 +109,8 @@ export function Features() {
             </BentoCard>
           </Reveal>
           <Reveal delay={160} style={{ display: 'flex' }}>
-            <BentoCard icon={I.giving({ size: 24 })} name="Giving & Analytics" to="/features/giving-finance#donation" minH={320}
-              desc="Branded giving, fundraising, receipts — and a 0% platform fee.">
+            <BentoCard icon={I.giving({ size: 24 })} name="Giving" to="/features/giving-finance#donation" minH={320}
+              desc="Donation pages, campaigns and pledges, with a 0% fee on donations.">
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                   <span style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--navy-900)', fontWeight: 500 }}>$12,480</span>
