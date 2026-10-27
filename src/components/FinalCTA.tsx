@@ -2,7 +2,7 @@ import React from 'react';
 import { Clouds, Reveal } from './effects';
 import { HBtn } from './magic';
 import { Mark, H2, container, SKY } from './shared';
-import { TRIAL_CTA_LABEL } from '../content/legal';
+import { TRIAL_CTA_LABEL, TRIAL_LENGTH_DAYS } from '../content/legal';
 
 export function FinalCTA() {
   return (
@@ -14,7 +14,7 @@ export function FinalCTA() {
         </Reveal>
         <H2 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)' }}>Ready When You Are</H2>
         <Reveal delay={160}>
-          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', margin: '18px auto 32px', maxWidth: 460, opacity: 0.85 }}>Start your 14-day free trial. Your people are waiting.</p>
+          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', margin: '18px auto 32px', maxWidth: 460, opacity: 0.85 }}>{`Start your ${TRIAL_LENGTH_DAYS}-day free trial. Your people are waiting.`}</p>
           <HBtn href="#pricing" size="lg" variant="gold">{TRIAL_CTA_LABEL}</HBtn>
         </Reveal>
       </div>
