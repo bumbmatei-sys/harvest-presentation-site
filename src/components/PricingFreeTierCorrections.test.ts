@@ -7,7 +7,7 @@ import {
 } from './Pricing';
 import { CATEGORIES } from '../content/features';
 import {
-  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
+  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
 
 /**
@@ -126,7 +126,7 @@ describe('the free card does not list a news or community feed', () => {
       expect(row, `no "${label}" row in the comparison table`).toBeDefined();
       // The check glyph is the ONLY thing that means "included" in this grid.
       expect(/lucide-check/.test(row!.cells[freeCol]), `free claims ${label}`).toBe(false);
-      for (const paid of [1, 2, 3]) {
+      for (const paid of [1, 2]) {
         expect(/lucide-check/.test(row!.cells[paid]), `a priced tier lost ${label}`).toBe(true);
       }
     }
@@ -134,7 +134,7 @@ describe('the free card does not list a news or community feed', () => {
 
   it('the /features "Available on" chips need no change — they never show free', () => {
     // Scope, pinned rather than reasoned. The Community Feed section on
-    // /features/community-engagement carries `tiers: [1, 1, 1]` — THREE cells,
+    // /features/community-engagement carries `tiers: [1, 1]` — TWO cells,
     // positional against the PRICED plans. Free has no column there, so the
     // feed's chips are still correct and are deliberately untouched. If a later
     // ticket adds free to that surface, this fails and the chips become in
@@ -142,14 +142,14 @@ describe('the free card does not list a news or community feed', () => {
     const feed = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'feed');
     expect(feed, 'no "feed" feature in the catalog').toBeDefined();
     expect(feed!.tiers, 'the feed section now has a free column').toHaveLength(plans.length);
-    expect(feed!.tiers).toEqual([1, 1, 1]);
+    expect(feed!.tiers).toEqual([1, 1]);
   });
 
-  it('🔴 still lists the feed on the three tiers that pay for it', () => {
+  it('🔴 still lists the feed on the two plans that pay for it', () => {
     // The overshoot guard. Individual's card is the only priced card that
-    // enumerates the feed by name; Small Team and Ministry inherit it through
-    // "Everything in …", which section 10 pins whole.
-    expect(cardFor('plus')).toContain('Blog & News Feed');
+    // enumerates the feed by name; Ministry inherits it through "Everything in
+    // Church", which section 10 pins whole.
+    expect(cardFor('plus')).toContain('News Feed');
   });
 });
 
@@ -204,7 +204,7 @@ describe('the free card shows Signups and no CRM at all', () => {
 
 // ─── 8. 🔴 the priced cards still say Donors & Members ───────────────────────
 describe('the priced cards still say Donors & Members', () => {
-  it("Individual's card renders the full label", () => {
+  it("Church's card renders the full label", () => {
     expect(cardFor('plus')).toContain('CRM (Donors & Members)');
   });
 
@@ -222,7 +222,6 @@ describe('the priced cards still say Donors & Members', () => {
     const labels = ['free', ...plans.map((p) => p.planId)].map(crmLabel);
     expect(labels).toEqual([
       'CRM (Members)',
-      'CRM (Donors & Members)',
       'CRM (Donors & Members)',
       'CRM (Donors & Members)',
     ]);
@@ -316,76 +315,74 @@ describe('every free card line is derived from the matrix', () => {
   });
 });
 
-// ─── 10. 🔴 the three priced tiers' cards are unchanged ──────────────────────
-describe("the three priced tiers' cards are unchanged", () => {
-  /** Each priced card's feature list exactly as it stood at 9347999 — the
-   *  commit this work branched from — transcribed, not read back.
+// ─── 10. 🔴 the two priced cards are the approved Church / Ministry lineup ───
+describe("the two priced tiers' cards are the approved lineup", () => {
+  /** Each priced card's feature list as the approved two-plan spec
+   *  (27 Oct 2026) writes it — transcribed, not read back from `plans`.
    *
-   *  *  THE-250 — the SMS row/line moved behind SMS_MARKETING_ENABLED. Spread on
-*  the flag rather than deleted from this baseline: this block's claim is that
-*  nothing ELSE moved, and a hardcoded list would restate that claim against
-*  the wrong baseline the moment the switch flips back.
-   */
-  /* 🔴 THE CONTACT LINE IS RE-TRANSCRIBED ON ALL THREE CARDS — THE-370, the
-     only thing that has moved it. The founder raised every cap ("lets not put
-     cap on users that badly"): Individual 150 → 500, Small Team 500 → 2,000,
-     Ministry 2,000 → 4,000. It is transcribed rather than the assertion being
-     relaxed, so this block keeps making its real claim — that NOTHING ELSE on
-     a priced card moved — line for line. No other line changed, and no line was
-     added or removed on any of the three. */
-  const BEFORE: Record<string, string[]> = {
-    plus: ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
-      // 🔴 THE-314 — the SMS line MOVED CARDS as well as changing its name. It
-      // was 'SMS (bring your own Twilio)' on INDIVIDUAL while a church held its
-      // own carrier account; Harvest resells now and SMS is Ministry-only, so
-      // the line is on the Ministry card and Individual carries none.
-      'CRM (Donors & Members)',
-      'Donation page & Fundraising'],
-    /* 🔴 THE-335 — three lines moved behind their flags, and each is SPREAD or
-       BRANCHED rather than deleted from this baseline, for the reason the SMS
-       line already was: this block's claim is that nothing ELSE moved, and a
-       hardcoded list would restate that claim against the wrong baseline the
-       moment a switch flips back. */
-    pro: ['Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
-      'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map',
-      ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])],
-    max: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
-      'Community Groups & Events',
-      NEWSLETTER_MARKETING_ENABLED ? 'Automated SEO Blog & Newsletter' : 'Automated SEO Blog',
-      'Custom Forms → CRM',
-      'Tax Receipts & Statements',
-      ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
-      QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'],
+   *  Items the spec lists as coming soon carry the words "coming soon" ON THE
+   *  LINE. The newsletter and SMS are in the Ministry plan too; while their
+   *  marketing flags are off the app sends neither, so the line says so, and
+   *  the flag spread returns the plain claim when a flag flips on — the Coming
+   *  Soon entry leaves in the same flip. */
+  const CARDS: Record<string, string[]> = {
+    plus: [
+      '500 people · 2 admins', 'One community — feed & chat', 'Mobile App (PWA)', 'Courses',
+      'Blog, News Feed, Docs & Notes', 'Bible', 'CRM (Donors & Members)',
+      'Signups & Evangelism Analytics', 'Donations & Fundraising Campaigns',
+      'Campuses & Church Map', 'Link-in-bio page', 'Up to 3 products (paid checkout coming soon)',
+      '300 AI assistant messages a month — coming soon',
+    ],
+    max: [
+      'Everything in Church', '5,000 people · 15 admins', 'Unlimited communities',
+      'Livestream, chat & prayer requests in every community — coming soon',
+      'Discovery listing — coming soon', 'Events with Registration & Check-In', 'Service Planning',
+      'Custom Forms → CRM', 'Giving records — statements & year-end receipts', 'AI Knowledge Base',
+      CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
+      NEWSLETTER_MARKETING_ENABLED ? 'Newsletter' : 'Newsletter — coming soon',
+      SMS_MARKETING_ENABLED ? 'SMS & Text-to-Give' : 'SMS & Text-to-Give — coming soon',
+      'Social scheduler — coming soon', 'All product types & storefront — coming soon',
+      'Website builder with pre-made templates — coming soon',
+      '5,000 AI assistant messages a month — coming soon',
+    ],
   };
 
-  for (const planId of ['plus', 'pro', 'max']) {
-    it(`${planId}'s feature list is line-for-line what it was`, () => {
+  for (const planId of ['plus', 'max']) {
+    it(`${planId}'s feature list is line-for-line the approved lineup`, () => {
       const plan = plans.find((p) => p.planId === planId)!;
-      expect(plan.features).toEqual(BEFORE[planId]);
+      expect(plan.features).toEqual(CARDS[planId]);
     });
   }
 
-  it('their prices, names and RECOMMENDED badge are untouched', () => {
+  it('their prices, names and RECOMMENDED badge are the approved ones', () => {
     expect(plans.map((p) => [p.planId, p.name, p.price.monthly, p.price.yearly])).toEqual([
-      ['plus', 'Individual', 20, 190],
-      ['pro', 'Small Team', 40, 380],
-      ['max', 'Ministry', 80, 752],
+      ['plus', 'Church', 30, 300],
+      ['max', 'Ministry', 90, 900],
     ]);
     expect(plans.filter((p) => p.popular).map((p) => p.name)).toEqual(['Ministry']);
   });
 
-  it('the ladder still has four tiers with free first, and `plans` still has three', () => {
-    expect(ALL_TIER_NAMES).toEqual(['Forever Free', 'Individual', 'Small Team', 'Ministry']);
-    expect(plans).toHaveLength(3);
+  it('the ladder has three tiers with free first, and `plans` has two', () => {
+    expect(ALL_TIER_NAMES).toEqual(['Forever Free', 'Church', 'Ministry']);
+    expect(plans).toHaveLength(2);
     expect(plans.map((p) => p.planId)).not.toContain('free');
   });
 
-  it('🔴 the priced CARDS render with no line removed and none added', () => {
+  it('🔴 never lets a coming-soon item read as shipped: every one says so on its line', () => {
+    const SOON_WORDS = /storefront|website builder|discovery|social scheduler|AI assistant|paid checkout|in every community/i;
+    for (const p of plans) {
+      for (const line of p.features.filter((f) => SOON_WORDS.test(f))) {
+        expect(line, `"${line}" is a coming-soon item that does not say so`).toMatch(/coming soon/);
+      }
+    }
+  });
+
+  it('🔴 the priced CARDS render every line, and every line is on the card', () => {
     // The data above is pinned; this is the rendered half, because a card is
     // only a claim once it is drawn.
-    for (const planId of ['plus', 'pro', 'max']) {
+    for (const planId of ['plus', 'max']) {
       const text = cardFor(planId);
-      for (const line of BEFORE[planId]) {
+      for (const line of CARDS[planId]) {
         expect(text, `${planId}'s card stopped rendering "${line}"`).toContain(line);
       }
     }

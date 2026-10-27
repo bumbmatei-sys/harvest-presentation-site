@@ -90,8 +90,8 @@ describe('the prices and limits quoted in the FAQ', () => {
         .toContain(`$${grouped(claim.monthly)} a month`);
       expect(body, `the FAQ does not quote $${claim.annual}/yr for ${claim.name}`)
         .toContain(`$${grouped(claim.annual)} a year`);
-      expect(body, `the FAQ does not state ${claim.name}'s contact and admin ceilings`)
-        .toContain(`${claim.contacts} contacts, ${claim.admins} admin accounts, ${claim.courses} courses`);
+      expect(body, `the FAQ does not state ${claim.name}'s people and admin ceilings`)
+        .toContain(`${claim.people} people, ${claim.admins} admin accounts`);
     },
   );
 
@@ -102,22 +102,16 @@ describe('the prices and limits quoted in the FAQ', () => {
     }
   });
 
-  it('describes each discount in the wording the prices permit', () => {
-    // 🔴 The sentence carries `discountClaim`, which decides FROM THE PRICES
-    // whether a percentage may be stated flat or has to say "up to". The one
-    // discounted term is flat: yearly's worst tier saves 20.83% against an
-    // advertised 20. Asserting the RENDERED prose is what proves the hedge is
-    // absent from the page — the sentence is built from `discountClaim`, so it
-    // moved without a copy edit.
-    expect(body.toLowerCase()).toContain(discountClaim('yearly').toLowerCase());
-    expect(discountClaim('yearly')).toBe('Save 20%');
-    expect(body.toLowerCase()).toMatch(/\bsave 20%/);
-    // 🔴 And the qualifier is GONE from the page, not merely unused in code.
-    // A regression in `actualSavingPct` would surface here as "up to 20%" on a
-    // live page; "up to 10%" is the withdrawn quarterly term's hedge and must
-    // not appear either.
+  it('describes the discount as "2 months free", never as a percentage', () => {
+    // 🔴 The sentence carries `discountClaim`, and Pricing.tsx stops the build if
+    // the prices stop delivering it. A year is ten months' price for twelve —
+    // 16.67%, which is not a round percentage, so the page says what a church
+    // actually gets and states no percentage at all.
+    expect(discountClaim('yearly')).toBe('2 months free');
+    expect(body.toLowerCase()).toContain('2 months free');
+    expect(body).not.toMatch(/\b(save|off)\b[^.]{0,20}\d+%|\d+%\s+off/i);
     expect(body.toLowerCase()).not.toContain('up to 20%');
-    expect(body.toLowerCase()).not.toContain('up to 10%');
+    expect(body.toLowerCase()).not.toContain('save 20%');
     // The old 9-of-12 sentence must not survive: there is no such multiplier.
     expect(body.toLowerCase()).not.toContain('nine months of the monthly rate');
   });
@@ -125,7 +119,7 @@ describe('the prices and limits quoted in the FAQ', () => {
   it('says the annual term is one charge, not a cheaper monthly one', () => {
     // ⚠️ What a church is actually charged must be unambiguous.
     expect(body).toContain(`a single payment of $${grouped(FAQ_PLAN_CLAIMS[0].annual)}`);
-    expect(ADVERTISED_DISCOUNT_PCT.yearly).toBe(20);
+    expect(ADVERTISED_DISCOUNT_PCT.yearly).toBe(16);
   });
 });
 
@@ -206,9 +200,14 @@ describe('what the FAQ must not claim', () => {
    * page. Reading the live table means a reprice moves this guard with it. */
   const ALL_ADD_ON_PATTERNS: [string, RegExp][] = [
     ['an add-on', /add-?ons?\b/i],
-    ['unlimited anything', /\bunlimited\b/i],
+    // "Unlimited communities" is a Ministry PLAN item in the approved spec, not
+    // an add-on; anything else unlimited is still a claim to refuse — and the
+    // AI assistant's allowance is a real number, never "unlimited".
+    ['unlimited anything', /\bunlimited\b(?! communities)/i],
     ['extra seats', /\b(extra|additional|per-)\s?(seat|seats)\b/i],
-    ['campuses', /\bcampus(es)?\b/i],
+    // Campuses are INCLUDED in both plans now and the Campus add-on is retired,
+    // so only an extra/additional campus (the retired add-on) is refused.
+    ['an extra campus', /\b(extra|additional|per-)\s?campus(es)?\b/i],
     ...ADD_ONS.flatMap(({ name, monthly, annual }): [string, RegExp][] => [
       [`the ${name} monthly price`, new RegExp(`\\$${monthly}(?![\\d,])`)],
       [`the ${name} annual price`, new RegExp(`\\$${annual}(?![\\d,])`)],
@@ -290,8 +289,9 @@ describe('what the FAQ must not claim', () => {
      draft of the Terms and had to be corrected; what exists is per-tenant
      branding and an editor for the blog, documents and sermon notes. */
   const ABSENT_CAPABILITY_PATTERNS: [string, RegExp][] = [
-    ['a website builder', /website\s+builder/i],
-    ['a site builder', /\bsite\s+builder\b/i],
+    // The website builder is in the approved Ministry plan as COMING SOON, so
+    // the FAQ may name it, but only in a paragraph that says it is not built —
+    // see the dedicated test below.
     ['drag-and-drop page editing', /drag[- ]and[- ]drop/i],
     ['a landing page product', /landing\s+pages?\b/i],
     ['an uptime guarantee', /uptime\s+(guarantee|sla)|\b99\.\d+%/i],
@@ -310,6 +310,17 @@ describe('what the FAQ must not claim', () => {
   scan('implies no data importer', IMPORTER_PATTERNS);
   scan('answers nothing about a deliberately hidden surface', HIDDEN_SURFACE_PATTERNS);
   scan('claims no capability Harvest does not have', ABSENT_CAPABILITY_PATTERNS);
+
+  it('names an unbuilt plan item only in a paragraph that says it is coming soon', () => {
+    const UNBUILT = /website\s+builder|site\s+builder|storefront|discovery listing|social scheduler|AI assistant/i;
+    const paragraphs = FAQS.flatMap((f) => f.answer);
+    const mentioning = paragraphs.filter((p) => UNBUILT.test(p));
+    expect(mentioning.length, 'the guard found nothing to check — it is vacuous').toBeGreaterThan(0);
+    for (const p of mentioning) {
+      // The "no page builder" disclaimers elsewhere are about a different thing.
+      expect(p, `an unbuilt item is named without "coming soon": ${p.slice(0, 80)}…`).toMatch(/coming soon/i);
+    }
+  });
 });
 
 /* ---------------------------------------------------------------- *

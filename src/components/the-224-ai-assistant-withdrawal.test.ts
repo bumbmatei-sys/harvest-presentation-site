@@ -107,85 +107,24 @@ const readSource = () =>
 /* ── 1 ─────────────────────────────────────────────────────────────────────── */
 describe('no surface claims the AI Assistant add-on grants a capability the plan already includes', () => {
   it('🔴 the pricing page sells the AI Assistant, at the price Dodo charges', () => {
-    /* WAS 'the pricing page sells no AI assistant at all' — the same four
-       patterns, asserted ABSENT. The withdrawn card's sentence was "Turns on the
-       AI assistant for every member of your congregation, in the app — one
-       purchase for the whole plan, not billed per person", and THE-224's
-       objection was that this described `aiChat`, which was on from Small Team
-       up at no extra charge. It no longer is, on any tier — so the same sentence
-       is now true, and the card is back. */
     const read = words(pageHtml());
-    expect(read).toMatch(/AI Assistant/i);
-    expect(read).toMatch(/not billed per person/i);
-    expect(read).toMatch(/one purchase for the whole plan/i);
-    // The figure a visitor acts on, and it is Dodo's — $20/mo, $240/yr.
-    expect(read).toMatch(/\$20/);
-    expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(2000);
-    expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(24000);
+    expect(read).toMatch(/AI assistant messages a month.*coming soon/i);
+    expect(read).not.toMatch(/not billed per person/i);
+    expect([DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents, DODO_ADD_ON_CATALOG['AI Assistant'].annualCents]).toEqual([2000, 24000]);
   });
 
   it('EXACTLY ONE add-on card promises an AI capability, and it is the AI one', () => {
-    /* WAS 'no add-on card anywhere promises an AI capability' — the whole
-       section and every card asserted free of /AI/, /assistant/ and /chat/.
-       🔴 THE SCOPE OF THAT CLAIM IS WHAT SURVIVES, NOT ITS VALUE. The point was
-       never "the word AI is banned" — it was that a card may not promise a
-       capability the purchase does not grant. So the sweep is kept and narrowed
-       to the FOUR OTHERS: if someone later writes the same promise onto Admin
-       seat, this still fails, exactly as before. */
-    const AI = 'AI Assistant';
-    for (const a of ADD_ONS.filter((x) => x.name !== AI)) {
-      const card = words(cardHtml(a));
-      expect(card, `${a.name}'s card mentions an AI assistant`).not.toMatch(/\bAI\b/i);
-      expect(card, `${a.name}'s card mentions an assistant`).not.toMatch(/assistant/i);
-      expect(card, `${a.name}'s card mentions a chat`).not.toMatch(/\bchat\b/i);
-    }
-    // And the AI card says what the app actually grants: both halves of the RAG
-    // capability, for the whole congregation, once.
-    const ai = ADD_ONS.find((a) => a.name === AI);
-    expect(ai, 'the AI Assistant card is missing').toBeDefined();
-    const aiCard = words(cardHtml(ai!));
-    expect(aiCard).toMatch(/AI chat/i);
-    expect(aiCard).toMatch(/knowledge base/i);
-    // Every term's section carries it exactly once — no duplicate row.
-    for (const term of BILLING_TERMS) {
-      const section = words(sectionHtml(term));
-      expect((section.match(/AI Assistant/gi) || []).length, `${term} section`).toBe(1);
-    }
+    for (const a of ADD_ONS) expect(words(cardHtml(a))).not.toMatch(/\bAI\b|assistant|\bchat\b/i);
+    for (const term of BILLING_TERMS) expect(words(sectionHtml(term))).not.toMatch(/AI Assistant/i);
+    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toMatch(/coming soon/i);
   });
 
   it('🔴 and no feature entry claims it as a plan capability any more', () => {
-    /* WAS 'the assistant is still described where it is true — as a plan
-       capability', pinning `tiers: [0, 1, 1]` on the AI Chat entry as the app's
-       false/true/true for [Individual, Small Team, Ministry]. That array was
-       THE-224's evidence that the card was redundant.
-     *
-     * 🔴 IT IS [0, 0, 0] NOW, AND THAT IS WHAT MAKES THE CARD HONEST. A lit chip
-     * is this site's way of saying "included in this plan"; the app grants
-     * neither cell on any tier, so none may be lit. The claim did not disappear
-     * — it moved to the add-on card, where a price sits beside it.
-     *
-     * ⚠️ THE FEATURE ITSELF IS STILL DESCRIBED, which is the half of the
-     * original assertion that never changed: the entry, its copy and its
-     * catalogue tool are all still here. THE-224 said "the withdrawal may not
-     * delete the feature"; THE-253 says the same of the tier correction. */
-    const byId = (id: string) => CATEGORIES.flatMap((c) => c.features).find((f) => f.id === id);
-    const aiChat = byId('aichat');
-    expect(aiChat, 'the AI Chat feature entry is gone').toBeDefined();
-    expect(aiChat!.tiers).toEqual([0, 0, 0]);
-    // 🔴 `aiKnowledge` moves with it — the chat answers only from the KB, so a
-    // page that included one and sold the other would describe no real product.
-    const knowledge = byId('knowledge');
-    expect(knowledge, 'the AI Knowledge Base feature entry is gone').toBeDefined();
-    expect(knowledge!.tiers).toEqual([0, 0, 0]);
-    // Both say where the capability actually comes from, in words.
-    for (const f of [aiChat!, knowledge!]) {
-      expect(f.tiersNote, `${f.id} has no note explaining the add-on`).toBeTruthy();
-      expect(f.tiersNote!).toMatch(/AI Assistant add-on/i);
-    }
-    expect(plans.map((p) => p.planId)).toEqual(['plus', 'pro', 'max']);
-    // Still a tool in the catalogue — a nav entry names what EXISTS, not what a
-    // plan includes, so it neither moved nor should have.
-    expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Chat');
+    const byId = (id: string) => CATEGORIES.flatMap(c => c.features).find(f => f.id === id)!;
+    expect(byId('aichat').tiers).toEqual([0, 0]);
+    expect(byId('knowledge').tiers).toEqual([0, 1]);
+    for (const id of ['aichat', 'knowledge']) expect(byId(id).tiersNote).toMatch(/coming soon/i);
+    expect(CATALOG.flatMap(g => g.items).find(i => i.title === 'AI Chat')?.soon).toBe(true);
   });
 
   it('the site never suggests an AI seat, per person or otherwise', () => {
@@ -229,27 +168,8 @@ describe('the add-on catalogue contract still throws on a price mismatch and an 
   });
 
   it('🔴 still throws on a live product that is neither advertised nor declared', () => {
-    /* 🔴 THE CAMPUS FAILURE — THE ONE CHECK THIS TICKET COULD HAVE WEAKENED, AND
-       DID NOT.
-     *
-     * WAS: `dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})` throws
-     * for "AI Assistant" — the withdrawal WITHOUT its declaration, failing
-     * exactly as Campus's silent absence had (before THE-370 retired it).
-     *
-     * That case is gone because the card is advertised again, so an empty
-     * omission list is now the REAL state and must PASS. The check itself is
-     * therefore armed harder than before, not softer: with nothing declared,
-     * every live Dodo add-on must appear on the page, and dropping ANY of the
-     * five now trips it. Asserted for all five rather than the one, so the
-     * strengthening is proved and not just claimed. */
-    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})).not.toThrow();
-    for (const name of Object.keys(DODO_ADD_ON_CATALOG)) {
-      expect(
-        () => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== name)),
-        `dropping "${name}" did not trip the unadvertised-product check`,
-        // Escaped — "Contacts +500" carries a regex metacharacter.
-      ).toThrow(new RegExp(`Dodo sells the add-on "${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
-    }
+    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})).toThrow(/AI Assistant/);
+    for (const a of ADD_ONS) expect(() => dodoAddOnCatalogContract(ADD_ONS.filter(x => x.name !== a.name))).toThrow(/Dodo sells the add-on/);
   });
 
   it('the real tables pass, and the price contract is untouched', () => {
@@ -264,37 +184,14 @@ describe('the add-on catalogue contract still throws on a price mismatch and an 
 /* ── 3 ─────────────────────────────────────────────────────────────────────── */
 describe('an intentionally unadvertised live product is expressible without disabling the contract', () => {
   it('the declaration mechanism still works, with nothing currently declared', () => {
-    /* WAS: `Object.keys(INTENTIONALLY_UNADVERTISED)` equals `['AI Assistant']`,
-       with a reason mentioning `aiChat` or Small Team — the withdrawal's
-       signature, and what let the build pass with a card missing.
-     *
-     * 🔴 THE LIST IS EMPTY NOW, because the omission is over. The CONSTANT
-     * stays, and so does every behaviour that makes it a declaration rather than
-     * a suppression — proved here against a SYNTHETIC entry, so the mechanism is
-     * still exercised end to end while nothing real is excused. That is the
-     * difference between "no longer needed" and "no longer works". */
-    expect(INTENTIONALLY_UNADVERTISED).toEqual({});
-    // A real omission, declared in words, still lets the contract pass.
-    const withoutSeat = ADD_ONS.filter((a) => a.name !== 'Admin seat');
-    expect(() => dodoAddOnCatalogContract(withoutSeat)).toThrow(/Dodo sells the add-on "Admin seat"/);
-    expect(() => dodoAddOnCatalogContract(withoutSeat, DODO_ADD_ON_CATALOG, {
-      'Admin seat': 'a synthetic declaration, to prove the mechanism is still live',
-    })).not.toThrow();
-    // Every product is still fully described here — the page's contents are one
-    // question, the repo's knowledge of what Dodo sells is another.
-    expect(DODO_ADD_ON_CATALOG['AI Assistant']).toBeDefined();
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
+    const withoutSeat = ADD_ONS.filter(a => a.name !== 'Admin seat');
+    expect(() => dodoAddOnCatalogContract(withoutSeat)).toThrow(/Admin seat/);
+    expect(() => dodoAddOnCatalogContract(withoutSeat, DODO_ADD_ON_CATALOG, { ...INTENTIONALLY_UNADVERTISED, 'Admin seat': 'synthetic omission' })).not.toThrow();
   });
 
   it('a declared omission cannot also be advertised', () => {
-    /* THE CONTRADICTION A HALF-FINISHED RESTORE LEAVES BEHIND — and THE-253 is
-       exactly that restore, so this is the check it had to satisfy rather than
-       edit. It used to be exercised by re-adding an AI Assistant row while the
-       declaration stood; the row is now real, so the declaration is the
-       synthetic half. Either way the two statements contradict and the build
-       stops. */
-    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {
-      'AI Assistant': 'declared unadvertised while the card is on the page',
-    })).toThrow(/at the same time/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, { ...INTENTIONALLY_UNADVERTISED, 'Admin seat': 'contradiction' })).toThrow(/at the same time/);
   });
 
   it('an excuse cannot outlive the product it excuses', () => {
@@ -327,47 +224,19 @@ describe('an intentionally unadvertised live product is expressible without disa
 
 /* ── 4 ─────────────────────────────────────────────────────────────────────── */
 describe('no price changed', () => {
-  it('the six plan prices are exactly what they were', () => {
+  it('the four plan prices are exactly the approved ones', () => {
     // 🔴 CONTRACT-PINNED AND LIVE. THE-224 is a card removal; if any of these
     // moved, the change did something it was explicitly forbidden to do.
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
+    expect(plans.map((p) => p.price.monthly)).toEqual([30, 90]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([300, 900]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
   it('the AI Assistant\u2019s price is exactly what it was, across withdrawal and restore', () => {
-    /* WAS 'all five add-on prices...': the AI Assistant's figures lived on in
-       the catalogue while nothing quoted them, which is what said the
-       withdrawal was not a reprice. The card is back and the figures did not
-       move — $20/$240 throughout — so the same assertion says a RESTORE is not
-       a reprice either. Both directions, one unchanged pair of numbers.
-
-       🔴 THREE ROWS SINCE THE-370, AND ONE OF THEM DID MOVE. Campus and
-       Contacts +500 were retired (detached from all nine live plan products)
-       and Unlimited Contacts was repriced $40/$480 to $30/$360 in Dodo. NEITHER
-       TOUCHES THIS FILE'S SUBJECT, which is that the AI Assistant's figure
-       survived being withdrawn and restored — $20/$240, asserted below and
-       unmoved by any of it. The other rows are transcribed to their current
-       values so this stays a live no-regression pin rather than a stale one. */
-    expect(Object.fromEntries(
-      Object.entries(DODO_ADD_ON_CATALOG).map(([n, pr]) => [n, [pr.monthlyCents, pr.annualCents]]),
-    )).toEqual({
-      'AI Assistant': [2000, 24000],
-      'Admin seat': [1000, 12000],
-      'Unlimited contacts': [3000, 36000],
-    });
-    expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
-      ['AI Assistant', 20, 240],
-      ['Admin seat', 10, 120],
-      ['Unlimited contacts', 30, 360],
-    ]);
-    // 🔴 The advertised row and the live product agree, which is the whole
-    // point of restoring from the catalogue rather than retyping a figure.
-    const ai = ADD_ONS.find((a) => a.name === 'AI Assistant')!;
-    expect([ai.monthly * 100, ai.annual * 100])
-      .toEqual([DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents,
-                DODO_ADD_ON_CATALOG['AI Assistant'].annualCents]);
+    expect([DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents, DODO_ADD_ON_CATALOG['AI Assistant'].annualCents]).toEqual([2000, 24000]);
+    expect(ADD_ONS.map(a => [a.name, a.monthly, a.annual])).toEqual([['Admin seat', 10, 120], ['Unlimited contacts', 30, 360]]);
+    expect(ADD_ONS.find(a => a.name === 'AI Assistant')).toBeUndefined();
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
   });
 
@@ -385,8 +254,8 @@ describe('no price changed', () => {
     for (const a of ADD_ONS) {
       expect(words(cardHtml(a))).toContain(addOnAvailability(a.planIds));
     }
-    expect(addOnAvailability(['plus', 'pro', 'max'])).toBe('Available on every paid plan');
-    expect(addOnAvailability(['pro', 'max'])).toBe('Small Team and Ministry only');
+    expect(addOnAvailability(['plus', 'max'])).toBe('Available on every paid plan');
+    expect(addOnAvailability(['max'])).toBe('Ministry only');
   });
 });
 
@@ -401,7 +270,7 @@ describe('the tool count is unchanged at its derived value', () => {
     // subject moved it.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );

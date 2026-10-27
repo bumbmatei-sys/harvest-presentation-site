@@ -503,7 +503,7 @@ describe('3 — no live feature entry claims custom domains', () => {
       .flatMap((c) => c.features).find((f) => f.id === 'branding');
     expect(branding, 'the branding feature was hidden along with the domain').toBeDefined();
     expect(branding!.name).toBe('Branding');
-    expect(branding!.tiers, 'the branding entry lost or changed its tiers').toEqual([0, 0, 1]);
+    expect(branding!.tiers, 'the branding entry lost or changed its tiers').toEqual([0, 1]);
     for (const kept of [
       'Ministry name, logo, square icon & one brand colour',
       'Branding carries onto receipts, certificates & forms',
@@ -579,17 +579,15 @@ describe('4 — the subdomain still ships, and the entry says so', () => {
 
 /* ── 5 ─────────────────────────────────────────────────────────────────────
    🔴 No price moved, and all three contracts still throw.                    */
-describe('5 — the six plan prices are unchanged and the contracts still throw', () => {
+describe('5 — the four plan prices are the approved ones and the contracts still throw', () => {
   const NINE = {
-    plus: { monthly: 20, yearly: 190 },
-    pro: { monthly: 40, yearly: 380 },
-    // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
-    // the quarter and year at $216 / $752). plus and pro are enumerated
-    // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 80, yearly: 752 },
+    // ⚠️ The two-plan reprice (27 Oct 2026): Church ($30 / $300) is the stored
+    // 'plus' and Ministry ($90 / $900) the stored 'max'; 'pro' is no longer sold.
+    plus: { monthly: 30, yearly: 300 },
+    max: { monthly: 90, yearly: 900 },
   } as const;
 
-  it('all six prices are exactly what the app charges', () => {
+  it('all four prices are exactly what the app charges', () => {
     for (const [planId, terms] of Object.entries(NINE)) {
       const plan = plans.find((p) => p.planId === planId);
       if (plan === undefined) throw new Error(`plan ${planId} vanished from the table`);
@@ -606,8 +604,8 @@ describe('5 — the six plan prices are unchanged and the contracts still throw'
        thing standing between a wrong price and production. */
     expect(() => planPriceContract(plans)).not.toThrow();
     expect(() => planPriceContract(plans.map((p) =>
-      (p.planId === 'pro' ? { ...p, price: { ...p.price, yearly: p.price.yearly + 1 } } : p))))
-      .toThrow(/pro/);
+      (p.planId === 'max' ? { ...p, price: { ...p.price, yearly: p.price.yearly + 1 } } : p))))
+      .toThrow(/Ministry/);
 
     // The add-on contract holds `annual === monthly × ADD_ON_BILLED_MONTHS`;
     // moving the monthly rate alone is what breaks that relation.
@@ -642,7 +640,7 @@ describe('5 — the six plan prices are unchanged and the contracts still throw'
     expect(pricing, 'the flag reached a price').not.toMatch(
       /CUSTOM_DOMAIN_MARKETING_ENABLED[^\n]{0,120}(price|monthly|quarterly|yearly|\$)/i);
     // Custom BRANDING keeps its row, unchanged — it ships.
-    expect(pricing).toMatch(/\['Custom Branding', \[false, false, false, T\]\]/);
+    expect(pricing).toMatch(/\['Custom Branding', \[false, false, T\]\]/);
   });
 });
 
@@ -799,7 +797,7 @@ describe('7 — the existing entries are undisturbed', () => {
        proves by flipping the flag and comparing. */
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -827,7 +825,7 @@ describe('7 — the existing entries are undisturbed', () => {
     // 🔴 THE PROPERTY IS THE DELTA, not the absolute: the mutation must move the
     // figure UP by exactly the number of coming-soon rows, which is what the
     // second assertion says without naming a number that goes stale.
-    expect(wrong).toBe(27 + soonGroup[0].items.length);
+    expect(wrong).toBe(26 + soonGroup[0].items.length);
     expect(wrong).toBeGreaterThan(27);
   });
 });

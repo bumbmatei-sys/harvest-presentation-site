@@ -95,11 +95,21 @@ describe('15 — SMS is a coming-soon entry again, not a live feature', () => {
     expect(featureById.has('sms'), 'the SMS feature section still renders').toBe(false);
     expect(liveTools.find((i) => /\bSMS\b/.test(i.title)), 'SMS is still a countable tool')
       .toBeUndefined();
+    /* 🔴 TWO-PLAN REPRICE — SMS is in the approved Ministry plan, so the card and
+       the grid NAME it; what they may not do while the flag is off is sell it as
+       live. Every card line that names SMS says "coming soon" — the Coming Soon
+       page's own tense — and the grid cell is "coming soon", not a tick. Church
+       names it nowhere. */
     for (const plan of plans) {
-      expect(plan.features.join(' '), `the ${plan.name} card still sells SMS`).not.toMatch(/\bSMS\b/i);
+      const lines = plan.features.filter((f) => /\bSMS\b/i.test(f));
+      expect(lines.length > 0, `the ${plan.name} card disagrees with the plan`).toBe(plan.planId === 'max');
+      for (const line of lines) expect(line, `the ${plan.name} card sells SMS as live`).toMatch(/coming soon/i);
     }
-    expect(visibleText(render(React.createElement(ComparisonTable))), 'the grid still carries an SMS row')
-      .not.toMatch(/\bSMS\b/);
+    const grid = render(React.createElement(ComparisonTable));
+    const smsRow = grid.split('<tr').find((r) => r.includes('>SMS &amp; Text-to-Give<'))!;
+    expect(smsRow, 'the grid lost its SMS row').toBeDefined();
+    expect(smsRow, 'the grid ticks SMS while the app sends nothing').not.toContain('lucide-check');
+    expect(smsRow).toContain('coming soon');
   });
 
   it('🔴 and it ARRIVED in Coming Soon — the same one value, the other way up', () => {
@@ -136,12 +146,19 @@ describe('15b — Newsletter is a coming-soon entry, not a live feature', () => 
       expect(liveTools.find((i) => i.title === title), `"${title}" is still a countable tool`)
         .toBeUndefined();
     }
+    // Same arrangement as SMS above: Ministry names it, labelled coming soon;
+    // Church does not; the grid cell is never a tick.
     for (const plan of plans) {
-      expect(plan.features.join(' '), `the ${plan.name} card still sells a newsletter`)
-        .not.toMatch(/newsletter/i);
+      const lines = plan.features.filter((f) => /newsletter/i.test(f));
+      expect(lines.length > 0, `the ${plan.name} card disagrees with the plan`).toBe(plan.planId === 'max');
+      for (const line of lines) expect(line, `the ${plan.name} card sells a newsletter as live`).toMatch(/coming soon/i);
     }
-    expect(visibleText(render(React.createElement(ComparisonTable))), 'the grid still carries a newsletter row')
-      .not.toMatch(/newsletter/i);
+    const grid = render(React.createElement(ComparisonTable));
+    const row = grid.split('<tr').find((r) => r.includes('>Newsletter<'))!;
+    expect(row, 'the grid lost its newsletter row').toBeDefined();
+    expect(row, 'the grid ticks the newsletter while the app sends nothing').not.toContain('lucide-check');
+    expect(row).toContain('coming soon');
+    expect(grid, 'the AUTOMATED newsletter row is not in the approved plan').not.toContain('Automated Newsletter');
   });
 
   it('🔴 the AI category intro and SEO do not sell a newsletter either', () => {
@@ -212,9 +229,11 @@ describe('15c–15e — service planning is live, with a tier that matches the a
        rules require; there is deliberately no separate planning permission.
        ⚠️ VERIFIED AGAINST THE APP'S OWN PUBLISHED CATALOGUE rather than against
        a number typed here, which is how a tier claim outran the app six times. */
+    // The site's two plans are the app's stored 'plus' (Church) and 'max'
+    // (Ministry); 'pro' resolves to Church in the app, so it adds no column.
     expect(services!.tiers, 'the feature page claims a tier the app refuses')
-      .toEqual(['plus', 'pro', 'max'].map((p) => (APP_EVENT_REGISTRATION[p] ? 1 : 0)));
-    expect(services!.tiers, 'service planning is not Ministry-only').toEqual([0, 0, 1]);
+      .toEqual(['plus', 'max'].map((p) => (APP_EVENT_REGISTRATION[p] ? 1 : 0)));
+    expect(services!.tiers, 'service planning is not Ministry-only').toEqual([0, 1]);
   });
 
   it('🔴 15d — it claims NO song library, CCLI, chord charts, rehearsals or blockouts', () => {
@@ -299,11 +318,13 @@ describe('15f — QuickBooks appears nowhere on the site', () => {
        switch exists to avoid. */
     const accounting = featureById.get('accounting');
     expect(accounting, 'the accounting feature entry was hidden').toBeDefined();
-    expect(accounting!.name).toBe('Accounting');
-    expect(liveTools.find((i) => i.title === 'Accounting'), 'the Accounting tool was removed')
+    // Renamed "Giving records" by the two-plan reprice — same tool, same id and
+    // anchor, and it never claims to replace the books.
+    expect(accounting!.name).toBe('Giving records');
+    expect(liveTools.find((i) => i.title === 'Giving records'), 'the Giving records tool was removed')
       .toBeDefined();
-    expect(visibleText(render(React.createElement(ComparisonTable))), 'the accounting row was removed')
-      .toMatch(/Accounting/);
+    expect(visibleText(render(React.createElement(ComparisonTable))), 'the giving records row was removed')
+      .toMatch(/Giving records/);
   });
 
   it('🔴 no Coming Soon entry was invented for it', () => {
@@ -321,15 +342,15 @@ describe('15f — QuickBooks appears nowhere on the site', () => {
    🔴 The tool count, and every assertion that pins it.                       */
 describe('15g & 18 — the tool count is right, and no "replaces N tools" figure is wrong', () => {
   it('🔴 the count is 26, derived, and the three withdrawals are what moved it', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
     // The delta, as a delta: 29 − 1 (SMS) − 2 (both newsletters) = 26, and
     // QuickBooks moves it by ZERO because its tool was reworded, not removed.
     expect(29 - 1 - 2).toBe(26);
-    expect(liveTools.filter((i) => /accounting/i.test(i.title)),
-      'the Accounting tool was removed, which would have understated the product')
+    expect(liveTools.filter((i) => /giving records/i.test(i.title)),
+      'the Giving records (formerly Accounting) tool was removed, which would have understated the product')
       .toHaveLength(1);
   });
 
@@ -355,7 +376,7 @@ describe('15g & 18 — the tool count is right, and no "replaces N tools" figure
     expect(pins.length, 'a suite gained or lost its tool-count assertion').toBe(23);
     for (const [f, pin] of pins) {
       expect(pin, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toBe('CATALOG_TOOL_COUNT).toBe(27)');
+        .toBe('CATALOG_TOOL_COUNT).toBe(26)');
     }
   });
 

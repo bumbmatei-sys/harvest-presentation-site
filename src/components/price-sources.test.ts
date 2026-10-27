@@ -5,9 +5,6 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ADD_ONS, BILLING_TERMS, ComparisonTable, DODO_ADD_ON_CATALOG, planPriceContract, plans, type BillingTerm } from './Pricing';
-import {
-  CUSTOM_DOMAIN_MARKETING_ENABLED, NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
-} from '../lib/flags';
 
 /* The contract's expectations, DERIVED from `plans` rather than typed out a
    fourth time. Handing it this passes; bumping one cell of it is a repo
@@ -196,6 +193,13 @@ const RETIRED = [
   // price on no tier and no term now, and none appears on this site in any
   // other sense, so they are banned outright like the others above.
   '54', '108', '216',
+  // The three-plan table retired by the Church / Ministry reprice (27 Oct 2026):
+  // Individual $20/$190, Small Team $40/$380, Ministry $80/$752. $20 and $40
+  // are NOT banned — $20 is the AI Assistant add-on's price and $40 is a sample
+  // ticket in a mock screenshot — and are guarded by context instead: the
+  // cross-repo contract, FAQ_PLAN_CLAIMS and TIER_PRICE_CLAIMS compare the
+  // table tier by tier and fail the prerender by name.
+  '80', '190', '380', '752',
 ];
 
 describe('no price literal appears outside the single source', () => {
@@ -283,22 +287,23 @@ describe('no price literal appears outside the single source', () => {
      * at the end of this test proves, for both tiers.
      *
      * ⚠️ $30 IS NOT A PLAN PRICE, so the reprice added no new collision. */
-    expect(ALL_PRICE_DIGITS).toHaveLength(6);
-    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['20']);
-    expect(PRICE_DIGITS).toHaveLength(5);
-    expect(PRICE_DIGITS).not.toContain('20');
-    // 🔵 BACK IN THE SWEEP — the figure THE-223 had to give up.
-    expect(PRICE_DIGITS).toContain('40');
-    // And the new add-on price collides with nothing.
-    expect(ALL_PRICE_DIGITS).not.toContain('30');
+    /* 🔵 TWO-PLAN REPRICE: four plan figures — 30, 300, 90, 900 — and ONE
+       collision, Church's $30 monthly with the Unlimited contacts add-on's
+       $30/mo. The set is derived from `ADD_ONS`, so it moved on its own; this
+       assertion states its new size out loud. Three of the four are swept. */
+    expect(ALL_PRICE_DIGITS.slice().sort()).toEqual(['30', '300', '90', '900']);
+    expect([...ALL_PRICE_DIGITS].filter((d) => ADD_ON_PRICE_DIGITS.has(d)).sort()).toEqual(['30']);
+    expect(PRICE_DIGITS).toHaveLength(3);
+    expect(PRICE_DIGITS).not.toContain('30');
+    expect(PRICE_DIGITS).toContain('90');
     // ⚠️ AND THE RESTORED ADD-ON'S PRICE DID NOT MOVE. $20/$240 is what Dodo
     // charges and what DODO_ADD_ON_CATALOG has pinned throughout — advertised,
     // withdrawn and advertised again, the figure never changed.
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(2000);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(24000);
-    // The one still dropped is Individual's monthly price, and it is the only one.
-    expect(String(plans.find((p) => p.planId === 'plus')!.price.monthly)).toBe('20');
-    expect(String(plans.find((p) => p.planId === 'pro')!.price.monthly)).toBe('40');
+    // The one still dropped is Church's monthly price, and it is the only one.
+    expect(String(plans.find((p) => p.planId === 'plus')!.price.monthly)).toBe('30');
+    expect(String(plans.find((p) => p.planId === 'max')!.price.monthly)).toBe('90');
     // ⚠️ NEITHER IS LEFT UNGUARDED — asserted for both, and now load-bearing for
     // both again: $20 has just left the sweep a second time, so the guarantee
     // that makes dropping it acceptable is the only thing covering Individual's
@@ -306,7 +311,7 @@ describe('no price literal appears outside the single source', () => {
     // Pricing.tsx, by FAQ_PLAN_CLAIMS and by TIER_PRICE_CLAIMS — three
     // module-scope checks that name the tier and fail the prerender. What is
     // given up is a string sweep that could not say which product it had found.
-    for (const planId of ['plus', 'pro']) {
+    for (const planId of ['plus', 'max']) {
       const price = plans.find((p) => p.planId === planId)!.price;
       expect(() => planPriceContract(plans, {
         ...EXPECTED_FOR_MUTATION,
@@ -339,57 +344,33 @@ describe('no price literal appears outside the single source', () => {
 
 /* ─── THE-195 TEST 11 ─────────────────────────────────────────────────────────
    Prices and terms changed. What each tier INCLUDES did not. */
-describe('the plan feature matrix is unchanged', () => {
+describe('the plan feature matrix keeps its guarantees', () => {
   const rendered = renderToStaticMarkup(React.createElement(ComparisonTable));
   const text = rendered.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 
-  it('still lists each tier with the same bullets it listed before', () => {
-    // The card bullet lists, verbatim. A repricing that quietly moved a feature
-    // between tiers would be a different product sold at a new price.
-    // THE-250 — the SMS row/line moved behind SMS_MARKETING_ENABLED. Spread on
-// the flag rather than deleted from this baseline: this block's claim is that
-// nothing ELSE moved, and a hardcoded list would restate that claim against
-// the wrong baseline the moment the switch flips back.
-    expect(plans.find((p) => p.planId === 'plus')!.features).toEqual([
-      /* 🔴 THE CONTACT LINE IS RE-TRANSCRIBED — THE-370 raised every cap on the
-         founder's instruction ("lets not put cap on users that badly"):
-         Individual 150 → 500, Small Team 500 → 2,000, Ministry 2,000 → 4,000.
-         Transcribed rather than relaxed, so this baseline keeps asserting that
-         nothing ELSE on a priced card moved. */
-      '500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses',
-      // 🔴 THE-314 — the SMS line MOVED CARDS as well as changing its name. It
-      // was 'SMS (bring your own Twilio)' on INDIVIDUAL while a church held its
-      // own carrier account; Harvest resells now and SMS is Ministry-only, so
-      // the line is on the Ministry card and Individual carries none.
-      'CRM (Donors & Members)',
-      'Donation page & Fundraising',
-    ]);
-    expect(plans.find((p) => p.planId === 'pro')!.features).toEqual([
-      'Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving',
-      'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map',
-      // 🔴 THE-335 — the Newsletter line moved behind NEWSLETTER_MARKETING_ENABLED.
-      // Spread on the flag rather than deleted, for the reason the note above
-      // gives about the SMS line.
-      ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : []),
-    ]);
-    expect(plans.find((p) => p.planId === 'max')!.features).toEqual([
-      'Everything in Small Team', '4,000 contacts · 15 admins', '15 courses',
-      CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding', 'Community Groups & Events',
-      // 🔴 THE-335 — the newsletter half of this line is gated; the automated
-      // SEO blog on the same line ships and stays either way.
-      NEWSLETTER_MARKETING_ENABLED ? 'Automated SEO Blog & Newsletter' : 'Automated SEO Blog',
-      'Custom Forms → CRM', 'Tax Receipts & Statements',
-      // 🔴 THE-314 — SMS arrived HERE, on Ministry, having left the Individual
-      // card above. Harvest resells now and the founder's call is Ministry only.
-      ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
-      // 🔴 THE-335 — reworded, not removed: accounting ships on Ministry.
-      QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting',
-    ]);
+  it('states each tier’s ceilings in the same words on the card and in the table', () => {
+    // The full line-for-line baseline lives in PricingFreeTierCorrections.test.ts;
+    // what is pinned here is the seam the FAQ checks against — the one bullet
+    // that carries the people and admin ceilings.
+    expect(plans.find((p) => p.planId === 'plus')!.features[0]).toBe('500 people · 2 admins');
+    expect(plans.find((p) => p.planId === 'max')!.features.slice(0, 2))
+      .toEqual(['Everything in Church', '5,000 people · 15 admins']);
   });
 
-  it('keeps the comparison table ceilings where they were', () => {
-    for (const row of ['150', '500', '2,000', '2', '5', '15']) {
+  it('names no retired plan on any card', () => {
+    for (const p of plans) {
+      for (const line of p.features) {
+        expect(line, `${p.name} still mentions a retired plan`).not.toMatch(/Individual|Small Team/);
+      }
+    }
+  });
+
+  it('keeps the comparison table ceilings where they are', () => {
+    for (const row of ['500', '5,000', '2', '15']) {
       expect(text, `the comparison table no longer states "${row}"`).toContain(row);
+    }
+    for (const gone of ['150', '2,000', '4,000']) {
+      expect(text, `the comparison table still states the retired ceiling "${gone}"`).not.toContain(gone);
     }
   });
 

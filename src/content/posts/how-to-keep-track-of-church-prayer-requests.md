@@ -3,7 +3,7 @@ title: How to keep track of church prayer requests
 category: inside-harvest
 status: published
 publish_date: 2026-10-22
-updated: 2026-10-22
+updated: 2026-10-27
 description: Prayer requests scatter across cards, late-night texts and group chats, then go stale. What a prayer wall has to do, a checklist, and where requests belong.
 reading_time: 6 min
 ---
@@ -59,8 +59,8 @@ Consider what gets assembled instead: a prayer-wall app or a group chat for the 
 
 A prayer wall punishes that worst: it only works if ordinary members open it on a Thursday, and one more password is exactly the friction it cannot survive. Which is also [the problem with anything resting on one determined person](/blog/work-that-outlives-you).
 
-In Harvest, the wall is a tab in the app your people already have. The same app carries the Bible and the mobile app on every plan including Forever Free; courses on every plan, from one on Forever Free up to fifteen on Ministry; the community feed, the donation page and the member record in the CRM from Individual up; and [QR check-in from Small Team](/blog/track-sunday-attendance-without-a-sign-in-sheet). One member record, not three lists.
+In Harvest, the wall is a tab in the app your people already have. The same app carries the Bible and the mobile app on every plan including Forever Free; courses on every plan; the community feed, the donation page and the member record in the CRM from Church up; and [QR check-in on Ministry](/blog/track-sunday-attendance-without-a-sign-in-sheet). One member record, not three lists.
 
-Individual, the first paid tier, is $20/mo, or $190/yr — which the pricing page shows as $15.84/mo, billed as $190 every 12 months. Harvest's platform fee is 0% on all three paid plans; it takes no cut of a gift. What a church's own payment provider charges is a matter between the church and that provider, under its agreement with them — what you pay Harvest is the subscription, and nothing else.
+Church, the first paid plan, is $30/mo, or $300/yr — two months free, which the pricing page shows as $25/mo, billed as $300 every 12 months. Harvest's fee on donations is 0% on both paid plans; it takes no cut of a gift. What a church's own payment provider charges is a matter between the church and that provider, under its agreement with them — what you pay Harvest is the subscription, and nothing else.
 
 What a church is actually buying is not a prayer wall. It is one subscription, one member record, one login — and a Tuesday where somebody can still tell you what the church prayed for. The full ladder, free tier included, is on the [pricing page](/#pricing).

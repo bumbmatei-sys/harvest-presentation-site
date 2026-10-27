@@ -219,7 +219,7 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
        it is checked against Dodo. The DISTINCTION this line exists to draw is
        untouched, and is why the sentence stays at all: AI Chat ships and
        answers members' questions; this unbuilt agent would act for an admin. */
-    notThis: 'This is not AI Chat, which already ships. AI Chat is for your members: it answers their questions from your own teaching. This one would be for your staff, it would take actions rather than answer questions, and it does not exist.',
+    notThis: 'AI Chat for members is coming soon and would answer questions from your teaching. This separate agent would act for your staff and does not exist yet.',
     considering: [
       'Acting across the admin surfaces rather than talking about them',
       'Reaching the tools a church has already connected, not just Harvest\'s own data',
@@ -273,7 +273,7 @@ const ITEMS: Omit<SoonItem, 'n'>[] = [
       'US numbers first. Per-segment rates vary about tenfold by country and pretending otherwise is how a church gets a bill it did not expect',
     ],
     notThis: NEWSLETTER_MARKETING_ENABLED
-      ? 'This is not the donation page, which already ships and is how a church takes a gift today. Nor is it the newsletter, which sends real email through your own Mailchimp audience on the Small Team and Ministry plans. What is missing is the messaging itself, in both directions.'
+      ? 'This is not the donation page, which already ships and is how a church takes a gift today. Nor is it the newsletter, which sends real email through your own Mailchimp audience on the Ministry plan. What is missing is the messaging itself, in both directions.'
       : 'This is not the donation page, which already ships and is how a church takes a gift today. What is missing is the messaging itself, in both directions.',
     navDesc: 'Broadcasts and giving by text. Not built yet.',
   },
@@ -455,7 +455,7 @@ export const PURCHASABILITY_PATTERNS: [string, RegExp][] = [
 ];
 
 /** The plan names, which must never be attached to unbuilt work. */
-const TIER_WORDS = /\b(Individual|Small Team|Ministry|Forever Free)\b/;
+const TIER_WORDS = /\b(Individual|Small Team|Church plan|Ministry|Forever Free)\b/;
 
 /** A board reference, in either of the two forms a card on the Harvest board
  *  actually has.

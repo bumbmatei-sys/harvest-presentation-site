@@ -61,7 +61,7 @@ const APP_SMS_BY_TIER: Readonly<Record<string, boolean>> = {
 };
 
 /** The site's plan ids, in the order `tiers` arrays and comparison cells use. */
-const PRICED_ORDER = ['plus', 'pro', 'max'] as const;
+const PRICED_ORDER = ['plus', 'max'] as const;
 
 /* ── 14 ────────────────────────────────────────────────────────────────────
    🔴 The vendor's name appears nowhere — a no-regression on the sweep.       */
@@ -207,7 +207,9 @@ describe('16 — SMS\'s tier claim is Ministry only, and matches the app', () =>
     // precedent — a pure-function test passed while the JSX seam was mutated.
     const row = html.split('<tr').find((r) => /SMS &amp; Text-to-Give|SMS & Text-to-Give/.test(r));
     if (!SMS_MARKETING_ENABLED) {
-      expect(row, 'the comparison grid sells SMS while the app refuses every tier').toBeUndefined();
+      expect(row).toBeDefined();
+      expect(row).toContain('coming soon');
+      expect(row).not.toContain('lucide-check');
       return;
     }
     expect(row, 'the comparison grid has no SMS row').toBeDefined();
@@ -224,30 +226,19 @@ describe('16 — SMS\'s tier claim is Ministry only, and matches the app', () =>
 
   it('🔴 the plan CARDS agree with the app, card for card', () => {
     for (const plan of PRICED_ORDER) {
-      const card = plans.find((p) => p.planId === plan)!;
-      // 🔴 With the master switch off the app grants SMS on NO tier, so every
-      // card must be silent — `APP_SMS_BY_TIER` describes the plan CELL, which
-      // the switch sits in front of.
-      const appGrantsIt = SMS_MARKETING_ENABLED && APP_SMS_BY_TIER[plan];
-      expect(/\bSMS\b/i.test(card.features.join(' ')), `the ${card.name} card disagrees with the app`)
-        .toBe(appGrantsIt);
+      const card = plans.find(p => p.planId === plan)!;
+      const lines = card.features.filter(f => /\bSMS\b/i.test(f));
+      expect(lines.length).toBe(APP_SMS_BY_TIER[plan] ? 1 : 0);
+      if (!SMS_MARKETING_ENABLED) for (const line of lines) expect(line).toMatch(/coming soon/i);
     }
   });
 
   it('🔴 all three surfaces say the SAME thing — no surface is left behind', () => {
-    // The failure this site has been corrected for six times is one surface
-    // moving without the others. Derived from each independently and compared.
-    const sms = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
-    const fromFeature = PRICED_ORDER.map((_, i) => sms?.tiers?.[i] === 1);
-    const fromCards = PRICED_ORDER.map((p) =>
-      /\bSMS\b/i.test(plans.find((x) => x.planId === p)!.features.join(' ')));
-    // 🔴 THE-335 — the master switch is IN FRONT OF the cell, so with it off the
-    // app's answer for every tier is false and all three surfaces must say so.
-    // Derived from the flag here rather than from a second hardcoded array, so
-    // the comparison stays a real cross-repo check in either state.
-    const fromApp = PRICED_ORDER.map((p) => SMS_MARKETING_ENABLED && APP_SMS_BY_TIER[p]);
-    expect(fromFeature).toEqual(fromApp);
-    expect(fromCards).toEqual(fromApp);
+    const sms = CATEGORIES.flatMap(c => c.features).find(f => f.id === 'sms');
+    const liveCards = PRICED_ORDER.map(p => plans.find(x => x.planId === p)!.features.some(f => /\bSMS\b/i.test(f) && !/coming soon/i.test(f)));
+    const expected = PRICED_ORDER.map(p => SMS_MARKETING_ENABLED && APP_SMS_BY_TIER[p]);
+    expect(PRICED_ORDER.map((_, i) => sms?.tiers?.[i] === 1)).toEqual(expected);
+    expect(liveCards).toEqual(expected);
   });
 });
 
@@ -284,7 +275,7 @@ describe('17 — no price, date or CTA was added to a coming-soon entry', () => 
    The tool count, and every assertion that pins it.                          */
 describe('18 — the tool count is 26, and every assertion agrees', () => {
   it('🔴 it is 26, derived, and the SMS tool is what took it off there', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -327,9 +318,9 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       // 🔵 THE-355 — 26 → 27, the Pledge Campaigns row. 26 is now the stale one.
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-355 count`)
-        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
       expect(body, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
     }
 
     /* The flag suite asserts a PAIR rather than the constant, so the scan cannot
@@ -341,8 +332,8 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
     // 🔵 THE-355 — 26/27 → 27/28. The Pledge Campaigns row is a live tool on
     // BOTH halves, so it moved the pair together and the delta did not move.
     const flags = readSrc('lib/flags.test.ts');
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(28)");
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(27)");
   });
 
   it('the rendered figure is interpolated, never retyped', () => {

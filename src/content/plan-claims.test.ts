@@ -15,14 +15,17 @@ import { LEGAL_DOCS } from './legal';
 
 /* THE-164 — the site sold two features on tiers that do not have them.
  *
- * Ground truth is the member app's `plan-features.ts`, positional against
- * `plans` in components/Pricing.tsx — [Individual, Small Team, Ministry]:
+ * Ground truth is now the approved TWO-PLAN SPEC (27 Oct 2026), positional
+ * against `plans` in components/Pricing.tsx — [Church, Ministry]. It moved two
+ * of the cells this file was written to police:
  *
- *   docs            (Docs & Notes)     plus:false  pro:true   max:true
- *   communityGroups (Community Groups) plus:false  pro:false  max:true
+ *   docs            (Docs & Notes)     Church:true   Ministry:true   (was Small Team up)
+ *   communityGroups (Groups & chat)    Church:true   Ministry:true   (was Ministry only)
  *
- * `communityGroups` was gated in the app on 2026-08-16 (app PR 332), which is
- * what made the second claim false on TWO tiers rather than one.
+ * The spec lists "notes" and "one community (feed + chat)" under Church. What
+ * this file still guards is the SHAPE of the original fix: no sentence may say
+ * "every plan" about either (Forever Free has neither), the news feed must not
+ * be conflated with Groups, and a tier floor is never a removal.
  *
  * 🔴 The distinction the whole fix turns on: the NEWS FEED (/community_posts)
  * is on every plan and is a different product from Community Groups. "Cut the
@@ -133,8 +136,7 @@ const PROSE: [string, string][] = [
   ...LEGAL_DOCS.flatMap((d) => d.sections.flatMap((s) => s.blocks.flatMap((b): [string, string][] =>
     (b.kind === 'p' ? [b.text] : b.items).map((t, i) => [`content/legal.ts — ${d.slug}/${s.id ?? s.heading} block[${i}]`, t])))),
   ...plans.flatMap((p) => p.features.map((f, i): [string, string] => [`components/Pricing.tsx — ${p.name} card feature[${i}]`, f])),
-  ['components/Pricing.tsx — Individual card, rendered', cardText('plus')],
-  ['components/Pricing.tsx — Small Team card, rendered', cardText('pro')],
+  ['components/Pricing.tsx — Church card, rendered', cardText('plus')],
   ['components/Pricing.tsx — Ministry card, rendered', cardText('max')],
   // The blog is a plan-claim surface too — one post runs its own comparison
   // table against Planning Center. Read off disk: `virtual:blog-content` is
@@ -161,6 +163,10 @@ const withoutFeed = (s: string) => s
   .replace(/\bcommunity\s+(feed|posts?|space)\b/gi, '')
   .replace(/\bnews\s+feed\b/gi, '');
 
+/** The grid row that replaced "Community Groups": channels and DMs are the chat
+ *  a Church community has. */
+const GROUPS_ROW = 'Groups & chat (channels and direct messages)';
+
 describe('what the site claims is on every plan', () => {
   it('finds the every-plan claims at all', () => {
     // The guard against every assertion here passing off an empty corpus: a
@@ -176,25 +182,23 @@ describe('what the site claims is on every plan', () => {
     }
     // And the sentence this ticket corrected is in the corpus, so tests 1 and 2
     // are reading the surface they exist to police.
-    expect(sources).toContain('content/faq.ts — "pricing" answer[2]');
+    expect(PROSE.map(([where]) => where)).toContain('content/faq.ts — "pricing" answer[2]');
   });
 
   it('no surface claims Docs and Notes on every plan', () => {
-    // 🔴 The regression. `docs` is false on `plus`: Individual does not have it,
-    // so no every-plan clause anywhere may name it.
+    // 🔴 Forever Free has no Docs & Notes, so no every-plan clause anywhere may
+    // name it. "Every PAID plan" is a different claim and is not matched here.
     const offenders = everyPlanClauses
       .filter(([, c]) => /\bdocs?\b|\bnotes?\b|\bdocuments?\b/i.test(c))
       .map(([where, c]) => `${where}: "${c}"`);
-    expect(offenders, 'Docs & Notes is not on Individual').toEqual([]);
+    expect(offenders, 'Docs & Notes is not on Forever Free').toEqual([]);
 
-    // The rendered chips on /features/discipleship-content#docs.
-    expect(chipsOf('docs')).toEqual({ Individual: false, 'Small Team': true, Ministry: true });
+    // The rendered chips on /features/discipleship-content#docs — both paid
+    // plans, per the spec ("notes" is a Church line).
+    expect(chipsOf('docs')).toEqual({ Church: true, Ministry: true });
 
-    // The rendered Individual card. Unlike the grid, this reaches dist/.
-    expect(cardText('plus')).not.toContain('Docs & Notes');
-
-    // Still sold where it is real — the correction is a tier floor, not a cut.
-    expect(cardText('pro')).toContain('Docs & Notes');
+    // The rendered cards. Unlike the grid, these reach dist/.
+    expect(cardText('plus')).toContain('Docs & Notes');
     expect(FAQS.find((f) => f.id === 'pricing')!.answer.join(' ')).toMatch(/docs and sermon notes/i);
   });
 
@@ -206,28 +210,30 @@ describe('what the site claims is on every plan', () => {
     expect(offenders, 'Community Groups is Ministry-only').toEqual([]);
 
     // The rendered chips on /features/community-engagement#groups.
-    expect(chipsOf('groups')).toEqual({ Individual: false, 'Small Team': false, Ministry: true });
+    expect(chipsOf('groups')).toEqual({ Church: true, Ministry: true });
 
-    // The rendered grid, and the cards that reach dist/.
-    expect(gridClaim('Community Groups', 'Individual')).toBe('excluded');
-    expect(gridClaim('Community Groups', 'Small Team')).toBe('excluded');
-    expect(gridClaim('Community Groups', 'Ministry')).toBe('included');
-    expect(cardText('plus')).not.toMatch(/community groups/i);
-    expect(cardText('pro')).not.toMatch(/community groups/i);
-    expect(cardText('max')).toMatch(/community groups/i);
+    // The rendered grid, and the cards that reach dist/. Church has ONE
+    // community with a feed and chat; Ministry has unlimited communities.
+    expect(gridClaim(GROUPS_ROW, 'Forever Free')).toBe('excluded');
+    expect(gridClaim(GROUPS_ROW, 'Church')).toBe('included');
+    expect(gridClaim(GROUPS_ROW, 'Ministry')).toBe('included');
+    expect(gridClaim('Communities', 'Church')).toBe('1');
+    expect(gridClaim('Communities', 'Ministry')).toBe('Unlimited');
+    expect(cardText('plus')).toMatch(/One community/);
+    expect(cardText('max')).toMatch(/Unlimited communities/);
   });
 
   it('the news feed is still claimed on every plan', () => {
     // 🔴 The over-correction guard. The feed is /community_posts — a DIFFERENT
-    // product from Community Groups, and genuinely on all three plans. Cutting
+    // product from Community Groups, and genuinely on both paid plans. Cutting
     // it while cutting the community claim is the failure this pins shut.
-    expect(FAQS.find((f) => f.id === 'pricing')!.answer.join(' ')).toMatch(/news feed/i);
-    expect(chipsOf('feed')).toEqual({ Individual: true, 'Small Team': true, Ministry: true });
+    expect(FAQS.find((f) => f.id === 'pricing')!.answer.join(' ')).toMatch(/feed/i);
+    expect(chipsOf('feed')).toEqual({ Church: true, Ministry: true });
     for (const name of plans.map((p) => p.name)) {
       expect(gridClaim('News Feed', name), `${name} lost the news feed`).toBe('included');
       expect(gridClaim('Community Feed', name), `${name} lost the community feed`).toBe('included');
     }
-    expect(cardText('plus')).toContain('Blog & News Feed');
+    expect(cardText('plus')).toContain('News Feed');
   });
 
   it('the Bible and courses are still claimed on every plan', () => {
@@ -235,61 +241,59 @@ describe('what the site claims is on every plan', () => {
     const pricing = FAQS.find((f) => f.id === 'pricing')!.answer.join(' ');
     expect(pricing).toMatch(/the full Bible/i);
     expect(pricing).toMatch(/courses/i);
-    expect(chipsOf('bible')).toEqual({ Individual: true, 'Small Team': true, Ministry: true });
-    expect(chipsOf('courses')).toEqual({ Individual: true, 'Small Team': true, Ministry: true });
+    expect(chipsOf('bible')).toEqual({ Church: true, Ministry: true });
+    expect(chipsOf('courses')).toEqual({ Church: true, Ministry: true });
     for (const name of plans.map((p) => p.name)) {
       expect(gridClaim('Bible', name), `${name} lost the Bible`).toBe('included');
     }
     expect(cardText('plus')).toContain('Bible');
-    expect(cardText('plus')).toContain('2 courses');
+    // No per-plan course count is claimed any more; the card says "Courses".
+    expect(cardText('plus')).toContain('Courses');
   });
 
   it('the livestream-push qualifier on Notes survives', () => {
     // The half of the tiersNote that was always TRUE. Pushing an open outline to
-    // a live stream needs livestream, which starts on Small Team — that is the
-    // sentence explaining why the floor is where it is, and it renders.
+    // a live stream needs livestream, which is Ministry's — that is the sentence
+    // explaining why this floor sits above the notes themselves, and it renders.
     const docs = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'docs')!;
     expect(docs.tiersNote).toMatch(
-      /Pushing notes to a live stream needs Small Team or above, because that is where livestream itself starts\./,
+      /Pushing notes to a live stream needs Ministry, because that is where livestream itself is\./,
     );
-    // And it must no longer open by claiming every plan.
+    // And it must not open by claiming every plan.
     expect(docs.tiersNote).not.toMatch(/on every plan/i);
-    expect(docs.tiersNote).toMatch(/Small Team and above/);
+    expect(docs.tiersNote).toMatch(/Church and Ministry/);
 
     const html = words(render(React.createElement(
       MemoryRouter, null, React.createElement(FeatureBlock, { feature: docs }),
     )));
-    expect(html).toContain('Pushing notes to a live stream needs Small Team or above');
+    expect(html).toContain('Pushing notes to a live stream needs Ministry');
 
     // Sermon Notes → Livestream is its own grid row and keeps its own floor.
-    expect(gridClaim('Sermon Notes → Livestream', 'Individual')).toBe('excluded');
-    expect(gridClaim('Sermon Notes → Livestream', 'Small Team')).toBe('included');
+    expect(gridClaim('Sermon Notes → Livestream', 'Church')).toBe('excluded');
     expect(gridClaim('Sermon Notes → Livestream', 'Ministry')).toBe('included');
   });
 
-  it('the Individual plan card claims nothing the matrix denies', () => {
+  it('the Church plan card claims nothing the matrix denies', () => {
     const individual = cardText('plus');
 
-    // Derived, not hand-written: anything the grid marks excluded on Individual
+    // Derived, not hand-written: anything the grid marks excluded on Church
     // must not turn up as a bullet on the Individual card. The two structures
     // are separate — #59 cut a grid row and the card claim survived it — so the
     // grid is the matrix this card is held against.
-    const deniedRows = gridRows.filter((r) => r.cells[gridColumns.indexOf('Individual')] === 'excluded');
+    const deniedRows = gridRows.filter((r) => r.cells[gridColumns.indexOf('Church')] === 'excluded');
     expect(deniedRows.length, 'no excluded rows found — the grid parse is wrong').toBeGreaterThan(5);
     const claimed = deniedRows.map((r) => r.label).filter((label) => individual.includes(label));
-    expect(claimed, 'the Individual card claims features the grid denies it').toEqual([]);
+    expect(claimed, 'the Church card claims features the grid denies it').toEqual([]);
 
-    // And the two this ticket is about, by name — Docs & Notes has no grid row
-    // at all since #59, so no derived check can reach it.
-    expect(individual).not.toContain('Docs & Notes');
+    // And the ones the original ticket was about, by name. Sermon Notes pushed
+    // to a livestream is a Ministry row; "Community Groups" is not a Church
+    // line (Church has one community with chat, which the card says plainly).
     expect(individual).not.toMatch(/sermon notes/i);
     expect(individual).not.toMatch(/community groups/i);
 
     // What it does still sell, so "claims nothing" was not bought by emptying it.
-    // '500 contacts', not '150': THE-370 raised Individual's cap. Every other
-    // line on the card is byte-identical, which is what this loop asserts.
-    for (const kept of ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', 'CRM (Donors & Members)', 'Donation page & Fundraising']) {
-      expect(individual, `the Individual card stopped selling ${kept}`).toContain(kept);
+    for (const kept of ['500 people · 2 admins', 'One community — feed & chat', 'Mobile App (PWA)', 'Blog, News Feed, Docs & Notes', 'Bible', 'Courses', 'CRM (Donors & Members)', 'Donations & Fundraising Campaigns']) {
+      expect(individual, `the Church card stopped selling ${kept}`).toContain(kept);
     }
   });
 });
@@ -306,20 +310,22 @@ describe('what the site claims is on every plan', () => {
  * no `tiers`, no other feature block touched.
  * ---------------------------------------------------------------- */
 
-describe('THE-180 — Community Groups names its tier floor', () => {
+describe('THE-180 — Groups & chat says what Church and Ministry each get', () => {
   const groupsFeature = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'groups')!;
 
   it('the Community Groups feature block states its tier floor', () => {
-    // 🔴 The change: a tiersNote, the same field and the same job `docs` uses.
+    // 🔴 A tiersNote, the same field and the same job `docs` uses: Church has
+    // chat inside its ONE community, Ministry runs unlimited communities.
     expect(groupsFeature.tiersNote, 'groups has no tiersNote').toBeDefined();
-    expect(groupsFeature.tiersNote).toMatch(/Ministry/);
+    expect(groupsFeature.tiersNote).toMatch(/Church includes channels and direct messages/);
+    expect(groupsFeature.tiersNote).toMatch(/Ministry runs unlimited communities/);
     expect(groupsFeature.tiersNote).not.toMatch(/\bevery\s+plan\b/i);
 
     // Rendered under the plan chips, not just present on the object.
     const html = words(render(React.createElement(
       MemoryRouter, null, React.createElement(FeatureBlock, { feature: groupsFeature }),
     )));
-    expect(html).toContain('Channels and direct messages are on Ministry only');
+    expect(html).toContain('Church includes channels and direct messages inside its one community');
   });
 
   it('no surface claims Community Groups on every plan', () => {
@@ -331,10 +337,9 @@ describe('THE-180 — Community Groups names its tier floor', () => {
       .map(([where, c]) => `${where}: "${c}"`);
     expect(offenders, 'Community Groups is Ministry-only').toEqual([]);
 
-    expect(chipsOf('groups')).toEqual({ Individual: false, 'Small Team': false, Ministry: true });
+    expect(chipsOf('groups')).toEqual({ Church: true, Ministry: true });
     expect(cardText('plus')).not.toMatch(/community groups/i);
-    expect(cardText('pro')).not.toMatch(/community groups/i);
-    expect(cardText('max')).toMatch(/community groups/i);
+    expect(cardText('max')).toMatch(/unlimited communities/i);
   });
 
   it('Community Groups is not removed from the site', () => {
@@ -354,33 +359,34 @@ describe('THE-180 — Community Groups names its tier floor', () => {
 
     // Still a row in the comparison grid (unlike Docs & Notes, which THE-163
     // deliberately removed from this same grid).
-    const row = gridRows.find((r) => r.label === 'Community Groups');
-    expect(row, 'Community Groups row was removed from the comparison grid').toBeDefined();
+    const row = gridRows.find((r) => r.label === GROUPS_ROW);
+    expect(row, 'the Groups & chat row was removed from the comparison grid').toBeDefined();
 
     // Still in the mega-menu catalogue — a tier claim and a catalogue entry
     // are different objects (PR 59), and this change touched neither CATALOG
     // nor its entry.
     expect(CATALOG.flatMap((g) => g.items.map((i) => i.title))).toContain('Groups');
 
-    // Still sold on the plan that actually has it.
-    expect(cardText('max')).toMatch(/community groups/i);
+    // Still sold on the plans that actually have it.
+    expect(cardText('plus')).toMatch(/feed & chat/i);
+    expect(cardText('max')).toMatch(/unlimited communities/i);
   });
 
-  it('the comparison grid still marks it Ministry only', () => {
-    expect(gridClaim('Community Groups', 'Individual')).toBe('excluded');
-    expect(gridClaim('Community Groups', 'Small Team')).toBe('excluded');
-    expect(gridClaim('Community Groups', 'Ministry')).toBe('included');
+  it('the comparison grid marks it Church and Ministry, never Forever Free', () => {
+    expect(gridClaim(GROUPS_ROW, 'Forever Free')).toBe('excluded');
+    expect(gridClaim(GROUPS_ROW, 'Church')).toBe('included');
+    expect(gridClaim(GROUPS_ROW, 'Ministry')).toBe('included');
   });
 
   it('the news feed is still claimed on every plan', () => {
     // 🔴 The over-correction guard from the other direction — the feed is
     // /community_posts, a different product from Community Groups, and is
     // genuinely on every plan.
-    expect(chipsOf('feed')).toEqual({ Individual: true, 'Small Team': true, Ministry: true });
+    expect(chipsOf('feed')).toEqual({ Church: true, Ministry: true });
     for (const name of plans.map((p) => p.name)) {
       expect(gridClaim('News Feed', name), `${name} lost the news feed`).toBe('included');
     }
-    expect(FAQS.find((f) => f.id === 'pricing')!.answer.join(' ')).toMatch(/news feed/i);
+    expect(FAQS.find((f) => f.id === 'pricing')!.answer.join(' ')).toMatch(/feed/i);
   });
 
   it('the tool count is unchanged at its derived value', () => {
@@ -389,22 +395,22 @@ describe('THE-180 — Community Groups names its tier floor', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
   });
 
   it('plan prices and the annual discount are unchanged', () => {
-    // 🔴 Data and rendered cards both. Six stored prices, two terms; the
-    // badge is 20% and is NOT computed from the prices.
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
+    // 🔴 Data and rendered cards both. Four stored prices, two terms; the
+    // badge reads "2 months free" and is NOT computed from the prices.
+    expect(plans.map((p) => p.price.monthly)).toEqual([30, 90]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([300, 900]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        // The card's headline is the CHARGED figure for the term, never a
-        // per-month equivalent of it.
+        // The card carries the CHARGED figure for the term (monthly: the
+        // headline; yearly: the "billed as" line beneath the per-month figure).
         expect(words(render(React.createElement(PlanCard, { plan: p, term })))).toContain(`$${p.price[term].toLocaleString()}`);
       }
     }
@@ -414,7 +420,7 @@ describe('THE-180 — Community Groups names its tier floor', () => {
     const PRICING_SRC = readFileSync(fileURLToPath(new URL('../components/Pricing.tsx', import.meta.url)), 'utf8');
     // Same assertions as Pricing.test.ts, restated here because this change is
     // the one that could have loosened them. The contract now compares the
-    // TABLE — six cells against six — rather than the output of a multiplier,
+    // TABLE — four cells against four — rather than the output of a multiplier,
     // and it is exercised by MUTATION rather than only by pattern-matching its
     // source: handing it a wrong table must throw.
     expect(PRICING_SRC).toMatch(/^planPriceContract\(plans\);$/m);
@@ -423,9 +429,8 @@ describe('THE-180 — Community Groups names its tier floor', () => {
     expect(PRICING_SRC).not.toMatch(/console\.(warn|error)\(/);
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, yearly: 190 },
-        pro: { monthly: 40, yearly: 380 },
-        max: { monthly: 80, yearly: 753 },
+        plus: { monthly: 30, yearly: 300 },
+        max: { monthly: 90, yearly: 901 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();
