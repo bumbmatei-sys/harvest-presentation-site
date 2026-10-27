@@ -16,7 +16,6 @@ import {
   actualSavingPct,
   discountClaim,
   discountClaimContract,
-  discountClaimShape,
   formatMonthlyHeadline,
   planPriceContract,
   plans,
@@ -43,14 +42,20 @@ import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
  *                   and 564 / 12 = 47 EXACTLY, so the per-month headline
  *                   carries no cents and reconciles to the dollar
  *
- * 🔴 SUPERSEDED BY THE-372. Ministry is back to $80 monthly, with the quarter
+ * 🔴 SUPERSEDED TWICE: THE-372, then the Church / Ministry reprice of
+ * 27 Oct 2026 ($30 / $300 and $90 / $900, two plans). Every assertion below
+ * that named an old figure now names the current one and says so where it
+ * moved. The stripper, the eyebrow rules, the contract's teeth and the
+ * no-strike-through rule survive because they were never about a price.
+ *
+ * (THE-372's note, kept for the record: Ministry was back to $80 monthly, with the quarter
  * and year at $216 and $752 — THE-343's discount RATIOS kept exactly (2.7x
  * and 9.4x monthly) — and the founder removed the offer label this ticket
  * added to the card ("no early bird price label"). Every assertion below that
  * named THE-343's figures or its label now names what the page actually
  * shows, and says so where it moved; `THE-372.ministry-80.test.ts` owns the
  * new guards. The stripper, the contract's teeth and the no-strike-through
- * rule are unchanged, because they were never about the $60.
+ * rule are unchanged, because they were never about the $60.)
  *
  * 🔴 THIS FILE IS THE SITE HALF. The app (Harvest-agent) carries the same nine
  * numbers in src/utils/plan-features.ts, and `planPriceContract` throws at
@@ -60,7 +65,6 @@ import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
 
 const ministry = plans.find((p) => p.planId === 'max')!;
 const individual = plans.find((p) => p.planId === 'plus')!;
-const smallTeam = plans.find((p) => p.planId === 'pro')!;
 
 const SRC_DIR = fileURLToPath(new URL('..', import.meta.url));
 const PRICING_SRC_PATH = fileURLToPath(new URL('./Pricing.tsx', import.meta.url));
@@ -170,7 +174,7 @@ describe('🔴 the comment stripper is verified before anything is grepped throu
       'const EXPECTED_PLAN_PRICES',
       'export function planPriceContract(',
       'export const ADVERTISED_DISCOUNT_PCT',
-      'export function discountClaimShape(',
+      'export function discountClaim(',
       'const popularPlanIdx = plans.findIndex((p) => p.popular);',
       'export function CardEyebrow(',
       'export function PlanCard(',
@@ -208,11 +212,10 @@ describe('🔴 the comment stripper is verified before anything is grepped throu
 });
 
 /* ── 12 · the site shows $60 for Ministry ─────────────────────────────────── */
-describe('12 · the site shows Ministry at the price THE-372 restored', () => {
+describe('12 · the site shows Ministry at $90 / $900', () => {
   it('holds them in the plan data', () => {
-    // ⚠️ MOVED AT THE-372: THE-343's 60 / 162 / 564 became 80 / 216 / 752, and
-    // the 216 quarter went when the quarterly term was withdrawn (2026-10-23).
-    expect(ministry.price).toEqual({ monthly: 80, yearly: 752 });
+    // ⚠️ MOVED AT THE TWO-PLAN REPRICE: THE-372's 80 / 752 became 90 / 900.
+    expect(ministry.price).toEqual({ monthly: 90, yearly: 900 });
   });
 
   it('🔴 RENDERS them on the card, per term — not merely holds them', () => {
@@ -220,10 +223,10 @@ describe('12 · the site shows Ministry at the price THE-372 restored', () => {
       renderToStaticMarkup(React.createElement(PlanCard, { plan: ministry, term }))
         .replace(/<[^>]*>/g, ' ');
     // Monthly: the headline IS the charged figure.
-    expect(text('monthly')).toContain('$80');
+    expect(text('monthly')).toContain('$90');
     // The yearly term prints the per-month equivalent AND the charged total.
-    expect(text('yearly')).toContain('billed as $752 every 12 months');
-    expect(text('yearly')).toContain('$62.67');
+    expect(text('yearly')).toContain('billed as $900 every 12 months');
+    expect(text('yearly')).toContain('$75');
   });
 
   it('the Terms and the FAQ quote the same two, and neither disagrees with the cards', () => {
@@ -232,14 +235,13 @@ describe('12 · the site shows Ministry at the price THE-372 restored', () => {
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(faqPlanMismatches(plans)).toEqual([]);
     const terms = TIER_PRICE_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([terms.monthly, terms.annual]).toEqual([80, 752]);
+    expect([terms.monthly, terms.annual]).toEqual([90, 900]);
     const faq = FAQ_PLAN_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([faq.monthly, faq.annual]).toEqual([80, 752]);
+    expect([faq.monthly, faq.annual]).toEqual([90, 900]);
   });
 
-  it('🔴 plus and pro are UNCHANGED — enumerated, so an overreaching reprice fails', () => {
-    expect(individual.price).toEqual({ monthly: 20, yearly: 190 });
-    expect(smallTeam.price).toEqual({ monthly: 40, yearly: 380 });
+  it('🔴 Church is $30 / $300 — enumerated, so an overreaching reprice fails', () => {
+    expect(individual.price).toEqual({ monthly: 30, yearly: 300 });
   });
 });
 
@@ -254,10 +256,9 @@ describe('13 · the cross-repo contract agrees, and still has teeth', () => {
       for (const term of BILLING_TERMS) {
         const drifted = {
           plus: { ...individual.price },
-          pro: { ...smallTeam.price },
           max: { ...ministry.price },
         };
-        drifted[plan.planId as 'plus' | 'pro' | 'max'][term] += 1;
+        drifted[plan.planId as 'plus' | 'max'][term] += 1;
         expect(
           () => planPriceContract(plans, drifted),
           `a $1 drift on ${plan.name} ${term} did not fail the contract`,
@@ -268,15 +269,15 @@ describe('13 · the cross-repo contract agrees, and still has teeth', () => {
 
   it('🔴 and it would have caught the OLD Ministry prices specifically', () => {
     // The precise one-sided edit a reprice can ship: the site repriced, the app
-    // not — or the reverse. Both of Ministry's earlier tables: THE-248's and
-    // THE-343's.
+    // not — or the reverse. Ministry's earlier tables: THE-248's, THE-343's
+    // and THE-372's.
     for (const old of [
       { monthly: 80, yearly: 760 },
       { monthly: 60, yearly: 564 },
+      { monthly: 80, yearly: 752 },
     ]) {
       expect(() => planPriceContract(plans, {
         plus: { ...individual.price },
-        pro: { ...smallTeam.price },
         max: old,
       })).toThrow(/Ministry/);
     }
@@ -297,34 +298,33 @@ describe('3, 4, 5 · the delivered discounts and Ministry\'s monthly equivalent'
     expect(Object.keys(ADVERTISED_DISCOUNT_PCT)).toEqual(['yearly']);
   });
 
-  it('🔴 the delivered yearly percentages, per tier — Ministry now differs', () => {
-    expect(actualSavingPct(individual, 'yearly')).toBeCloseTo(20.8333, 4);
-    expect(actualSavingPct(smallTeam, 'yearly')).toBeCloseTo(20.8333, 4);
-    expect(actualSavingPct(ministry, 'yearly')).toBeCloseTo(21.6667, 4);
-    // The advertised claim rests on the WORST tier, which is still 20.83.
-    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(20.8333, 4);
+  it('🔴 the delivered yearly percentages, per tier — both exactly two months free', () => {
+    // THE-372 had Ministry saving more than the other two; the Church /
+    // Ministry reprice puts both plans on ten months' price for twelve.
+    expect(actualSavingPct(individual, 'yearly')).toBeCloseTo(16.6667, 4);
+    expect(actualSavingPct(ministry, 'yearly')).toBeCloseTo(16.6667, 4);
+    // The advertised claim rests on the WORST tier, which is the same 16.67.
+    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(16.6667, 4);
   });
 
   it('🔴 the discount validator PASSES, and would throw one point higher', () => {
     expect(() => discountClaimContract(plans)).not.toThrow();
-    expect(discountClaimShape('yearly')).toBe('flat');
-    expect(discountClaim('yearly')).toBe('Save 20%');
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
-    // 🔴 THE MUTATION. A claim above the BEST tier is false under any wording.
-    // Ministry's 21.67 raises the yearly ceiling, so 22 is the first figure that
-    // no longer clears it — the threshold moved WITH the prices, which is the
-    // guard deriving rather than remembering.
-    expect(() => discountClaimContract(plans, { yearly: 22 }))
-      .toThrow(/yearly advertises 22%/);
+    expect(discountClaim('yearly')).toBe('2 months free');
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
+    // 🔴 THE MUTATION. A claim above the WORST tier is false: the claim is flat
+    // across every tier. 17 is the first figure the prices do not clear.
+    expect(() => discountClaimContract(plans, { yearly: 17 }))
+      .toThrow(/yearly advertises 17%/);
   });
 
   it("🔴 Ministry's monthly equivalent is CEILED at the cent, never rounded down", () => {
-    // ⚠️ MOVED AT THE-372. THE-343's $564 divided to a clean $47; THE-372's
-    // $752 is $62.6667 a month, which the ceiling shows as $62.67 — within
-    // four cents of the charged total, and never below it.
-    expect(ministry.price.yearly / 12).toBeCloseTo(62.6667, 4);
-    expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).toBe('$62.67');
-    expect(62.67 * 12).toBeGreaterThanOrEqual(ministry.price.yearly);
+    // ⚠️ MOVED AT THE TWO-PLAN REPRICE. THE-372's $752 was $62.6667 a month and
+    // needed the ceiling; $900 divides by twelve exactly, so the headline is
+    // $75 with no cents. The RULE is unchanged and is proved on the synthetic
+    // figure below.
+    expect(ministry.price.yearly / 12).toBe(75);
+    expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).toBe('$75');
+    expect(75 * 12).toBeGreaterThanOrEqual(ministry.price.yearly);
     // 🔴 THE MUTATION THE-343's NUMBER WAS CHOSEN TO AVOID, and still the rule. 570 is the "natural"
     // 20.83%-off figure and puts the headline on $47.50 — a decimal, and on the
     // exact half-cent boundary that a rounding rule would resolve upward to
@@ -398,8 +398,8 @@ describe('11 · every card eyebrow goes through one component — and Ministry c
     expect(pills(freeCard())).toEqual(['FOR EVANGELISTS']);
   });
 
-  it('and the other two priced cards carry no eyebrow at all', () => {
-    for (const plan of [individual, smallTeam]) {
+  it('and the other priced card (Church) carries no eyebrow at all', () => {
+    for (const plan of [individual]) {
       const html = render(React.createElement(PlanCard, { plan, term: 'monthly' as BillingTerm }));
       expect(pills(html), `${plan.name} grew an eyebrow`).toEqual([]);
     }
@@ -499,15 +499,15 @@ describe('11c · Ministry\'s popular flag and the gold comparison column are unt
     // declares.
     for (const p of plans) {
       expect(Object.keys(p).sort(), `${p.name} carries an undeclared key`).toEqual(
-        ['blurb', 'features', 'fee', 'name', 'planId', 'price', ...(p.popular ? ['popular'] : [])].sort(),
+        ['aiMessages', 'blurb', 'features', 'fee', 'name', 'planId', 'price', 'productFee', ...(p.popular ? ['popular'] : [])].sort(),
       );
     }
   });
 
   it('the gold column still lands on Ministry in the rendered table', () => {
-    // Free is column 0 in the comparison grid, so Ministry's flag (index 2 in
-    // `plans`) must resolve to column 3.
-    expect(plans.findIndex((p) => p.popular) + 1).toBe(3);
+    // Free is column 0 in the comparison grid, so Ministry's flag (index 1 in
+    // `plans`) must resolve to column 2.
+    expect(plans.findIndex((p) => p.popular) + 1).toBe(2);
   });
 });
 
@@ -581,7 +581,7 @@ describe('14 · a price change does not move the tool count', () => {
 /* ── the free tier, unmoved ───────────────────────────────────────────────── */
 describe('the free tier is still a tier and not a price', () => {
   it('is absent from the priced list and from the contract', () => {
-    expect(plans.map((p) => p.planId)).toEqual(['plus', 'pro', 'max']);
+    expect(plans.map((p) => p.planId)).toEqual(['plus', 'max']);
     expect(plans.find((p) => p.planId === 'free')).toBeUndefined();
     expect(FREE_TIER.planId).toBe('free');
     expect(FREE_TIER as unknown as { price?: unknown }).not.toHaveProperty('price');

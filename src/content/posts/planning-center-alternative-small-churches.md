@@ -3,7 +3,7 @@ title: Planning Center Alternative for Small Churches
 category: harvest-vs
 status: published
 publish_date: 2026-07-27
-updated: 2026-09-20
+updated: 2026-10-27
 description: Looking for a Planning Center alternative for small churches? Here is what your full church software stack really costs, and what one platform costs instead.
 reading_time: 6 min
 ---
@@ -28,29 +28,29 @@ Say that same church wants what most growing churches want within a year or two:
 
 | What a church needs | Harvest | Planning Center | What you'd add |
 | --- | --- | --- | --- |
-| Member database | Included, all plans | Free, unlimited | — |
-| Online giving | Included, all plans | $15/mo at 75 gifts | — |
-| CRM (donors & members) | Included, all plans | Part of People | — |
-| QR check-in & attendance (Small Team) | Small Team, $40/mo | $15/mo at 30 daily | — |
-| Community feed | Included, all plans | Not a product they offer | Skool Pro, **$99/mo** |
-| Courses | 2 on $20 · 5 on $40 · 15 on $80 | Not a product they offer | Teachable Builder, **$89/mo** |
-| Public blog & ministry home on theharvest.app | Included, all plans | Not a product they offer | A website builder |
+| Member database | Included, Church and up | Free, unlimited | — |
+| Online giving | Included, Church and up | $15/mo at 75 gifts | — |
+| CRM (donors & members) | Included, Church and up | Part of People | — |
+| QR check-in & attendance (Ministry) | Ministry, $90/mo | $15/mo at 30 daily | — |
+| Community feed | Included, Church and up | Not a product they offer | Skool Pro, **$99/mo** |
+| Courses | Included, Church and up | Not a product they offer | Teachable Builder, **$89/mo** |
+| Public blog & ministry home on theharvest.app | Included, Church and up | Not a product they offer | A website builder |
 | Newsletter | Coming soon | Not on their pricing page | An email tool |
-| Tax receipts & statements | Ministry, $80/mo | Included with Giving | — |
+| Giving statements & year-end receipts | Ministry, $90/mo | Included with Giving | — |
 
 Sources: [Skool](https://www.skool.com/pricing), [Teachable](https://teachable.com/pricing), read July 27, 2026.
 
 Add it up. Planning Center at roughly $30, [Skool](https://www.skool.com/pricing) Pro at $99, [Teachable](https://teachable.com/pricing) Builder at $89 — **$218 a month, across three vendors, and you still do not have a website.**
 
-Harvest's Ministry plan is $62.67/month billed annually, and it covers the live rows in that table — including the blog, tax receipts on Ministry, event registration, community groups and courses.
+Harvest's Ministry plan is $75/month billed annually, and it covers the live rows in that table — including the blog, giving statements and year-end receipts, event registration, community groups and courses.
 
-If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Small Team plan is $31.67/month billed annually and carries both, plus giving, QR check-in, the CRM, livestream, the blog, the church map and the mobile app.
+If the church only needs community and courses, the gap is wider, not narrower: Skool Pro plus Teachable Builder is $188/month for two products. Harvest's Church plan is $25/month billed annually and carries both, plus giving, the CRM, the blog, the church map and the mobile app.
 
 ## The cheap tiers are not the escape hatch
 
 It is tempting to look at Skool's $9 Hobby plan or Teachable's $39 Starter and conclude the stack is affordable after all. Read the fee line. Skool Hobby carries a **10% transaction fee**. Teachable Starter carries **7.5%**. For a church running a $2,000 course cohort, that is $200 and $150 gone respectively — on top of card processing — which is more than the price difference you were trying to save.
 
-Harvest takes **no platform fee on donations, on any plan**. What the card processor charges is what it costs.
+Harvest takes **no fee on donations, on either paid plan**. What the card processor charges is what it costs.
 
 ## The part that does not show up on any invoice
 

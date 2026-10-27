@@ -41,7 +41,7 @@ const byId = new Map(CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f] a
 const allFeatures = CATEGORIES.flatMap((c) => c.features);
 
 /** `tiers` is positional against `plans`: [Individual, Small Team, Ministry]. */
-const TIER_NAMES = ['Individual', 'Small Team', 'Ministry'] as const;
+const TIER_NAMES = ['Church', 'Ministry'] as const;
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 10 · Signups — 🔴 ALREADY DESCRIBED. Not added.
@@ -74,10 +74,11 @@ describe('10 — the Signups capability is described, with tiers matching featur
 
   it('🔴 its tiers are features.crm, and features.crm is true on all three', () => {
     // Transcribed from Harvest-agent plan-features.ts — see the header.
-    const CRM_IN_APP = { plus: true, pro: true, max: true } as const;
+    // 'pro' resolves to Church in the app, so the two sold plans are 'plus' and 'max'.
+    const CRM_IN_APP = { plus: true, max: true } as const;
     expect(Object.values(CRM_IN_APP).every(Boolean),
       'the transcription says crm is not on every priced plan').toBe(true);
-    expect(analytics!.tiers, 'the analytics tiers no longer match features.crm').toEqual([1, 1, 1]);
+    expect(analytics!.tiers, 'the analytics tiers no longer match features.crm').toEqual([1, 1]);
   });
 
   it('🔴 no second Signups entry was added', () => {
@@ -116,7 +117,7 @@ describe('11 — the share feature entry exists with tiers that are true', () =>
        button is on the admin Donations screen, and that screen is gated by
        `canDonations = planAllows(features?.fundraising) && canSettings`. */
     const FUNDRAISING_IN_APP: Record<(typeof plans)[number]['planId'], boolean> = {
-      plus: true, pro: true, max: true,
+      plus: true, max: true,
     };
     const expected = plans.map((p) => (FUNDRAISING_IN_APP[p.planId] ? 1 : 0));
     expect(share!.tiers, 'the share entry claims a tier the app does not grant')
@@ -213,15 +214,15 @@ describe('12 — neither feature duplicates an existing entry', () => {
 // ═════════════════════════════════════════════════════════════════════════════
 // 13 · 🔴 the six plan prices, and the contract's teeth
 // ═════════════════════════════════════════════════════════════════════════════
-describe('13 — the six plan prices are unchanged and the contract still throws', () => {
-  /* Harvest-agent src/utils/plan-features.ts PLAN_PRICING, at 7f8455e. */
+describe('13 — the four plan prices are the approved ones and the contract still throws', () => {
+  /* Harvest-agent src/utils/plan-features.ts PLAN_PRICING under the two-plan
+     reprice: Church is the stored 'plus', Ministry the stored 'max'. */
   const APP_PRICING = {
-    plus: { monthly: 20, yearly: 190 },
-    pro: { monthly: 40, yearly: 380 },
-    max: { monthly: 80, yearly: 752 },
+    plus: { monthly: 30, yearly: 300 },
+    max: { monthly: 90, yearly: 900 },
   } as const;
 
-  it('all six are exactly what the app publishes', () => {
+  it('all four are exactly what the app publishes', () => {
     let checked = 0;
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
@@ -230,7 +231,7 @@ describe('13 — the six plan prices are unchanged and the contract still throws
         checked += 1;
       }
     }
-    expect(checked, 'not six prices were checked').toBe(6);
+    expect(checked, 'not four prices were checked').toBe(4);
   });
 
   it('the live contract passes against the shipped table', () => {
@@ -239,20 +240,19 @@ describe('13 — the six plan prices are unchanged and the contract still throws
 
   it('🔴 and it still THROWS on disagreement — the teeth, not just the pass', () => {
     const wrong = {
-      plus: { ...APP_PRICING.plus, monthly: 21 },
-      pro: { ...APP_PRICING.pro },
+      plus: { ...APP_PRICING.plus, monthly: 31 },
       max: { ...APP_PRICING.max },
     };
     expect(() => planPriceContract(plans, wrong))
       .toThrow(/Harvest-agent src\/utils\/plan-features\.ts PLAN_PRICING/);
   });
 
-  it('THE-281 changed no price in the source at all', () => {
+  it('the source holds the approved prices in the contract table', () => {
     const src = readFileSync(
       fileURLToPath(new URL('../components/Pricing.tsx', import.meta.url)), 'utf8');
-    expect(src).toContain("plus: { monthly: 20, yearly: 190 }");
-    expect(src).toContain("pro:  { monthly: 40, yearly: 380 }");
-    expect(src).toContain("max:  { monthly: 80, yearly: 752 }");
+    expect(src).toContain("plus: { monthly: 30, yearly: 300 }");
+    expect(src).toContain("max:  { monthly: 90, yearly: 900 }");
+    expect(src).not.toContain("pro:  {");
   });
 });
 
@@ -295,7 +295,7 @@ describe('15 — neither feature was added to the add-on catalogue', () => {
       // 🔴 THREE SINCE THE-370 — Campus and Contacts +500 are retired (detached
       // from all nine live plan products). Neither of THIS ticket's two features
       // was added to the catalogue, which is what the assertion says.
-      'AI Assistant', 'Admin seat', 'Unlimited contacts',
+      'Admin seat', 'Unlimited contacts',
     ]);
   });
 });

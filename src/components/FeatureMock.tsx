@@ -1495,27 +1495,27 @@ export const MOCKS: Record<string, React.ReactElement> = {
     <>
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
-          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Accounting</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '9.5px', fontWeight: '600', color: 'var(--green-700)', background: 'var(--green-100)', padding: '3px 9px', borderRadius: '999px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green-500)' }} />QuickBooks connected</span>
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Giving records</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '9.5px', fontWeight: '600', color: 'var(--green-700)', background: 'var(--green-100)', padding: '3px 9px', borderRadius: '999px' }}>Giving statements</span>
         </div>
         <div style={{ padding: '11px 13px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
             <span style={{ fontFamily: 'var(--font-mono,monospace)', color: 'var(--text-muted)' }}>#1042</span>
             <span style={{ flex: '1', color: 'var(--navy-800)' }}>Donation receipt</span>
             <span style={{ fontWeight: '700', color: 'var(--navy-900)' }}>$50</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '700', color: 'var(--green-700)' }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M20 6 9 17l-5-5" /></svg>Synced</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '700', color: 'var(--green-700)' }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M20 6 9 17l-5-5" /></svg>Recorded</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
             <span style={{ color: 'var(--text-muted)' }}>#1043</span>
             <span style={{ flex: '1', color: 'var(--navy-800)' }}>Event ticket</span>
             <span style={{ fontWeight: '700', color: 'var(--navy-900)' }}>$40</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '700', color: 'var(--green-700)' }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M20 6 9 17l-5-5" /></svg>Synced</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '700', color: 'var(--green-700)' }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M20 6 9 17l-5-5" /></svg>Recorded</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
             <span style={{ color: 'var(--text-muted)' }}>#1044</span>
             <span style={{ flex: '1', color: 'var(--navy-800)' }}>Donation receipt</span>
             <span style={{ fontWeight: '700', color: 'var(--navy-900)' }}>$100</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '700', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '2px 7px', borderRadius: '999px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>Retry</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '700', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '2px 7px', borderRadius: '999px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>Recorded</span>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', margin: '2px 13px 13px', fontSize: '11px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', borderRadius: '9px', padding: '9px' }}>Sync all receipts</div>
@@ -1631,7 +1631,7 @@ export const MOCKS: Record<string, React.ReactElement> = {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: 'var(--navy-800)' }}>Check-in & QR codes<span style={{ marginLeft: 'auto', width: '30px', height: '17px', borderRadius: '999px', background: 'var(--green-500)', position: 'relative' }}><span style={{ position: 'absolute', top: '2px', right: '2px', width: '13px', height: '13px', borderRadius: '50%', background: '#fff' }} /></span></div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: 'var(--navy-800)' }}>Events<span style={{ marginLeft: 'auto', width: '30px', height: '17px', borderRadius: '999px', background: 'var(--green-500)', position: 'relative' }}><span style={{ position: 'absolute', top: '2px', right: '2px', width: '13px', height: '13px', borderRadius: '50%', background: '#fff' }} /></span></div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: 'var(--text-muted)' }}>CRM & giving records<span style={{ marginLeft: 'auto', width: '30px', height: '17px', borderRadius: '999px', background: 'var(--stone-300)', position: 'relative' }}><span style={{ position: 'absolute', top: '2px', left: '2px', width: '13px', height: '13px', borderRadius: '50%', background: '#fff' }} /></span></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: 'var(--text-muted)' }}>Accounting<span style={{ marginLeft: 'auto', width: '30px', height: '17px', borderRadius: '999px', background: 'var(--stone-300)', position: 'relative' }}><span style={{ position: 'absolute', top: '2px', left: '2px', width: '13px', height: '13px', borderRadius: '50%', background: '#fff' }} /></span></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: 'var(--text-muted)' }}>Giving records<span style={{ marginLeft: 'auto', width: '30px', height: '17px', borderRadius: '999px', background: 'var(--stone-300)', position: 'relative' }}><span style={{ position: 'absolute', top: '2px', left: '2px', width: '13px', height: '13px', borderRadius: '50%', background: '#fff' }} /></span></div>
         </div>
         <div style={{ margin: '2px 13px 13px', fontSize: '10px', color: 'var(--text-muted)', background: 'var(--stone-100)', borderRadius: '9px', padding: '8px 10px' }}>Sees Eastside registrations only · 23 permissions, per person</div>
       </div>

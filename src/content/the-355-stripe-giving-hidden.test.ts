@@ -209,7 +209,7 @@ describe('2 — the Donation Page entry describes the church\'s own links', () =
     expect(donation.admin).toEqual([
       'Paste your own payment links — six providers',
       'Every link checked against its provider before it goes live',
-      'Record a gift by hand and it posts to your dashboard, accounting and the giver’s history',
+      'Record a gift by hand and it posts to your dashboard, giving records and the giver’s history',
     ]);
     expect(donation.member).toEqual([
       'One page with every way to give',
@@ -235,7 +235,7 @@ describe('2 — the Donation Page entry describes the church\'s own links', () =
        and `fundraising` is false on Forever Free. So the array addresses the
        three PAID plans and free is absent from it entirely, which is what
        "every paid plan" means on this site. */
-    expect(donation.tiers).toEqual([1, 1, 1]);
+    expect(donation.tiers).toEqual([1, 1]);
     expect(donation.tiers).toHaveLength(plans.length);
     expect(donation.title + donation.oneliner).not.toMatch(/free/i);
   });
@@ -268,7 +268,7 @@ describe('3 — Pledge Campaigns is a feature entry of its own', () => {
   });
 
   it('🔴 the fundraising block carries NO pledge line', () => {
-    /* The defect the split exists to fix: pledge sentences under a [1, 1, 1]
+    /* The defect the split exists to fix: pledge sentences under a [1, 1]
        tier chip, with one bullet trying to correct the chips above it. */
     const f = byId('fundraising');
     const everything = [f.eyebrow, f.title, f.oneliner, f.moment, ...f.admin, ...f.member].join(' ');
@@ -283,9 +283,9 @@ describe('3 — Pledge Campaigns is a feature entry of its own', () => {
        `canPledge = platformOverride || !!features?.pledgeCampaigns`. Positional
        against `plans`: [Individual, Small Team, Ministry]. */
     const p = byId('pledges');
-    expect(p.tiers).toEqual([0, 0, 1]);
+    expect(p.tiers).toEqual([0, 1]);
     expect(p.tiers).toHaveLength(plans.length);
-    expect(plans[2].name, 'the third plan is not Ministry — the array is positional')
+    expect(plans[1].name, 'the second plan is not Ministry — the array is positional')
       .toBe('Ministry');
     // And the chip is what renders: the page must not also say it in prose,
     // which is the duplication the split removed.
@@ -383,10 +383,10 @@ describe('4 — `pledges` is registered on every surface that keys off an id', (
        one platform", and a live tool missing from it understates the product.
        The ABSOLUTE is asserted alongside the DELTA so a second tool added in the
        same commit cannot hide inside this one's expected move. */
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== 'Pledge Campaigns').length, 0);
-    expect(without).toBe(26);
+    expect(without).toBe(25);
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
     expect(readSrc('components/catalog.ts'), 'the tool count was hardcoded')
       .not.toMatch(/CATALOG_TOOL_COUNT\s*=\s*\d+/);

@@ -379,7 +379,7 @@ export function schedulerCopy(): string[] {
  *  `TIER_WORDS` in content/coming-soon.ts, and case-sensitive for the same
  *  reason: "ministry" is an ordinary word on a church site and "Ministry" is a
  *  plan. */
-const TIER_WORDS = /\b(Individual|Small Team|Ministry|Forever Free)\b/;
+const TIER_WORDS = /\b(Individual|Small Team|Church plan|Ministry|Forever Free)\b/;
 
 /**
  * Throws on anything that would make this unbuilt feature read as purchasable,

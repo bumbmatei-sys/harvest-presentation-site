@@ -641,7 +641,7 @@ describe('8 — the entry traces to its board card and reaches the page', () => 
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(soonGroup.items.filter((i) => !i.soon)).toHaveLength(0);
   });
 
@@ -826,12 +826,12 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
    The prices and the add-on catalogue are untouched.                        */
 describe('11 — no plan price moved and nothing was added to the add-on catalogue', () => {
   const NINE = {
-    plus: { monthly: 20, yearly: 190 },
-    pro: { monthly: 40, yearly: 380 },
+    plus: { monthly: 30, yearly: 300 },
+
     // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
     // the quarter and year at $216 / $752). plus and pro are enumerated
     // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 80, yearly: 752 },
+    max: { monthly: 90, yearly: 900 },
   } as const;
 
   it('all six plan prices are exactly what the app charges', () => {
@@ -847,8 +847,8 @@ describe('11 — no plan price moved and nothing was added to the add-on catalog
 
   it('🔴 and the cross-repo contract still THROWS when the two repos disagree', () => {
     const wrong = plans.map((p) =>
-      (p.planId === 'pro' ? { ...p, price: { ...p.price, yearly: p.price.yearly + 1 } } : p));
-    expect(() => planPriceContract(wrong)).toThrow(/pro/);
+      (p.planId === 'max' ? { ...p, price: { ...p.price, yearly: p.price.yearly + 1 } } : p));
+    expect(() => planPriceContract(wrong)).toThrow(/max/);
   });
 
   it('🔴 the scheduler was NOT added to the add-on catalogue', () => {

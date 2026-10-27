@@ -4,8 +4,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
-  ADD_ON_BILLED_MONTHS, ADD_ONS, AddOnCard, AddOns, addOnAvailability, addOnPricingContract,
-  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, DODO_ADD_ON_CATALOG, dodoAddOnCatalogContract,
+  ADD_ON_BILLED_MONTHS, ADD_ONS, INTENTIONALLY_UNADVERTISED, AddOnCard, AddOns, addOnAvailability, addOnPricingContract,
+  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, discountClaim, DODO_ADD_ON_CATALOG, dodoAddOnCatalogContract,
   planPriceContract, PlanCard, Pricing, plans, type AddOn,
   TERM_MONTHS, termMonthlyEquivalent,
 } from './Pricing';
@@ -130,10 +130,10 @@ describe('add-on annual pricing', () => {
 
   it('the page states that add-ons are not discounted whenever a discounted term is on', () => {
     // The toggle defaults to Yearly, so this is the DEFAULT prerendered page: a
-    // −30% badge sits a few hundred pixels above these prices.
+    // "2 months free" badge sits a few hundred pixels above these prices.
     const stated = words(pageHtml());
     expect(stated).toMatch(/add-ons are not discounted/i);
-    expect(stated).toContain(`the −${ADVERTISED_DISCOUNT_PCT.yearly}% applies to plans only`);
+    expect(stated).toContain(`“${discountClaim('yearly')}” applies to plans only`);
     expect(stated).toContain(`A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price`);
     // Stated in the state that makes the discount visible, and derived from the
     // same constant the badge is — the two cannot come to disagree.
@@ -170,7 +170,6 @@ describe('where an add-on can be bought', () => {
     const read = words(cardHtml(a));
     expect(read).toContain(`${planName('max')} only`);
     expect(read).not.toContain(planName('plus'));
-    expect(read).not.toContain(planName('pro'));
     expect(words(pageHtml())).toContain(`${planName('max')} only`);
   });
 
@@ -180,12 +179,17 @@ describe('where an add-on can be bought', () => {
       expect(words(cardHtml(a)), `${a.name} states no availability`)
         .toContain(addOnAvailability(a.planIds));
     }
-    const everywhere = ADD_ONS.filter((a) => a.planIds.length === plans.length);
-    expect(everywhere.length).toBeGreaterThan(0);
-    // "every PAID plan" since THE-204: `plans` is the priced list, and Forever
-    // Free has no subscription for an add-on to attach to, so it can buy none
-    // of these. The old wording became a claim about a tier that cannot buy.
-    for (const a of everywhere) expect(words(cardHtml(a))).toContain('Available on every paid plan');
+    // 🔴 TWO-PLAN REPRICE — every add-on is attached to the Ministry products
+    // in Dodo and to NEITHER Church product (the founder's four new products
+    // carry Admin seat, AI Assistant and Unlimited contacts on Ministry only).
+    // So no add-on is "available on every paid plan" today, and each one must
+    // say "Ministry only" rather than let a Church visitor assume otherwise.
+    for (const a of ADD_ONS) expect(a.planIds, `${a.name} is sold on Church, which Dodo does not attach it to`).toEqual(['max']);
+    expect(ADD_ONS.filter((a) => a.planIds.length === plans.length)).toHaveLength(0);
+    // The wording for the all-plans case is still derived, not hand-written:
+    // "every PAID plan" since THE-204, because Forever Free has no subscription
+    // for an add-on to attach to.
+    expect(addOnAvailability(plans.map((p) => p.planId))).toBe('Available on every paid plan');
   });
 
   it('the add-on availability contract throws on a plan that does not exist', () => {
@@ -253,9 +257,10 @@ describe('THE-370 — Campus is withdrawn, and the inversion is the point', () =
 
   it('🔴 the page advertises exactly THREE add-ons', () => {
     expect(ADD_ONS.map((a) => a.name)).toEqual(
-      ['AI Assistant', 'Admin seat', 'Unlimited contacts'],
+      ['Admin seat', 'Unlimited contacts'],
     );
-    expect(ADD_ONS).toHaveLength(3);
+    expect(ADD_ONS).toHaveLength(2);
+    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toMatch(/coming soon/i);
   });
 
   it('🔴 Unlimited contacts reads $30 monthly and $360 annual', () => {
@@ -292,7 +297,7 @@ describe('THE-370 — Campus is withdrawn, and the inversion is the point', () =
     // subject moved it.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
   });
 });
 
@@ -352,11 +357,11 @@ describe('when an add-on can be bought', () => {
 
 describe('what this change must not have touched', () => {
   it('the plan prices and the annual discount are unchanged', () => {
-    // 🔴 Data and rendered cards both. Six stored prices, two terms; the
-    // badge is 20% and is NOT computed from the prices.
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
+    // 🔴 Data and rendered cards both. Four stored prices, two terms; the
+    // badge reads "2 months free" and the contract number is 16.
+    expect(plans.map((p) => p.price.monthly)).toEqual([30, 90]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([300, 900]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
         // 🔴 THE-196 flipped the hierarchy: the headline is now the per-month
@@ -375,7 +380,7 @@ describe('what this change must not have touched', () => {
     // And on the page itself, with its toggle in the state it prerenders in.
     // And on the page itself, with its toggle in the state it prerenders in.
     const page = pageHtml();
-    expect(words(page)).toContain(`-${ADVERTISED_DISCOUNT_PCT.yearly}%`);
+    expect(words(page)).toContain(discountClaim('yearly'));
     for (const p of plans) expect(dollars(page)).toContain(p.price.yearly);
   });
 
@@ -387,7 +392,7 @@ describe('what this change must not have touched', () => {
     // subject moved it.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -405,9 +410,8 @@ describe('what this change must not have touched', () => {
     expect(PRICING_SRC).not.toMatch(/console\.(warn|error)\(/);
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, yearly: 190 },
-        pro: { monthly: 40, yearly: 380 },
-        max: { monthly: 80, yearly: 753 },
+        plus: { monthly: 30, yearly: 300 },
+        max: { monthly: 90, yearly: 901 },
       }),
     ).toThrow(/Ministry.*yearly/);
     expect(() => planPriceContract(plans)).not.toThrow();

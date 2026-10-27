@@ -15,9 +15,9 @@ export interface Plan {
   planId: string; // load-bearing: forwarded to the app via appSignupUrl(planId)
   /**
    * The CHARGED price on each term, in whole USD — two numbers, not a monthly
-   * figure plus a multiplier. The multiplier is gone: 20% off a year is x9.6
-   * months, so there is no integer to name and the prices are stored. The cross-repo contract below compares this table
-   * against the app's, cell for cell.
+   * figure plus a multiplier. The yearly price is ten months' worth (two months
+   * free), stored rather than derived. The cross-repo contract below compares
+   * this table against the app's, cell for cell.
    */
   price: Record<BillingTerm, number>;
   // Platform fee as a DECIMAL fraction, mirroring the app's PLATFORM_FEE_MAP
@@ -29,6 +29,22 @@ export interface Plan {
   // "retention" field; it was a derived complement of this one, and carrying
   // two numbers for one fact is what let "keeps 100%" outlive a nonzero fee.
   fee: number;
+  /**
+   * Harvest's cut of a PRODUCT sale, as a decimal fraction — 5% on Church, 2% on
+   * Ministry. Paid product checkout is NOT live yet, so every place this is
+   * printed carries "coming soon" (see `productFeeLine`). It is a separate field
+   * from `fee` on purpose: `fee` is the donation fee and is 0 on every plan, and
+   * folding the two together would make "0% on donations" and "5% on products"
+   * the same number. Processor fees apply on top of both and are Harvest's to
+   * neither charge nor keep.
+   */
+  productFee: number;
+  /**
+   * AI assistant messages included per month. The feature is not built yet: this
+   * is config, and every place that prints it says "coming soon". Always the
+   * real number — never "unlimited".
+   */
+  aiMessages: number;
   popular?: boolean;
   blurb: string;
   features: string[];
@@ -187,34 +203,85 @@ export function crmLabel(planId: string): string {
  *  above and the FREE_TIER record below cannot disagree about what "free" is. */
 const FREE_TIER_PLAN_ID = 'free';
 
-// planId values are the app's `TenantPlan` union — 'plus' | 'pro' | 'max'.
-// Anything else here deep-links signup to a plan the app cannot resolve.
+/**
+ * The product-sales fee as it is printed — "5% Harvest fee on product sales".
+ * The "coming soon" lives in `PRODUCT_SALES_COMING_SOON` and travels with every
+ * use of this line, because paid product checkout does not exist yet and a fee
+ * with no qualifier reads as a live charge.
+ */
+export const productFeeLine = (plan: Pick<Plan, 'productFee'>) =>
+  `${Math.round(plan.productFee * 100)}% Harvest fee on product sales`;
+
+/** The qualifier every product-sales fee carries until paid checkout is live. */
+export const PRODUCT_SALES_COMING_SOON = 'coming soon';
+
+/** Said once under the cards and again in the FAQ and Terms: the payment
+ *  processor charges its own fee on every payment, on top of anything Harvest
+ *  takes, and Harvest takes nothing from a donation. */
+export const PROCESSOR_FEES_NOTE =
+  'Your payment processor’s own fees apply on top of Harvest’s. Harvest takes 0% of donations.';
+
+/** The AI assistant allowance as it is printed — "300 AI assistant messages a month". */
+export const aiMessagesLine = (plan: Pick<Plan, 'aiMessages'>) =>
+  `${plan.aiMessages.toLocaleString('en-US')} AI assistant messages a month`;
+
+// 🔴 planId IS THE APP'S STORED TIER ID, and it is deliberately NOT renamed.
 //
-// 🔴 SMS IS BACK, AND IT MOVED CARDS — THE-314.
+// The two paid plans are Church and Ministry. Church keeps the stored id 'plus'
+// and Ministry keeps 'max'; 'pro' is no longer sold and resolves to Church in
+// the app, which owns that mapping (plus → Church, pro → Church, max →
+// Ministry) and reads it at read time without migrating anything. The id is
+// what `appSignupUrl(planId)` forwards as `?signup=`, so a link from this page
+// must name an id the app already resolves under EITHER implementation it might
+// choose — keeping the old ids is the one choice that is safe before the app's
+// repricing lands, and after it.
 //
-// It was 'SMS (bring your own Twilio)' on INDIVIDUAL, then withheld entirely by
-// SMS_MARKETING_ENABLED (THE-245/THE-250) because the app refused every send
-// with a 503. The switch is on again, and two things about the claim changed
-// while it was away:
+// ⚠️ NOT 'church'. `buildSignupUrl` in lib/ref.ts already uses `signup=church`
+// as the generic church-signup funnel (the affiliate path), so a plan id of
+// 'church' would silently mean "no plan chosen". Anything else here deep-links
+// signup to a plan the app cannot resolve.
 //
-//   · WHOSE ACCOUNT. Harvest no longer asks a church to bring its own carrier
-//     account — it RESELLS on one account of its own, buys the church a number
-//     and bills for what is sent. So the parenthetical is gone: there is no
-//     third-party login a church has ever heard of, and naming one would send
-//     an admin looking for something that does not exist.
-//   · WHICH TIER. SMS is Ministry only. It is on the MINISTRY card below, not
-//     Individual's, and the comparison row moved with it — see the note in
-//     COMPARISON. A line on the Individual card would be the exact class of
-//     false claim this page has been corrected for six times, because the app
-//     answers an Individual tenant with an upgrade wall.
-//
-// ⚠️ STILL GATED, NOT HARDCODED: flipping SMS_MARKETING_ENABLED back off has to
-// remove EVERY SMS surface and simultaneously restore the Coming Soon entry, or
-// the same claim gets made twice in two tenses. No price changed here.
+// 🔴 SMS AND NEWSLETTER ARE ON THE MINISTRY CARD, AND LABELLED "coming soon"
+// while SMS_MARKETING_ENABLED / NEWSLETTER_MARKETING_ENABLED are false. They are
+// in the approved Ministry plan, but the app does not send either today, so the
+// card says what the Coming Soon page says — in the same tense. Flipping a flag
+// on drops the label and the Coming Soon entry together.
+const SOON = ' — coming soon';
 export const plans: Plan[] = [
-  { name: 'Individual', planId: 'plus', price: { monthly: 20, yearly: 190 }, fee: 0, blurb: 'For solo evangelists and missionaries.', features: ['500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible', '2 courses', crmLabel('plus'), 'Donation page & Fundraising'] },
-  { name: 'Small Team', planId: 'pro',  price: { monthly: 40, yearly: 380 }, fee: 0, blurb: 'For small ministries growing as a team.', features: ['Everything in Individual', '2,000 contacts · 5 admins', '5 courses', 'Livestream + Live Giving', 'Check-In System (QR)', 'Docs & Notes', 'Sermon Notes → Livestream', 'Church Map', ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter'] : [])] },
-  { name: 'Ministry',   planId: 'max',  price: { monthly: 80, yearly: 752 }, fee: 0, popular: true, blurb: 'For established churches going deeper.', features: ['Everything in Small Team', '4,000 contacts · 15 admins', '15 courses', CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding', 'Community Groups & Events', ...(NEWSLETTER_MARKETING_ENABLED ? ['Automated SEO Blog & Newsletter'] : ['Automated SEO Blog']), 'Custom Forms → CRM', 'Tax Receipts & Statements', ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []), QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting'] },
+  { name: 'Church', planId: 'plus', price: { monthly: 30, yearly: 300 }, fee: 0, productFee: 0.05, aiMessages: 300, blurb: 'For a church or ministry running its people, giving and discipleship in one place.', features: [
+    '500 people · 2 admins',
+    'One community — feed & chat',
+    'Mobile App (PWA)',
+    'Courses',
+    'Blog, News Feed, Docs & Notes',
+    'Bible',
+    crmLabel('plus'),
+    'Signups & Evangelism Analytics',
+    'Donations & Fundraising Campaigns',
+    'Campuses & Church Map',
+    'Link-in-bio page',
+    'Up to 3 products (paid checkout coming soon)',
+    `${aiMessagesLine({ aiMessages: 300 })}${SOON}`,
+  ] },
+  { name: 'Ministry', planId: 'max', price: { monthly: 90, yearly: 900 }, fee: 0, productFee: 0.02, aiMessages: 5000, popular: true, blurb: 'For established churches and ministries that run many communities and campaigns.', features: [
+    'Everything in Church',
+    '5,000 people · 15 admins',
+    'Unlimited communities',
+    `Livestream, chat & prayer requests in every community${SOON}`,
+    `Discovery listing${SOON}`,
+    'Events with Registration & Check-In',
+    'Service Planning',
+    'Custom Forms → CRM',
+    'Giving records — statements & year-end receipts',
+    'AI Knowledge Base',
+    CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
+    NEWSLETTER_MARKETING_ENABLED ? 'Newsletter' : `Newsletter${SOON}`,
+    SMS_MARKETING_ENABLED ? 'SMS & Text-to-Give' : `SMS & Text-to-Give${SOON}`,
+    `Social scheduler${SOON}`,
+    `All product types & storefront${SOON}`,
+    `Website builder with pre-made templates${SOON}`,
+    `${aiMessagesLine({ aiMessages: 5000 })}${SOON}`,
+  ] },
 ];
 
 /* ─── 🔴 FOREVER FREE — A TIER, NOT A PRICE (THE-204) ─────────────────────────
@@ -295,7 +362,7 @@ export const FREE_TIER: FreeTier = {
     // proof-read.
     'Your own subdomain',
   ],
-  noDonatePage: 'No donation page — giving and fundraising start on Individual.',
+  noDonatePage: 'No donation page — giving and fundraising start on Church.',
 };
 
 /* The free tier is not billed, so no term applies to it. Stated as a constant
@@ -310,7 +377,7 @@ export const ALL_TIER_NAMES = [FREE_TIER.name, ...plans.map((p) => p.name)];
 /* ─── 🔴 CROSS-REPO PRICE CONTRACT ────────────────────────────────────────────
 
    The numbers this site must show, and the numbers the app's PLAN_PRICING
-   publishes for the same tiers. This repo has no test runner, so the check runs
+   publishes for the same tiers (Church = 'plus', Ministry = 'max'). The check runs
    at module scope and throws during the prerender, the same idiom as the
    comparison-row width check below: a build failure beats shipping a pricing
    page that disagrees with the app.
@@ -320,21 +387,20 @@ export const ALL_TIER_NAMES = [FREE_TIER.name, ...plans.map((p) => p.name)];
    them against `annualMonthly(p.monthly)`, i.e. against the OUTPUT of a
    multiplier. There is no multiplier any more: the discounts stopped dividing
    into whole months, so both repos now carry a stored table and the contract
-   compares TABLE TO TABLE, six cells against six, tier by tier and term by
+   compares TABLE TO TABLE, four cells against four, tier by tier and term by
    term. That is strictly MORE than it guarded before — it previously could not
    see a wrong monthly price at all, only a wrong derivation from one — and it
    still throws, still names the tier and term, and still stops the build.
 
-   These six are deliberately written as literals and NOTHING RENDERS THEM.
+   These four are deliberately written as literals and NOTHING RENDERS THEM.
    They are the app's side of the contract, transcribed; the cards render
-   `plans` above. Two independently-written copies of the same six numbers is
+   `plans` above. Two independently-written copies of the same four numbers is
    the entire mechanism — a one-sided edit makes them disagree and the build
    stops here. Update these together with the app's PLAN_PRICING
    (Harvest-agent src/utils/plan-features.ts), in the same change.               */
 const EXPECTED_PLAN_PRICES: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, yearly: 190 },
-  pro:  { monthly: 40, yearly: 380 },
-  max:  { monthly: 80, yearly: 752 },
+  plus: { monthly: 30, yearly: 300 },
+  max:  { monthly: 90, yearly: 900 },
 };
 
 /**
@@ -368,18 +434,24 @@ export function planPriceContract(
 planPriceContract(plans);
 
 /**
- * The percentages this site ADVERTISES on the term toggle.
+ * The percentage the CROSS-REPO CONTRACT carries for a term — the real saving,
+ * rounded DOWN. It is a number for the two repos to agree on and for the
+ * honesty check below; it is NOT what the page prints. The page says
+ * "2 months free" (`discountClaim`), because that is what a church actually
+ * receives: a year costs ten months, and 2 / 12 is 16.67%, not a round
+ * percentage.
  *
- * 🔴 STORED, NOT COMPUTED FROM THE PRICES. The founder chose rounded prices over
- * exact percentages — $405.45 on a pricing page reads like a spreadsheet error —
- * so the tiers save slightly different amounts (20.8% on Individual and Small
- * Team, 21.7% on Ministry), and a computed badge would read a different number
- * beside each card, on a toggle that sits above all three at once. One number is
- * the only honest presentation of a control that governs all three cards, and
- * one number cannot be derived from three. Kept identical to the app's
- * ADVERTISED_DISCOUNT_PCT.
+ * 🔴 ROUNDED DOWN, NEVER UP. 16.67% rounded to nearest is 17, which the prices
+ * do not deliver on a flat claim; 16 is true of every tier. Kept identical to
+ * the app's ADVERTISED_DISCOUNT_PCT — a one-sided edit makes the two repos
+ * disagree about what a yearly term saves.
  */
-export const ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { yearly: 20 };
+export const ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { yearly: 16 };
+
+/** Months of service a discounted term gives away, as advertised. Stored
+ *  beside the percentage and checked against the prices, never derived at
+ *  render time, so a reprice that stops delivering it fails the build. */
+export const ADVERTISED_FREE_MONTHS: Record<DiscountedTerm, number> = { yearly: 2 };
 
 export type DiscountedTerm = Exclude<BillingTerm, 'monthly'>;
 
@@ -389,115 +461,75 @@ export const DISCOUNTED_TERMS = BILLING_TERMS.filter((t): t is DiscountedTerm =>
 /**
  * What `plan` on `term` actually saves against paying monthly, exactly.
  *
- * ─── 🔴 WHY THE SUBTRACTION HAPPENS IN DOLLARS (THE-248) ─────────────────────
- *
- * This read `(1 - price / atMonthlyRate) * 100`. That is the same arithmetic on
- * paper and NOT the same in binary floating point, and THE-248 is the reprice
- * that walked into the difference: the withdrawn quarterly term was EXACTLY 10%
- * off on all three tiers — $54 against $60, $108 against $120, $216 against
- * $240 — and the old form computes that as 9.999999999999998.
- *
- *     54 / 60   →  0.9   (the nearest double to nine tenths, a hair BELOW it)
- *     1 - 0.9   →  0.09999999999999998
- *     × 100     →  9.999999999999998
- *
- * A tenth has no exact binary representation, so the subtraction from 1 leaves
- * the representation error somewhere a comparison can see it. Both readers then
- * land on the wrong side of the knife edge:
- *
- *   `discountClaimShape` asks `10 <= worst`, gets false, and degrades an
- *     honest flat "Save 10%" to "Save up to 10%".
- *   `discountClaimContract` asks `10 > best`, gets true, and FAILS THE
- *     PRERENDER over a percentage the prices genuinely deliver.
- *
- * 🔴 NEITHER COMPARISON IS THE BUG, and neither may be loosened to hide this.
- * `<=` and `>` are exactly right: a claim equal to the saving is honest, and
- * only a claim ABOVE the best tier is a lie under every wording. Relaxing `>`
- * to `>=` would silence this case and simultaneously let a future claim that
- * really does exceed every tier through the guard — the precise failure the
- * guard exists to catch. The arithmetic was wrong, so the arithmetic changed.
- *
- * Subtracting in DOLLARS keeps the numerator a whole number: 60 - 54 is 6, and
- * 6 × 100 / 60 is 600 / 60, which is 10 exactly — every value on that path is
- * an integer a double holds exactly. Plan prices are whole dollars (pinned by
- * `Pricing.test.ts`), so this holds for every cell, not just today's.
+ * The subtraction happens in DOLLARS, not as `1 - price / atMonthlyRate`: a
+ * ratio like 0.9 has no exact binary form, so the old shape computed an exact
+ * 10% as 9.999999999999998 and sent a true claim to the wrong side of a
+ * comparison. Whole-dollar prices keep every value on this path an integer a
+ * double holds exactly (pinned by `Pricing.test.ts`).
  *
  * ⚠️ The app carries the identical reordering in `actualSavingPct`
- * (Harvest-agent src/utils/plan-features.ts). Both repos run this guard at
- * module scope, so a fix to one alone leaves the other's build broken.
+ * (Harvest-agent src/utils/plan-features.ts).
  */
 export const actualSavingPct = (plan: Plan, term: BillingTerm) => {
   const atMonthlyRate = plan.price.monthly * TERM_MONTHS[term];
   return atMonthlyRate === 0 ? 0 : ((atMonthlyRate - plan.price[term]) * 100) / atMonthlyRate;
 };
 
+/** Whole months of service `term` gives away on `plan`: $300 against $30 a
+ *  month is ten months paid out of twelve, so two are free. Fractional months
+ *  are floored — a plan may never be credited with a month it does not give. */
+export const actualFreeMonths = (plan: Plan, term: BillingTerm) =>
+  Math.floor(TERM_MONTHS[term] - plan.price[term] / plan.price.monthly + 1e-9);
+
 /**
  * 🔴 THE HONESTY RULE, mechanised: no copy may claim a saving larger than the
- * smallest actual one.
+ * smallest actual one. "2 months free" is a claim about EVERY tier, so it is
+ * only true when the worst tier gives away at least two months.
  *
- * A flat "save 30%" is a claim about EVERY tier, so it is only true when the
- * worst tier saves at least 30%. The numbers today:
+ *                 Yearly   months free   saving
+ *   Church        $300     2             16.67%
+ *   Ministry      $900     2             16.67%
  *
- *                 Yearly
- *   Individual     20.8%
- *   Small Team     20.8%
- *   Ministry       21.7%
- *
- *   yearly     advertises 20, worst tier saves 20.8  → 'flat'  → "Save 20%"
- *
- * ⚠️ `<=` IS LOAD-BEARING. A claim the prices honour exactly MEETS the worst
- * saving rather than clearing it (the withdrawn quarterly term was exactly
- * 10.0% off on every tier), and under `<` that claim would print "up to 10%",
- * hedging against nothing at all.
- *
- * 🔴 AND EQUALITY IS WHERE FLOATING POINT BITES. `actualSavingPct` above had to
- * subtract in dollars before this comparison could see a true 10 instead of
- * 9.999999999999998. The operator was always right; the arithmetic feeding it
- * was not. Do not loosen this to `<` for the next knife edge.
- *
- * Yearly clears with room — 20 advertised against 20.83 delivered on the worst
- * tier.
- *
- * 🔴 NOT A COPY EDIT. Nothing in this function changed — the prices moved under
- * it. That is the whole reason the wording is derived: this page has shipped a
- * false claim once already ("keeps 100%" against a real 2.5% fee), and a badge
- * that a human has to remember to re-word after a reprice is a badge that
- * eventually lies. If a future price puts a tier back under 30, "up to" returns
- * by itself.
- *
- * The NUMBER is stored; only the WORDING is derived. That is the split that
- * matters: the badge does not move when a price is rounded differently, but the
- * sentence beside it can never outlive the prices it describes.
+ * Both are a flat claim now — there is no "up to" wording any more, because
+ * the two tiers save exactly the same amount. If a future price makes one tier
+ * give less, `discountClaimContract` stops the prerender rather than letting
+ * the badge quietly turn into a lie: the right response to that is to reprice
+ * or to reword on purpose, not to have the page hedge by itself.
  */
-export type DiscountClaimShape = 'flat' | 'upTo';
-
-export function discountClaimShape(term: DiscountedTerm): DiscountClaimShape {
+export function discountClaimShape(term: DiscountedTerm): 'flat' | 'upTo' {
   const worst = Math.min(...plans.map((p) => actualSavingPct(p, term)));
   return ADVERTISED_DISCOUNT_PCT[term] <= worst ? 'flat' : 'upTo';
 }
 
-/** The advertised saving for a term, in words. The one phrasing on this site. */
 export function discountClaim(term: DiscountedTerm): string {
-  const pct = ADVERTISED_DISCOUNT_PCT[term];
-  return discountClaimShape(term) === 'flat' ? `Save ${pct}%` : `Save up to ${pct}%`;
+  const n = ADVERTISED_FREE_MONTHS[term];
+  return `${n} ${n === 1 ? 'month' : 'months'} free`;
 }
 
-/* 🔴 An advertised percentage that exceeds what the BEST tier saves is false
-   under any wording — "up to 40%" when nothing reaches 40% is not a hedge, it is
-   a lie — so it stops the prerender. The app carries the identical guard at the
-   same place in its own table; a claim it cannot make is one this site must not
-   print. */
+/* 🔴 An advertised saving that exceeds what the WORST tier delivers is false —
+   the claim is flat, so it is a claim about every tier. Both forms of it are
+   checked: the months ("2 months free") and the contract percentage (16). The
+   app carries the identical guard at the same place in its own table; a claim
+   it cannot make is one this site must not print. */
 export function discountClaimContract(
   list: readonly Plan[],
   advertised: Record<DiscountedTerm, number> = ADVERTISED_DISCOUNT_PCT,
+  freeMonths: Record<DiscountedTerm, number> = ADVERTISED_FREE_MONTHS,
 ): void {
   for (const term of DISCOUNTED_TERMS) {
-    const best = Math.max(...list.map((p) => actualSavingPct(p, term)));
-    if (advertised[term] > best) {
+    const worstPct = Math.min(...list.map((p) => actualSavingPct(p, term)));
+    if (advertised[term] > worstPct) {
       throw new Error(
-        `Pricing: ${term} advertises ${advertised[term]}% off, but the best tier only ` +
-        `saves ${best.toFixed(1)}%. No wording makes that true — lower the advertised percentage ` +
-        `or reprice.`
+        `Pricing: ${term} advertises ${advertised[term]}% off, but the worst tier only ` +
+        `saves ${worstPct.toFixed(1)}%. The claim is flat across every tier — lower the ` +
+        `advertised percentage or reprice.`
+      );
+    }
+    const worstMonths = Math.min(...list.map((p) => actualFreeMonths(p, term)));
+    if (freeMonths[term] > worstMonths) {
+      throw new Error(
+        `Pricing: ${term} advertises ${freeMonths[term]} months free, but the worst tier only ` +
+        `gives ${worstMonths}. Lower the claim or reprice.`
       );
     }
   }
@@ -539,141 +571,105 @@ const popularPlanIdx = plans.findIndex((p) => p.popular);
 const popularIdx = popularPlanIdx === -1 ? -1 : popularPlanIdx + 1;
 
 const T = true;
+/* A cell that is a promise rather than a fact: the feature is in the plan and
+   is not built yet. Renders as "coming soon" — never a tick, which is a claim
+   that a church which pays gets it today. */
+const SOONCELL = 'soon';
 type Cell = boolean | string;
-// Every row is positional against `plans` — one cell per plan, in plan order.
-// A row with the wrong length renders a dropped or misaligned cell silently,
-// so the width check below fails the build instead.
+// Every row is positional against `ALL_TIER_NAMES` — one cell per tier, Forever
+// Free first, then Church, then Ministry. A row with the wrong length renders a
+// dropped or misaligned cell silently, so the width check below fails the build
+// instead.
 const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Platform', rows: [
-    ['Web App', [T, T, T, T]],
-    ['Mobile App (PWA)', [T, T, T, T]],
-    ['Contacts', ['500', '150', '500', '2,000']],
-    ['Admin accounts', ['1', '2', '5', '15']],
-    ['Custom Branding', [false, false, false, T]],
+    ['Web App', [T, T, T]],
+    ['Mobile App (PWA)', [T, T, T]],
+    ['People in your CRM', ['500', '500', '5,000']],
+    ['Admin accounts', ['1', '2', '15']],
+    ['Communities', [false, '1', 'Unlimited']],
+    ['Custom Branding', [false, false, T]],
     /* 🔴 THE-280 — the Custom Domain ROW is withheld while the app refuses the
        feature. A `T` in the top column is the plainest possible claim that a
        church which pays for that tier gets a custom domain, and it cannot work:
-       the provisioning route answers 503 and always pointed at hosting the
-       platform does not pay for. Withheld rather than turned to `false`, because
-       `false` on every tier would read as "we have decided not to offer this"
-       rather than "not yet" — and the Coming Soon entry is where "not yet"
-       belongs.
-       ⚠️ Custom BRANDING keeps its row above, unchanged: separate plan cell in
-       the app, and it ships. NO PRICE, no tier column and no plan is touched
-       here — this is one row of the comparison table, and the row-width check
-       below still sees four cells in every row it renders. */
+       the provisioning route answers 503. Withheld rather than turned to `false`,
+       because `false` on every tier would read as "we have decided not to offer
+       this" rather than "not yet" — and the Coming Soon entry is where "not yet"
+       belongs. Custom BRANDING keeps its row above: separate plan cell in the
+       app, and it ships. */
     ...(CUSTOM_DOMAIN_MARKETING_ENABLED
-      ? [['Custom Domain', [false, false, false, T]] as [string, Cell[]]]
+      ? [['Custom Domain', [false, false, T]] as [string, Cell[]]]
       : []),
   ] },
   { grp: 'Community', rows: [
     /* 🔴 TWO ROWS, ONE PRODUCT, ONE ANSWER (THE-205). Both name the church
-       feed — NewsTab/AllNews over /community_posts — and both must move
-       together: leaving either at `T` re-makes the exact claim the other just
-       dropped. `newsFeed` is false on free and true on every tier that pays. */
-    ['News Feed', [false, T, T, T]],
-    ['Community Feed', [false, T, T, T]],
-    ['Prayer Requests', [T, T, T, T]],
-    ['Community Groups', [false, false, false, T]],
-    ['Event Registration', [false, false, false, T]],
-    ['Church Map', [false, false, T, T]],
-    ['Check-In System (QR)', [false, false, T, T]],
-    ['Livestream + Live Giving', [false, false, T, T]],
+       feed and both must move together: leaving either at `T` re-makes the
+       exact claim the other just dropped. `newsFeed` is false on free. */
+    ['News Feed', [false, T, T]],
+    ['Community Feed', [false, T, T]],
+    ['Groups & chat (channels and direct messages)', [false, T, T]],
+    ['Prayer Requests', [T, T, T]],
+    ['Event Registration', [false, false, T]],
+    ['Check-In System (QR)', [false, false, T]],
+    ['Campuses & Church Map', [false, T, T]],
+    ['Livestream + Live Giving', [false, false, T]],
+    ['Livestream, chat & prayer requests in every community', [false, false, SOONCELL]],
+    ['Discovery listing', [false, false, SOONCELL]],
   ] },
   { grp: 'Discipleship & Content', rows: [
-    ['Bible', [T, T, T, T]],
-    ['Courses', ['1', '2', '5', '15']],
-    ['Blog', [false, T, T, T]],
-    ['Automated SEO Blog Articles', [false, false, false, T]],
-    /* No Docs & Notes row, deliberately (THE-163). Notes is a real feature on
-       Small Team and Ministry and the product did not change — what changed is
-       that no feature table should be carrying the row at all. The in-app plan
-       table that mirrored this grid is being deleted wholesale in the same
-       batch, so removing this row is what leaves no table anywhere making the
-       claim; putting it back re-opens the claim on its own.
-
-       Scope is THIS GRID ONLY. The feature keeps its catalogue entry in
-       components/catalog.ts (which is where CATALOG_TOOL_COUNT comes from — a
-       row and a catalogue entry are different objects, and deleting the entry
-       to "finish the job" silently drops the tool count the Nav advertises),
-       its section on /features/discipleship-content, and its line on the
-       Individual card above. Do not chase the feature out of those. */
-    ['Sermon Notes → Livestream', [false, false, T, T]],
+    ['Bible', [T, T, T]],
+    ['Courses', ['1', T, T]],
+    ['Blog', [false, T, T]],
+    ['Notes', [false, T, T]],
+    ['Automated SEO Blog Articles', [false, false, T]],
+    ['Sermon Notes → Livestream', [false, false, T]],
+    /* No Docs & Notes row under that name, deliberately (THE-163): the in-app
+       plan table that mirrored this grid was deleted, so no table makes the
+       claim. "Notes" is Church's line from the approved plan, and the feature
+       keeps its catalogue entry in components/catalog.ts, which is where
+       CATALOG_TOOL_COUNT comes from. */
+    ['Link-in-bio page', [false, T, T]],
   ] },
-  { grp: 'Automation', rows: [
-    /* 🔴 THE-335 — both newsletter rows are gated on NEWSLETTER_MARKETING_ENABLED,
-       on exactly the terms the SMS row below is gated: this table is a claim
-       about what a tier BUYS, and the app now refuses the send on every tier.
-       They come back with the flag, unchanged. */
-    ...(NEWSLETTER_MARKETING_ENABLED
-      ? [
-          ['Newsletter', [false, false, T, T]] as [string, Cell[]],
-          ['Automated Newsletter', [false, false, false, T]] as [string, Cell[]],
-        ]
-      : []),
-    /* 🔴 THE SMS ROW IS BACK, AND ITS CELLS MOVED — THE-314.
-       It read ['SMS (bring your own Twilio)', [false, T, T, T]] — included on
-       all three paid tiers — while the app refused every send with a 503. That
-       was the site selling a capability the product would not perform, the
-       exact failure this page has been corrected for six times.
-
-       ⚠️ BOTH HALVES OF THE CLAIM CHANGED WHILE IT WAS WITHHELD, and the second
-       is the one that matters here:
-
-         · The name lost its vendor. Harvest RESELLS on one account of its own
-           rather than asking a church to bring a carrier account, so there is
-           no third-party login to name.
-         · 🔴 THE TIERS ARE NOW MINISTRY ONLY — [false, false, false, T], not
-           [false, T, T, T]. The app's `smsAutomation` is true on `max` alone,
-           and an Individual or Small Team tenant that opens /admin/sms meets an
-           upgrade wall. A T in either of those columns would be this grid
-           promising a capability the app refuses, which is precisely what the
-           six corrections were about. `the-314-sms-live.test.ts` verifies these
-           cells AGAINST the app's published plan catalogue rather than
-           restating them, so the two repos cannot drift.
-
-       STILL GATED, NOT HARDCODED, per the contract at the top of lib/flags.ts:
-       this row appears exactly when `COMING_SOON_ITEMS` filters the SMS entry
-       out, so a row HERE and an entry THERE can never both exist.
-
-       ⚠️ Neither this row nor a plan card's line feeds CATALOG_TOOL_COUNT — that
-       is a reduce over CATALOG in components/catalog.ts, where the SMS tool has
-       its own gate on the same flag (which is what moves the count between a
-       derived 29 and a derived 28 — the pair was 28/27 until THE-306 added the
-       Shareable Giving Page to the Giving & Finance column). A row and a
-       catalogue entry are different objects; do not hardcode the count to "fix"
-       one from the other. */
-    ...(SMS_MARKETING_ENABLED
-      ? [['SMS & Text-to-Give', [false, false, false, T]] as [string, Cell[]]]
-      : []),
-    ['Custom Forms → CRM', [false, false, false, T]],
+  { grp: 'Products & Website', rows: [
+    ['Products', [false, 'Up to 3', 'All types']],
+    ['Storefront', [false, false, SOONCELL]],
+    ['Website builder with pre-made templates', [false, false, SOONCELL]],
+  ] },
+  { grp: 'Automation & AI', rows: [
+    /* 🔴 THE-335 — newsletter and SMS ARE in the Ministry plan, and the app does
+       not send either today, so while their flags are off the cell says
+       "coming soon" rather than carrying a tick or vanishing. The Coming Soon
+       page lists the same two, in the same tense. A flag flipped on turns the
+       cell into a tick and removes the Coming Soon entry, in one value each. */
+    ['Newsletter', [false, false, NEWSLETTER_MARKETING_ENABLED ? T : SOONCELL]],
+    ['SMS & Text-to-Give', [false, false, SMS_MARKETING_ENABLED ? T : SOONCELL]],
+    ['Social scheduler', [false, false, SOONCELL]],
+    ['Custom Forms → CRM', [false, false, T]],
+    ['AI Knowledge Base', [false, false, T]],
+    /* The real allowance, never "unlimited" — and the feature is not built, so
+       the cell says so in the same breath as the number. */
+    ['AI assistant messages per month', [false, `${plans[0].aiMessages.toLocaleString('en-US')} · soon`, `${plans[1].aiMessages.toLocaleString('en-US')} · soon`]],
   ] },
   { grp: 'Giving & Finance', rows: [
-    ['Donation Page', [false, T, T, T]],
-    ['Fundraising', [false, T, T, T]],
-    /* The ROW LABEL is shared by four columns, so it cannot itself be per-tier
-       — it keeps the priced tiers' wording, which is also the wording three of
-       the four columns want. Free's CELL carries the correction instead: it
-       has the CRM, and it has it for members only. A `T` here would read as
-       the row label's full claim. */
-    /* 🔴 THE-335 — FREE IS FALSE ON THIS ROW NOW. It read 'Members only', which
-       described free's `crm: true` cell; the founder moved free off CRM and onto
-       Signups, so the app's cell is false and this cell has to say so. The three
-       priced tiers are untouched.
-       ⚠️ The label still comes from `crmLabel('plus')` — the vocabulary did not
-       change, only which tiers hold it. */
-    [crmLabel('plus'), [false, T, T, T]],
-    /* 🔴 THE-335 — THE ROW FREE IS TRUE ON. Added with the split so the table
-       shows what free GAINED rather than only what it lost, and because a free
-       tenant really can reach this screen: the app gates it on the new `signups`
-       cell, which is true on every tier. */
-    ['Signups & Evangelism Analytics', [T, T, T, T]],
-    /* 🔴 THE-335 — the row is REWORDED, not removed: the accounting ledger,
-       receipt statuses and numbered PDFs all ship on Ministry, and dropping the
-       row to hide one untested integration would understate the tier. Only the
-       QuickBooks half of the label goes. */
-    [QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks Sync' : 'Accounting & Receipt Ledger', [false, false, false, T]],
-    ['Tax Receipts & Giving Statements', [false, false, false, T]],
+    ['Donation Page', [false, T, T]],
+    ['Fundraising', [false, T, T]],
+    /* The ROW LABEL is shared by three columns, so it cannot itself be per-tier
+       — it keeps the priced tiers' wording. 🔴 THE-335 — FREE IS FALSE ON THIS
+       ROW: the founder moved free off CRM and onto Signups. */
+    [crmLabel('plus'), [false, T, T]],
+    /* THE ROW FREE IS TRUE ON — added with the CRM/Signups split so the table
+       shows what free GAINED rather than only what it lost. */
+    ['Signups & Evangelism Analytics', [T, T, T]],
+    /* 🔴 "GIVING RECORDS", NOT "ACCOUNTING". It was the accounting ledger and
+       the tax-receipt row; it is one row now, named for what it is — the
+       statements and year-end giving receipts a giver is owed. Harvest is not
+       accounting software and the row must never read as a replacement for
+       one. No QuickBooks wording here, flag or no flag. */
+    ['Giving records (statements & year-end receipts)', [false, false, T]],
+    ['Harvest fee on donations', [false, '0%', '0%']],
+    /* Product checkout is not live: the fee is stated, with the qualifier in
+       the same cell. Processor fees apply on top of both fees — the note under
+       the cards says so, once, rather than in a cell per row. */
+    ['Harvest fee on product sales', [false, `${Math.round(plans[0].productFee * 100)}% · soon`, `${Math.round(plans[1].productFee * 100)}% · soon`]],
   ] },
 ];
 
@@ -706,8 +702,15 @@ export function ComparisonTable() {
   const cell = (v: Cell) => {
     if (v === true) return <span style={{ display: 'inline-flex', color: 'var(--brand)' }}>{I.check({ size: 16 })}</span>;
     if (v === false) return <span style={{ color: 'var(--stone-300)' }}>—</span>;
-    if (v === 'soon') return <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sky-600)' }}>soon</span>;
-    return <span style={{ fontWeight: 600, color: 'var(--navy-900)', fontSize: 13.5 }}>{v}</span>;
+    if (v === SOONCELL) return <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sky-700)' }}>coming soon</span>;
+    // A figure that is not live yet ("300 · soon") keeps its number and says so.
+    const [figure, qualifier] = v.split(' · ');
+    return (
+      <span style={{ fontWeight: 600, color: 'var(--navy-900)', fontSize: 13.5 }}>
+        {figure}
+        {qualifier === 'soon' && <span style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sky-700)' }}>coming soon</span>}
+      </span>
+    );
   };
   return (
     <div style={{ ...softCard, overflow: 'hidden', padding: 0 }}>
@@ -957,48 +960,7 @@ export const DODO_ADD_ON_CATALOG: Record<string, DodoAddOnProduct> = {
    buy today, which is what this section is for — and campuses are no longer
    capacity anyone buys. */
 export const ADD_ONS: AddOn[] = [
-  /* 🔴 "AI Assistant" IS BACK, FIRST ROW, AT THE SAME $20/$240 — THE-253.
-     THE-224 withdrew this card and was right to, on the facts as they stood:
-
-       "The member-facing assistant is the app's `aiChat`, a PLAN CAPABILITY:
-        false on free and Individual, true on Small Team and Ministry ... So on
-        Small Team and Ministry the card charged $20/mo for something the plan
-        already includes."
-
-     Both halves of that have been fixed in the app, in the order that keeps
-     this page true at every step:
-
-       1. PR 394 made the purchase GRANT something. `getEffectiveFeatures` now
-          lifts `aiChat` AND `aiKnowledge` when the add-on is held — the BUILD
-          THE-224 named and deliberately did not do ("an add-on that flips a
-          feature flag"). The lift is `||`, so it can never take away what a
-          plan grants.
-       2. THE-253 took `aiChat` and `aiKnowledge` off ALL FOUR TIERS, on founder
-          direction: "NO PLAN HAS ANY AI RAG CHAT. Of course there should be no
-          AI RAG chat in any plan if we sell it as an add-on."
-
-     So the sentence THE-224 could not make true — on any tier, including the
-     Individual narrowing it considered and rejected — is now true on all three:
-     no plan includes the chat, and this is the only way to get it.
-
-     🔴 THIS CARD MUST NOT SHIP BEFORE THAT APP CHANGE MERGES. Until `aiChat`
-     is false on pro and max, this card sells Small Team and Ministry something
-     they already have, which is precisely THE-224's finding.
-
-     ⚠️ THE PRICE IS UNCHANGED AND WAS NEVER THE DEFECT. $20/$240 is what Dodo
-     charges and what `DODO_ADD_ON_CATALOG['AI Assistant']` has held throughout;
-     `dodoAddOnCatalogContract` checks this row against it. Nothing was repriced
-     in either direction.
-
-     ⚠️ THE BLURB CLAIMS A CAPABILITY, WHICH NO OTHER ADD-ON HERE DOES — see the
-     amended note on `AddOn.blurb`. It says "for every member" and "not billed
-     per person" because the app grants a BOOLEAN: one add-on or ten is the same
-     capability, and nothing anywhere counts or enforces a seat. Dodo's own
-     product description says "One additional AI Assistant seat"; this site must
-     not adopt that word, and `the-224-ai-assistant-withdrawal.test.ts` still
-     fails if it does. */
-  { name: 'AI Assistant', monthly: 20, annual: 240, blurb: 'Turns on the AI chat and its knowledge base for every member of your congregation, in the app — one purchase for the whole plan, not billed per person.', planIds: ['plus', 'pro', 'max'] },
-  { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['plus', 'pro', 'max'] },
+  { name: 'Admin seat', monthly: 10, annual: 120, blurb: 'One more admin account, on top of the number your plan includes.', planIds: ['max'] },
   /* 🔴 THE CAMPUS AND CONTACTS +500 CARDS ARE WITHDRAWN — THE-370.
      "remove the campus addon. let them add as many as they want."
 
@@ -1046,28 +1008,7 @@ export const ADD_ONS: AddOn[] = [
  * is, not in a commit message nobody will find.
  */
 export const INTENTIONALLY_UNADVERTISED: Record<string, string> = {
-  /* 🔴 EMPTY AGAIN, AND THE CONSTANT STAYS — THE-253.
-   *
-   * Its one entry was 'AI Assistant', declaring THE-224's withdrawal in words:
-   * the assistant was the plan capability `aiChat`, included from Small Team up,
-   * so the card charged $20/mo for something those plans already had; and it
-   * could not be narrowed to Individual either, because an add-on raised a
-   * capacity and never a feature flag. It closed by naming the way back —
-   * "Selling it again means building an enforced limit first". That is exactly
-   * what PR 394 and THE-253 built, so the omission is over and the card is
-   * advertised again.
-   *
-   * ⚠️ AN EMPTY OBJECT IS NOT A WEAKER STATE THAN A FULL ONE, and that is the
-   * point of removing the entry rather than editing it. `dodoAddOnCatalogContract`
-   * refuses a live product that is neither advertised nor declared — so with
-   * nothing declared, EVERY live Dodo add-on must now appear on this page, which
-   * is the strictest this contract has ever been. It also refuses an entry whose
-   * product Dodo no longer sells, so a stale excuse cannot outlive its product.
-   *
-   * The constant is kept, exported and still passed to the contract because the
-   * next legitimate omission needs somewhere to be declared IN WORDS — deleting
-   * it would make the next absence indistinguishable from an oversight, which is
-   * the defect that created it (Campus, unadvertised through three repricings). */
+  'AI Assistant': 'The assistant is coming soon and its plan allowances replace this add-on.',
 };
 
 /**
@@ -1308,7 +1249,7 @@ export function AddOns({ term }: { term: BillingTerm }) {
           visible, not on a particular term. */}
       {term !== 'monthly' && (
         <p style={{ textAlign: 'center', marginTop: 20, fontSize: 12.5, lineHeight: 1.55, color: 'var(--text-muted)' }}>
-          {`Add-ons are not discounted — the −${ADVERTISED_DISCOUNT_PCT[term]}% applies to plans only. ` +
+          {`Add-ons are not discounted — “${discountClaim(term)}” applies to plans only. ` +
            `A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price, which is the yearly figure shown on each one.`}
         </p>
       )}
@@ -1455,9 +1396,16 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
           : ''}
       </div>
       <div style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{plan.blurb}</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0', padding: '10px 12px', borderRadius: 12, background: pop ? 'rgba(255,255,255,0.06)' : 'var(--gold-100)' }}>
-        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{plan.fee * 100}%</span>
-        <span style={{ fontSize: 11, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)', lineHeight: 1.2 }}>Platform fee — Harvest<br />takes nothing from a gift</span>
+      <div style={{ margin: '14px 0', padding: '10px 12px', borderRadius: 12, background: pop ? 'rgba(255,255,255,0.06)' : 'var(--gold-100)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{plan.fee * 100}%</span>
+          <span style={{ fontSize: 11, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)', lineHeight: 1.2 }}>Harvest fee on donations — Harvest<br />takes nothing from a gift</span>
+        </div>
+        {/* Product sales: a separate fee, a separate line, and "coming soon"
+            beside it — paid product checkout is not live. */}
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: pop ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(45,37,25,0.08)', fontSize: 11, lineHeight: 1.3, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)' }}>
+          {`${productFeeLine(plan)} — ${PRODUCT_SALES_COMING_SOON}`}
+        </div>
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 20 }}>
         {plan.features.map((f) => (
@@ -1520,7 +1468,7 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
       </div>
 
       {/* Occupies the row the priced cards use for "billed as $X every N
-          months", so all four cards keep one baseline through a toggle change.
+          months", so all three cards keep one baseline through a toggle change.
           Same 12.5px/600/--navy-900 as that line, for the same reason: it is
           the line that says what you pay. */}
       <div style={{ minHeight: 18, fontSize: 12.5, fontWeight: 600, color: 'var(--navy-900)' }}>
@@ -1656,7 +1604,7 @@ export function TermToggle({
                 data-term={t}
                 style={{ display: 'block', fontSize: 11, color: on ? 'var(--gold-400)' : 'var(--brand)' }}
               >
-                {`-${ADVERTISED_DISCOUNT_PCT[t as DiscountedTerm]}%`}
+                {discountClaim(t as DiscountedTerm)}
               </span>
             )}
           </button>
@@ -1684,14 +1632,11 @@ export function Pricing() {
         <Reveal delay={80} style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
           <TermToggle value={term} onChange={setTerm} />
         </Reveal>
-        {/* FOUR cards since THE-204. `plan-card-grid` is a second class, not a
-            replacement: `pricing-grid` still collapses this row to one column
-            below 900px (index.css), and the add-on row below shares that class
-            and must NOT take the two-column rule this one needs. The 1200px
-            container leaves 1144px of content, so four 272px cards and three
-            18px gaps fit at 1280 and 1440 — which render identically, both
-            being capped by the container. 1024 is the width that does not fit
-            four, and index.css drops it to 2x2 there. */}
+        {/* THREE cards: Forever Free, Church, Ministry. `plan-card-grid` is a
+            second class on the row, and `pricing-grid` collapses it to one
+            column below 900px (index.css). There is no two-column step in
+            between any more — it existed for a fourth card, and with three it
+            would orphan one. */}
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${ALL_TIER_NAMES.length}, 1fr)`, gap: 18, alignItems: 'stretch' }} className="pricing-grid plan-card-grid">
           <Reveal key={FREE_TIER.name} style={{ display: 'flex' }}>
             <FreeTierCard tier={FREE_TIER} />
@@ -1711,6 +1656,7 @@ export function Pricing() {
             written out twice is one fact that ends up said two ways. */}
         <Reveal delay={80}>
           <p style={{ textAlign: 'center', marginTop: 26, fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-muted)' }}>{MERCHANT_OF_RECORD_NOTE}</p>
+          <p style={{ textAlign: 'center', marginTop: 8, fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-muted)' }}>{PROCESSOR_FEES_NOTE}</p>
         </Reveal>
         {/* Add-ons. Below the merchant-of-record line rather than above it: that
             sentence belongs directly under the plan buttons, where the money

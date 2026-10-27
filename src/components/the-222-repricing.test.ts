@@ -79,9 +79,8 @@ const OLD_TABLE: Record<string, Record<string, number>> = {
  *  and THE-372 left. The quarterly column (54 / 108 / 216, a flat 10% off) was
  *  withdrawn with the term on 2026-10-23. */
 const CURRENT_TABLE: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, yearly: 190 },
-  pro: { monthly: 40, yearly: 380 },
-  max: { monthly: 80, yearly: 752 },
+  plus: { monthly: 30, yearly: 300 },
+  max: { monthly: 90, yearly: 900 },
 };
 
 /** What THE-222 advertised. Stated here rather than read from the live constant
@@ -188,7 +187,6 @@ describe('the add-on prices are unchanged, and annual is still ×12', () => {
     // side effect of one about plans. The pin moves with it rather than being
     // deleted, exactly as it did for THE-223.
     expect(ADD_ONS.map((a) => ({ name: a.name, monthly: a.monthly, annual: a.annual }))).toEqual([
-      { name: 'AI Assistant', monthly: 20, annual: 240 },
       { name: 'Admin seat', monthly: 10, annual: 120 },
       { name: 'Unlimited contacts', monthly: 30, annual: 360 },
     ]);
@@ -203,18 +201,18 @@ describe('the add-on prices are unchanged, and annual is still ×12', () => {
   it('and the page still says a year of an add-on is not discounted', () => {
     const text = pageText();
     expect(text).toContain(`A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price`);
-    expect(text).toContain(`the −${ADVERTISED_DISCOUNT_PCT.yearly}% applies to plans only`);
+    expect(text).toContain('2 months free” applies to plans only');
   });
 });
 
 /* ── 3 ─────────────────────────────────────────────────────────────────────── */
 describe('yearly claims a flat 20% and there is no quarterly claim', () => {
   it('the claim is flat, in the helper and in the rendered toggle', () => {
-    expect(discountClaim('yearly')).toBe('Save 20%');
+    expect(discountClaim('yearly')).toBe('2 months free');
     const toggle = words(renderToStaticMarkup(
       React.createElement(TermToggle, { value: 'yearly', onChange: () => {} }),
     ));
-    expect(toggle).toContain('-20%');
+    expect(toggle).toContain('2 months free');
     // The quarterly badge went with the term.
     expect(toggle).not.toContain('-10%');
   });
@@ -270,7 +268,7 @@ describe('the claim shape is derived from the price table, not hardcoded', () =>
     // 🔴 THE RULE STILL SAYS "upTo" WHEN IT SHOULD. One point over the live
     // worst yearly saving (20.83) is the smallest whole claim that must hedge,
     // and it proves the derivation has not been pinned to 'flat'.
-    expect(shapeOf(CURRENT_TABLE, 'yearly', 21)).toBe('upTo');
+    expect(shapeOf(CURRENT_TABLE, 'yearly', 17)).toBe('upTo');
   });
 
   it('🔴 and the SHIPPED function flips too, on a mutated plan list', () => {
@@ -280,7 +278,7 @@ describe('the claim shape is derived from the price table, not hardcoded', () =>
     const worstOld = Math.min(...oldPlans.map((p) => actualSavingPct(p, 'yearly')));
     const worstNew = Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')));
     expect(worstOld).toBeCloseTo(29.7008, 3);
-    expect(worstNew).toBeCloseTo(20.8333, 3);
+    expect(worstNew).toBeCloseTo(16.6667, 3);
     // Judged against the percentage each table shipped with, for the reason
     // given above.
     expect(THE_222_ADVERTISED.yearly <= worstOld).toBe(false);
@@ -304,9 +302,9 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
     // tier drifted would otherwise still satisfy a min/max pair.
     for (const p of plans) {
       expect(actualSavingPct(p, 'yearly'), `${p.name} yearly`)
-        .toBeCloseTo(p.planId === 'max' ? 21.6667 : 20.8333, 3);
+        .toBeCloseTo(16.6667, 3);
     }
-    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(20.8333, 3);
+    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(16.6667, 3);
   });
 
   it('no rendered percentage on the page exceeds the smallest actual saving', () => {
@@ -315,26 +313,9 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
     // term's worst tier would be the wrong test twice over — it would fail a
     // truthful claim and pass one only the other term could honour.
     const page = pageText();
-    const rendered = [...page.matchAll(/-(\d+)%/g)].map((m) => Number(m[1]));
-    expect(rendered.length).toBe(DISCOUNTED_TERMS.length);
-
-    const termOf = (pct: number) =>
-      DISCOUNTED_TERMS.find((t) => ADVERTISED_DISCOUNT_PCT[t] === pct);
-
-    for (const pct of rendered) {
-      const term = termOf(pct);
-      expect(term, `the page renders -${pct}%, which is no term's advertised figure`).toBeDefined();
-      const worstOnTerm = Math.min(...plans.map((p) => actualSavingPct(p, term!)));
-      expect(
-        pct,
-        `the page renders -${pct}% for ${term}, but its worst tier saves only ${worstOnTerm.toFixed(2)}%`,
-      ).toBeLessThanOrEqual(worstOnTerm);
-    }
-
-    // Both discounted terms are actually on the page — an empty or half-drawn
-    // toggle would satisfy the loop above without proving anything.
-    expect(rendered.sort((a, b) => a - b))
-      .toEqual(DISCOUNTED_TERMS.map((t) => ADVERTISED_DISCOUNT_PCT[t]).sort((a, b) => a - b));
+    expect(page).toContain('2 months free');
+    expect(page).not.toMatch(/-\d+%/);
+    for (const p of plans) expect(actualSavingPct(p, 'yearly')).toBeGreaterThanOrEqual(ADVERTISED_DISCOUNT_PCT.yearly);
   });
 });
 
@@ -345,10 +326,9 @@ describe('the cross-repo price contract still throws when the repos disagree', (
       for (const term of BILLING_TERMS) {
         const mutated = {
           plus: { ...CURRENT_TABLE.plus },
-          pro: { ...CURRENT_TABLE.pro },
           max: { ...CURRENT_TABLE.max },
         };
-        mutated[p.planId as 'plus' | 'pro' | 'max'][term] += 1;
+        mutated[p.planId as 'plus' | 'max'][term] += 1;
         expect(
           () => planPriceContract(plans, mutated),
           `a $1 drift on ${p.name} ${term} did not fail the contract`,
@@ -358,7 +338,7 @@ describe('the cross-repo price contract still throws when the repos disagree', (
   });
 
   it('names the app as the other side of the disagreement', () => {
-    const mutated = { ...CURRENT_TABLE, plus: { ...CURRENT_TABLE.plus, monthly: 21 } };
+    const mutated = { ...CURRENT_TABLE, plus: { ...CURRENT_TABLE.plus, monthly: 31 } };
     expect(() => planPriceContract(plans, mutated))
       .toThrow(/Harvest-agent src\/utils\/plan-features\.ts PLAN_PRICING/);
   });
@@ -371,7 +351,7 @@ describe('the cross-repo price contract still throws when the repos disagree', (
 /* ── 10 ────────────────────────────────────────────────────────────────────── */
 describe('the cheapest-plan figure follows the new Individual monthly price', () => {
   it('is 20, derived from the table rather than typed', () => {
-    expect(CHEAPEST_MONTHLY).toBe(20);
+    expect(CHEAPEST_MONTHLY).toBe(30);
     expect(CHEAPEST_MONTHLY).toBe(Math.min(...plans.map((p) => p.price.monthly)));
     expect(CHEAPEST_MONTHLY).toBe(plans.find((p) => p.planId === 'plus')!.price.monthly);
   });

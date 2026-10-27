@@ -136,14 +136,14 @@ describe('every add-on price matches live Dodo', () => {
        that is all five. The equality is therefore stricter than it has ever
        been, and it tightened without an edit, which is what the derivation was
        for. */
-    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual([]);
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
     expect(ADD_ONS.map((a) => a.name)).toEqual(
       LIVE_DODO.filter((d) => INTENTIONALLY_UNADVERTISED[d.name] === undefined).map((d) => d.name),
     );
     // 🔴 AND IT IS THREE — THE-370. Spelled out as well as derived, because the
     // derivation above would also pass if BOTH tables lost the same card.
     expect(ADD_ONS.map((a) => a.name)).toEqual(
-      ['AI Assistant', 'Admin seat', 'Unlimited contacts'],
+      ['Admin seat', 'Unlimited contacts'],
     );
   });
 
@@ -230,41 +230,12 @@ describe('every add-on price matches live Dodo', () => {
 /* ── 2 ─────────────────────────────────────────────────────────────────────── */
 describe('no add-on is advertised below what Dodo charges', () => {
   it('🔴 the AI Assistant quotes exactly $20 — THE-223 satisfied the original way', () => {
-    /* 🔴 THIS IS THE SERIOUS HALF OF THE-223, BACK IN ITS ORIGINAL FORM.
-     *
-     * THE-223: the site advertised $19 against a $20 Dodo charge — a promise the
-     * checkout breaks. THE-224 then withdrew the card, and this test became
-     * "quotes no figure at all, because a figure never printed cannot be printed
-     * below the charge", with the real guarantee moved to the loop below.
-     *
-     * THE-253 restores the card, so the ORIGINAL assertion applies again and is
-     * the stronger of the two: the rendered card must quote at least what Dodo
-     * bills. It is asserted here on the rendered page, and the add-on is also
-     * covered by the every-add-on undersell loop below — it is simply back in
-     * `ADVERTISED_LIVE` now, with no edit needed there. */
-    const live = LIVE_DODO.find((d) => d.name === 'AI Assistant')!;
-    const addOn = ADD_ONS.find((a) => a.name === 'AI Assistant');
-    expect(addOn, 'the AI Assistant is not advertised at all').toBeDefined();
-
-    // 🔴 NEVER BELOW THE CHARGE — the class of error THE-223 exists for.
-    expect(addOn!.monthly).toBeGreaterThanOrEqual(live.monthly);
-    expect(addOn!.annual).toBeGreaterThanOrEqual(live.annual);
-    // And not above it either: this is a restore, not a reprice.
-    expect([addOn!.monthly, addOn!.annual]).toEqual([live.monthly, live.annual]);
-
-    const read = words(pageHtml());
-    expect(read, 'the pricing page does not name the AI Assistant add-on')
-      .toMatch(/AI Assistant/i);
-    for (const term of BILLING_TERMS) {
-      const section = words(sectionHtml(term));
-      expect(section, `the ${term} add-on section does not name AI Assistant`)
-        .toMatch(/AI Assistant/i);
-      expect(dollars(sectionHtml(term)), `the ${term} add-on section omits $${live.annual}`)
-        .toContain(live.annual);
-    }
-    // 🔴 THE RETIRED $19 STAYS GONE. That figure is the defect THE-223 fixed,
-    // and restoring the card is exactly when it could creep back.
-    expect(read).not.toMatch(/\$19(?![\d,])/);
+    const live = LIVE_DODO.find(d => d.name === 'AI Assistant')!;
+    expect([live.monthly, live.annual]).toEqual([20, 240]);
+    expect(ADD_ONS.find(a => a.name === 'AI Assistant')).toBeUndefined();
+    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toMatch(/coming soon/i);
+    for (const term of BILLING_TERMS) expect(words(sectionHtml(term))).not.toMatch(/AI Assistant/i);
+    expect(words(pageHtml())).not.toMatch(/\$19(?![\d,])/);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents).toBe(live.monthly * 100);
     expect(DODO_ADD_ON_CATALOG['AI Assistant'].annualCents).toBe(live.annual * 100);
   });
@@ -341,9 +312,9 @@ describe('THE-370 — Campus and Contacts +500 are withdrawn', () => {
        correct while nothing is declared, so both halves stay pinned together. */
     expect(LIVE_DODO).toHaveLength(3);
     expect(Object.keys(DODO_ADD_ON_CATALOG).sort()).toEqual(LIVE_DODO.map((d) => d.name).sort());
-    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual([]);
-    expect(ADD_ONS).toHaveLength(3);
-    expect(ADD_ONS.some((a) => a.name === 'AI Assistant')).toBe(true);
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
+    expect(ADD_ONS).toHaveLength(2);
+    expect(ADD_ONS.some((a) => a.name === 'AI Assistant')).toBe(false);
     expect(ADD_ONS.some((a) => a.name === 'Admin seat')).toBe(true);
     expect(ADD_ONS.some((a) => a.name === 'Unlimited contacts')).toBe(true);
   });
@@ -382,13 +353,13 @@ describe("every add-on's annual price is exactly twelve times its monthly", () =
 
 /* ── 5 ─────────────────────────────────────────────────────────────────────── */
 describe('the page still states that add-ons are not discounted annually', () => {
-  it('says so on the prerendered page, where a −30% badge is visible', () => {
+  it('says so on the prerendered page, where the "2 months free" badge is visible', () => {
     // 🔴 THE HONEST QUALIFIER. Without it, five undiscounted prices sitting a
-    // few hundred pixels under a "Save 30%" badge read as already discounted.
+    // few hundred pixels under a "2 months free" badge read as already discounted.
     // The toggle prerenders on Yearly, so this IS the default page.
     const read = words(pageHtml());
     expect(read).toMatch(/add-ons are not discounted/i);
-    expect(read).toContain(`the −${ADVERTISED_DISCOUNT_PCT.yearly}% applies to plans only`);
+    expect(read).toContain(`“${discountClaim('yearly')}” applies to plans only`);
     expect(read).toContain(`A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price`);
   });
 
@@ -398,7 +369,7 @@ describe('the page still states that add-ons are not discounted annually', () =>
     for (const term of DISCOUNTED_TERMS) {
       const read = words(sectionHtml(term));
       expect(read, `the ${term} section drops the qualifier`).toMatch(/not discounted/i);
-      expect(read).toContain(`the −${ADVERTISED_DISCOUNT_PCT[term]}% applies to plans only`);
+      expect(read).toContain(`“${discountClaim(term)}” applies to plans only`);
     }
   });
 
@@ -427,25 +398,25 @@ describe('no discount badge is applied to an add-on', () => {
     // The badge exists and is rendered by TermToggle — asserted so this test
     // cannot pass by the badges having quietly disappeared everywhere.
     const toggle = words(html(React.createElement(TermToggle, { value: 'yearly' as const, onChange: () => {} })));
-    expect(toggle).toContain(`-${ADVERTISED_DISCOUNT_PCT.yearly}%`);
+    expect(toggle).toContain(discountClaim('yearly'));
 
     for (const term of BILLING_TERMS) {
       const read = words(sectionHtml(term));
-      // The flat claims the toggle derives from the plan table, in either
-      // minus form, and the "Save N%" wording they render as.
+      // No percentage badge, in either minus form.
       for (const pct of Object.values(ADVERTISED_DISCOUNT_PCT)) {
         expect(read, `the ${term} add-on section renders a -${pct}% badge`).not.toContain(`-${pct}%`);
       }
+      // The discount claim ("2 months free") may appear in the section ONLY as
+      // the subject of the not-discounted qualifier — "“2 months free” applies
+      // to plans only" — never as a badge on an add-on.
       for (const dt of DISCOUNTED_TERMS) {
-        expect(read, `the ${term} add-on section renders "${discountClaim(dt)}"`)
-          .not.toContain(discountClaim(dt));
+        const claim = discountClaim(dt);
+        const withoutQualifier = read.split(`“${claim}” applies to plans only`).join('');
+        expect(withoutQualifier, `the ${term} add-on section renders "${claim}" outside the qualifier`)
+          .not.toContain(claim);
       }
-      // The ONLY percentage the section may print is the qualifier's own, and
-      // it says the discount does NOT apply here.
-      for (const match of read.matchAll(/\S*\d+%/g)) {
-        expect(read, `"${match[0]}" is a percentage outside the not-discounted sentence`)
-          .toContain(`${match[0]} applies to plans only`);
-      }
+      // No add-on card or section prints a percentage at all.
+      expect(read).not.toMatch(/\d+%/);
     }
   });
 
@@ -466,14 +437,13 @@ describe('no discount badge is applied to an add-on', () => {
 });
 
 /* ── 7 ─────────────────────────────────────────────────────────────────────── */
-describe('the six plan prices are unchanged', () => {
+describe('the four plan prices are the approved ones', () => {
   it('holds in the plan table', () => {
-    // 🔴 EXPLICITLY OUT OF SCOPE AND ASSERTED ANYWAY. $20/$49/$165,
-    // $40/$99/$329 and $80/$199/$659 are live in Dodo and correct — confirmed
-    // against the live plan products in the same API read as the add-ons.
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
+    // 🔴 EXPLICITLY OUT OF SCOPE AND ASSERTED ANYWAY. Church $30 / $300 and
+    // Ministry $90 / $900 are the founder's four new Dodo products.
+    expect(plans.map((p) => p.price.monthly)).toEqual([30, 90]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([300, 900]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
   });
 
   it('holds on the rendered plan cards, on every term', () => {
@@ -500,16 +470,15 @@ describe('the cross-repo plan contract still throws when the repos disagree', ()
     // it a table with one cell moved is the two repos disagreeing.
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, yearly: 190 },
-        pro: { monthly: 40, yearly: 380 },
-        max: { monthly: 80, yearly: 753 },
+        plus: { monthly: 30, yearly: 300 },
+        max: { monthly: 90, yearly: 901 },
       }),
     ).toThrow(/Ministry.*yearly/);
   });
 
   it('throws on every cell, not just the one that has been tested before', () => {
     // A contract that only ever fails on the top-right cell is a contract with
-    // one working assertion. All six are exercised, each on its own mutation.
+    // one working assertion. All four are exercised, each on its own mutation.
     const base: Record<string, Record<string, number>> = Object.fromEntries(
       plans.map((p) => [p.planId, { ...p.price }]),
     );
@@ -542,7 +511,7 @@ describe('the tool count is unchanged at its derived value', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );

@@ -3,7 +3,7 @@ title: What your year-end giving statements must include
 category: inside-harvest
 status: published
 publish_date: 2026-09-10
-updated: 2026-09-10
+updated: 2026-10-27
 description: The IRS rules a church giving statement has to satisfy, a checklist you can hold any statement against, and why assembling one from exports goes wrong.
 reading_time: 6 min
 ---
@@ -49,15 +49,15 @@ That is the cost of assembling a back office out of parts: a giving processor, a
 
 ## How Harvest handles it
 
-On every paid plan, your church publishes its own payment links — PayPal, Cash App, Venmo, Zelle, Revolut and Wise — on one giving page, and a member taps the account they already use. The gift goes straight to your church; Harvest is never in the flow, holds nothing and charges 0% on all three paid plans. Because Harvest never sees that payment, the record is something you make: a gift recorded in the CRM writes an invoice, and that one entry reaches your dashboard, your accounting ledger, the giver's own history, their downloadable receipt and the year-end statement this article is about. Contacts are deduplicated by email, so one person does not scatter across three rows. The giving page starts on Individual, at $20/mo; Forever Free has no giving page, so giving begins on the cheapest paid plan.
+On every paid plan, your church publishes its own payment links — PayPal, Cash App, Venmo, Zelle, Revolut and Wise — on one giving page, and a member taps the account they already use. The gift goes straight to your church; Harvest is never in the flow, holds nothing and charges 0% on donations on both paid plans. Because Harvest never sees that payment, the record is something you make: a gift recorded in the CRM writes an invoice, and that one entry reaches your dashboard, your giving records, the giver's own history, their downloadable receipt and the year-end statement this article is about. Contacts are deduplicated by email, so one person does not scatter across three rows. The giving page starts on Church, at $30/mo; Forever Free has no giving page, so giving begins on the cheapest paid plan.
 
-Tax receipts and giving statements themselves are a **Ministry** feature — the top of the three paid plans, $80/mo, or $752/yr, which the pricing page shows as $62.67/mo, billed as $752 every 12 months. Ministry is also where the accounting and receipt ledger lives: every donation receipt and event ticket Harvest issues, each with a numbered PDF, on a tier holding 2,000 contacts and 15 admins. Custom branding is on the same tier and reaches the artifacts people keep — receipts, certificates and forms carry the church's own name, logo and colour rather than ours. All four tiers sit side by side on [pricing](/#pricing).
+Giving statements and year-end giving receipts are a **Ministry** feature, under the name Giving records — the top of the two paid plans, $90/mo, or $900/yr (two months free), which the pricing page shows as $75/mo, billed as $900 every 12 months. Giving records also hold the ledger of every donation receipt and event ticket Harvest issues, each with a numbered PDF, on a plan holding 5,000 people and 15 admins. They are a record of what was given, not accounting software: your books stay wherever you keep them. Custom branding is on the same tier and reaches the artifacts people keep — receipts, certificates and forms carry the church's own name, logo and colour rather than ours. Forever Free and both paid plans sit side by side on [pricing](/#pricing).
 
 No platform can decide for your church whether a gift was quid pro quo. Check any generated statement against the six-item list above before it goes out, ours included.
 
 ## The loop this closes
 
-Receipting is not really a document problem. It is a *knowing who gave* problem, and the record that knows who gave is the same record carrying everything else the church knows about that person. Courses sit on every tier. QR check-in starts on Small Team. Community groups and event registration are Ministry. A standalone receipting tool starts from zero every January — handed a pile of transactions, asked to guess which are the same household.
+Receipting is not really a document problem. It is a *knowing who gave* problem, and the record that knows who gave is the same record carrying everything else the church knows about that person. Courses sit on every tier. QR check-in, event registration and the church map are Ministry. A standalone receipting tool starts from zero every January — handed a pile of transactions, asked to guess which are the same household.
 
 One member record does not have to guess, because it was never assembling the answer — it has been keeping it since the first gift landed. The January reconciliation exists only because giving and membership were kept in different systems. One subscription, one member record, one login, and the answer to "what did I give last year?" is already written.
 

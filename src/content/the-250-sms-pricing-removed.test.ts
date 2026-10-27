@@ -100,25 +100,40 @@ describe('1 — the pricing surfaces sell SMS again, on ONE tier and with no car
     // that has it says so, and the two that lost it stay silent. A line on
     // Individual would be this page promising a capability the app answers with
     // an upgrade wall, which is the failure this file exists to prevent.
-    // 🔴 REVERSED AGAIN BY THE-335 — and now asserted THROUGH the flag, so
-    // neither flip can leave it stale a third time. With the switch off the app
-    // grants SMS on NO tier, so no card may name it, Ministry included.
+    // 🔴 REVERSED AGAIN BY THE TWO-PLAN REPRICE — and still asserted THROUGH the
+    // flag. SMS is in the approved Ministry plan, so the Ministry card names it
+    // in BOTH flag states; what the flag decides is the TENSE. With the switch
+    // off the app sends nothing, so the line carries "coming soon" — the same
+    // tense the Coming Soon page speaks in — and with it on the line is plain.
+    // Church never names it, in either state.
     const text = allCardText();
     expect(text, 'a plan card names a carrier a church never sees').not.toMatch(/twilio/i);
-    for (const planId of ['plus', 'pro', 'max']) {
+    for (const planId of ['plus', 'max']) {
       const card = plans.find((p) => p.planId === planId)!;
-      const shouldSell = SMS_MARKETING_ENABLED && planId === 'max';
-      expect(/\bSMS\b/i.test(card.features.join(' ')), `the ${card.name} card disagrees with the app`)
-        .toBe(shouldSell);
+      const sms = card.features.filter((f) => /\bSMS\b/i.test(f));
+      expect(sms.length > 0, `the ${card.name} card disagrees with the plan`).toBe(planId === 'max');
+      for (const line of sms) {
+        if (SMS_MARKETING_ENABLED) expect(line).not.toMatch(/coming soon/i);
+        else expect(line, 'SMS is sold as live while the app sends nothing').toMatch(/coming soon/i);
+      }
     }
   });
 
   it('🔴 the rendered comparison grid carries the SMS row, ticked on Ministry only', () => {
     const html = render(React.createElement(ComparisonTable));
     const text = visibleText(html);
-    // 🔴 THE-335 — asserted through the flag, in both directions.
-    if (SMS_MARKETING_ENABLED) expect(text, 'the comparison grid lost the SMS row').toMatch(/\bSMS\b/);
-    else expect(text, 'the comparison grid still sells SMS').not.toMatch(/\bSMS\b/);
+    // 🔴 THE-335 — asserted through the flag, in both directions. The row is in
+    // the grid in BOTH states now; its Ministry cell is a tick when the feature
+    // is live and "coming soon" when it is not, and never a tick while the app
+    // refuses the send.
+    expect(text, 'the comparison grid lost the SMS row').toMatch(/\bSMS\b/);
+    const smsRow = html.split('<tr').find((r) => r.includes('>SMS &amp; Text-to-Give<'))!;
+    expect(smsRow, 'no SMS row').toBeDefined();
+    if (SMS_MARKETING_ENABLED) expect(smsRow).toContain('lucide-check');
+    else {
+      expect(smsRow, 'the grid ticks SMS while the app sends nothing').not.toContain('lucide-check');
+      expect(smsRow).toContain('coming soon');
+    }
     expect(text, 'the comparison grid names a carrier').not.toMatch(/twilio/i);
     // The grid still rendered something — an empty render would pass the above
     // vacuously, which is the failure mode this whole file is guarding.
@@ -138,10 +153,10 @@ describe('1 — the pricing surfaces sell SMS again, on ONE tier and with no car
     for (const row of ['Custom Forms → CRM']) {
       expect(text, `the Automation group lost "${row}"`).toContain(row);
     }
-    for (const row of ['Newsletter', 'Automated Newsletter']) {
-      if (NEWSLETTER_MARKETING_ENABLED) expect(text, `the Automation group lost "${row}"`).toContain(row);
-      else expect(text, `the Automation group still sells "${row}"`).not.toContain(row);
-    }
+    // The newsletter row is in the grid in both states; while its flag is off
+    // the Ministry cell says "coming soon" rather than carrying a tick.
+    expect(text, 'the Automation group lost "Newsletter"').toContain('Newsletter');
+    expect(NEWSLETTER_MARKETING_ENABLED || /Newsletter\s+(—\s+)*coming soon/.test(text.replace(/— /g, ''))).toBe(true);
   });
 
   it('🔴 and the grid is still balanced — every row has one cell per column', () => {
@@ -206,9 +221,14 @@ describe('2 — SMS appears only in Coming Soon, and carries no price or tier ba
     const occurrences = [...pricing.matchAll(/'SMS & Text-to-Give'/g)];
     expect(occurrences.length, 'the sold line vanished entirely').toBeGreaterThan(0);
     for (const m of occurrences) {
-      const before = pricing.slice(Math.max(0, m.index! - 200), m.index!);
-      expect(before, 'an SMS pricing line is not behind the flag')
-        .toMatch(/SMS_MARKETING_ENABLED\s*\?/);
+      // Within reach of the flag on EITHER side: the plan-card line reads
+      // `SMS_MARKETING_ENABLED ? 'SMS & Text-to-Give' : …coming soon`, and the
+      // grid row carries the label and then `SMS_MARKETING_ENABLED ? T : SOONCELL`
+      // for its cell. A line with no flag anywhere near it would be SMS sold
+      // as live in both states.
+      const around = pricing.slice(Math.max(0, m.index! - 200), m.index! + 200);
+      expect(around, 'an SMS pricing line is not behind the flag')
+        .toMatch(/SMS_MARKETING_ENABLED/);
     }
     // …and the Coming Soon entry is filtered by the SAME flag, the other way up.
     expect(comingSoon).toMatch(/item\.id !== 'sms' \|\| !SMS_MARKETING_ENABLED/);
@@ -291,14 +311,16 @@ describe('3 — Text-to-Give is named wherever a church would look for it', () =
     // with the switch off is EVERY selling surface. Asserted through the flag so
     // the tier that has it says so whenever there is one, and nothing does when
     // there is not.
+    // 🔴 AND REVERSED ONCE MORE BY THE TWO-PLAN REPRICE: Text-to-Give is a
+    // Ministry plan item, named on the Ministry card and in the grid in both
+    // flag states (as "coming soon" while the flag is off — asserted in test 1),
+    // and on no other card.
     const grid = visibleText(render(React.createElement(ComparisonTable)));
-    expect(/text[- ]to[- ]give/i.test(grid), 'the grid disagrees with the app about Text-to-Give')
-      .toBe(SMS_MARKETING_ENABLED);
-    for (const planId of ['plus', 'pro', 'max']) {
+    expect(/text[- ]to[- ]give/i.test(grid), 'the grid dropped Text-to-Give').toBe(true);
+    for (const planId of ['plus', 'max']) {
       const card = plans.find((p) => p.planId === planId)!;
-      const shouldSell = SMS_MARKETING_ENABLED && planId === 'max';
-      expect(/text[- ]to[- ]give/i.test(card.features.join(' ')), `the ${card.name} card disagrees with the app`)
-        .toBe(shouldSell);
+      expect(/text[- ]to[- ]give/i.test(card.features.join(' ')), `the ${card.name} card disagrees with the plan`)
+        .toBe(planId === 'max');
     }
   });
 
@@ -327,7 +349,10 @@ describe('4 — both cross-repo contracts still throw when the repos disagree', 
     // at module scope during the prerender if the two repos ever disagree on any
     // of the six. The SMS presence is read off the flag so this stays a real
     // check of the shipped plans in either state.
-    expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f)))
+    // Ministry names SMS in both states now (as "coming soon" while the flag is
+    // off); the plain-claim form exists only when the flag is on.
+    expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f))).toBe(true);
+    expect(plans.flatMap((p) => p.features).some((f) => /^SMS & Text-to-Give$/.test(f)))
       .toBe(SMS_MARKETING_ENABLED);
     expect(() => planPriceContract(asShipped())).not.toThrow();
   });
@@ -335,10 +360,9 @@ describe('4 — both cross-repo contracts still throw when the repos disagree', 
   it('🔴 and it STILL throws when the repos disagree — the mutation control', () => {
     // A contract that never fails proves nothing. One cent of disagreement.
     expect(() => planPriceContract(asShipped(), {
-      plus: { monthly: 21, yearly: 190 },
-      pro: { monthly: 40, yearly: 380 },
-      max: { monthly: 80, yearly: 752 },
-    })).toThrow(/renders \$20 monthly, but the app/);
+      plus: { monthly: 31, yearly: 300 },
+      max: { monthly: 90, yearly: 900 },
+    })).toThrow(/renders \$30 monthly, but the app/);
     // And when a plan is missing from the app's table entirely.
     expect(() => planPriceContract(asShipped(), {})).toThrow(/no expected prices/);
   });
@@ -371,7 +395,7 @@ describe('5 — the tool count is still derived, and no price changed', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     // Derived, not restated: recompute it here and demand agreement.
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
@@ -391,26 +415,25 @@ describe('5 — the tool count is still derived, and no price changed', () => {
     expect(readSrc('components/catalog.ts')).toContain("'SMS Automation'");
   });
 
-  it('🔴 no price changed — monthly and yearly, all three tiers', () => {
+  it('🔴 the prices are the approved four — monthly and yearly, both plans', () => {
     const byName = Object.fromEntries(plans.map((p) => [p.name, p.price]));
-    expect(byName['Individual']).toEqual({ monthly: 20, yearly: 190 });
-    expect(byName['Small Team']).toEqual({ monthly: 40, yearly: 380 });
-    expect(byName['Ministry']).toEqual({ monthly: 80, yearly: 752 });
+    expect(byName['Church']).toEqual({ monthly: 30, yearly: 300 });
+    expect(byName['Ministry']).toEqual({ monthly: 90, yearly: 900 });
   });
 
   it('and the cards still RENDER those prices — not just hold them', () => {
     const text = allCardText();
-    for (const n of ['20', '40', '80', '190', '380', '752']) {
+    for (const n of ['30', '90', '300', '900']) {
       expect(text, `$${n} is no longer rendered on any card`).toContain(n);
     }
   });
 
   it('every plan kept its other features — the removal took nothing with it', () => {
-    const individual = plans.find((p) => p.name === 'Individual')!;
-    expect(individual.features).toEqual([
-      // '500 contacts' since THE-370 raised Individual's cap; no other line moved.
-      '500 contacts · 2 admins', 'Mobile App (PWA)', 'Blog & News Feed', 'Bible',
-      '2 courses', crmLabel('plus'), 'Donation page & Fundraising',
-    ]);
+    const church = plans.find((p) => p.name === 'Church')!;
+    // The Church card's opening lines; the full lineup is pinned in
+    // PricingFreeTierCorrections.test.ts.
+    expect(church.features.slice(0, 2)).toEqual(['500 people · 2 admins', 'One community — feed & chat']);
+    expect(church.features).toContain(crmLabel('plus'));
+    expect(church.features).toContain('Donations & Fundraising Campaigns');
   });
 });
