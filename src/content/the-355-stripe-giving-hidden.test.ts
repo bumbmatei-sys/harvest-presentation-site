@@ -319,26 +319,19 @@ describe('4 — `pledges` is registered on every surface that keys off an id', (
     }
   });
 
-  it('🔴 the FeatureIndex grid draws one column per feature, and the giving page fits', () => {
-    /* `gridTemplateColumns: repeat(${cat.features.length}, 1fr)` — so an entry
-       added to the data becomes a column with no CSS change. The widths that
-       matter are the breakpoints in index.css: ≤1080px forces 4 columns and
-       ≤900px forces 3, so 901px renders FOUR and the phone renders THREE
-       whatever this number is. Above 1080 the row is the derived count inside a
-       1140px cap — and Community & Engagement already ships EIGHT there, so the
-       giving page's count is not the widest case on the site. */
+  it('🔴 the feature tab track renders one link per feature, and the giving page fits', () => {
+    // The jump-to index became Fabale's tab track (Matei, 2026-10-27).
     const html = render(React.createElement(CategoryPage, { slug: 'giving-finance' }));
-    const cols = /class="feat-index"[^>]*grid-template-columns:repeat\((\d+), 1fr\)/.exec(html);
-    expect(cols, 'the jump-to index is not rendering its derived grid').not.toBeNull();
-    expect(Number(cols![1])).toBe(giving.features.length);
-    expect(html).toContain('Pledge Campaigns');
+    const track = /<nav\b[^>]*class="feat-index fab-index"[^>]*>([\s\S]*?)<\/nav>/.exec(html);
+    expect(track, 'the jump-to tab track is missing').not.toBeNull();
+    const links = [...track![1].matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+    expect(links).toHaveLength(giving.features.length);
+    expect(links.map((link) => link[1])).toEqual(giving.features.map((feature) => `/features/giving-finance#${feature.id}`));
+    expect(links.map((link) => words(link[2]))).toContain('Pledge Campaigns');
     const widest = Math.max(...CATEGORIES.map((c) => c.features.length));
     expect(giving.features.length,
-      'the giving page is now the widest jump-to index on the site — recheck it at 1140px')
+      'the giving page is now the widest jump-to index on the site — recheck it at 1160px')
       .toBeLessThanOrEqual(widest);
-    const css = fs.readFileSync(path.join(ROOT, 'src', 'index.css'), 'utf8');
-    expect(css).toContain('.feat-index { grid-template-columns: repeat(4, 1fr) !important; }');
-    expect(css).toContain('.feat-index { grid-template-columns: repeat(3, 1fr) !important; }');
   });
 
   it('🔴 the mega-menu has a row for it, in the Giving & Finance column', () => {

@@ -682,21 +682,23 @@ describe('10 — the circles do not overflow at 380px', () => {
    * viewport through the components that wrap this mock:
    *
    *   viewport                                      380
-   *   FeatureBlock  padding: 0 20px               − 40  = 340
-   *   the card      padding: clamp(26px, 3.5vw…)  − 52  = 288   (3.5vw = 13.3 → 26)
-   *   the vignette  padding: 15px 16px 18px       − 32  = 256
-   *   the mock card padding: 13px                 − 26  = 230
+   *   mobile FeatureBlock wrapper: 0 16px         − 32  = 348
+   *   card: 1px border and 8px padding             − 18  = 330
+   *   photo: 28px padding                          − 56  = 274
+   *   glass: 1px border, zero padding               − 2  = 272
+   *   mock content: 16px padding                   − 32  = 240
+   *   mock card: 13px padding                      − 26  = 214
    *
-   * 230px for six columns and five 4px gaps.
+   * 214px for six columns and five 4px gaps.
    */
-  const AVAILABLE = 380 - 40 - 52 - 32 - 26;
+  const AVAILABLE = 380 - 32 - 18 - 56 - 2 - 32 - 26;
   const GAP = 4;
   const CIRCLE = 30;
 
   it('🔴 six circles fit one row at 380px, with the gaps', () => {
-    expect(AVAILABLE).toBe(230);
+    expect(AVAILABLE).toBe(214);
     const column = (AVAILABLE - GAP * 5) / 6;
-    expect(column).toBeCloseTo(35, 0);
+    expect(column).toBeCloseTo(194 / 6, 5);
     expect(column, 'the 30px circle no longer fits its column at 380px')
       .toBeGreaterThanOrEqual(CIRCLE);
   });
@@ -719,12 +721,19 @@ describe('10 — the circles do not overflow at 380px', () => {
 
   it('the measurements above are taken from the real wrappers, not assumed', () => {
     const block = src('./FeatureBlock.tsx');
-    expect(block).toContain("padding: '0 20px 26px'");
-    expect(block).toContain("padding: 'clamp(26px, 3.5vw, 52px)'");
-    expect(block).toContain("padding: '15px 16px 18px'");
+    const css = src('../index.css');
+    expect(block).toContain('className="fab-block-wrap"');
+    expect(block).toContain('className="fab-block"');
+    expect(block).toContain('className="fab-photo fab-block-photo"');
+    expect(block).toContain('className="fab-glass fab-mock"');
+    expect(block).toContain('className="fab-mock-content"');
+    expect(css).toMatch(/\.fab-block-wrap \{ padding:0 16px; \}/);
+    expect(css).toMatch(/\.fab-block \{[^}]*padding:8px;[^}]*border:1px solid/);
+    expect(css).toMatch(/\.fab-photo \{[^}]*padding:28px;[^}]*box-sizing:border-box/);
+    expect(css).toMatch(/\.fab-glass \{[^}]*box-sizing:border-box;[^}]*border:1px solid/);
+    expect(css).toMatch(/\.fab-mock \{[^}]*padding:0;/);
+    expect(css).toMatch(/\.fab-mock-content \{ padding:16px;/);
     expect(mockHtml(SHARE_ID)).toContain('padding:13px');
-    // 3.5vw at 380px is 13.3px, so the clamp sits at its 26px floor.
-    expect(380 * 0.035).toBeLessThan(26);
   });
 });
 

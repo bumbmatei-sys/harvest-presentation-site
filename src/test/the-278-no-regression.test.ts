@@ -1154,20 +1154,20 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'blog/year-end-giving-statements-what-to-include/index.html': '823429be419de263b39610f3bfcbe09f29ccacfeea84d22118cb32d9b39d4dea',
     'contact/index.html': '7ec8bc35649401984bfd8a7705e5f0c8538c4bb76c3bc846894e8d1afdcf0e37',
     'faq/index.html': '0055ac3c51a9de90de661af2b5f4be898aef4ca82bdcdcb00707de9c03afed56',
-    'features/ai-automation/index.html': 'bc2b1148274a1c580ad856d078f5cefec82ee0456e2a4651c308c5c5694f903b',
-    'features/community-engagement/index.html': '101dd55c54ae6b31d62e71fe09c2703faa3f2aae47190ae851dba6e2466846b0',
-    'features/discipleship-content/index.html': '743eb795daa041faea8ec643c644d540bfa918f2b45a96409e1abdd9f5270df3',
-    'features/giving-finance/index.html': 'afaadfc9ba968b813f6cdf033dade66a0fd7e962f6376da4e1249d13aa8bbb7b',
+    'features/ai-automation/index.html': '65a3d64a20e1e7280b269eb775efc3f6d85282bc7dcbd8d1633975bacada71df',
+    'features/community-engagement/index.html': '35ab4cbf27953c9f2ffa5d06cae62702c98057e4d2df30f2f5c27b9027f384ff',
+    'features/discipleship-content/index.html': '6368d791e693d16d35e7302fbc46aee72aab0f50e71d30ff8321a8f9b598ae73',
+    'features/giving-finance/index.html': '7d129d4a510210e6588314686dd58a7d0d8ffdaed52f4a7a3e3b1775d084c93b',
     'features/harvest-scheduler/index.html': '5c981a2a706acad350bc89e1fde5728c075cd76a4b3833677fa3aba375a8cb7a',
     'features/index.html': '3b249bfdbec3be3fda3531283362ca00d9da8caef94c2c25c094f36ddc09a230',
-    'features/platform-brand/index.html': '48bd3e9135798581447026c5571c6d34afe52874f49621942ec8fa76b4dd769a',
-    'index.html': 'c6bae64f67e8ce1a9771b3c96f08e7c5f4083959fdf1cd4ff9264632219671db',
-    'pricing/index.html': '6a5905b30e2f8b23a54fa469bcefdee296de9f71d116dad101a74ea417365e6a',
+    'features/platform-brand/index.html': 'ce4c40064eb0b98c87e44cba463ca98e57ef36ed4de7ac5489d5b3c634600bdc',
+    'index.html': 'a62519cd22b790fe4de293106245ae7a4cb781e28c478b021f8db6294412a86e',
+    'pricing/index.html': 'ce2e5f37697e9c307d3de74fa27d440a2c0382a591a91391d2d7f5c0b75ef9d3',
     'privacy/index.html': '6bde6d877e240e866f35372c4e11d70ab016decebb4482d437f47935016aa962',
     'refunds/index.html': '81a18397ab0454a0a4e80bb375d447c43c5a4ec31b101b2fee59c2c15cd0f47e',
-    'solutions/churches/index.html': '0b054cae171fa59ae2f285f1332de23679cf1b24a79b6f2f6d9162c49085d4d1',
-    'solutions/evangelistic-organizations/index.html': '2f075a331246dd28bd782e00afb84487f4a11c99d2ed3e7640566c50c5f0e9f4',
-    'solutions/missionaries/index.html': '619ec3d5d986ceeb1da7918dd4f180649e28c06ea29e0b345e37d62d1037e88f',
+    'solutions/churches/index.html': 'e1f523bdf34cd840361e63d050f58f55f67e65b8db63d7ad4760ff7f76db2688',
+    'solutions/evangelistic-organizations/index.html': 'e62f2547e1551a060a47f4158efc948113d952013aa51a130962ce23ecbec201',
+    'solutions/missionaries/index.html': 'bf98210d2a0f33082edb7fc1e2e8b2574da04e732da24503f9e447e9bec34b4d',
     'terms/index.html': 'bfd5c7e43300c2120f8dfb7d89e7dce49fa1de50523bbd91135e0d9718097621',
     'waitlist/index.html': 'ca4f3bc3787e7ac8e8034469af15f9b446b3934ce48e7cda86b7a03044a1c884',
   };
@@ -1321,7 +1321,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // Church and Ministry reprice: all existing routes remain.
     '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
     // Hero and shared navigation redesign and the 10-day trial (2026-10-27); 29 pages.
-    'ee0b6d5f1d5a43abcad54151f6d7a589b7a8a1640c2bec29089b8d087cadfbb4',
+    '48379b0004650a4e0b46b3afe1b875ddb0336ed1f6e7181ef4b737c0b55cacab',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1996,7 +1996,7 @@ describe('6b — the hand-written stylesheet still ships, outside Tailwind\'s la
     const banner = /^\/\*![^*]*\*\//;
     expect(sha(unlayered.replace(banner, '').trim())).toBe(
       // Hero scenery, fixed navigation and the site-wide black theme (Matei, 2026-10-27) appended for the redesign.
-      '831eaf5bab3b9646bf1612b7be6402ede756fd070eb5bcbe1061cba9d3865867',
+      '6768b570a148eb2dddd55e78b74739db443085c46107158c868c0516b7826651',
     );
   });
 

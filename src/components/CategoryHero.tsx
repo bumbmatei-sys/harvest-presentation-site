@@ -86,18 +86,7 @@ export function Hero({
   );
 }
 
-export function PositioningBand({ kicker, kickerColor, heading, body }:
+export function PositioningBand({ kicker, heading, body }:
   { kicker: string; kickerColor: string; heading: string; body: string }) {
-  return (
-    <section style={{ position: 'relative', background: 'var(--navy-900)', padding: 'clamp(52px, 6vw, 80px) 24px', overflow: 'hidden' }}>
-      <div style={grainOverlay} />
-      <div style={{ position: 'relative', maxWidth: 820, margin: '0 auto', textAlign: 'center' }}>
-        <Reveal y={16}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: kickerColor }}>{kicker}</span>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', lineHeight: 1.12, letterSpacing: '-0.02em', color: '#fff', margin: '14px 0 0', textWrap: 'balance' } as React.CSSProperties}>{heading}</h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.65, color: 'rgba(255,255,255,0.66)', margin: '18px auto 0', maxWidth: 600 }}>{body}</p>
-        </Reveal>
-      </div>
-    </section>
-  );
+  return <section className="fab-band"><Reveal y={16}><span className="fab-pill">{kicker}</span><h2>{heading}</h2><p>{body}</p></Reveal></section>;
 }

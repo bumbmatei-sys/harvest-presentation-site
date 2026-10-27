@@ -4,7 +4,7 @@ import { Seo } from '../components/Seo';
 import { Reveal } from '../components/effects';
 import { FeatureBlock } from '../components/FeatureBlock';
 import { SiteCTA } from '../components/SiteCTA';
-import { Hero as SharedHero, PositioningBand, grainOverlay } from '../components/CategoryHero';
+import { PositioningBand } from '../components/CategoryHero';
 import { CATEGORY_BY_SLUG, categoryHref, type Category } from '../content/features';
 import { CUSTOM_DOMAIN_MARKETING_ENABLED } from '../lib/flags';
 
@@ -19,45 +19,46 @@ import { CUSTOM_DOMAIN_MARKETING_ENABLED } from '../lib/flags';
 
 // ---------- Hero ----------
 function Hero({ cat }: { cat: Category }) {
-  return (
-    <SharedHero
-      dark={!!cat.dark}
-      heroBg={cat.heroBg}
-      headWidth={cat.headWidth}
-      eyebrowColor={cat.eyebrowColor}
-      eyebrow={cat.name}
-      headline={cat.headline}
-      introWidth={cat.introWidth}
-      intro={cat.intro}
-      secondary={{
-        label: cat.secondary.label,
-        to: cat.secondary.to.startsWith('#') ? `${categoryHref(cat.slug)}${cat.secondary.to}` : cat.secondary.to,
-      }}
-    />
-  );
+  const lines = cat.headline.split('\n');
+  const secondary = cat.secondary.to.startsWith('#') ? `${categoryHref(cat.slug)}${cat.secondary.to}` : cat.secondary.to;
+  return <section className="fab-category-hero"><div className="fab-container"><Reveal><div className="fab-header"><div><span className="fab-pill">{cat.name}</span><h1>{lines.map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}<span className={i === lines.length - 1 && lines.length > 1 ? 'fab-muted' : undefined}>{line}</span></React.Fragment>)}</h1></div><p>{cat.intro}</p></div><div className="fab-category-actions"><Link className="hero-primary" to="/#pricing">Start free trial</Link><Link className="hero-secondary" to={secondary}>{cat.secondary.label}</Link></div></Reveal></div></section>;
 }
 
-// ---------- Jump-to index ----------
 function FeatureIndex({ cat }: { cat: Category }) {
+  const [activeId, setActiveId] = React.useState(cat.features[0]?.id);
+  React.useEffect(() => {
+    setActiveId(cat.features[0]?.id);
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) visible.add(entry.target.id);
+        else visible.delete(entry.target.id);
+      });
+      const intersecting = cat.features.filter((feature) => visible.has(feature.id));
+      const current = intersecting[intersecting.length - 1];
+      if (current) setActiveId(current.id);
+    }, { rootMargin: '-104px 0px -55% 0px', threshold: 0 });
+    cat.features.forEach((feature) => {
+      const element = document.getElementById(feature.id);
+      if (element) observer.observe(element);
+    });
+    return () => observer.disconnect();
+  }, [cat]);
+
+  const activeIndex = Math.max(0, cat.features.findIndex((feature) => feature.id === activeId));
+  const move = (offset: number) => {
+    const feature = cat.features[activeIndex + offset];
+    if (!feature) return;
+    setActiveId(feature.id);
+    document.getElementById(feature.id)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  };
   return (
-    <section style={{ background: 'var(--cream)', padding: '8px 20px 4px' }}>
-      <div className="feat-index" style={{ maxWidth: 1140, margin: '0 auto', display: 'grid', gridTemplateColumns: `repeat(${cat.features.length}, 1fr)`, gap: 10 }}>
-        {cat.features.map((f) => (
-          <Link
-            key={f.id}
-            to={`${categoryHref(cat.slug)}#${f.id}`}
-            className="feat-index-card"
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center',
-              padding: '16px 8px', background: '#fff', border: '1px solid rgba(45,37,25,0.08)',
-              borderRadius: 16, color: 'var(--navy-900)', textDecoration: 'none',
-            }}
-          >
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: 'var(--gold-100)', color: 'var(--gold-700)', fontFamily: 'var(--font-serif)', fontWeight: 500 }}>{f.n}</span>
-            <span style={{ fontSize: 11.5, fontWeight: 600, lineHeight: 1.25 }}>{f.name}</span>
-          </Link>
-        ))}
-      </div>
+    <section className="fab-index-wrap">
+      <nav aria-label="Jump to feature" className="feat-index fab-index">
+        <button className="fab-index-arrow" type="button" aria-label="Previous feature" disabled={activeIndex === 0} onClick={() => move(-1)}>←</button>
+        <ul className="fab-index-list">{cat.features.map((f) => <li key={f.id} className={f.id === activeId ? 'fab-index-item-active' : undefined}><Link to={`${categoryHref(cat.slug)}#${f.id}`} className="feat-index-card fab-index-card" aria-current={f.id === activeId ? 'location' : undefined} onClick={() => setActiveId(f.id)}>{f.name}</Link></li>)}</ul>
+        <button className="fab-index-arrow" type="button" aria-label="Next feature" disabled={activeIndex === cat.features.length - 1} onClick={() => move(1)}>→</button>
+      </nav>
     </section>
   );
 }
@@ -71,28 +72,7 @@ const LOOP = [
 ];
 
 function CompoundingLoop() {
-  return (
-    <section style={{ position: 'relative', background: 'var(--navy-900)', padding: 'clamp(52px, 6vw, 80px) 24px', overflow: 'hidden' }}>
-      <div style={grainOverlay} />
-      <div style={{ position: 'relative', maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
-        <Reveal y={16}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold-400)' }}>The compounding loop</span>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(1.7rem, 3vw, 2.4rem)', lineHeight: 1.1, letterSpacing: '-0.02em', color: '#fff', margin: '14px 0 0', textWrap: 'balance' } as React.CSSProperties}>One sermon, working all week.</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 34 }}>
-            {LOOP.map((label, i) => (
-              <React.Fragment key={label}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap' }}>
-                  <span style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-400)', fontSize: 14 }}>{i + 1}</span>{label}
-                </span>
-                {i < LOOP.length - 1 && <span style={{ color: 'var(--gold-400)', fontSize: 16 }} aria-hidden="true">→</span>}
-              </React.Fragment>
-            ))}
-          </div>
-          <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: '1.2rem', color: 'var(--gold-400)', margin: '30px 0 0' }}>Record it once. It works for months.</p>
-        </Reveal>
-      </div>
-    </section>
-  );
+  return <section className="fab-band"><Reveal><span className="fab-pill">The compounding loop</span><h2>One sermon, working all week.</h2><div className="fab-loop">{LOOP.map((label, i) => <React.Fragment key={label}><span>{i + 1} {label}</span>{i < LOOP.length - 1 && <span aria-hidden="true">→</span>}</React.Fragment>)}</div><p>Record it once. It works for months.</p></Reveal></section>;
 }
 
 // A category's one bespoke band, keyed by slug — the rest of every page is shared.
@@ -146,7 +126,7 @@ export function CategoryPage({ slug }: { slug: string }) {
       />
       <Hero cat={cat} />
       <FeatureIndex cat={cat} />
-      <div style={{ background: 'var(--cream)', padding: 'clamp(28px, 4vw, 48px) 0 clamp(20px, 3vw, 36px)', display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 30px)' }}>
+      <div className="fab-block-list" style={{ background: 'var(--cream)', padding: 'clamp(28px, 4vw, 48px) 0 clamp(20px, 3vw, 36px)', display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 30px)' }}>
         {cat.features.map((f) => <FeatureBlock key={f.id} feature={f} />)}
       </div>
       <CategoryBand slug={cat.slug} />

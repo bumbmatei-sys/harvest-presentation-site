@@ -123,82 +123,38 @@ export type FeatureBlockData = Omit<Feature, 'n' | 'tiers'> & { n?: string; tier
  * they rendered before. That is asserted, not assumed: the-278's fingerprint
  * table pins all five.
  */
+const SCENES = ['feature-1-wheat-closeup', 'feature-2-wheat-dusk', 'feature-3-wheat-night-sky', 'why-1-wheat-meadow-day', 'why-2-wheat-sunset', 'why-3-wheat-hillside', 'usecase-wheat-field-evening'];
+
 export function FeatureBlock({ feature, unbuilt = false }: { feature: FeatureBlockData; unbuilt?: boolean }) {
-  const { accent, accentBg } = feature;
+  const { accent } = feature;
+  const scene = SCENES[Array.from(feature.id).reduce((sum, char) => sum + char.charCodeAt(0), 0) % SCENES.length];
   return (
-    <div id={feature.id} style={{ scrollMarginTop: 104 }}>
-      <div style={{ padding: '0 20px 26px', position: 'relative' }}>
-        <Reveal y={22} style={{
-          maxWidth: 1140, margin: '0 auto', position: 'relative', background: '#fff',
-          border: '1px solid rgba(45,37,25,0.09)', borderRadius: 28,
-          padding: 'clamp(26px, 3.5vw, 52px)', boxShadow: '0 26px 64px rgba(45,37,25,0.07)',
-        }}>
-          <div className="fb-grid" style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: 'clamp(28px, 4vw, 64px)', alignItems: 'center' }}>
-            {/* ---- Story ---- */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: 12, background: accentBg, color: accent, flexShrink: 0 }}>
-                  {FEATURE_ICONS[feature.id]}
-                </span>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: accent }}>{feature.eyebrow}</span>
-              </div>
-
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(1.85rem, 3.4vw, 2.75rem)', lineHeight: 1.08, letterSpacing: '-0.02em', color: 'var(--navy-900)', margin: 0 }}>{feature.title}</h2>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '1.06rem', lineHeight: 1.6, color: 'var(--text-body)', margin: '16px 0 0', maxWidth: '46ch' }}>{feature.oneliner}</p>
-
-              {/* The emotional beat — the line the feature is really about. */}
-              <div style={{ marginTop: 26, paddingLeft: 20, borderLeft: `3px solid ${accent}` }}>
-                <p style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontStyle: 'italic', fontSize: 'clamp(1.3rem, 2vw, 1.65rem)', lineHeight: 1.32, letterSpacing: '-0.01em', color: 'var(--navy-900)', margin: 0 }}>{feature.moment}</p>
-              </div>
-
-              {!unbuilt && feature.tiers && (
-                <PlanChips tiers={feature.tiers} note={feature.tiersNote} accent={accent} />
-              )}
-            </div>
-
-            {/* ---- Vignette ---- */}
-            <div>
-              <div style={{ width: '100%', maxWidth: 410, margin: '0 auto', background: '#fff', border: '1px solid rgba(45,37,25,0.10)', borderRadius: 22, boxShadow: '0 30px 66px rgba(12,21,38,0.20)', overflow: 'hidden' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderBottom: '1px solid rgba(45,37,25,0.07)', background: 'var(--cream)' }}>
-                  <span style={{ width: 9, height: 9, borderRadius: '50%', background: accent, flexShrink: 0 }} />
-                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, fontWeight: 700, color: 'var(--navy-900)' }}>{feature.name}</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600 }}>{unbuilt ? 'Concept — nothing built' : 'Harvest'}</span>
-                </div>
-                <div style={{ padding: '15px 16px 18px', background: 'var(--stone-100)' }}>
-                  <FeatureMock id={feature.id} />
-                </div>
-              </div>
+    <div id={feature.id} style={{ scrollMarginTop: 104 }} className="fab-block-wrap">
+      <Reveal y={22} className="fab-block">
+        <div className="fb-grid fab-block-grid">
+          <div className="fab-block-story">
+            <span className="fab-pill fab-eyebrow">{FEATURE_ICONS[feature.id]} {feature.eyebrow}</span>
+            <h2>{feature.title}</h2>
+            <p>{feature.oneliner}</p>
+            <p className="fab-moment">{feature.moment}</p>
+          </div>
+          <div className="fab-photo fab-block-photo">
+            <img className="fab-photo-image" src={`/scenes/${scene}.webp`} alt="" />
+            <div className="fab-glass fab-mock">
+              <div className="fab-mock-bar"><span>{feature.name}</span><span>{unbuilt ? 'Concept — nothing built' : 'Harvest'}</span></div>
+              <div className="fab-mock-content"><FeatureMock id={feature.id} /></div>
             </div>
           </div>
-
-          {/* ---- What each side gets ---- */}
-          <div className="fb-caps" style={{ marginTop: 'clamp(30px, 4vw, 52px)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(20px, 3vw, 40px)' }}>
-            <CapList label={feature.adminLabel || 'For admins'} items={feature.admin} accent={accent} unbuilt={unbuilt} />
-            <CapList label={feature.memberLabel || 'For members'} items={feature.member} accent={accent} unbuilt={unbuilt} />
-          </div>
-
-          {!unbuilt && feature.crosslinks && feature.crosslinks.length > 0 && (
-            <div style={{ marginTop: 22, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text-muted)' }}>Works with</span>
-              {feature.crosslinks.map((cl) => (
-                <Link
-                  key={cl.href}
-                  to={cl.href}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600,
-                    color: 'var(--navy-900)', background: 'var(--cream)', border: '1px solid rgba(45,37,25,0.10)',
-                    borderRadius: 999, padding: '6px 13px', textDecoration: 'none', transition: 'border-color 200ms var(--ease-out)',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = accent; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(45,37,25,0.10)'; }}
-                >
-                  {cl.label}<span style={{ color: accent }}>→</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </Reveal>
-      </div>
+        </div>
+        <div className="fb-caps fab-caps">
+          <CapList label={feature.adminLabel || 'For admins'} items={feature.admin} accent={accent} unbuilt={unbuilt} />
+          <CapList label={feature.memberLabel || 'For members'} items={feature.member} accent={accent} unbuilt={unbuilt} />
+        </div>
+        {!unbuilt && feature.tiers && <div className="fab-plans"><PlanChips tiers={feature.tiers} note={feature.tiersNote} accent={accent} /></div>}
+        {!unbuilt && feature.crosslinks && feature.crosslinks.length > 0 && (
+          <div className="fab-crosslinks"><span>Works with</span>{feature.crosslinks.map((cl) => <Link key={cl.href} to={cl.href}>{cl.label}<span aria-hidden="true">→</span></Link>)}</div>
+        )}
+      </Reveal>
     </div>
   );
 }
