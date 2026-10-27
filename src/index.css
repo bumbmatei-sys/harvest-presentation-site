@@ -562,3 +562,17 @@ a:hover { color: var(--brand-active); }
 
   --radius: 14px;
 }
+
+/* Landing hero scenery */
+.hero-clouds { position: absolute; inset: 0 0 auto; height: 580px; background: url('/hero/hero-clouds.webp') repeat-x 0 top / 1200px auto; pointer-events: none; animation: hero-cloud-drift 120s linear infinite; }
+@keyframes hero-cloud-drift { to { background-position: 1200px top; } }
+.hero-hills { position: absolute; bottom: 0; left: 0; width: 100%; height: 520px; object-fit: cover; object-position: bottom; pointer-events: none; mask-image: linear-gradient(to bottom, transparent, black 40%); }
+.hero-hills-foreground { z-index: 3; mask-image: linear-gradient(to bottom, transparent 72%, black 90%); }
+.hero-bottom-fade { position: absolute; z-index: 4; bottom: 0; left: 0; width: 100%; height: 55px; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--surface-page)); }
+@media (max-width: 640px) {
+  .hero-hills { height: 250px; }
+  .hero-hills-foreground { mask-image: linear-gradient(to bottom, transparent 42%, black 64%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-clouds { animation: none; }
+}

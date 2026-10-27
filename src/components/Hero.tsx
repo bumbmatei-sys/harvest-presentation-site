@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clouds, Reveal } from './effects';
-import { Particles, AnimatedText, HBtn, TiltIn, SafariFrame } from './magic';
+import { Reveal } from './effects';
+import { AnimatedText, HBtn, TiltIn, SafariFrame } from './magic';
 import { I } from './icons';
 import { Mark, container, SKY } from './shared';
 import { TRIAL_CTA_LABEL } from '../content/legal';
@@ -59,8 +59,8 @@ function DashboardMock() {
 export function Hero() {
   return (
     <section id="hero" style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 90, overflow: 'hidden' }}>
-      <Clouds dense />
-      <Particles quantity={55} />
+      <div className="hero-clouds" aria-hidden="true" />
+      <img className="hero-hills" src="/hero/hero-hills.webp" alt="" aria-hidden="true" loading="eager" />
       <div style={{ ...container, position: 'relative', zIndex: 2, textAlign: 'center' }}>
         <Reveal y={14}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.9)', padding: '6px 14px 6px 8px', borderRadius: 999, boxShadow: '0 4px 14px rgba(45,37,25,0.06)' }}>
@@ -107,6 +107,8 @@ export function Hero() {
           </TiltIn>
         </Reveal>
       </div>
+      <img className="hero-hills hero-hills-foreground" src="/hero/hero-hills.webp" alt="" aria-hidden="true" loading="eager" />
+      <div className="hero-bottom-fade" aria-hidden="true" />
     </section>
   );
 }
