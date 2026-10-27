@@ -316,20 +316,20 @@ const ALL_CATEGORIES: Category[] = [
     // feature is hidden it names what is actually there.
     intro: SMS_MARKETING_ENABLED
       ? (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI assistant for the plan owner, grounded in your own teaching. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
-        : 'An AI assistant for the plan owner, grounded in your own teaching. Plus SMS and forms that turn effort you’ve already spent into people you can reach.')
+        ? 'An AI assistant for the plan owner is coming soon. Today: the knowledge base, plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
+        : 'An AI assistant for the plan owner is coming soon. Today: the knowledge base, plus SMS and forms that turn effort you’ve already spent into people you can reach.')
       : (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI assistant for the plan owner, grounded in your own teaching. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.'
-        : 'An AI assistant for the plan owner, grounded in your own teaching. Plus forms that turn effort you’ve already spent into people you can reach.'),
+        ? 'An AI assistant for the plan owner is coming soon. Today: the knowledge base, plus a newsletter and forms that turn effort you’ve already spent into people you can reach.'
+        : 'An AI assistant for the plan owner is coming soon. Today: the knowledge base, plus forms that turn effort you’ve already spent into people you can reach.'),
     ctaHeading: 'AI that works from your own teaching.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     seo: SMS_MARKETING_ENABLED
       ? (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, automated newsletters, SMS and forms that feed your CRM.'
-        : 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, SMS and forms that feed your CRM.')
+        ? 'An AI knowledge base trained on your teaching, a coming-soon AI assistant for the plan owner, automated newsletters, SMS and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, a coming-soon AI assistant for the plan owner, SMS and forms that feed your CRM.')
       : (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, automated newsletters and forms that feed your CRM.'
-        : 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, and forms that feed your CRM.'),
+        ? 'An AI knowledge base trained on your teaching, a coming-soon AI assistant for the plan owner, automated newsletters and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, a coming-soon AI assistant for the plan owner, and forms that feed your CRM.'),
     features: [
       {
         id: 'knowledge', name: 'AI Knowledge Base', n: '1',
@@ -340,8 +340,8 @@ const ALL_CATEGORIES: Category[] = [
 
            ⚠️ MEMBER-FACING AI CHAT IS DROPPED (Matei, 2026-10-27: "We only have
            AI assistant for a plan owner"). The plan owner's AI assistant is
-           live — see `assistant` below; only its 300 / 5,000 monthly allowance
-           is labelled "coming soon". */
+           NOT BUILT YET (Matei, 2026-10-27, correcting the same day) — see
+           `assistant` below, labelled coming soon with 300 / 5,000 planned. */
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1],
         tiersNote: 'The AI Knowledge Base is included on Ministry.',
         eyebrow: 'The foundation',
@@ -350,22 +350,21 @@ const ALL_CATEGORIES: Category[] = [
         moment: 'One upload makes every other AI feature yours. The knowledge base isn\'t a feature — it\'s the infrastructure that keeps the rest from sounding generic.',
         admin: ['Paste text, or upload .txt / .csv', 'Live meters for query use & capacity — no surprise cutoff', 'Delete a source and every trace of it is gone', 'Course lesson recaps can feed straight in'],
         member: ['What members read sounds like your ministry', 'A retracted sermon can never resurface', 'Nothing generic slips into what members read'],
-        crosslinks: [{ label: 'AI Assistant', href: '/features/ai-automation#assistant' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }, { label: 'Courses', href: '/features/discipleship-content#courses' }],
+        crosslinks: [{ label: 'AI Assistant (coming soon)', href: '/features/ai-automation#assistant' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }, { label: 'Courses', href: '/features/discipleship-content#courses' }],
       },
       {
-        id: 'assistant', name: 'AI Assistant', n: '2',
-        /* [1, 1] — the plan owner's AI assistant is on both paid plans and is
-           live (Matei, 2026-10-27). Only the monthly allowance is not metered
-           yet, so the number is labelled "coming soon" here and on pricing.
-           Member-facing AI chat was dropped and must not be described. */
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1],
-        tiersNote: 'For the plan owner on Church and Ministry. Monthly allowance coming soon: 300 messages on Church, 5,000 on Ministry.',
-        eyebrow: 'For the plan owner',
-        title: 'An AI assistant for the person running the ministry.',
-        oneliner: 'The plan owner gets an AI assistant inside the admin, grounded in your own teaching instead of the open internet.',
-        moment: 'Most AI tools guess. This one starts from what you have already taught, so what it gives back sounds like your ministry and not like a stranger.',
-        admin: ['Only the plan owner can use it', 'Works from your own teaching and notes', 'Says “I don\'t have that” rather than inventing', 'Monthly allowance: 300 on Church, 5,000 on Ministry (coming soon)'],
-        member: ['Nothing changes for members: the assistant is an admin tool', 'What you publish still goes out under your name'],
+        id: 'assistant', name: 'AI Assistant (coming soon)', n: '2',
+        /* [0, 0] — NOT BUILT (Matei, 2026-10-27: "we didn't build it yet").
+           No chip is lit because no plan includes it today; the note says what
+           is planned. Member-facing AI chat was dropped and must not return. */
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0],
+        tiersNote: 'Coming soon for the plan owner: 300 messages a month planned on Church, 5,000 on Ministry.',
+        eyebrow: 'Coming soon',
+        title: 'Coming soon: an AI assistant for the person running the ministry.',
+        oneliner: 'Planned for the plan owner, inside the admin, and grounded in your own teaching instead of the open internet.',
+        moment: 'Most AI tools guess. This one will start from what you have already taught, so what it gives back sounds like your ministry and not like a stranger.',
+        admin: ['Planned for the plan owner only', 'Will work from your own teaching and notes', 'Planned allowance: 300 messages a month on Church, 5,000 on Ministry'],
+        member: ['Nothing changes for members: it is an admin tool'],
         crosslinks: [{ label: 'AI Knowledge Base', href: '/features/ai-automation#knowledge' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }],
       },
       /* Two entries, because the app has two flags: `newsletterAutomation`

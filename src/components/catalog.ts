@@ -69,7 +69,7 @@ export const CATALOG: CatalogGroup[] = [
     name: 'AI & Automation', kicker: 'Automate', tint: 'var(--gold-600)', bg: 'var(--gold-100)',
     items: [
       item('brain-circuit', 'AI Knowledge Base', "Keep your ministry's teaching in one knowledge base."),
-      item('message-square', 'AI Assistant', 'An AI assistant for the plan owner, grounded in your teaching.'),
+      item('message-square', 'AI Assistant', 'Coming soon: an AI assistant for the plan owner.', true),
       // 🔴 THE-335 — BOTH newsletter tools move the count, two off it, for the
       // same reason the SMS entry below moves it by one: CATALOG_TOOL_COUNT is a
       // derived tally of everything NOT marked `soon`, and a tool a church

@@ -1005,7 +1005,7 @@ export const ADD_ONS: AddOn[] = [
  * is, not in a commit message nobody will find.
  */
 export const INTENTIONALLY_UNADVERTISED: Record<string, string> = {
-  'AI Assistant': 'The AI assistant is included for the plan owner on both plans, and its monthly allowances (coming soon) replace this add-on.',
+  'AI Assistant': 'The assistant is coming soon and its plan allowances replace this add-on.',
 };
 
 /**

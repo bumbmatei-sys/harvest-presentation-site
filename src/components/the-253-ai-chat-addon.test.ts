@@ -180,10 +180,11 @@ describe('no site surface claims AI Chat as a plan feature', () => {
        chips are unlit. */
     /* 🔴 MEMBER AI CHAT IS DROPPED (Matei, 2026-10-27: "We only have AI
        assistant for a plan owner"). Its entry is gone; the plan owner's AI
-       assistant replaced it, is live, and is on both plans. */
+       assistant replaced it; it is NOT built yet (Matei, same day), so no
+       plan chip is lit and it is labelled coming soon. */
     expect(featureById('aichat'), 'member AI Chat is still described').toBeUndefined();
-    expect(chipsOf('assistant')).toEqual({ Church: true, Ministry: true });
-    expect(featureById('assistant')!.tiers).toEqual([1, 1]);
+    expect(chipsOf('assistant')).toEqual({ Church: false, Ministry: false });
+    expect(featureById('assistant')!.tiers).toEqual([0, 0]);
     expect(chipsOf('knowledge')).toEqual({ Church: false, Ministry: true });
     expect(featureById('knowledge')!.tiers).toEqual([0, 1]);
   });
@@ -191,7 +192,7 @@ describe('no site surface claims AI Chat as a plan feature', () => {
   it('and each says where the capability comes from instead of leaving it blank', () => {
     const note = featureById('assistant')!.tiersNote!;
     expect(note).toMatch(/plan owner/i);
-    expect(note, 'only the allowance is coming soon').toMatch(/allowance coming soon/i);
+    expect(note, 'the assistant is not built yet').toMatch(/coming soon/i);
     expect(note).toMatch(/300/);
     expect(note).toMatch(/5,000/);
     expect(featureById('knowledge')!.tiersNote).toMatch(/included on Ministry/i);
@@ -241,9 +242,9 @@ describe('no site surface claims AI Chat as a plan feature', () => {
        ticket. Pinned so a later sweep does not "finish the job" by deleting
        something that was never wrong. */
     // The nav mega-menu names the tool. It carries no tier, and the tool exists.
-    // Member AI Chat was dropped; the owner's AI Assistant is the live row.
+    // Member AI Chat was dropped; the owner's AI Assistant is listed as soon.
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).not.toContain('AI Chat');
-    expect(CATALOG.flatMap((g) => g.items).find((i) => i.title === 'AI Assistant')?.soon).toBeFalsy();
+    expect(CATALOG.flatMap((g) => g.items).find((i) => i.title === 'AI Assistant')?.soon).toBe(true);
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Knowledge Base');
     // The comparison grid has no AI CHAT row — asserted, not assumed, because
     // "we checked" is not a thing a reader can verify. It has an AI Knowledge

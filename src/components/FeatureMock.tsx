@@ -1060,7 +1060,7 @@ export const MOCKS: Record<string, React.ReactElement> = {
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--green-500)' }} />
-          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Signed in as plan owner</span>
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Preview · coming soon</span>
         </div>
         <div style={{ padding: '12px 13px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
           <div style={{ alignSelf: 'flex-end', maxWidth: '78%', fontSize: '11.5px', lineHeight: '1.4', color: '#fff', background: 'var(--navy-900)', borderRadius: '12px 12px 3px 12px', padding: '8px 11px' }}>Summarise what we've taught on baptism this year.</div>

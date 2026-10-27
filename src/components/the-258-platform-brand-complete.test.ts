@@ -226,9 +226,9 @@ describe('Platform & Brand is complete', () => {
     expect(byId.has('newsletter'), '#newsletter disagrees with NEWSLETTER_MARKETING_ENABLED')
       .toBe(NEWSLETTER_MARKETING_ENABLED);
     // Member AI Chat was dropped (Matei, 2026-10-27); the plan owner's AI
-    // Assistant is live, part of both plans, and listed in the Automation row.
+    // Assistant is not built yet and is listed in the Automation row as coming soon.
     expect(byId.has('aichat')).toBe(false);
-    expect(byId.get('assistant')?.name).toBe('AI Assistant');
+    expect(byId.get('assistant')?.name).toBe('AI Assistant (coming soon)');
     expect(SECTION).not.toContain('AI Chat');
   });
 });

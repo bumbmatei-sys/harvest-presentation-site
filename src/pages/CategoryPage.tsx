@@ -104,7 +104,7 @@ function CategoryBand({ slug }: { slug: string }) {
         kicker="Why our AI is different"
         kickerColor="var(--green-300)"
         heading="Every vendor is bolting on AI. Ours starts from your teaching."
-        body="The AI assistant is for the plan owner, and it works from your ministry's own knowledge base instead of the open internet."
+        body="The AI assistant, coming soon, is for the plan owner and will work from your ministry's own knowledge base instead of the open internet."
       />
     );
   }

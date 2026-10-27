@@ -250,9 +250,8 @@ describe('SMS_MARKETING_ENABLED', () => {
     // shape: `STRIPE_GIVING_MARKETING_ENABLED` rewords the Donation Page tool
     // rather than withdrawing it, so it belongs to the equality case below.
     // What moved the absolute is the pledge SPLIT, which is not behind any flag.
-    // +1 since the plan owner's AI Assistant replaced the soon-only AI Chat row.
-    expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(28);
-    expect(smsOnly.toolCount, 'the count with SMS live').toBe(29);
+    expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27);
+    expect(smsOnly.toolCount, 'the count with SMS live').toBe(28);
     // The Coming Soon entry contributes nothing in either direction — that is
     // what makes the shipped figure honest rather than one tool too high.
     expect(smsOnly.toolCount - off.toolCount).toBe(1);
@@ -393,8 +392,8 @@ describe('CUSTOM_DOMAIN_MARKETING_ENABLED', () => {
     // STRIPE_GIVING_MARKETING_ENABLED both join this shape rather than the SMS
     // one, for the same reason: they reword a tool that stays live instead of
     // removing it.
-    expect(off.toolCount).toBe(28); // +1: the owner's AI Assistant row.
-    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(28);
+    expect(off.toolCount).toBe(27);
+    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(27);
     // The tool is present under both labels, which is why the count holds.
     expect(off.titles).toContain('Custom Branding');
     expect(domainOnly.titles).toContain('Custom Branding & Domain');

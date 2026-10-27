@@ -570,11 +570,10 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/the-258-platform-brand-complete.test.ts': 'ea0da4de3189aa0b1efd52aded0055c1c468f7a1f01464e593c6bc7b7853eb9b',
   };
 
-  // Member AI Chat dropped (Matei, 2026-10-27): the add-on note and the
-  // Platform & Brand guard name the owner's AI Assistant instead.
+  // Member AI Chat dropped (Matei, 2026-10-27): the Platform & Brand guard
+  // names the owner's AI Assistant (coming soon) instead.
   const AI_CHAT_DROPPED_REPINNED: Readonly<Record<string, string>> = {
-    'src/components/Pricing.tsx': '541754431be18254f7125ca72c726e85db5b01a81df4f8dce0da4f25de3dc65a',
-    'src/components/the-258-platform-brand-complete.test.ts': 'a273989e2f61ade838ca3163208840ced4dc7390832579e3b3f165b9eacc2877',
+    'src/components/the-258-platform-brand-complete.test.ts': 'b7ab48a72641d1c48952cbea7a391b2454adb4cbb4352c4b4bb466fde12cd801',
   };
 
   // Round 3 copy, route removal, and the affected guards.

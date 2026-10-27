@@ -157,7 +157,7 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
   it('🔴 the figure is 28, and is still DERIVED rather than written down', () => {
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(28);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -173,7 +173,7 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
        them. */
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== SHARE_TITLE).length, 0);
-    expect(without).toBe(27); // Round 3 adds the scheduler; the owner's AI Assistant adds one more.
+    expect(without).toBe(26); // Round 3 adds the scheduler.
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
   });
 
@@ -235,14 +235,12 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
       // forbidden here as "the pre-THE-306 count"; it is the live one again,
       // for a different reason, so what is forbidden is 26 instead.
       expect(body, `${f} still pins the pre-THE-355 count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
-      // 🔵 AI Assistant (plan owner, live) replaced the soon-only AI Chat row, 27 → 28,
-      // so 28 is live again and 27 is the stale figure now.
-      expect(body, `${f} still pins the pre-assistant count`)
-        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+      expect(body, `${f} still pins the pre-THE-314 count`)
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
       expect(body, `${f} still pins the pre-THE-335 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       expect(body, `${f} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
     }
 
     /* The two flag suites assert a PAIR rather than the constant, so the scan
@@ -253,17 +251,16 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
     // turned SMS back on, and swapped BACK at THE-335: `OFF` is a synthetic
     // all-flags-false state that now coincides with the live product at 26.
     // The DELTA of one is what the pair measures and it has never moved.
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(28)"); // +1: owner's AI Assistant row
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(29)");
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(28)");
     /* 🔵 THE-355 — the forbidden range moved WITH the pair. It read `2[89]`,
        which forbade the very figures this pair now holds; the stale values to
        guard against are the THE-335 ones, 26 and 27, and 27 can only be
        forbidden on the `smsOnly` half because it is the live figure on the
        `off` half. So the two halves are guarded separately rather than by one
        range that can no longer be written. */
-    // The owner's AI Assistant row moved the pair to 28/29 together.
-    expect(flags).not.toMatch(/off\.toolCount(?:, '[^']*')?\)\.toBe\(2[679]\)/);
-    expect(flags).not.toMatch(/smsOnly\.toolCount(?:, '[^']*')?\)\.toBe\(2[678]\)/);
+    expect(flags).not.toMatch(/off\.toolCount(?:, '[^']*')?\)\.toBe\(2[689]\)/);
+    expect(flags).not.toMatch(/smsOnly\.toolCount(?:, '[^']*')?\)\.toBe\(2[679]\)/);
   });
 });
 
