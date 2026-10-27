@@ -570,6 +570,13 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/the-258-platform-brand-complete.test.ts': 'ea0da4de3189aa0b1efd52aded0055c1c468f7a1f01464e593c6bc7b7853eb9b',
   };
 
+  // Member AI Chat dropped (Matei, 2026-10-27): the add-on note and the
+  // Platform & Brand guard name the owner's AI Assistant instead.
+  const AI_CHAT_DROPPED_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': '541754431be18254f7125ca72c726e85db5b01a81df4f8dce0da4f25de3dc65a',
+    'src/components/the-258-platform-brand-complete.test.ts': 'a273989e2f61ade838ca3163208840ced4dc7390832579e3b3f165b9eacc2877',
+  };
+
   // Round 3 copy, route removal, and the affected guards.
   const ROUND3_COPY_REPINNED: Readonly<Record<string, string>> = {
     'src/components/Pricing.tsx': 'e2f21216b9ace46f5c81bcf5cdc34d2012a385330d01d806d156c7963a38cc25',
@@ -582,7 +589,7 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

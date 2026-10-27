@@ -1153,20 +1153,20 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'blog/work-that-outlives-you/index.html': '6abb4920450df125f90f3368217c5fede752a2918a653a27911faf6164871d9a',
     'blog/year-end-giving-statements-what-to-include/index.html': '823429be419de263b39610f3bfcbe09f29ccacfeea84d22118cb32d9b39d4dea',
     'contact/index.html': '7ec8bc35649401984bfd8a7705e5f0c8538c4bb76c3bc846894e8d1afdcf0e37',
-    'faq/index.html': 'cdc98a5c0b22cdab241a80f7cd30ab652158f1210fad6fd9697b1bfa6b1a3510',
-    'features/ai-automation/index.html': '396b1dbe6634113db24ad138392a9f902c64922eb35c17d7e4e75bc8e9e732b3',
+    'faq/index.html': 'ae1f3ac276f6035c6edf56da630f5077a50ff8d41a37bb354e5768f5d4bc383b',
+    'features/ai-automation/index.html': 'a83551c920e659fc905a1c1f483dd37572451b9e5a20b59f65bae8bae4d6ccf1',
     'features/community-engagement/index.html': '101dd55c54ae6b31d62e71fe09c2703faa3f2aae47190ae851dba6e2466846b0',
     'features/discipleship-content/index.html': '743eb795daa041faea8ec643c644d540bfa918f2b45a96409e1abdd9f5270df3',
     'features/giving-finance/index.html': 'afaadfc9ba968b813f6cdf033dade66a0fd7e962f6376da4e1249d13aa8bbb7b',
     'features/harvest-scheduler/index.html': '5c981a2a706acad350bc89e1fde5728c075cd76a4b3833677fa3aba375a8cb7a',
-    'features/index.html': 'd79aa96f36e5a495e3ad6556ad2000db544b47eba1b2d384d2fb05747da77a1e',
+    'features/index.html': '9e14bd9c1cb63812f7b388c7698c3aa4d098359374d70c8428919ec083a3c380',
     'features/platform-brand/index.html': '48bd3e9135798581447026c5571c6d34afe52874f49621942ec8fa76b4dd769a',
-    'index.html': '162c30663bf31d9141d3256604e73c94cd6743a65b710d09e004e5df22cdb3a7',
-    'pricing/index.html': '178e4602b501aada085bbed647f7f1a3e2230435af280d567bbca21ee457c682',
+    'index.html': '933ff9c85894fd6de21a0cb39ece0c5885f4682397cf996987d4119939dcabbc',
+    'pricing/index.html': 'ebef94452bd848439749b2f4931bfba919667550d7185411a54a2bb4ab1ff568',
     'privacy/index.html': '6bde6d877e240e866f35372c4e11d70ab016decebb4482d437f47935016aa962',
     'refunds/index.html': '81a18397ab0454a0a4e80bb375d447c43c5a4ec31b101b2fee59c2c15cd0f47e',
-    'solutions/churches/index.html': '8906acce7fa5e7fc415cafe99a7977ab8bc6d17dbcc0b8cc0c0e0ec21a283bf6',
-    'solutions/evangelistic-organizations/index.html': '7c07bc6140656eabb58d957d3f98dd0b50617e344f05738caca4b176316e559b',
+    'solutions/churches/index.html': '0b054cae171fa59ae2f285f1332de23679cf1b24a79b6f2f6d9162c49085d4d1',
+    'solutions/evangelistic-organizations/index.html': '2f075a331246dd28bd782e00afb84487f4a11c99d2ed3e7640566c50c5f0e9f4',
     'solutions/missionaries/index.html': '619ec3d5d986ceeb1da7918dd4f180649e28c06ea29e0b345e37d62d1037e88f',
     'terms/index.html': 'bfd5c7e43300c2120f8dfb7d89e7dce49fa1de50523bbd91135e0d9718097621',
     'waitlist/index.html': 'ca4f3bc3787e7ac8e8034469af15f9b446b3934ce48e7cda86b7a03044a1c884',
@@ -1321,7 +1321,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // Church and Ministry reprice: all existing routes remain.
     '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
     // Hero and shared navigation redesign and the 10-day trial (2026-10-27); 29 pages.
-    'bc19e848bcca39c5df36ed35d9ec1a880da64d9f8ec8e9a42e5b692bf6028c24',
+    '3a06fea2993c26870586ffd4ccec922fe5c37db85d49dcdca1363d8432bf38d0',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {

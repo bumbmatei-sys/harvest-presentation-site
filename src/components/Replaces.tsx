@@ -62,8 +62,10 @@ const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
   // from the FLAG-FILTERED `CATEGORIES`, and an id this row lists but the
   // catalogue hides throws at the prerender by design (see `items` below). So a
   // hidden feature must leave this row too, and comes back with its flag.
+  // The plan owner's AI assistant (live; member AI chat was dropped).
   { c: 'Automation', ids: [
     'knowledge',
+    'assistant',
     ...(NEWSLETTER_MARKETING_ENABLED ? ['newsletter', 'autonewsletter'] : []),
     ...(SMS_MARKETING_ENABLED ? ['sms'] : []),
     'forms',

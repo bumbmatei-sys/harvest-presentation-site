@@ -41,10 +41,10 @@ function MiniPost() {
 function MiniChat() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ alignSelf: 'flex-start', background: 'var(--stone-100)', borderRadius: '14px 14px 14px 4px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-800)', maxWidth: '85%' }}>What does baptism mean for our church?</div>
+      <div style={{ alignSelf: 'flex-start', background: 'var(--stone-100)', borderRadius: '14px 14px 14px 4px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-800)', maxWidth: '85%' }}>Summarise what we've taught on baptism this year.</div>
       <div style={{ alignSelf: 'flex-end', background: 'var(--gold-100)', border: '1px solid rgba(201,150,58,0.25)', borderRadius: '14px 14px 4px 14px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-900)', maxWidth: '88%' }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--gold-700)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em' }}>{I.sparkles({ size: 11 })} YOUR MINISTRY'S AI</span>
-        <div style={{ marginTop: 4 }}>Based on your teaching series…</div>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--gold-700)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em' }}>{I.sparkles({ size: 11 })} YOUR AI ASSISTANT</span>
+        <div style={{ marginTop: 4 }}>Three sermons and one lesson cover it…</div>
       </div>
     </div>
   );
@@ -134,8 +134,8 @@ export function Features() {
             </BentoCard>
           </Reveal>
           <Reveal delay={200} style={{ display: 'flex', gridColumn: '1 / -1' }}>
-            <BentoCard icon={I.ai({ size: 24 })} name="AI Assistant" to="/features/ai-automation#knowledge" minH={260}
-              desc="Answers in your ministry's voice, trained on your own teaching.">
+            <BentoCard icon={I.ai({ size: 24 })} name="AI Assistant" to="/features/ai-automation#assistant" minH={260}
+              desc="For the plan owner, grounded in your own teaching.">
               <div style={{ flex: 1, paddingTop: 6 }}><MiniChat /></div>
             </BentoCard>
           </Reveal>

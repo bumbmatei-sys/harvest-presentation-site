@@ -103,8 +103,8 @@ function CategoryBand({ slug }: { slug: string }) {
       <PositioningBand
         kicker="Why our AI is different"
         kickerColor="var(--green-300)"
-        heading="Every vendor is bolting on AI. Ours knows when to stop."
-        body="The coming-soon assistant will answer from your ministry's own teaching and point members to Scripture and prayer."
+        heading="Every vendor is bolting on AI. Ours starts from your teaching."
+        body="The AI assistant is for the plan owner, and it works from your ministry's own knowledge base instead of the open internet."
       />
     );
   }

@@ -316,20 +316,20 @@ const ALL_CATEGORIES: Category[] = [
     // feature is hidden it names what is actually there.
     intro: SMS_MARKETING_ENABLED
       ? (NEWSLETTER_MARKETING_ENABLED
-        ? 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
-        : 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus SMS and forms that turn effort you’ve already spent into people you can reach.')
+        ? 'An AI assistant for the plan owner, grounded in your own teaching. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
+        : 'An AI assistant for the plan owner, grounded in your own teaching. Plus SMS and forms that turn effort you’ve already spent into people you can reach.')
       : (NEWSLETTER_MARKETING_ENABLED
-        ? 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.'
-        : 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus forms that turn effort you’ve already spent into people you can reach.'),
-    ctaHeading: 'AI your congregation can trust.',
+        ? 'An AI assistant for the plan owner, grounded in your own teaching. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.'
+        : 'An AI assistant for the plan owner, grounded in your own teaching. Plus forms that turn effort you’ve already spent into people you can reach.'),
+    ctaHeading: 'AI that works from your own teaching.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     seo: SMS_MARKETING_ENABLED
       ? (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, automated newsletters, SMS and forms that feed your CRM.'
-        : 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, SMS and forms that feed your CRM.')
+        ? 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, automated newsletters, SMS and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, SMS and forms that feed your CRM.')
       : (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, automated newsletters and forms that feed your CRM.'
-        : 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, and forms that feed your CRM.'),
+        ? 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, automated newsletters and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, an AI assistant for the plan owner, and forms that feed your CRM.'),
     features: [
       {
         id: 'knowledge', name: 'AI Knowledge Base', n: '1',
@@ -338,37 +338,35 @@ const ALL_CATEGORIES: Category[] = [
            chip is lit and Church's is not. (It was [0, 0, 0] under THE-253, when
            no tier included it and the AI Assistant add-on lifted it.)
 
-           ⚠️ THE MEMBER-FACING CHAT IS STILL THE ADD-ON — see `aichat` below. The
-           chat answers ONLY from this knowledge base, so a Ministry church has
-           the base and buys the chat; the add-on is attached to Ministry alone
-           in Dodo. The unbuilt AI ASSISTANT with its 300 / 5,000 monthly
-           messages is a different thing again and lives on the pricing cards,
-           labelled "coming soon". */
+           ⚠️ MEMBER-FACING AI CHAT IS DROPPED (Matei, 2026-10-27: "We only have
+           AI assistant for a plan owner"). The plan owner's AI assistant is
+           live — see `assistant` below; only its 300 / 5,000 monthly allowance
+           is labelled "coming soon". */
         accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1],
-        tiersNote: 'The AI Knowledge Base is included on Ministry. The AI assistant is coming soon: 300 messages a month on Church and 5,000 on Ministry.',
+        tiersNote: 'The AI Knowledge Base is included on Ministry.',
         eyebrow: 'The foundation',
         title: 'Teach it once. Everything downstream speaks in your voice.',
-        oneliner: 'Feed in your sermons and teaching notes for content grounded in your ministry. AI Chat is coming soon.',
+        oneliner: 'Feed in your sermons and teaching notes so the AI tools work from your ministry, not the internet.',
         moment: 'One upload makes every other AI feature yours. The knowledge base isn\'t a feature — it\'s the infrastructure that keeps the rest from sounding generic.',
         admin: ['Paste text, or upload .txt / .csv', 'Live meters for query use & capacity — no surprise cutoff', 'Delete a source and every trace of it is gone', 'Course lesson recaps can feed straight in'],
-        member: ['Powers answers that sound like your ministry', 'A retracted sermon can never resurface', 'Nothing generic slips into what members read'],
-        crosslinks: [{ label: 'AI Chat (coming soon)', href: '/features/ai-automation#aichat' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }, { label: 'Courses', href: '/features/discipleship-content#courses' }],
+        member: ['What members read sounds like your ministry', 'A retracted sermon can never resurface', 'Nothing generic slips into what members read'],
+        crosslinks: [{ label: 'AI Assistant', href: '/features/ai-automation#assistant' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }, { label: 'Courses', href: '/features/discipleship-content#courses' }],
       },
       {
-        id: 'aichat', name: 'AI Chat (coming soon)', n: '2',
-        /* 🔴 [0, 0] — NO PLAN INCLUDES THE CHAT; IT IS THE ADD-ON (THE-253). A lit
-           chip says "included in this plan", and member-facing AI Chat is not:
-           it is the AI Assistant add-on, sold on Ministry alone. Church cannot
-           buy it, and Ministry buys it on top. */
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0],
-        tiersNote: 'AI assistant coming soon: 300 messages a month on Church and 5,000 on Ministry.',
-        eyebrow: 'Coming soon',
-        title: 'Coming soon: an assistant that points members to prayer.',
-        oneliner: 'It answers from your ministry\'s own teaching — and after about ten questions, gently hands the conversation back to God with Scripture and steps to pray.',
-        moment: 'Every other AI is built to keep you talking. This one taps a member on the shoulder after ten questions and points them somewhere better — to Scripture, to prayer, to their pastor. By design, it refuses to maximise engagement.',
-        admin: ['Answers only from your knowledge base', 'Says “I don\'t have that” rather than inventing', 'Per-member pacing & monthly caps enforced server-side', 'Costs nothing when it redirects to prayer'],
-        member: ['Named, switchable conversation history', 'Honest answers grounded in your teaching', 'A written invitation to pray after a few questions', 'A gentle rest before asking again'],
-        crosslinks: [{ label: 'AI Knowledge Base', href: '/features/ai-automation#knowledge' }, { label: 'Full Bible', href: '/features/discipleship-content#bible' }],
+        id: 'assistant', name: 'AI Assistant', n: '2',
+        /* [1, 1] — the plan owner's AI assistant is on both paid plans and is
+           live (Matei, 2026-10-27). Only the monthly allowance is not metered
+           yet, so the number is labelled "coming soon" here and on pricing.
+           Member-facing AI chat was dropped and must not be described. */
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1],
+        tiersNote: 'For the plan owner on Church and Ministry. Monthly allowance coming soon: 300 messages on Church, 5,000 on Ministry.',
+        eyebrow: 'For the plan owner',
+        title: 'An AI assistant for the person running the ministry.',
+        oneliner: 'The plan owner gets an AI assistant inside the admin, grounded in your own teaching instead of the open internet.',
+        moment: 'Most AI tools guess. This one starts from what you have already taught, so what it gives back sounds like your ministry and not like a stranger.',
+        admin: ['Only the plan owner can use it', 'Works from your own teaching and notes', 'Says “I don\'t have that” rather than inventing', 'Monthly allowance: 300 on Church, 5,000 on Ministry (coming soon)'],
+        member: ['Nothing changes for members: the assistant is an admin tool', 'What you publish still goes out under your name'],
+        crosslinks: [{ label: 'AI Knowledge Base', href: '/features/ai-automation#knowledge' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }],
       },
       /* Two entries, because the app has two flags: `newsletterAutomation`
          (Small Team+) writes and sends a newsletter, `automatedNewsletter`
@@ -990,7 +988,9 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   'automated-seo-blog': '/features/discipleship-content#aiblog',
   'docs-notes': '/features/discipleship-content#docs',
   'ai-knowledge-base': '/features/ai-automation#knowledge',
-  'ai-chat': '/features/ai-automation#aichat',
+  // Member-facing AI Chat was dropped; its old slug lands on the owner's assistant.
+  'ai-chat': '/features/ai-automation#assistant',
+  'ai-assistant': '/features/ai-automation#assistant',
   // Split in two: the indexed slug names the Instagram generator, so it keeps
   // landing on that section rather than on the plain newsletter above it.
   'automated-newsletter': '/features/ai-automation#autonewsletter',

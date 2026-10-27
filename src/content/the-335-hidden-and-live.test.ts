@@ -250,7 +250,7 @@ describe('15f — QuickBooks appears nowhere on the site', () => {
    🔴 The tool count, and every assertion that pins it.                       */
 describe('15g & 18 — the tool count is right, and no "replaces N tools" figure is wrong', () => {
   it('🔴 the count is 26, derived, and the three withdrawals are what moved it', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -284,7 +284,7 @@ describe('15g & 18 — the tool count is right, and no "replaces N tools" figure
     expect(pins.length, 'a suite gained or lost its tool-count assertion').toBe(18); // Round 3 removes dedicated page suites.
     for (const [f, pin] of pins) {
       expect(pin, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toBe('CATALOG_TOOL_COUNT).toBe(27)');
+        .toBe('CATALOG_TOOL_COUNT).toBe(28)');
     }
   });
 

@@ -225,9 +225,10 @@ describe('Platform & Brand is complete', () => {
       .toBe(SMS_MARKETING_ENABLED);
     expect(byId.has('newsletter'), '#newsletter disagrees with NEWSLETTER_MARKETING_ENABLED')
       .toBe(NEWSLETTER_MARKETING_ENABLED);
-    // AI Chat is the editorial one: visible in the catalogue, deliberately not
-    // in this section, because it is an add-on rather than part of the plan.
-    expect(byId.get('aichat')?.name).toBe('AI Chat (coming soon)');
+    // Member AI Chat was dropped (Matei, 2026-10-27); the plan owner's AI
+    // Assistant is live, part of both plans, and listed in the Automation row.
+    expect(byId.has('aichat')).toBe(false);
+    expect(byId.get('assistant')?.name).toBe('AI Assistant');
     expect(SECTION).not.toContain('AI Chat');
   });
 });
@@ -309,6 +310,7 @@ describe('what THE-258 did not touch', () => {
     expect(rowNamed('Automation')!.items, 'the "Automation" row changed by more than its flagged entries')
       .toEqual(captionsFor([
         'knowledge',
+        'assistant', // the plan owner's AI Assistant, added when member AI Chat was dropped
         ...(NEWSLETTER_MARKETING_ENABLED ? ['newsletter', 'autonewsletter'] : []),
         ...(SMS_MARKETING_ENABLED ? ['sms'] : []),
         'forms',

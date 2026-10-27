@@ -178,23 +178,22 @@ describe('no site surface claims AI Chat as a plan feature', () => {
        the approved Ministry list), so its Ministry chip is lit and Church's is
        not. AI CHAT is still no plan's — it stays the add-on — so both of its
        chips are unlit. */
-    const chat = chipsOf('aichat');
-    expect(Object.keys(chat)).toEqual(['Church', 'Ministry']);
-    for (const [plan, lit] of Object.entries(chat)) {
-      expect(lit, `aichat still claims to be included on ${plan}`).toBe(false);
-    }
-    expect(featureById('aichat')!.tiers).toEqual([0, 0]);
+    /* 🔴 MEMBER AI CHAT IS DROPPED (Matei, 2026-10-27: "We only have AI
+       assistant for a plan owner"). Its entry is gone; the plan owner's AI
+       assistant replaced it, is live, and is on both plans. */
+    expect(featureById('aichat'), 'member AI Chat is still described').toBeUndefined();
+    expect(chipsOf('assistant')).toEqual({ Church: true, Ministry: true });
+    expect(featureById('assistant')!.tiers).toEqual([1, 1]);
     expect(chipsOf('knowledge')).toEqual({ Church: false, Ministry: true });
     expect(featureById('knowledge')!.tiers).toEqual([0, 1]);
   });
 
   it('and each says where the capability comes from instead of leaving it blank', () => {
-    for (const id of ['aichat', 'knowledge']) {
-      const note = featureById(id)!.tiersNote!;
-      expect(note).toMatch(/coming soon/i);
-      expect(note).toMatch(/300/);
-      expect(note).toMatch(/5,000/);
-    }
+    const note = featureById('assistant')!.tiersNote!;
+    expect(note).toMatch(/plan owner/i);
+    expect(note, 'only the allowance is coming soon').toMatch(/allowance coming soon/i);
+    expect(note).toMatch(/300/);
+    expect(note).toMatch(/5,000/);
     expect(featureById('knowledge')!.tiersNote).toMatch(/included on Ministry/i);
   });
 
@@ -242,7 +241,9 @@ describe('no site surface claims AI Chat as a plan feature', () => {
        ticket. Pinned so a later sweep does not "finish the job" by deleting
        something that was never wrong. */
     // The nav mega-menu names the tool. It carries no tier, and the tool exists.
-    expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Chat');
+    // Member AI Chat was dropped; the owner's AI Assistant is the live row.
+    expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).not.toContain('AI Chat');
+    expect(CATALOG.flatMap((g) => g.items).find((i) => i.title === 'AI Assistant')?.soon).toBeFalsy();
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Knowledge Base');
     // The comparison grid has no AI CHAT row — asserted, not assumed, because
     // "we checked" is not a thing a reader can verify. It has an AI Knowledge
@@ -261,7 +262,7 @@ describe('no site surface claims AI Chat as a plan feature', () => {
   it('the feature itself is still fully described — a correction, not a deletion', () => {
     // THE-224 said "the withdrawal may not delete the feature". The same holds
     // of the tier correction: the entries, their copy and their crosslinks stay.
-    for (const id of ['aichat', 'knowledge']) {
+    for (const id of ['assistant', 'knowledge']) {
       const f = featureById(id)!;
       expect(f.title.length).toBeGreaterThan(10);
       expect(f.oneliner.length).toBeGreaterThan(10);

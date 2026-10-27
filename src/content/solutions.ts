@@ -82,7 +82,7 @@ export const EVANGELISTIC_POCKET: readonly PocketTile[] = [
   { id: 'bible', title: 'The whole Bible.', body: 'Eight translations, highlighting and one-tap sharing. They never have to leave your app to read Scripture.' },
   { id: 'courses', title: 'Discipleship on video.', body: 'Your teaching videos become step-by-step courses with quizzes, and every finisher earns a certificate.' },
   { id: 'feed', title: 'Your voice in their feed.', body: 'Every post you publish lands in their feed with a push notification. No algorithm between you and them.' },
-  { id: 'aichat', title: 'An assistant that knows your teaching — coming soon.', body: "It will answer questions from your sermons and notes, then point people back to Scripture and prayer." },
+  { id: 'groups', title: 'Their group, in one place.', body: 'Channels for their group and a direct line to any leader, out of the group text.' },
   { id: 'prayer', title: 'A place to pray together.', body: 'They share a request in one line and see how many people prayed.' },
 ];
 
@@ -246,7 +246,7 @@ export const CHURCHES_POCKET: readonly PocketTile[] = [
   { id: 'bible', title: 'The whole Bible.', body: 'Eight translations, highlighting and one-tap sharing.' },
   { id: 'feed', title: 'Your voice in their feed.', body: 'Every post lands with a push notification. No algorithm between you and them.' },
   { id: 'groups', title: 'Their group, in one place.', body: 'Channels for their group and a direct line to any leader, out of the group text.' },
-  { id: 'aichat', title: 'An assistant that knows your teaching — coming soon.', body: 'It will answer from your sermons and notes, then point people back to Scripture and prayer.' },
+  { id: 'prayer', title: 'A place to pray together.', body: 'They share a request in one line and see how many people prayed.' },
 ];
 
 export const CHURCHES_DEEP_DIVES: readonly DeepDiveGroup[] = [

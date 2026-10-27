@@ -381,10 +381,10 @@ describe('4 — `pledges` is registered on every surface that keys off an id', (
        one platform", and a live tool missing from it understates the product.
        The ABSOLUTE is asserted alongside the DELTA so a second tool added in the
        same commit cannot hide inside this one's expected move. */
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== 'Pledge Campaigns').length, 0);
-    expect(without).toBe(26); // Round 3 adds the scheduler.
+    expect(without).toBe(27); // Round 3 adds the scheduler; the owner's AI Assistant adds one more.
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
     expect(readSrc('components/catalog.ts'), 'the tool count was hardcoded')
       .not.toMatch(/CATALOG_TOOL_COUNT\s*=\s*\d+/);

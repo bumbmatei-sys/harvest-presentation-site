@@ -203,7 +203,7 @@ describe('2 — the flip restores the Stripe half and nothing else', () => {
       vi.resetModules();
       vi.doMock('../lib/flags', () => flags);
       const { CATALOG_TOOL_COUNT, CATALOG } = await import('../components/catalog');
-      expect(CATALOG_TOOL_COUNT).toBe(27);
+      expect(CATALOG_TOOL_COUNT).toBe(28);
       expect(CATALOG.flatMap((g) => g.items).map((i) => i.title))
         .toContain('Pledge Campaigns');
       vi.doUnmock('../lib/flags');

@@ -245,7 +245,7 @@ describe('16 — SMS\'s tier claim is Ministry only, and matches the app', () =>
    The tool count, and every assertion that pins it.                          */
 describe('18 — the tool count is 26, and every assertion agrees', () => {
   it('🔴 it is 26, derived, and the SMS tool is what took it off there', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(28);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -282,15 +282,17 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
     // quietly drops its assertion still fails here.
     expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(15); // Round 3 removes dedicated page suites.
     for (const [f, body] of pinning) {
-      expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-314 count`)
-        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
+      // 🔵 AI Assistant (plan owner, live) replaced the soon-only AI Chat row, 27 → 28,
+      // so 28 is live again and 27 is the stale figure now.
+      expect(body, `${path.relative(ROOT, f)} still pins the pre-assistant count`)
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-335 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       // 🔵 THE-355 — 26 → 27, the Pledge Campaigns row. 26 is now the stale one.
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-355 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
       expect(body, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
     }
 
     /* The flag suite asserts a PAIR rather than the constant, so the scan cannot
@@ -302,8 +304,8 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
     // 🔵 THE-355 — 26/27 → 27/28. The Pledge Campaigns row is a live tool on
     // BOTH halves, so it moved the pair together and the delta did not move.
     const flags = readSrc('lib/flags.test.ts');
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(28)");
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(28)"); // +1: owner's AI Assistant row
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(29)");
   });
 
   it('the rendered figure is interpolated, never retyped', () => {
