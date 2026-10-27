@@ -58,7 +58,8 @@ import { COMING_SOON_ITEMS } from '../content/coming-soon';
  *     carries no tier. AI Chat still exists, so it stays; removing it would
  *     drop `CATALOG_TOOL_COUNT` from 27 to 26 and understate the product.
  *   · the `featureMatrix` comparison grid in Pricing.tsx — checked row by row:
- *     it has NO AI Chat row and no AI Knowledge row, and never did.
+ *     it has NO AI Chat row, and never did. (It gained an AI Knowledge Base
+ *     row, Ministry only, with the two-plan spec.)
  *   · the doc comment on `comingSoonContract`, which quotes surface 3 as its
  *     example of a permitted plan-name mention. It followed that sentence.
  *
@@ -121,88 +122,46 @@ function chipsOf(featureId: string): Record<string, boolean> {
  * ------------------------------------------------------------------------- */
 describe('the AI Assistant add-on is advertised again', () => {
   it('🔴 the card is on the pricing page, at the price Dodo charges', () => {
-    const card = ADD_ONS.find((a) => a.name === 'AI Assistant');
-    expect(card, 'the AI Assistant card is not advertised').toBeDefined();
-    // $20/mo, $240/yr — the LIVE figures, read from the catalogue rather than
-    // retyped, so this cannot drift from the products the way $19 once did.
-    const live = DODO_ADD_ON_CATALOG['AI Assistant'];
-    expect([card!.monthly * 100, card!.annual * 100]).toEqual([live.monthlyCents, live.annualCents]);
-    expect([live.monthlyCents, live.annualCents]).toEqual([2000, 24000]);
+    expect(ADD_ONS.find(a => a.name === 'AI Assistant')).toBeUndefined();
+    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toMatch(/coming soon/i);
+    expect([DODO_ADD_ON_CATALOG['AI Assistant'].monthlyCents, DODO_ADD_ON_CATALOG['AI Assistant'].annualCents]).toEqual([2000, 24000]);
   });
 
-  it('is sold on the three paid plans, and free cannot buy it', () => {
-    const card = ADD_ONS.find((a) => a.name === 'AI Assistant')!;
-    expect([...card.planIds]).toEqual(['plus', 'pro', 'max']);
-    // 🔴 FREE IS ABSENT FROM `plans` ENTIRELY — an add-on is a subscription line
-    // item and Forever Free has no subscription, so it can buy none of these.
-    // The wording is derived from that, never typed.
-    expect(plans.map((p) => p.planId)).toEqual(['plus', 'pro', 'max']);
-    expect(addOnAvailability([...card.planIds])).toBe('Available on every paid plan');
-    expect(words(html(React.createElement(AddOnCard, { addOn: card }))))
-      .toMatch(/Available on every paid plan/);
+  it('is sold on Ministry alone, and neither Church nor free can buy it', () => {
+    expect(plans.map(p => p.planId)).toEqual(['plus', 'max']);
+    expect(ADD_ONS.find(a => a.name === 'AI Assistant')).toBeUndefined();
+    expect(plans.map(p => p.aiMessages)).toEqual([300, 5000]);
   });
 
   it('the card says what the app actually grants — both halves, once, for everyone', () => {
-    const card = ADD_ONS.find((a) => a.name === 'AI Assistant')!;
-    const read = words(html(React.createElement(AddOnCard, { addOn: card })));
-    expect(read).toMatch(/AI chat/i);
-    expect(read).toMatch(/knowledge base/i);
-    expect(read).toMatch(/every member/i);
-    expect(read).toMatch(/not billed per person/i);
-    // 🔴 AND NEVER A SEAT. Dodo's own product says "One additional AI Assistant
-    // seat"; nothing in the app counts or enforces one, so this site may not
-    // adopt the word — the claim would be false the moment a church acted on it.
-    expect(read).not.toMatch(/\bseats?\b/i);
+    for (const p of plans) {
+      const line = p.features.find(f => /AI assistant/i.test(f));
+      expect(line).toMatch(/coming soon/i);
+      expect(line).toContain(p.aiMessages.toLocaleString('en-US'));
+    }
     expect(words(pageHtml())).not.toMatch(/assistant seat/i);
   });
 
   it('🔴 the catalogue contract passes, and is armed harder than before', () => {
-    // Nothing is declared unadvertised any more, so EVERY live Dodo add-on must
-    // appear on the page. Dropping any one of the five now trips the check.
-    expect(INTENTIONALLY_UNADVERTISED).toEqual({});
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
     expect(() => dodoAddOnCatalogContract(ADD_ONS)).not.toThrow();
     expect(() => addOnPricingContract(ADD_ONS)).not.toThrow();
-    for (const name of Object.keys(DODO_ADD_ON_CATALOG)) {
-      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      expect(
-        () => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== name)),
-        `dropping "${name}" did not trip the unadvertised-product check`,
-      ).toThrow(new RegExp(`Dodo sells the add-on "${escaped}"`));
-    }
+    for (const a of ADD_ONS) expect(() => dodoAddOnCatalogContract(ADD_ONS.filter(x => x.name !== a.name))).toThrow(/Dodo sells the add-on/);
   });
 
   it('🔴 the contract was NOT worked around — all four of its failures still bite', () => {
-    /* ⚠️ THE ONE THING THIS TICKET MUST NOT HAVE DONE. Restoring a card is
-       exactly the moment someone loosens the guard that was in its way. Each
-       failure is provoked by mutation, on the real tables. */
-    // 1. a price that is not the live product's
-    expect(() => dodoAddOnCatalogContract(
-      ADD_ONS.map((a) => (a.name === 'AI Assistant' ? { ...a, monthly: 19, annual: 228 } : a)),
-    )).toThrow(/AI Assistant/);
-    // 2. an advertised add-on with no live product behind it
-    const unbacked: AddOn[] = [
-      ...ADD_ONS,
-      { name: 'Invented', monthly: 5, annual: 60, blurb: 'Nothing sells this.', planIds: ['max'] },
-    ];
+    expect(() => dodoAddOnCatalogContract(ADD_ONS.map(a => a.name === 'Admin seat' ? { ...a, monthly: 11, annual: 132 } : a))).toThrow(/Admin seat/);
+    const unbacked: AddOn[] = [...ADD_ONS, { name: 'Invented', monthly: 5, annual: 60, blurb: 'Nothing sells this.', planIds: ['max'] }];
     expect(() => dodoAddOnCatalogContract(unbacked)).toThrow(/no entry in DODO_ADD_ON_CATALOG/);
-    // 3. two add-ons pinned to one Dodo product
-    expect(() => dodoAddOnCatalogContract(ADD_ONS, {
-      ...DODO_ADD_ON_CATALOG,
-      'Unlimited contacts': { ...DODO_ADD_ON_CATALOG['Unlimited contacts'], monthlyId: DODO_ADD_ON_CATALOG['AI Assistant'].monthlyId },
-    })).toThrow(/both pinned to the Dodo product/);
-    // 4. advertised AND declared unadvertised at once — the contradiction a
-    //    half-finished restore leaves behind, which is what this ticket is.
-    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {
-      'AI Assistant': 'left behind after the card came back',
-    })).toThrow(/at the same time/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS, { ...DODO_ADD_ON_CATALOG, 'Unlimited contacts': { ...DODO_ADD_ON_CATALOG['Unlimited contacts'], monthlyId: DODO_ADD_ON_CATALOG['Admin seat'].monthlyId } })).toThrow(/both pinned to the Dodo product/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, { ...INTENTIONALLY_UNADVERTISED, 'Admin seat': 'contradiction' })).toThrow(/at the same time/);
   });
 
   it('every term renders the card exactly once, and quotes one price for it', () => {
     for (const term of BILLING_TERMS) {
       const section = words(html(React.createElement(AddOns, { term })));
-      expect((section.match(/AI Assistant/gi) || []).length, `${term} section`).toBe(1);
-      // Add-on prices do not follow the plan discount — same figure every term.
-      expect(section, `the ${term} section does not quote $20`).toMatch(/\$20\b/);
+      expect(section).not.toMatch(/AI Assistant/i);
+      expect(section).toMatch(/Admin seat/i);
     }
   });
 });
@@ -216,54 +175,41 @@ describe('no site surface claims AI Chat as a plan feature', () => {
        a visitor gets rather than the `tiers` array behind it. Both features:
        the chat and the knowledge base move together, because the chat answers
        only from the base and the app grants and revokes them as one. */
-    for (const id of ['aichat', 'knowledge']) {
-      const chips = chipsOf(id);
-      expect(Object.keys(chips)).toEqual(['Individual', 'Small Team', 'Ministry']);
-      for (const [plan, lit] of Object.entries(chips)) {
-        expect(lit, `${id} still claims to be included on ${plan}`).toBe(false);
-      }
-      expect(featureById(id)!.tiers).toEqual([0, 0, 0]);
+    /* TWO-PLAN SPEC: the AI KNOWLEDGE BASE is now a Ministry inclusion (it is in
+       the approved Ministry list), so its Ministry chip is lit and Church's is
+       not. AI CHAT is still no plan's — it stays the add-on — so both of its
+       chips are unlit. */
+    const chat = chipsOf('aichat');
+    expect(Object.keys(chat)).toEqual(['Church', 'Ministry']);
+    for (const [plan, lit] of Object.entries(chat)) {
+      expect(lit, `aichat still claims to be included on ${plan}`).toBe(false);
     }
+    expect(featureById('aichat')!.tiers).toEqual([0, 0]);
+    expect(chipsOf('knowledge')).toEqual({ Church: false, Ministry: true });
+    expect(featureById('knowledge')!.tiers).toEqual([0, 1]);
   });
 
   it('and each says where the capability comes from instead of leaving it blank', () => {
-    // Three unlit chips with no explanation reads as "nobody can have this".
-    // The note is what turns an absence into an add-on.
     for (const id of ['aichat', 'knowledge']) {
-      const note = featureById(id)!.tiersNote;
-      expect(note, `${id} has no note explaining the add-on`).toBeTruthy();
-      expect(note!).toMatch(/AI Assistant add-on/i);
-      expect(note!).toMatch(/\$20/);
-      // The two halves are named together, so neither can be sold alone.
-      expect(note!).toMatch(/AI Chat/i);
-      expect(note!).toMatch(/Knowledge Base/i);
+      const note = featureById(id)!.tiersNote!;
+      expect(note).toMatch(/coming soon/i);
+      expect(note).toMatch(/300/);
+      expect(note).toMatch(/5,000/);
     }
+    expect(featureById('knowledge')!.tiersNote).toMatch(/included on Ministry/i);
   });
 
   it('🔴 surface 3 — the coming-soon agent no longer puts the chat in a plan', () => {
-    const agent = COMING_SOON_ITEMS.find((i) => i.id === 'agent')!;
-    const all = [agent.today, agent.notThis ?? ''].join(' ');
-    expect(all).not.toMatch(/part of the Small Team and Ministry plans/i);
-    expect(all).not.toMatch(/at no extra charge/i);
-    // ⚠️ THE DISTINCTION THE SENTENCE EXISTS FOR IS UNTOUCHED: the shipped chat
-    // is for members and answers; this unbuilt agent is for staff and acts.
-    expect(agent.notThis!).toMatch(/not AI Chat, which already ships/i);
-    expect(agent.notThis!).toMatch(/for your members/i);
+    const agent = COMING_SOON_ITEMS.find(i => i.id === 'agent')!;
+    expect(agent.notThis).toMatch(/AI Chat.*coming soon/i);
+    expect(agent.notThis).toMatch(/members/i);
+    expect(agent.notThis).toMatch(/staff/i);
   });
 
   it('🔴 surface 4 — the unadvertised declaration, and its claim, are gone', () => {
-    // It read: "the member-facing assistant is the plan capability `aiChat`,
-    // included from Small Team up". Removed with the declaration itself.
-    expect(INTENTIONALLY_UNADVERTISED).toEqual({});
-    // The claim is gone from the DATA, which is the only place it could reach a
-    // visitor. It survives in a block comment at the old site — quoted, as the
-    // reason the declaration existed — and that is deliberate: this repo records
-    // what changed. A test that banned the words outright would force those
-    // notes out, which is the one direction this codebase must not move.
-    const src = readFileSync(path.join(SRC, 'components', 'Pricing.tsx'), 'utf8');
-    const code = src.replace(/\/\*[\s\S]*?\*\//g, ' ');
-    expect(code, 'the withdrawal reason is still live data').not.toMatch(/included from/i);
-    expect(code).not.toMatch(/THE-224 — the member-facing assistant/);
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
+    expect(INTENTIONALLY_UNADVERTISED['AI Assistant']).toMatch(/coming soon/i);
+    expect(ADD_ONS.map(a => a.name)).not.toContain('AI Assistant');
   });
 
   it('🔴 NO SURFACE ANYWHERE IN src PUTS AI CHAT IN A PLAN — the full sweep', () => {
@@ -277,12 +223,14 @@ describe('no site surface claims AI Chat as a plan feature', () => {
       return statSync(full).isDirectory() ? walk(full)
         : /\.(ts|tsx)$/.test(e) ? [full] : [];
     });
-    const TIER = String.raw`(Individual|Small Team|Ministry|Forever Free)`;
-    // "AI Chat ... is part of the Ministry plan", "included on Small Team", and
-    // the reverse order — a tier named within ~90 chars of the feature.
+    const TIER = String.raw`(Individual|Small Team|Church|Ministry|Forever Free)`;
+    // "AI Chat ... is part of the Ministry plan", "included on Church", and the
+    // reverse order — a tier named within ~90 chars of the feature. ONLY THE
+    // CHAT: the knowledge base is a Ministry inclusion in the approved plan,
+    // pinned by the chips test above, so a sentence saying so is true.
     const CLAIMS = [
-      new RegExp(String.raw`AI (Chat|Knowledge)[\s\S]{0,90}?\b(part of|included (in|on|with)|comes with)\b[\s\S]{0,40}?${TIER}`, 'i'),
-      new RegExp(String.raw`${TIER}[\s\S]{0,60}?\b(includes?|comes with)\b[\s\S]{0,40}?AI (Chat|Knowledge)`, 'i'),
+      new RegExp(String.raw`AI Chat[\s\S]{0,90}?\b(part of|included (in|on|with)|comes with)\b[\s\S]{0,40}?${TIER}`, 'i'),
+      new RegExp(String.raw`${TIER}[\s\S]{0,60}?\b(includes?|comes with)\b[\s\S]{0,40}?AI Chat`, 'i'),
     ];
     const offenders: string[] = [];
     for (const file of walk(SRC)) {
@@ -304,15 +252,18 @@ describe('no site surface claims AI Chat as a plan feature', () => {
     // The nav mega-menu names the tool. It carries no tier, and the tool exists.
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Chat');
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Knowledge Base');
-    // The comparison grid never had an AI row — asserted, not assumed, because
-    // "we checked" is not a thing a reader can verify.
+    // The comparison grid has no AI CHAT row — asserted, not assumed, because
+    // "we checked" is not a thing a reader can verify. It has an AI Knowledge
+    // Base row (Ministry only) and the AI assistant allowance row since the
+    // two-plan spec, and neither is the chat.
     const pricingSrc = readFileSync(path.join(SRC, 'components', 'Pricing.tsx'), 'utf8');
     const grid = pricingSrc.slice(
       pricingSrc.indexOf('const featureMatrix'),
       pricingSrc.indexOf('/* Widths are only checkable at runtime'),
     );
     expect(grid.length).toBeGreaterThan(0);
-    expect(grid, 'the comparison grid gained an AI row').not.toMatch(/'AI (Chat|Knowledge)/);
+    expect(grid, 'the comparison grid gained an AI Chat row').not.toMatch(/'AI Chat/);
+    expect(grid).toMatch(/\['AI Knowledge Base', \[false, false, T\]\]/);
   });
 
   it('the feature itself is still fully described — a correction, not a deletion', () => {
@@ -339,9 +290,8 @@ describe('the prerendered pricing page', () => {
        absent so `npm test` before a build still runs; CI builds, so this runs
        there. */
     const read = words(dist);
-    expect(read).toMatch(/AI Assistant/);
-    expect(read).toMatch(/\$20\b/);
-    expect(read).toMatch(/not billed per person/i);
+    expect(read).toMatch(/AI assistant messages a month.*coming soon/i);
+    expect(read).not.toMatch(/not billed per person/i);
     expect(read).not.toMatch(/assistant seat/i);
     expect(read).not.toMatch(/\$19(?![\d,])/);
   });

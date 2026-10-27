@@ -3,7 +3,7 @@ title: The Real Cost of a Skool Alternative for Churches
 category: harvest-vs
 status: published
 publish_date: 2026-09-15
-updated: 2026-09-15
+updated: 2026-10-27
 description: Looking for a Skool alternative for churches? Here is what a Skool-plus-church-software stack really costs a month, and what one platform costs instead.
 reading_time: 6 min
 ---
@@ -26,25 +26,25 @@ Say a church on Skool Pro now wants the rest of the list: member records, Sunday
 
 | What a church needs | Harvest | Skool | What you'd add |
 | --- | --- | --- | --- |
-| A community feed | Individual and up, $20/mo | The core product | — |
-| Courses | 2 on Individual · 5 on Small Team · 15 on Ministry | Unlimited on both tiers | — |
-| Member database (CRM) | Individual and up · 150 / 500 / 2,000 contacts | Not on their pricing page (read Sept 15, 2026) | Planning Center People, free |
-| Kids' check-in | Small Team and up, $40/mo — QR | Not on their pricing page (read Sept 15, 2026) | PC Check-Ins, **$15/mo** at 30 daily |
-| A giving page | Individual and up, $20/mo | Not on their pricing page (read Sept 15, 2026) | PC Giving, **$15/mo** at 75 gifts |
-| Tax receipts & giving statements | Ministry, $80/mo | Not on their pricing page (read Sept 15, 2026) | Statements come with PC Giving |
-| Event registration | Ministry, $80/mo | Not on their pricing page (read Sept 15, 2026) | [PC Registrations](https://www.planningcenter.com/pricing), free to 5 attendees (read Sept 15, 2026) |
-| A blog for the church | Individual and up, $20/mo | Not on their pricing page (read Sept 15, 2026) | A blog or website tool |
-| Fee on money you collect | 0% platform fee on every paid plan | 10% on Hobby · 2.9% on Pro | PC Giving processes US cards at 2.15% + $0.30 |
+| A community feed | Church and up, $30/mo (one community; unlimited on Ministry) | The core product | — |
+| Courses | Church and up, $30/mo | Unlimited on both tiers | — |
+| Member database (CRM) | Church and up · 500 / 5,000 people | Not on their pricing page (read Sept 15, 2026) | Planning Center People, free |
+| Kids' check-in | Ministry, $90/mo — QR | Not on their pricing page (read Sept 15, 2026) | PC Check-Ins, **$15/mo** at 30 daily |
+| A giving page | Church and up, $30/mo | Not on their pricing page (read Sept 15, 2026) | PC Giving, **$15/mo** at 75 gifts |
+| Giving statements & year-end receipts | Ministry, $90/mo | Not on their pricing page (read Sept 15, 2026) | Statements come with PC Giving |
+| Event registration | Ministry, $90/mo | Not on their pricing page (read Sept 15, 2026) | [PC Registrations](https://www.planningcenter.com/pricing), free to 5 attendees (read Sept 15, 2026) |
+| A blog for the church | Church and up, $30/mo | Not on their pricing page (read Sept 15, 2026) | A blog or website tool |
+| Fee on money you collect | 0% Harvest fee on donations, on both paid plans | 10% on Hobby · 2.9% on Pro | PC Giving processes US cards at 2.15% + $0.30 |
 
 Add it up. [Skool](https://www.skool.com/pricing) Pro at $99, plus [Planning Center Giving](https://www.planningcenter.com/giving) at $15 and [Planning Center Check-Ins](https://www.planningcenter.com/check-ins) at $15 — all read September 15, 2026 — is **$129 a month, across two vendors, on two separate bills.** That figure is deliberately conservative: it does not price the blog or website tool the table's last row still calls for.
 
-Harvest's Ministry plan is **$80/mo** on the monthly term — $49 a month under that $129, compared like for like — or **$62.67/mo, billed as $752 every 12 months** on a yearly commitment. Skool discounts a year too, advertising two months free on its own yearly toggle, so monthly against monthly is the fair comparison. Either way it is one plan and one bill, carrying the community feed, 15 courses, the CRM to 2,000 contacts, QR check-in, the giving page, event registration, giving statements, the blog and custom branding.
+Harvest's Ministry plan is **$90/mo** on the monthly term — $39 a month under that $129, compared like for like — or **$75/mo, billed as $900 every 12 months** on a yearly commitment, which is two months free. Skool advertises two months free on its own yearly toggle too, so monthly against monthly is the fair comparison. Either way it is one plan and one bill, carrying unlimited communities, courses, the CRM to 5,000 people, QR check-in, the giving page, event registration, giving statements and year-end giving receipts, the blog and custom branding.
 
-A church under a hundred people usually does not need Ministry. Small Team is **$40/mo** monthly, or **$31.67/mo, billed as $380 every 12 months**, carrying the community feed, the CRM to 500 contacts, five courses, QR check-in, livestream, the church map, the blog and the mobile app. Match that scope on the other side — Skool Pro at $99, Planning Center Check-Ins at $15 — and it is $114 against $40, on the same monthly terms.
+A church under a hundred people usually does not need Ministry. Church is **$30/mo** monthly, or **$25/mo, billed as $300 every 12 months**, carrying one community with a feed and chat, courses, the CRM to 500 people, the donation page and fundraising campaigns, the blog and the mobile app. Match that scope on the other side — Skool Pro at $99, Planning Center Giving at $15 — and it is $114 against $30, on the same monthly terms.
 
 ## The fee line, stated plainly
 
-Harvest's platform fee is **0% on every paid plan** — zero on Individual, Small Team and Ministry alike, not a promotional rate and not a tier benefit.
+Harvest's fee on donations is **0% on both paid plans** — zero on Church and Ministry alike, not a promotional rate and not a tier benefit. (When paid product checkout launches, Harvest's fee on product sales will be 5% on Church and 2% on Ministry; it is coming soon and not charged today.)
 
 It can be zero because Harvest does not sit between a church and a gift at all: the church publishes its own PayPal, Cash App, Venmo, Zelle, Revolut or Wise links on one giving page in the app, and the money moves from the giver to the account the church already owns. There is nothing for Harvest to route, hold or take a share of. What the church's own payment provider charges is a real cost, and not ours to quote.
 

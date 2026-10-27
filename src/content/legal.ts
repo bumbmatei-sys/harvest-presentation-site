@@ -134,9 +134,8 @@ export interface TierPriceClaim {
  * check is a build failure rather than a warning.
  */
 export const TIER_PRICE_CLAIMS: TierPriceClaim[] = [
-  { planId: 'plus', name: 'Individual', monthly: 20, annual: 190 },
-  { planId: 'pro', name: 'Small Team', monthly: 40, annual: 380 },
-  { planId: 'max', name: 'Ministry', monthly: 80, annual: 752 },
+  { planId: 'plus', name: 'Church', monthly: 30, annual: 300 },
+  { planId: 'max', name: 'Ministry', monthly: 90, annual: 900 },
 ];
 
 /** Shape of the bits of `Plan` this check needs — passed in rather than
@@ -271,7 +270,7 @@ const TERMS: LegalDoc = {
       id: 'what-harvest-is',
       heading: '1. What Harvest is',
       blocks: [
-        p('Harvest is software for churches and ministries, delivered over the web and as an installable mobile web app. One subscription gives your ministry its own workspace, and that workspace includes a contact and donor CRM, courses and the full Bible, events and registrations, QR check-in, and an editor for your blog, documents and sermon notes.'),
+        p('Harvest is software for churches and ministries, delivered over the web and as an installable mobile web app. One subscription gives your ministry its own workspace, and, depending on your plan, that workspace includes a contact and donor CRM, courses and the full Bible, events and registrations, QR check-in, and an editor for your blog, documents and sermon notes.'),
         /* 🔴 THE-280 — THESE ARE TERMS, and the rule the SMS bullet below sets
            applies with more force here: a clause describing a capability a
            church cannot use is a contractual statement about a service that is
@@ -309,9 +308,10 @@ const TERMS: LegalDoc = {
       id: 'plans-and-billing',
       heading: '4. Plans, prices and billing',
       blocks: [
-        p('Harvest is sold on three plans. Prices are in US dollars, and each plan can be paid monthly or annually:'),
+        p('Harvest is sold on two paid plans, Church and Ministry, alongside a Forever Free tier that is not billed. Prices are in US dollars, and each paid plan can be paid monthly or annually:'),
         list(...tierRows),
-        p('The annual term costs less than the same period paid month by month; it is charged as a single payment for the whole term, not as a reduced monthly payment. The plan you are on sets your workspace limits — contacts, administrator accounts and courses — and the features available to you; the current limits for each plan are published on the pricing page and are part of what you are buying.'),
+        p('The annual term is two months free: you pay for ten months and receive twelve. It is charged as a single payment for the whole term, not as a reduced monthly payment. The plan you are on sets your workspace limits — people in your CRM and administrator accounts — and the features available to you; the current limits for each plan are published on the pricing page and are part of what you are buying.'),
+        p('Harvest\'s own fees are separate from your subscription. Harvest charges 0% on donations on both paid plans. Where Harvest later offers paid product checkout, it will charge 5% of product sales on Church and 2% on Ministry; that checkout is not available today, and no product-sales fee is charged until it is. Your payment processor charges its own fees on top of anything Harvest charges. Features the pricing page marks "coming soon", including the AI assistant and its monthly message allowance, are planned and are not part of what you are buying until they are released.'),
         p('Subscriptions are recurring. A monthly plan renews every month and an annual plan every year, charged to the card on file, until you cancel. We will always tell you before a price change takes effect on your subscription.'),
         p(MERCHANT_OF_RECORD_NOTE),
         p('Card details are entered with our payment providers and are held by them, not by Harvest. We never see or store a full card number.'),

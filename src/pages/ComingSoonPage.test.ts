@@ -545,7 +545,7 @@ describe('the Coming Soon page lists every named item', () => {
       }
     }
     // And each is badged SOON in the menu itself, not only in the data.
-    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_MENU_ITEMS.length);
+    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_MENU_ITEMS.length + 1);
   });
 
   it('and the page says up front that none of it exists', () => {
@@ -757,12 +757,13 @@ describe('the in-app AI assistant copy does not describe the shipping member ass
        page is where it is named. */
     const aiChat = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'aichat');
     expect(aiChat, 'the shipping AI Chat feature entry is gone').toBeDefined();
-    expect(aiChat!.tiers).toEqual([0, 0, 0]);
-    expect(aiChat!.tiersNote, 'nothing says where the chat comes from').toMatch(/AI Assistant add-on/i);
+    expect(aiChat!.tiers).toEqual([0, 0]);
+    expect(aiChat!.tiersNote).toMatch(/300.*5,000.*Ministry/i);
+    expect(aiChat!.tiersNote).toMatch(/coming soon/i);
     expect(CATALOG.flatMap((g) => g.items).map((i) => i.title)).toContain('AI Chat');
     // 🔴 AND IT IS SOLD ON THE PRICING PAGE, which is the surface that may name
     // a price. This page still may not — asserted in describe 10 below.
-    expect(ADD_ONS.map((a) => a.name)).toContain('AI Assistant');
+    expect(ADD_ONS.map((a) => a.name)).not.toContain('AI Assistant');
   });
 
   it('🔴 the unbuilt one is for ADMINS and it ACTS — the two things the shipping one is not', () => {
@@ -793,9 +794,9 @@ describe('the in-app AI assistant copy does not describe the shipping member ass
     // The strongest guard is not the absence of a phrase but the presence of
     // the correction. `notThis` renders under "Not to be confused with".
     expect(agent.notThis).toBeDefined();
-    expect(agent.notThis!).toMatch(/not AI Chat/i);
-    expect(agent.notThis!).toMatch(/already ships/i);
-    expect(agent.notThis!).toMatch(/for your members/i);
+    expect(agent.notThis!).toMatch(/AI Chat/i);
+    expect(agent.notThis!).toMatch(/coming soon/i);
+    expect(agent.notThis!).toMatch(/members/i);
     expect(agent.notThis!).toMatch(/does not exist/i);
     expect(mainText).toContain('Not to be confused with');
     expect(mainText).toContain(words(agent.notThis!));
@@ -829,7 +830,7 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     // the navigation could not reach. Still no coming-soon entry involved.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -838,7 +839,7 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
   it('the unbuilt entries contribute nothing to it', () => {
     const live = CATALOG.filter((g) => !g.href).reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     // 🔵 27 since THE-355 split Pledge Campaigns out; 26 since THE-335 hid SMS again and both newsletter tools with it.
-    expect(live).toBe(27);
+    expect(live).toBe(26);
     /* ⚠️ FOUR SINCE THE-297, not twelve: the column is a shortlist plus a "see
        all" row. The number that matters here is unchanged — none of them counts
        as a tool — and shortening the column could only ever have LOWERED a
@@ -863,10 +864,10 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
     const wrong = unflagged.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     // 🔵 27 live tools since THE-355 + the 4 unbuilt shortlist rows this
     // mutation wrongly counts.
-    expect(wrong).toBe(31);
+    expect(wrong).toBe(30);
     // 🔵 27 since THE-355 split Pledge Campaigns out — this is the derived
     // count plus the coming-soon rows the mutation wrongly counts.
-    expect(wrong).toBe(27 + CATALOG[0].items.length);
+    expect(wrong).toBe(26 + CATALOG[0].items.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
 
     // And one entry alone is enough to break it.
@@ -874,7 +875,7 @@ describe('the tool count is derived, and the unbuilt entries never touch it', ()
       (i === 0 ? { ...g, items: g.items.map((it, j) => (j === 0 ? { ...it, soon: false } : it)) } : g));
     // 🔵 28 since THE-355: the derived 27 plus the single entry this mutation
     // wrongly un-flags.
-    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(28);
+    expect(oneLost.reduce((n, g) => n + g.items.filter((x) => !x.soon).length, 0)).toBe(27);
   });
 
   it('the nav still quotes the derived figure', () => {
@@ -894,9 +895,9 @@ describe('the AI Assistant add-on is sold on the pricing page and nowhere near t
        grants what it sells and no plan includes it — so the omission is over
        and the constant is empty. The product is still fully described in the
        catalogue, which never depended on the declaration. */
-    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual([]);
+    expect(Object.keys(INTENTIONALLY_UNADVERTISED)).toEqual(['AI Assistant']);
     expect(DODO_ADD_ON_CATALOG['AI Assistant']).toBeDefined();
-    expect(ADD_ONS.map((a) => a.name)).toContain('AI Assistant');
+    expect(ADD_ONS.map((a) => a.name)).not.toContain('AI Assistant');
   });
 
   it('🔴 the add-on catalogue contract still throws on a live product nobody advertises', () => {
@@ -905,9 +906,8 @@ describe('the AI Assistant add-on is sold on the pricing page and nowhere near t
        while a card was missing. Empty is now the real state and passes, so the
        failure is provoked by dropping a card instead — and it is armed for all
        five, where before one was excused. */
-    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})).not.toThrow();
-    expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'AI Assistant')))
-      .toThrow(/Dodo sells the add-on "AI Assistant"/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {})).toThrow(/AI Assistant/);
+    expect(() => dodoAddOnCatalogContract(ADD_ONS)).not.toThrow();
     expect(() => dodoAddOnCatalogContract(ADD_ONS.filter((a) => a.name !== 'Admin seat')))
       .toThrow(/Dodo sells the add-on "Admin seat"/);
   });
@@ -931,7 +931,8 @@ describe('the AI Assistant add-on is sold on the pricing page and nowhere near t
        The contradiction the contract refuses is the same one, from either side:
        a product cannot be advertised and declared unadvertised at once. */
     expect(() => dodoAddOnCatalogContract(ADD_ONS, DODO_ADD_ON_CATALOG, {
-      'AI Assistant': 'left behind after the card came back',
+      ...INTENTIONALLY_UNADVERTISED,
+      'Admin seat': 'contradictory declaration',
     })).toThrow(/at the same time/);
     // A duplicate row is a different defect and still fails by its own name.
     const doubled: AddOn[] = [
@@ -951,9 +952,9 @@ describe('the AI Assistant add-on is sold on the pricing page and nowhere near t
 /* ── 11 ──────────────────────────────────────────────────────────────────── */
 describe('no price changed and both contracts still throw', () => {
   it('the six plan prices are exactly what they were', () => {
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
+    expect(plans.map((p) => p.price.monthly)).toEqual([30, 90]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([300, 900]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
@@ -969,7 +970,6 @@ describe('no price changed and both contracts still throw', () => {
     // $20/$240 the catalogue above has always pinned — a restore, not a
     // reprice, exactly as its withdrawal was a removal and not one.
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
-      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
       ['Unlimited contacts', 30, 360],
     ]);

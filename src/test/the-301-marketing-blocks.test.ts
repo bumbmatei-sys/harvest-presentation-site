@@ -314,13 +314,13 @@ describe('5 — the six plan prices are unchanged and the contract still bites',
   /** Three plans × two terms. Pinned as literals HERE — the one place in the
    *  repo where writing a price down is the point rather than the hazard. */
   const NINE: Readonly<Record<string, Record<string, number>>> = {
-    plus: { monthly: 20, yearly: 190 },
-    pro: { monthly: 40, yearly: 380 },
-    max: { monthly: 80, yearly: 752 },
+    plus: { monthly: 30, yearly: 300 },
+
+    max: { monthly: 90, yearly: 900 },
   };
 
   it('all six are exactly what they were', () => {
-    expect(plans).toHaveLength(3);
+    expect(plans).toHaveLength(2);
     for (const p of plans) {
       expect(NINE[p.planId], `${p.planId} is not a plan this ticket saw`).toBeDefined();
       for (const term of ['monthly', 'yearly'] as const) {
@@ -564,10 +564,17 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'vercel.json': 'e24c36c7bdfc981973ac94ccefeb11b24d107a0c99c17d03d57dc12e43ae0965',
   };
 
+  // Repricing intentionally changes the plan data and the two price guards.
+  const REPRICE_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': '9864bd0588146910533038884738607950e7eef84d25471a7ade4b66b2dd5514',
+    'src/components/the-257-competitor-table-retired.test.ts': 'e4c007039bebe435539a4c8bb09be03cad2b24d72e0ae575f42c8a4ae47c9884',
+    'src/components/the-258-platform-brand-complete.test.ts': 'ea0da4de3189aa0b1efd52aded0055c1c468f7a1f01464e593c6bc7b7853eb9b',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        RETIRED_BOARD_REDIRECT_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

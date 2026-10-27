@@ -75,7 +75,7 @@ const ALL_CATEGORIES: Category[] = [
     features: [
       {
         id: 'feed', name: 'Community Feed', n: '1',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1],
         eyebrow: 'Owned audience',
         title: 'A private church community app — your feed, no algorithm',
         oneliner: 'Announcements, polls, photos and comments in a space that belongs to you — without a Facebook group deciding who sees Sunday\'s post.',
@@ -86,8 +86,8 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'groups', name: 'Groups', n: '2',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
-        tiersNote: 'Channels and direct messages are on Ministry only — Individual and Small Team don\'t have a Messages tab at all.',
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1],
+        tiersNote: 'Church includes channels and direct messages inside its one community; Ministry runs unlimited communities.',
         eyebrow: 'Private by design',
         title: 'Get your leadership out of the group text.',
         oneliner: 'Private channels and direct messages inside your app — coordination and pastoral care in the same place as everything else.',
@@ -98,7 +98,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'prayer', name: 'Prayer Requests', n: '3',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1],
         eyebrow: 'Dignity, not a graveyard',
         title: 'A prayer wall that never becomes a graveyard.',
         oneliner: 'Post in one line, pray with one tap — and requests clear themselves after 30 days, by design.',
@@ -109,7 +109,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'map', name: 'Church Map', n: '4',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1],
         eyebrow: 'Where do I go Sunday?',
         title: 'Every campus on a map, sorted by distance.',
         oneliner: 'A member-facing locator and a multi-campus roster admins manage — the “where do I go on Sunday” question, solved.',
@@ -138,7 +138,7 @@ const ALL_CATEGORIES: Category[] = [
            carrying a QR generated from the ticket code — with no QR for a
            waitlisted seat, which is why the bullet says "confirmed". */
         id: 'events', name: 'Event Registration', n: '5',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1],
         eyebrow: STRIPE_GIVING_MARKETING_ENABLED ? 'The money never touches us' : 'Registered, scanned, through the door',
         title: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Ticketing where the money never touches us.'
@@ -162,7 +162,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'checkin', name: 'Check-In System', n: '6',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1],
         eyebrow: 'Attendance becomes data',
         title: 'Print a QR, tape it to the door.',
         oneliner: 'Church check-in system and attendance tracking that lands in your CRM — visitors and members scan, enter a first name, and they are done. No app, no account.',
@@ -205,7 +205,7 @@ const ALL_CATEGORIES: Category[] = [
            SMS is hidden in this very ticket, and a serving text is the thing
            email is replacing. */
         id: 'services', name: 'Service Planning', n: '7',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1],
         eyebrow: 'Service planning + volunteer invites',
         title: 'Church volunteer scheduling for the Sunday run sheet',
         oneliner: 'Build Sunday\u2019s run sheet with your team \u2014 every item, how long it runs and who is doing it \u2014 then invite those people and see who has said yes.',
@@ -217,7 +217,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'livestream', name: 'Livestream + Live Giving', n: '8',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1],
         eyebrow: 'The prayer that reaches the pastor',
         title: 'Go live — and reach the person watching alone.',
         oneliner: 'Stream on YouTube, keep the congregation inside your app: prayer, chat, sermon notes and giving one tap away.',
@@ -250,7 +250,7 @@ const ALL_CATEGORIES: Category[] = [
     features: [
       {
         id: 'bible', name: 'Full Bible', n: '1',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1],
         eyebrow: 'On every plan',
         title: 'The whole Bible, inside your app.',
         oneliner: 'Eight translations, highlighting and one-tap sharing — so nobody ever has to leave your app to read scripture.',
@@ -261,7 +261,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'courses', name: 'Courses', n: '2',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1],
         eyebrow: 'AI lesson builder',
         title: 'Turn last year\'s sermon series into a course this afternoon.',
         oneliner: 'Paste a YouTube link and AI drafts the lesson, outline and quiz — you edit and publish. Finishers earn a verified certificate.',
@@ -272,7 +272,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'blog', name: 'Blog & Publishing', n: '3',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1],
         eyebrow: 'Found on search',
         title: 'The family moving to town finds you.',
         oneliner: 'A real publishing platform with the full SEO stack built in — so people searching for a church in your town actually land on your page.',
@@ -283,7 +283,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'aiblog', name: 'Automated SEO Blog', n: '4',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1],
         eyebrow: 'Grounded in your teaching',
         title: 'Your own sermons, rewritten for search.',
         oneliner: 'Draw on your uploaded teaching to generate a search-optimised article grounded in what your ministry actually believes — not a generic model\'s guess.',
@@ -294,8 +294,8 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'docs', name: 'Docs & Notes', n: '5',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 1, 1],
-        tiersNote: 'Docs and sermon notes are on Small Team and above. Pushing notes to a live stream needs Small Team or above, because that is where livestream itself starts.',
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1],
+        tiersNote: 'Docs and sermon notes are on Church and Ministry. Pushing notes to a live stream needs Ministry, because that is where livestream itself is.',
         eyebrow: 'Write once, use everywhere',
         title: 'Write it Tuesday. Preach it Sunday. Push it to every screen.',
         oneliner: 'Sermon prep and team docs — nested, autosaved, exportable — and one tap from your congregation\'s screen the moment you\'re preaching.',
@@ -316,55 +316,54 @@ const ALL_CATEGORIES: Category[] = [
     // feature is hidden it names what is actually there.
     intro: SMS_MARKETING_ENABLED
       ? (NEWSLETTER_MARKETING_ENABLED
-        ? 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
-        : 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus SMS and forms that turn effort you’ve already spent into people you can reach.')
+        ? 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus a newsletter, SMS, and forms that turn effort you’ve already spent into people you can reach.'
+        : 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus SMS and forms that turn effort you’ve already spent into people you can reach.')
       : (NEWSLETTER_MARKETING_ENABLED
-        ? 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.'
-        : 'An assistant that answers only from your teaching — and after a few questions, points members to prayer instead. Plus forms that turn effort you’ve already spent into people you can reach.'),
+        ? 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus a newsletter and forms that turn effort you’ve already spent into people you can reach.'
+        : 'A coming-soon assistant will answer from your teaching and point members to prayer. Plus forms that turn effort you’ve already spent into people you can reach.'),
     ctaHeading: 'AI your congregation can trust.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     seo: SMS_MARKETING_ENABLED
       ? (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters, SMS and forms that feed your CRM.'
-        : 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, SMS and forms that feed your CRM.')
+        ? 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, automated newsletters, SMS and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, SMS and forms that feed your CRM.')
       : (NEWSLETTER_MARKETING_ENABLED
-        ? 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, automated newsletters and forms that feed your CRM.'
-        : 'An AI knowledge base trained on your teaching, a chat assistant that knows when to point to prayer, and forms that feed your CRM.'),
+        ? 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, automated newsletters and forms that feed your CRM.'
+        : 'An AI knowledge base trained on your teaching, a coming-soon chat assistant that knows when to point to prayer, and forms that feed your CRM.'),
     features: [
       {
         id: 'knowledge', name: 'AI Knowledge Base', n: '1',
-        /* 🔴 [0, 0, 0] — NO PLAN INCLUDES IT (THE-253). Was [0, 1, 1]: on Small
-           Team and Ministry, matching the app's `aiKnowledge` cell at the time.
-           That cell is now false on all four tiers and is lifted only by the AI
-           Assistant add-on, so no chip may be lit — a lit chip is this site's
-           way of saying "included in this plan", and it would be the same false
-           claim THE-224 withdrew a card over, in the other direction.
+        /* 🔴 [0, 1] — THE KNOWLEDGE BASE IS A MINISTRY INCLUSION. The approved
+           two-plan spec lists "AI knowledge base" under Ministry, so Ministry's
+           chip is lit and Church's is not. (It was [0, 0, 0] under THE-253, when
+           no tier included it and the AI Assistant add-on lifted it.)
 
-           ⚠️ IT MOVES WITH `aichat` BELOW, ALWAYS. The chat answers ONLY from
-           this knowledge base, so the app grants and revokes the two together.
-           Advertising one as included and the other as an add-on would describe
-           a product that does not exist. */
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 0],
-        tiersNote: 'AI Chat and the AI Knowledge Base are the AI Assistant add-on — $20/mo on top of any paid plan, not part of one. One purchase turns both on for every member of your congregation; it is not billed per person, and buying more than one changes nothing.',
+           ⚠️ THE MEMBER-FACING CHAT IS STILL THE ADD-ON — see `aichat` below. The
+           chat answers ONLY from this knowledge base, so a Ministry church has
+           the base and buys the chat; the add-on is attached to Ministry alone
+           in Dodo. The unbuilt AI ASSISTANT with its 300 / 5,000 monthly
+           messages is a different thing again and lives on the pricing cards,
+           labelled "coming soon". */
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1],
+        tiersNote: 'The AI Knowledge Base is included on Ministry. The AI assistant is coming soon: 300 messages a month on Church and 5,000 on Ministry.',
         eyebrow: 'The foundation',
         title: 'Teach it once. Everything downstream speaks in your voice.',
-        oneliner: 'Feed in your sermons and teaching notes, and AI Chat, the SEO blog and course drafting all start answering from your ministry — not a generic model.',
+        oneliner: 'Feed in your sermons and teaching notes for content grounded in your ministry. AI Chat is coming soon.',
         moment: 'One upload makes every other AI feature yours. The knowledge base isn\'t a feature — it\'s the infrastructure that keeps the rest from sounding generic.',
         admin: ['Paste text, or upload .txt / .csv', 'Live meters for query use & capacity — no surprise cutoff', 'Delete a source and every trace of it is gone', 'Course lesson recaps can feed straight in'],
         member: ['Powers answers that sound like your church', 'A retracted sermon can never resurface', 'Nothing generic slips into what members read'],
-        crosslinks: [{ label: 'AI Chat', href: '/features/ai-automation#aichat' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }, { label: 'Courses', href: '/features/discipleship-content#courses' }],
+        crosslinks: [{ label: 'AI Chat (coming soon)', href: '/features/ai-automation#aichat' }, { label: 'Automated SEO Blog', href: '/features/discipleship-content#aiblog' }, { label: 'Courses', href: '/features/discipleship-content#courses' }],
       },
       {
-        id: 'aichat', name: 'AI Chat', n: '2',
-        /* 🔴 [0, 0, 0] — see the note on `knowledge` above; the two move as one.
-           Was [0, 1, 1]. `the-224-ai-assistant-withdrawal.test.ts` pinned that
-           array as the reason the $20 card was redundant on Small Team and
-           Ministry; THE-253 removed the inclusion instead, so the card is honest
-           and this row is the thing that had to change with it. */
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 0],
-        tiersNote: 'AI Chat and the AI Knowledge Base are the AI Assistant add-on — $20/mo on top of any paid plan, not part of one. One purchase turns both on for every member of your congregation; it is not billed per person, and buying more than one changes nothing.',
-        eyebrow: 'AI that knows when to stop',
-        title: 'The assistant that tells members to go pray instead.',
+        id: 'aichat', name: 'AI Chat (coming soon)', n: '2',
+        /* 🔴 [0, 0] — NO PLAN INCLUDES THE CHAT; IT IS THE ADD-ON (THE-253). A lit
+           chip says "included in this plan", and member-facing AI Chat is not:
+           it is the AI Assistant add-on, sold on Ministry alone. Church cannot
+           buy it, and Ministry buys it on top. */
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0],
+        tiersNote: 'AI assistant coming soon: 300 messages a month on Church and 5,000 on Ministry.',
+        eyebrow: 'Coming soon',
+        title: 'Coming soon: an assistant that points members to prayer.',
         oneliner: 'It answers from your church\'s own teaching — and after about ten questions, gently hands the conversation back to God with Scripture and steps to pray.',
         moment: 'Every other AI is built to keep you talking. This one taps a member on the shoulder after ten questions and points them somewhere better — to Scripture, to prayer, to their pastor. By design, it refuses to maximise engagement.',
         admin: ['Answers only from your knowledge base', 'Says “I don\'t have that” rather than inventing', 'Per-member pacing & monthly caps enforced server-side', 'Costs nothing when it redirects to prayer'],
@@ -378,7 +377,7 @@ const ALL_CATEGORIES: Category[] = [
          is what advertised Instagram generation to Small Team. */
       {
         id: 'newsletter', name: 'Newsletter', n: '3',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 1],
         eyebrow: 'Your list, not ours',
         title: 'Write the email. Send it from your own list.',
         oneliner: 'Compose a newsletter in a real editor and send it through your own Mailchimp audience — your list, your sender, your subscribers.',
@@ -389,7 +388,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'autonewsletter', name: 'Automated Newsletter', n: '4',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 0, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [0, 1],
         eyebrow: 'You already made the content',
         title: 'A month of Instagram, turned into a newsletter.',
         oneliner: 'Pull a date range of your own Instagram posts and AI drafts the subject line and body. It lands in the same editor you\'d write in, and sends through your own Mailchimp.',
@@ -409,7 +408,7 @@ const ALL_CATEGORIES: Category[] = [
         // site has already corrected six times, and the reason
         // `the-314-sms-live.test.ts` VERIFIES this array against the app's
         // published plan catalogue rather than restating it.
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 1],
         // ⚠️ The eyebrow read "Your Twilio, your rates" — bring-your-own, where
         // a church held the carrier account and negotiated its own per-message
         // price. It holds neither now: Harvest buys the number, sends on its own
@@ -425,7 +424,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'forms', name: 'Custom Forms → CRM', n: '6',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 1],
         eyebrow: 'Forms that become people',
         title: 'Forms that don\'t die in a spreadsheet.',
         oneliner: 'Build any form from nine field types, share a link or QR, and every response matches or creates a contact in your CRM — with a history, not just a row.',
@@ -493,7 +492,7 @@ const ALL_CATEGORIES: Category[] = [
            so "every paid plan" is still the true claim and [1, 1, 1] is still
            the true array. */
         id: 'donation', name: 'Donation Page', n: '1',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1],
         eyebrow: STRIPE_GIVING_MARKETING_ENABLED ? 'You keep more' : 'Your accounts, not ours',
         title: STRIPE_GIVING_MARKETING_ENABLED
           ? 'Keep 100% of every gift, on every paid plan.'
@@ -506,7 +505,7 @@ const ALL_CATEGORIES: Category[] = [
           : 'Church donation software should not sit between the giver and the church. Most platforms sit between a church and the gift and take 2–5% of it, forever. Harvest does not sit there at all — a member taps the account your church already uses, and the money goes to it. There is nothing for us to route, nothing to hold and nothing to take a share of. You pay a flat subscription and nothing else.',
         admin: STRIPE_GIVING_MARKETING_ENABLED
           ? ['Gifts are destination charges to your own Stripe', 'Fail-closed — no Stripe connected, no gift routed elsewhere', 'A gift writes a receipt, a CRM record & campaign credit', 'Stripe\'s own processing fees are Stripe\'s, not ours']
-          : ['Paste your own payment links — six providers', 'Every link checked against its provider before it goes live', 'Record a gift by hand and it posts to your dashboard, accounting and the giver’s history'],
+          : ['Paste your own payment links — six providers', 'Every link checked against its provider before it goes live', 'Record a gift by hand and it posts to your dashboard, giving records and the giver’s history'],
         member: STRIPE_GIVING_MARKETING_ENABLED
           ? ['Preset amounts or your own, in three taps', 'No login — give to any church, even as a visitor', 'An emailed PDF receipt, instantly', 'Your full giving history, receipts included']
           : ['One page with every way to give', 'No login, on any phone', 'Taps straight into the app they already use'],
@@ -543,7 +542,7 @@ const ALL_CATEGORIES: Category[] = [
            church's own accounts to begin with, which is exactly why it needed
            no correction. */
         id: 'sharegiving', name: 'Shareable Giving Page', n: '2',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1],
         eyebrow: 'Sunday morning, from the platform',
         title: 'Put your giving page on the screen, in one tap.',
         oneliner: 'Tithe and offering software your members already know how to use — share the page that carries every way your church takes a gift, as a link, a native share sheet, or a QR code big enough to read from the back row.',
@@ -582,7 +581,7 @@ const ALL_CATEGORIES: Category[] = [
            `tenant.config` the logo comes from (THE-251, THE-303), and with
            Stripe off it draws no amount picker and no Donate button at all. */
         id: 'fundraising', name: 'Fundraising Campaigns', n: '3',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [1, 1],
         eyebrow: 'A building fund isn\'t a GoFundMe',
         title: 'A number the whole church can watch.',
         oneliner: STRIPE_GIVING_MARKETING_ENABLED
@@ -642,7 +641,7 @@ const ALL_CATEGORIES: Category[] = [
            messaging channel this site calls unbuilt cannot be a way to pledge
            on the same site. */
         id: 'pledges', name: 'Pledge Campaigns', n: '4',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 1],
         eyebrow: 'Commit now, give later',
         title: 'Three hundred families, a thousand dollars each.',
         oneliner: 'A pledge campaign takes the commitment now and follows it until it is met — a ledger of pledged against paid, donor by donor, with the status worked out from the numbers.',
@@ -658,12 +657,12 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'crm', name: 'CRM', n: '5',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1],
         // The contact ceiling is the primary ladder between the three plans and
         // the pricing table was the only surface carrying it. The CRM is where
         // a contact lives, so it is where the limit belongs — a cap nobody can
         // find until checkout is the surprise this audience punishes hardest.
-        tiersNote: 'The CRM itself is on every plan, Forever Free included; how many people it holds is what scales — 500 on Forever Free, 500 on Individual, 2,000 on Small Team, 4,000 on Ministry.',
+        tiersNote: 'The CRM itself is on every plan, Forever Free included; how many people it holds is what scales — 500 on Forever Free, 500 on Church, 5,000 on Ministry.',
         eyebrow: 'You never type a contact in',
         title: 'One record per person — built automatically.',
         /* 🔴 THE-355 — the GIVE half of two sentences, and only that half.
@@ -701,21 +700,25 @@ const ALL_CATEGORIES: Category[] = [
            on it is the overreach that shape exists to avoid.
            ⚠️ EVERY QUICKBOOKS SENTENCE IS BEHIND THE FLAG, including the ones
            inside `admin` — a bullet is a claim just as much as the title is. */
-        id: 'accounting', name: QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks' : 'Accounting', n: '6',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 0, 1],
+        id: 'accounting', name: 'Giving records', n: '6',
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [0, 1],
         eyebrow: 'Your treasurer stops asking',
-        title: QUICKBOOKS_MARKETING_ENABLED
-          ? 'Every receipt, pushed into QuickBooks.'
-          : 'Church accounting trail: every receipt, in one ledger',
+        /* 🔴 RENAMED FROM "ACCOUNTING", AND THE ID STAYS. The anchor
+           `#accounting` is indexed and linked (see LEGACY_ANCHORS), so only the
+           words change. Giving records are the statements and year-end giving
+           receipts a giver is owed, plus the ledger of every receipt Harvest
+           issues. They are NOT accounting software and this entry must never
+           read as a replacement for QuickBooks or any bookkeeping tool: the
+           books stay wherever they are kept. The QuickBooks sync, when its flag
+           is on, is a connection to that tool, not a substitute for it. */
+        title: 'Giving statements and year-end receipts, ready when a giver asks.',
         oneliner: QUICKBOOKS_MARKETING_ENABLED
-          ? 'A ledger of every donation receipt and event ticket Harvest issues — synced to QuickBooks as sales receipts, with per-item retry when one fails.'
-          : 'A ledger of every donation receipt and event ticket Harvest issues, each with its own numbered PDF and a status you can read at a glance.',
-        moment: QUICKBOOKS_MARKETING_ENABLED
-          ? 'For a church with a real treasurer, the giving-report request lands every month. Here, receipts flow into QuickBooks as sales receipts on their own — hours a month, gone.'
-          : 'For a church with a real treasurer, the giving-report request lands every month. Here the answer is already written: every receipt Harvest issued, numbered, dated and exportable.',
+          ? 'Giving statements, year-end giving receipts and a ledger of every receipt Harvest issues — with a sync that sends them on to your QuickBooks, which keeps your books.'
+          : 'Giving statements, year-end giving receipts and a ledger of every receipt Harvest issues, each with its own numbered PDF and a status you can read at a glance.',
+        moment: 'When a giver asks for their year-end statement, or the treasurer asks for the giving report, the answer is already written: every gift recorded, numbered, dated and exportable. Your books stay where they are; this is the record of what was given.',
         admin: QUICKBOOKS_MARKETING_ENABLED
-          ? ['Ledger of every donation receipt & event ticket', 'Connect QuickBooks; sync all, or retry a single one', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail, QuickBooks or not']
-          : ['Ledger of every donation receipt & event ticket', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail for every item issued'],
+          ? ['Giving statements & year-end giving receipts', 'Ledger of every donation receipt & event ticket', 'Connect QuickBooks; sync all, or retry a single one', 'A numbered PDF audit trail, QuickBooks or not']
+          : ['Giving statements & year-end giving receipts', 'Ledger of every donation receipt & event ticket', 'Per-receipt status, with the error kept on failure', 'A numbered PDF audit trail for every item issued'],
         /* 🔴 THE-355 — "ARRIVES WITH" WAS THE STRIPE WEBHOOK SPEAKING. It
            emailed a receipt at the moment a card cleared; nothing emails one
            when a member pays a church's PayPal, because Harvest never sees that
@@ -737,11 +740,11 @@ const ALL_CATEGORIES: Category[] = [
          un-hide the entry, until that migration ships. */
       {
         id: 'affiliate', name: 'Affiliate Program', n: '7',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1],
         eyebrow: '30% for their first 12 months',
         title: 'Refer a ministry. Earn 30% for a year.',
         oneliner: 'A flat 30% of what every church you refer pays, for their first 12 months — tracked automatically and paid out to you, not held as credit.',
-        moment: 'Most SaaS affiliate programs pay once, on the first payment. Harvest pays for a full year — refer five churches on the $80 plan and that’s about $120 a month for twelve months, roughly $1,440 in total.',
+        moment: 'Most SaaS affiliate programs pay once, on the first payment. Harvest pays for a full year — refer five churches on the $90 plan and that’s about $135 a month for twelve months, roughly $1,620 in total.',
         admin: ['Flat 30% — every plan, no tiers, no ladder', 'On everything they pay in their first 12 months', 'Trial starts don\'t count — only converted customers', 'Real money paid out to you, never platform credit'],
         member: ['A referral link, generated automatically', 'This-month pending & total earnings at a glance', 'Add your payout details whenever — earnings accrue either way'],
         adminLabel: 'For referrers', memberLabel: 'Your dashboard',
@@ -768,7 +771,7 @@ const ALL_CATEGORIES: Category[] = [
     features: [
       {
         id: 'webapp', name: 'Web App', n: '1',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1, 1],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1],
         eyebrow: 'Nothing to install, nothing to approve',
         title: 'Your church app opens in any browser.',
         oneliner: 'One app, web and mobile, on any device — no App Store review, no update cycle. You ship it and everyone has it.',
@@ -781,8 +784,8 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'pwa', name: 'Mobile App', n: '2',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
-        tiersNote: 'Your own name, icon and colour on Ministry only — on Forever Free, Individual & Small Team the app installs with Harvest branding.',
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1],
+        tiersNote: 'Your own name, icon and colour on Ministry only — on Forever Free and Church the app installs with Harvest branding.',
         eyebrow: 'It\'s your app, right down to the icon',
         title: 'Your name and icon, on the home screen.',
         oneliner: 'Members install your app to their home screen on every plan, Forever Free included. On Ministry it carries your name, icon and colour; on every other plan it installs with Harvest branding.',
@@ -793,7 +796,7 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'dashboard', name: 'Admin Dashboard', n: '3',
-        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1, 1],
+        accent: 'var(--navy-600)', accentBg: 'var(--stone-100)', tiers: [1, 1],
         eyebrow: 'Your volunteers see only their part',
         title: 'One dashboard. Everyone sees only their piece.',
         oneliner: 'Twenty-three granular permissions per admin, plus location- and region-scoped access — so the check-in lead never sees donation records, and the treasurer never sees prayer requests.',
@@ -823,7 +826,7 @@ const ALL_CATEGORIES: Category[] = [
            id stays `branding`, so every crosslink and retired slug pointing at
            `#branding` still lands. */
         id: 'branding', name: CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Branding & Domain' : 'Branding', n: '4',
-        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 0, 1],
+        accent: 'var(--green-600)', accentBg: 'var(--green-100)', tiers: [0, 1],
         eyebrow: 'Nobody knows it\'s Harvest',
         title: CUSTOM_DOMAIN_MARKETING_ENABLED
           ? 'Your name, logo, colour — and your own domain.'
@@ -854,13 +857,11 @@ const ALL_CATEGORIES: Category[] = [
          the-197-stale-prices.test.ts, so this copy cannot drift again while it
          waits behind the flag.
 
-         `tiers` is [0,0,0] deliberately: this is an add-on, not an entitlement
-         of any plan, so no plan chip is truthful. Whoever un-hides this has to
-         decide how an add-on should be presented in a plan-chip row — do not
-         quietly relabel it as a Ministry feature. */
+         `tiers` is [1,1]: campuses are included in both Church and Ministry
+         under the two-plan pricing, and there is no add-on any more. */
       {
         id: 'churches', name: 'Multi-Campus', n: '5',
-        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [0, 0, 0],
+        accent: 'var(--sky-600)', accentBg: 'var(--sky-100)', tiers: [1, 1],
         /* 🔴 EVERY PRICE IN THIS BLOCK IS GONE — THE-370. It read "$12 a campus —
            the whole pricing page", "a flat $12/month per campus", "their bill is
            $60 + $132 … the other eleven are $12 each" and "Flat $12/mo each,
@@ -890,11 +891,11 @@ const ALL_CATEGORIES: Category[] = [
       },
       {
         id: 'analytics', name: 'Evangelism Analytics', n: '6',
-        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1, 1],
+        accent: 'var(--gold-600)', accentBg: 'var(--gold-100)', tiers: [1, 1],
         eyebrow: 'The reason it’s called Harvest',
         title: 'How many said yes to Jesus — and where the rest are.',
         oneliner: 'Every other analytics page counts attendance and giving. This one counts people who accepted Jesus, and shows you which cities the ones who haven\'t are in.',
-        moment: '“Which country is the harvest in this month?” Countries represented, drillable, with the faith question attached — on the $20 plan. It’s the kind of number a pastor screenshots for a board meeting.',
+        moment: '“Which country is the harvest in this month?” Countries represented, drillable, with the faith question attached — on the Church plan. It’s the kind of number a pastor screenshots for a board meeting.',
         admin: ['Total members, countries & new signups by window', 'The onboarding “accepted Jesus” answer, by city & country', 'CSV exports carry your own onboarding questions', 'Location-scoped access for campus leaders'],
         member: ['A required, editable faith question at onboarding', 'Their location powers the missions view', 'Pairs with geo-targeted posting to reach a city', 'On every plan, including Forever Free'],
         adminLabel: 'For admins', memberLabel: 'How it’s gathered',
@@ -1052,6 +1053,7 @@ const LEGACY_ANCHOR_TARGETS: Record<string, string> = {
   // name is now flag-dependent: mapping only the live one would leave the other
   // falling through to a category page the moment the switch moved.
   'accounting': '/features/giving-finance#accounting',
+  'giving-records': '/features/giving-finance#accounting',
   // 🔴 THE-335 — the same for the SERVICE PLANNING entry, promoted from Coming
   // Soon to a live feature in this ticket.
   'service-planning': '/features/community-engagement#services',

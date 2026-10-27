@@ -35,13 +35,11 @@ describe('THE-373 — the site does not sell Reach to Individual', () => {
   it('Check-In starts at Small Team, and Forms stays Ministry-only', () => {
     const code = pricingCode();
     // Second cell is Individual. Both features are off there.
-    expect(code).toMatch(/\['Check-In System \(QR\)', \[false, false, T, T\]\]/);
-    expect(code).toMatch(/\['Custom Forms → CRM', \[false, false, false, T\]\]/);
+    expect(code).toMatch(/\['Check-In System \(QR\)', \[false, false, T\]\]/);
+    expect(code).toMatch(/\['Custom Forms → CRM', \[false, false, T\]\]/);
 
-    const small = plans.find((p) => p.planId === 'pro')!;
     const ministry = plans.find((p) => p.planId === 'max')!;
-    expect(small.features).toContain('Check-In System (QR)');
-    expect(small.features.join('\n')).not.toMatch(/\bforms?\b/i);
+    expect(ministry.features).toContain('Events with Registration & Check-In');
     expect(ministry.features).toContain('Custom Forms → CRM');
   });
 
@@ -51,7 +49,7 @@ describe('THE-373 — the site does not sell Reach to Individual', () => {
     const forms = features.find((f) => f.id === 'forms');
     expect(checkin, 'Check-In feature page is missing').toBeDefined();
     expect(forms, 'Forms feature page is missing').toBeDefined();
-    expect(checkin!.tiers).toEqual([0, 1, 1]);
-    expect(forms!.tiers).toEqual([0, 0, 1]);
+    expect(checkin!.tiers).toEqual([0, 1]);
+    expect(forms!.tiers).toEqual([0, 1]);
   });
 });

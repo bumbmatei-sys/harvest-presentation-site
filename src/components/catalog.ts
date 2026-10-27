@@ -224,7 +224,7 @@ export const CATALOG: CatalogGroup[] = [
     name: 'AI & Automation', kicker: 'Automate', tint: 'var(--gold-600)', bg: 'var(--gold-100)',
     items: [
       item('brain-circuit', 'AI Knowledge Base', "Train AI on your teachings so members get answers rooted in your ministry's theology."),
-      item('message-square', 'AI Chat', "A contextual assistant for members — your ministry's voice, not a generic bot."),
+      item('message-square', 'AI Chat', "Coming soon: a contextual assistant for members.", true),
       // 🔴 THE-335 — BOTH newsletter tools move the count, two off it, for the
       // same reason the SMS entry below moves it by one: CATALOG_TOOL_COUNT is a
       // derived tally of everything NOT marked `soon`, and a tool a church
@@ -295,14 +295,17 @@ export const CATALOG: CatalogGroup[] = [
       item('handshake', 'Pledge Campaigns', 'Commit now, give later — a ledger of pledged against paid, with the status derived.'),
       item('contact', 'CRM (Donors & Members)', 'A full relationship manager for donors and members.'),
       // 🔴 THE-335 — REWORDED, NOT REMOVED, so this does NOT move the count.
-      // Accounting is a live tool a church uses today: the ledger, the receipt
+      // Giving records (formerly Accounting) is a live tool a church uses today: the ledger, the receipt
       // statuses and the numbered PDF audit trail all ship. Dropping it to hide
       // one untested integration on it would understate the product, which is
       // the error the note above this array warns against in the other
       // direction.
+      // 🔴 RENAMED "ACCOUNTING" → "GIVING RECORDS" (two-plan reprice). Same tool,
+      // same count, honest name: it is the record of what was given, not
+      // accounting software, and it must never read as a QuickBooks replacement.
       QUICKBOOKS_MARKETING_ENABLED
-        ? item('calculator', 'Accounting + QuickBooks', 'Accounting tools with QuickBooks sync to keep the books clean.')
-        : item('calculator', 'Accounting', 'A ledger of every receipt Harvest issues, each with its own numbered PDF.'),
+        ? item('calculator', 'Giving records + QuickBooks sync', 'Giving records that send on to QuickBooks, which keeps your books.')
+        : item('calculator', 'Giving records', 'Giving statements, year-end receipts and a ledger of every receipt Harvest issues, each with its own numbered PDF.'),
       item('receipt-text', 'Tax Receipts & Statements', 'Automatic tax receipts and annual giving statements.'),
       ...(AFFILIATE_PROGRAM_ENABLED ? [item('share-2', 'Affiliate Program', 'Earn 30% recurring commission for 12 months on every ministry you refer.')] : []),
     ],

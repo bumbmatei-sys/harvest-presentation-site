@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
   ADD_ON_BILLED_MONTHS, ADD_ONS, AddOns, addOnAvailability, addOnPricingContract,
-  ADVERTISED_DISCOUNT_PCT, BILLING_TERMS, planPriceContract, ComparisonTable, PlanCard, plans,
+  ADVERTISED_DISCOUNT_PCT, discountClaim, BILLING_TERMS, planPriceContract, ComparisonTable, PlanCard, plans,
   TERM_MONTHS, termMonthlyEquivalent,
   type AddOn, ALL_TIER_NAMES, FreeTierCard, FREE_TIER } from './Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
@@ -115,8 +115,8 @@ describe('the comparison grid parses at all', () => {
     const readings = rows.flatMap((r) => r.cells);
     expect(readings).toContain('included');
     expect(readings).toContain('excluded');
-    expect(claim('Custom Branding', 'Individual')).toBe('excluded');
-    expect(claim('Contacts', 'Individual')).toBe('150');
+    expect(claim('Custom Branding', 'Church')).toBe('excluded');
+    expect(claim(PEOPLE_ROW, 'Church')).toBe('500');
   });
 });
 
@@ -125,26 +125,28 @@ describe('the comparison grid parses at all', () => {
  * ---------------------------------------------------------------- */
 
 const CRM_ROW = 'CRM (Donors & Members)';
+/** The people ceiling row — "Contacts" until the two-plan reprice renamed it. */
+const PEOPLE_ROW = 'People in your CRM';
 const NOTES_ROW = 'Docs & Notes';
 
 describe('CRM on the cheapest plan', () => {
-  it('Individual shows CRM as included', () => {
+  it('Church shows CRM as included', () => {
     // 🔴 The claim the app's `crm: true` on `plus` has to be matched by. A dash
     // here understates the cheapest plan by a whole product.
-    expect(claim(CRM_ROW, 'Individual')).toBe('included');
+    expect(claim(CRM_ROW, 'Church')).toBe('included');
 
-    // And on the Individual card, which — unlike the grid — actually reaches
+    // And on the Church card, which — unlike the grid — actually reaches
     // dist/pricing/index.html, since the grid renders only after a click.
     const individual = plans.find((p) => p.planId === 'plus');
-    expect(individual, 'no plus-tier plan').toBeDefined();
+    expect(individual, 'no Church (plus) plan').toBeDefined();
     expect(words(render(React.createElement(PlanCard, { plan: individual!, term: 'yearly' as const }))))
       .toContain(CRM_ROW);
   });
 
-  it('Small Team and Ministry still show CRM', () => {
+  it('Ministry still shows CRM', () => {
     // The row was true on all three before this change and stays true on all
     // three: raising Individual must not have been paid for out of the others.
-    for (const name of ['Small Team', 'Ministry']) {
+    for (const name of ['Church', 'Ministry']) {
       expect(claim(CRM_ROW, name), `${name} lost CRM`).toBe('included');
     }
     // 🔴 THREE TIERS NOW, NOT FOUR — THE-335. Free read 'Members only' while it
@@ -153,13 +155,13 @@ describe('CRM on the cheapest plan', () => {
     // priced columns are untouched, which is what makes this a change to free
     // alone.
     expect(rows.find((r) => r.label === CRM_ROW)!.cells)
-      .toEqual(['excluded', 'included', 'included', 'included']);
+      .toEqual(['excluded', 'included', 'included']);
 
     // 🔴 AND THE ROW FREE *IS* TRUE ON. Asserting only the loss would let the
     // swap look like a pure withdrawal; free gained the screen that carries the
     // enrolment list, the contact records, the CSV export and the analytics.
     expect(rows.find((r) => r.label === 'Signups & Evangelism Analytics')!.cells)
-      .toEqual(['included', 'included', 'included', 'included']);
+      .toEqual(['included', 'included', 'included']);
   });
 });
 
@@ -170,10 +172,11 @@ describe('the Notes row', () => {
     expect(labels).not.toContain(NOTES_ROW);
     expect(TABLE_HTML).not.toContain('Docs &amp; Notes');
 
-    // Nor under another name. `Sermon Notes → Livestream` is a DIFFERENT feature
-    // — pushing an open outline to a live stream — and is deliberately still
-    // here; it is the only Notes-bearing label the grid may carry.
-    expect(labels.filter((l) => /notes?|docs?/i.test(l))).toEqual(['Sermon Notes → Livestream']);
+    // Nor under another name. `Notes` is Church's line from the approved
+    // two-plan spec, and `Sermon Notes → Livestream` is a DIFFERENT feature —
+    // pushing an open outline to a live stream. They are the only Notes-bearing
+    // labels the grid may carry; neither says "Docs".
+    expect(labels.filter((l) => /notes?|docs?/i.test(l))).toEqual(['Notes', 'Sermon Notes → Livestream']);
 
     // The section it left is intact, so the removal took one row and not a group.
     expect(labels).toContain('Bible');
@@ -200,12 +203,13 @@ describe('Notes outside the comparison table', () => {
     //    with its tier note intact. THE-164 corrected the chips from [1,1,1]:
     //    the app's `docs` is false on `plus`, so the Individual chip is off. The
     //    section itself stays — a wrong tier is not a reason to cut a feature.
+    //    The approved two-plan spec puts Notes on Church, so both chips are lit.
     const discipleship = CATEGORIES.find((c) => c.slug === 'discipleship-content');
     expect(discipleship, 'no discipleship-content category').toBeDefined();
     const docs = discipleship!.features.find((f) => f.id === 'docs');
     expect(docs, 'no docs feature on /features/discipleship-content').toBeDefined();
     expect(docs!.name).toBe(NOTES_ROW);
-    expect(docs!.tiers).toEqual([0, 1, 1]);
+    expect(docs!.tiers).toEqual([1, 1]);
     expect(docs!.tiersNote).toMatch(/sermon notes/i);
 
     // 3. The plan cards, rendered. THE-164 moved Docs & Notes off the
@@ -216,8 +220,10 @@ describe('Notes outside the comparison table', () => {
     const card = (planId: string) => words(render(React.createElement(
       PlanCard, { plan: plans.find((p) => p.planId === planId)!, term: 'yearly' as const },
     )));
-    expect(card('pro')).toContain(NOTES_ROW);
-    expect(card('pro')).toContain('Sermon Notes → Livestream');
+    expect(card('plus')).toContain(NOTES_ROW);
+    // Sermon Notes → Livestream is a Ministry row in the comparison grid.
+    expect(claim('Sermon Notes → Livestream', 'Ministry')).toBe('included');
+    expect(claim('Sermon Notes → Livestream', 'Church')).toBe('excluded');
 
     // 4. The FAQ's plan answer (content/faq.ts) — still names the feature, now
     //    in the Small Team sentence instead of the every-plan one.
@@ -262,7 +268,7 @@ describe('the catalogue is a different object from the grid', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -274,11 +280,11 @@ describe('the catalogue is a different object from the grid', () => {
 
 describe('what this change must not have touched', () => {
   it('plan prices and the annual discount are unchanged', () => {
-    // 🔴 Data and rendered cards both. Six stored prices, two terms; the
-    // badge is 20% and is NOT computed from the prices.
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
+    // 🔴 Data and rendered cards both. Four stored prices, two terms; the
+    // badge reads "2 months free" and is NOT computed from the prices.
+    expect(plans.map((p) => p.price.monthly)).toEqual([30, 90]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([300, 900]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
         // 🔴 THE-196 flipped the hierarchy: the headline is now the per-month
@@ -293,7 +299,8 @@ describe('what this change must not have touched', () => {
         }
       }
     }
-    // The grid quotes no price of its own, and did not start to.
+    // The grid quotes no plan price of its own, and did not start to. The only
+    // dollar-free figures it carries are the AI allowances and the fee percentages.
     expect(dollars(TABLE_HTML)).toEqual([]);
   });
 
@@ -310,11 +317,10 @@ describe('what this change must not have touched', () => {
     // hand it a table that disagrees on one cell and it must throw.
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, yearly: 190 },
-        pro: { monthly: 40, yearly: 381 },
-        max: { monthly: 80, yearly: 752 },
+        plus: { monthly: 30, yearly: 301 },
+        max: { monthly: 90, yearly: 900 },
       }),
-    ).toThrow(/Small Team.*yearly/);
+    ).toThrow(/Church.*yearly/);
 
     // The grid's own width check is the same idiom and stays a build failure.
     expect(src).toMatch(/throw new Error\(`Pricing comparison row/);
@@ -346,7 +352,6 @@ describe('what this change must not have touched', () => {
        values rather than dropped. Still ×12 on every row: add-ons are not
        discounted, which the contract below re-proves by mutation. */
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
-      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
       ['Unlimited contacts', 30, 360],
     ]);
@@ -356,10 +361,11 @@ describe('what this change must not have touched', () => {
 
     const section = words(render(React.createElement(AddOns, { term: 'yearly' as const })));
     expect(section).toMatch(/add-ons are not discounted/i);
-    expect(section).toContain(`the −${ADVERTISED_DISCOUNT_PCT.yearly}% applies to plans only`);
+    expect(section).toContain(`“${discountClaim('yearly')}” applies to plans only`);
     expect(section).toContain(`A year of an add-on is ${ADD_ON_BILLED_MONTHS} × its monthly price`);
     for (const a of ADD_ONS) expect(section).toContain(addOnAvailability(a.planIds));
-    expect(addOnAvailability(['pro', 'max'])).toBe('Small Team and Ministry only');
+    expect(addOnAvailability(['max'])).toBe('Ministry only');
+    expect(addOnAvailability(['plus', 'max'])).toBe('Available on every paid plan');
   });
 });
 
@@ -387,12 +393,13 @@ describe('the Forever Free column claims exactly what the tier has', () => {
     expect(claim('Fundraising', FREE_COL)).toBe('excluded');
   });
 
-  it('claims the 500-member cap, which is higher than Individual’s 150', () => {
+  it('claims the 500-member cap, the same 500 Church carries', () => {
     // Not a typo and not a copy-paste from Small Team: the founder chose a
     // generous-but-capped free tier (Option A), and 500 over 150 is exactly the
     // tension that decision creates. It is stated rather than hidden.
-    expect(claim('Contacts', FREE_COL)).toBe('500');
-    expect(claim('Contacts', 'Individual')).toBe('150');
+    expect(claim(PEOPLE_ROW, FREE_COL)).toBe('500');
+    expect(claim(PEOPLE_ROW, 'Church')).toBe('500');
+    expect(claim(PEOPLE_ROW, 'Ministry')).toBe('5,000');
   });
 
   it('claims one course and one admin', () => {
@@ -422,11 +429,11 @@ describe('the Forever Free column claims exactly what the tier has', () => {
     }
   });
 
-  it('🔴 leaves both feed rows included on all three priced tiers', () => {
+  it('🔴 leaves both feed rows included on both priced tiers', () => {
     // The no-regression half. Three tiers pay for this feed; a correction that
     // reached one column too far would take it from them.
     for (const row of ['News Feed', 'Community Feed']) {
-      for (const name of ['Individual', 'Small Team', 'Ministry']) {
+      for (const name of ['Church', 'Ministry']) {
         expect(claim(row, name), `${name} lost ${row}`).toBe('included');
       }
     }
@@ -440,12 +447,12 @@ describe('the Forever Free column claims exactly what the tier has', () => {
       // read. Guarded rather than deleted, exactly as the SMS and Custom Domain
       // rows are: free never claimed a newsletter, and when the flag comes back
       // the rows it must not claim come back with it.
-      ...(NEWSLETTER_MARKETING_ENABLED ? ['Newsletter', 'Automated Newsletter'] : []),
+      'Newsletter',
       // THE-250 / THE-314 — see the note on the priced-tier assertion below.
       // The row is back and renamed; free still claims none of it.
-      ...(SMS_MARKETING_ENABLED ? ['SMS & Text-to-Give'] : []),
+      'SMS & Text-to-Give', 'Social scheduler',
       'Livestream + Live Giving', 'Check-In System (QR)',
-      'Community Groups', 'Event Registration', 'Church Map', 'Custom Branding',
+      'Groups & chat (channels and direct messages)', 'Event Registration', 'Campuses & Church Map', 'Custom Branding',
       // THE-280 \u2014 the Custom Domain row moved behind
       // CUSTOM_DOMAIN_MARKETING_ENABLED, so with the flag off there is no row
       // to read. Guarded rather than deleted, exactly as THE-250 guarded the
@@ -453,10 +460,9 @@ describe('the Forever Free column claims exactly what the tier has', () => {
       // comes back the row it must not claim comes back with it.
       ...(CUSTOM_DOMAIN_MARKETING_ENABLED ? ['Custom Domain'] : []),
       'Custom Forms \u2192 CRM', 
-      // 🔴 THE-335 — the row is REWORDED, not removed: accounting ships on
-      // Ministry and free claims none of it under either label.
-      QUICKBOOKS_MARKETING_ENABLED ? 'Accounting + QuickBooks Sync' : 'Accounting & Receipt Ledger',
-      'Tax Receipts & Giving Statements', 'Sermon Notes \u2192 Livestream',
+      // Giving records (the former Accounting and Tax Receipts rows, one row
+      // now) ship on Ministry and free claims none of it.
+      'Giving records (statements & year-end receipts)', 'Sermon Notes \u2192 Livestream',
     ]) {
       expect(claim(row, FREE_COL), `free claims ${row}, which it does not have`).toBe('excluded');
     }
@@ -465,24 +471,25 @@ describe('the Forever Free column claims exactly what the tier has', () => {
   it('does not quietly take a feature away from a paying tier', () => {
     // Adding a column is an edit to every row. This is the no-regression half:
     // the three priced columns must read exactly as they did before THE-204.
-    expect(claim('Blog', 'Individual')).toBe('included');
-    expect(claim('Donation Page', 'Individual')).toBe('included');
+    expect(claim('Blog', 'Church')).toBe('included');
+    expect(claim('Donation Page', 'Church')).toBe('included');
     // 🔴 THE-314 — the SMS row is back, RENAMED and on a different column.
     // THE-250 guarded it behind the flag; this block's claim was that the
     // priced columns read as they did before THE-204, and for SMS that is no
     // longer the claim to make: Individual LOST the capability when Harvest
     // started reselling and made it Ministry-only. Asserted in both directions
     // so the downgrade is recorded rather than silently dropped from the list.
-    if (SMS_MARKETING_ENABLED) {
-      expect(claim('SMS & Text-to-Give', 'Ministry')).toBe('included');
-      expect(claim('SMS & Text-to-Give', 'Individual')).not.toBe('included');
-      expect(claim('SMS & Text-to-Give', 'Small Team')).not.toBe('included');
-    }
-    expect(claim('Contacts', 'Small Team')).toBe('500');
-    expect(claim('Contacts', 'Ministry')).toBe('2,000');
-    expect(claim('Courses', 'Ministry')).toBe('15');
-    expect(claim('Livestream + Live Giving', 'Small Team')).toBe('included');
-    expect(claim('Community Groups', 'Ministry')).toBe('included');
+    // 🔴 TWO-PLAN SPEC — SMS is a Ministry plan item, and while the flag is
+    // off the app sends nothing, so Ministry's cell is "coming soon" rather
+    // than a tick. Church never claims it either way.
+    expect(claim('SMS & Text-to-Give', 'Ministry')).toBe(SMS_MARKETING_ENABLED ? 'included' : 'coming soon');
+    expect(claim('SMS & Text-to-Give', 'Church')).toBe('excluded');
+    expect(claim(PEOPLE_ROW, 'Ministry')).toBe('5,000');
+    expect(claim('Courses', 'Ministry')).toBe('included');
+    expect(claim('Livestream + Live Giving', 'Ministry')).toBe('included');
+    expect(claim('Livestream + Live Giving', 'Church')).toBe('excluded');
+    expect(claim('Groups & chat (channels and direct messages)', 'Church')).toBe('included');
+    expect(claim('Groups & chat (channels and direct messages)', 'Ministry')).toBe('included');
   });
 });
 
@@ -511,7 +518,7 @@ describe('the Forever Free card', () => {
     expect(text()).toContain('No donation page');
   });
 
-  it('states the 500 cap, the honest differentiator against Individual’s 150', () => {
+  it('states the 500 cap', () => {
     expect(text()).toContain('500 members');
   });
 
@@ -565,8 +572,8 @@ describe('the Forever Free card', () => {
     // demand three matching numbers in the app's PLAN_PRICING, which
     // deliberately has none.
     expect(plans.map((p) => p.planId)).not.toContain('free');
-    expect(plans).toHaveLength(3);
-    expect(ALL_TIER_NAMES).toHaveLength(4);
+    expect(plans).toHaveLength(2);
+    expect(ALL_TIER_NAMES).toHaveLength(3);
     // 🔴 And the contract still passes for today's data while STILL throwing on
     // a disagreement — free being absent from it must not have turned it off.
     expect(() => planPriceContract(plans)).not.toThrow();
@@ -576,6 +583,6 @@ describe('the Forever Free card', () => {
       plans.map((pl) => [pl.planId, { ...pl.price }]),
     ) as Record<string, Record<(typeof BILLING_TERMS)[number], number>>;
     mutated.plus.monthly += 1;
-    expect(() => planPriceContract(plans, mutated)).toThrow(/Individual.*monthly/);
+    expect(() => planPriceContract(plans, mutated)).toThrow(/Church.*monthly/);
   });
 });

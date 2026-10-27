@@ -42,26 +42,31 @@ import { stripComments } from './the-343-ministry-reprice.test';
 
 const ministry = plans.find((p) => p.planId === 'max')!;
 const individual = plans.find((p) => p.planId === 'plus')!;
-const smallTeam = plans.find((p) => p.planId === 'pro')!;
 
 /**
- * The live Dodo products, as read back after the founder repriced them. (Three
- * when this was written; the quarterly product, `pdt_0NloCatUWEkEUq1usWJ0n` at
- * $216, was archived on 2026-10-23 when the term was withdrawn.)
+ * The Dodo products the founder created for the two-plan reprice (27 Oct 2026):
+ * "Harvest Ministry Plan - Monthly" and "- Annual". The old Ministry products
+ * (pdt_0NlJZMUUiT36FGMoiFXgl at $80 and pdt_0NlJZMXTnpRBAwTfBVpPs at $752) stay
+ * only for any legacy subscription and are no longer what this site sells.
  * Transcribed from the products, NOT from `plans`, so this is an independent
  * check rather than a restatement. Minor units, the unit in the field name.
  */
 const DODO_MINISTRY_LIVE: ReadonlyArray<{ term: BillingTerm; productId: string; priceCents: number }> = [
-  { term: 'monthly', productId: 'pdt_0NlJZMUUiT36FGMoiFXgl', priceCents: 8000 },
-  { term: 'yearly', productId: 'pdt_0NlJZMXTnpRBAwTfBVpPs', priceCents: 75200 },
+  { term: 'monthly', productId: 'pdt_0NqdacWLx9z6CKsGRIKCW', priceCents: 9000 },
+  { term: 'yearly', productId: 'pdt_0Nqdaca89LIHeUvrNxXwZ', priceCents: 90000 },
 ];
 
-/* The six, written out here once more on purpose: an equality check against a
+/** The two Church products, the same way. */
+const DODO_CHURCH_LIVE: ReadonlyArray<{ term: BillingTerm; productId: string; priceCents: number }> = [
+  { term: 'monthly', productId: 'pdt_0NqdacJTREPtSJuqtPCjm', priceCents: 3000 },
+  { term: 'yearly', productId: 'pdt_0NqdacQf9gvgmw6DU7449', priceCents: 30000 },
+];
+
+/* The four, written out here once more on purpose: an equality check against a
    table derived from `plans` cannot fail. EVERY cell, no exclusion. */
-const ALL_SIX_USD: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, yearly: 190 },
-  pro: { monthly: 40, yearly: 380 },
-  max: { monthly: 80, yearly: 752 },
+const ALL_FOUR_USD: Record<string, Record<BillingTerm, number>> = {
+  plus: { monthly: 30, yearly: 300 },
+  max: { monthly: 90, yearly: 900 },
 };
 
 const card = (planId: string, term: BillingTerm) =>
@@ -176,9 +181,9 @@ function offerLabelHits(sources: ReadonlyArray<{ file: string; code: string }>):
 }
 
 /* ── 1 ──────────────────────────────────────────────────────────────────────── */
-describe('1 · Ministry is $80 monthly and $752 annual', () => {
+describe('1 · Ministry is $90 monthly and $900 annual', () => {
   it('in the plan data, and in the cross-repo contract that fails the prerender', () => {
-    expect(ministry.price).toEqual({ monthly: 80, yearly: 752 });
+    expect(ministry.price).toEqual({ monthly: 90, yearly: 900 });
     expect(() => planPriceContract(plans)).not.toThrow();
   });
 
@@ -187,21 +192,24 @@ describe('1 · Ministry is $80 monthly and $752 annual', () => {
     for (const { term, productId, priceCents } of DODO_MINISTRY_LIVE) {
       expect(ministry.price[term] * 100, `${productId} (${term})`).toBe(priceCents);
     }
+    expect(DODO_CHURCH_LIVE).toHaveLength(BILLING_TERMS.length);
+    for (const { term, productId, priceCents } of DODO_CHURCH_LIVE) {
+      expect(individual.price[term] * 100, `${productId} (${term})`).toBe(priceCents);
+    }
   });
 
-  it('the year keeps Ministry\'s discount RATIO exactly — 9.4x', () => {
-    // The founder named only the month; the year is derived, and this is the
-    // relationship it was derived to keep. Integer arithmetic, so no float can
-    // round a wrong figure into a pass. (The quarter's 2.7x went with the
-    // quarterly term.)
-    expect(ministry.price.yearly * 10).toBe(ministry.price.monthly * 94);
+  it('the year is exactly ten months — "2 months free" — on both plans', () => {
+    // Integer arithmetic, so no float can round a wrong figure into a pass.
+    // (THE-372's 9.4x ratio, and the quarter's 2.7x before it, are gone.)
+    expect(ministry.price.yearly).toBe(ministry.price.monthly * 10);
+    expect(individual.price.yearly).toBe(individual.price.monthly * 10);
   });
 
   it('RENDERED on the card on every term, headline and charged total', () => {
-    expect(words(card('max', 'monthly'))).toContain(' $80 /mo');
-    expect(words(card('max', 'yearly'))).toContain('billed as $752 every 12 months');
-    // $752 / 12 = $62.6667, CEILED at the cent: never implies less than the bill.
-    expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).toBe('$62.67');
+    expect(words(card('max', 'monthly'))).toContain(' $90 /mo');
+    expect(words(card('max', 'yearly'))).toContain('billed as $900 every 12 months');
+    // $900 / 12 = $75 exactly: no cents, and never implies less than the bill.
+    expect(formatMonthlyHeadline(ministry.price.yearly, 'yearly')).toBe('$75');
   });
 
   it('the Terms and the FAQ quote the same two, and agree with the cards', () => {
@@ -209,16 +217,17 @@ describe('1 · Ministry is $80 monthly and $752 annual', () => {
     expect(faqPlanMismatches(plans)).toEqual([]);
     const terms = TIER_PRICE_CLAIMS.find((c) => c.planId === 'max')!;
     const faq = FAQ_PLAN_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([terms.monthly, terms.annual]).toEqual([80, 752]);
-    expect([faq.monthly, faq.annual]).toEqual([80, 752]);
+    expect([terms.monthly, terms.annual]).toEqual([90, 900]);
+    expect([faq.monthly, faq.annual]).toEqual([90, 900]);
   });
 });
 
 /* ── 2 ──────────────────────────────────────────────────────────────────────── */
-describe('2 · Individual and Small Team are unchanged', () => {
-  it('six cells, enumerated', () => {
-    expect(individual.price).toEqual({ monthly: 20, yearly: 190 });
-    expect(smallTeam.price).toEqual({ monthly: 40, yearly: 380 });
+describe('2 · Church is $30 monthly and $300 annual, and there is no third paid plan', () => {
+  it('four cells, enumerated', () => {
+    expect(individual.price).toEqual({ monthly: 30, yearly: 300 });
+    expect(plans).toHaveLength(2);
+    expect(plans.find((p) => p.planId === 'pro')).toBeUndefined();
   });
 });
 
@@ -324,7 +333,7 @@ describe('4 · no early-bird or equivalent label remains', () => {
 });
 
 /* ── 5 ──────────────────────────────────────────────────────────────────────── */
-describe('5 · no crossed-out or "was" price remains — $80 is the price, not a discount', () => {
+describe('5 · no crossed-out or "was" price remains — the price is the price, not a discount', () => {
   const rendered = () => [
     ...plans.flatMap((p) => BILLING_TERMS.map((t) => card(p.planId, t))),
     renderToStaticMarkup(React.createElement(FreeTierCard, { tier: FREE_TIER })),
@@ -357,30 +366,30 @@ describe('5 · no crossed-out or "was" price remains — $80 is the price, not a
 });
 
 /* ── 6 ──────────────────────────────────────────────────────────────────────── */
-describe('6 · all six prices pass the strict equality check — no exclusion', () => {
+describe('6 · all four prices pass the strict equality check — no exclusion', () => {
   it('every cell of every tier, against the table written above', () => {
-    expect(plans.map((p) => p.planId)).toEqual(['plus', 'pro', 'max']);
+    expect(plans.map((p) => p.planId)).toEqual(['plus', 'max']);
     let cells = 0;
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        expect(p.price[term], `${p.name} ${term}`).toBe(ALL_SIX_USD[p.planId][term]);
+        expect(p.price[term], `${p.name} ${term}`).toBe(ALL_FOUR_USD[p.planId][term]);
         cells += 1;
       }
     }
-    expect(cells).toBe(6);
-    expect(() => planPriceContract(plans, ALL_SIX_USD)).not.toThrow();
+    expect(cells).toBe(4);
+    expect(() => planPriceContract(plans, ALL_FOUR_USD)).not.toThrow();
   });
 
-  it('and the contract throws on a $1 drift in ANY of the six — Ministry included', () => {
+  it('and the contract throws on a $1 drift in ANY of the four — Ministry included', () => {
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
-        const drifted = Object.fromEntries(Object.entries(ALL_SIX_USD).map(([k, v]) => [k, { ...v }]));
+        const drifted = Object.fromEntries(Object.entries(ALL_FOUR_USD).map(([k, v]) => [k, { ...v }]));
         drifted[p.planId][term] += 1;
         expect(() => planPriceContract(plans, drifted), `${p.name} ${term}`).toThrow(new RegExp(`${p.name}.*${term}`));
       }
     }
     // Restoring THE-343's Ministry on one side only is a failed prerender.
-    expect(() => planPriceContract(plans, { ...ALL_SIX_USD, max: { monthly: 60, yearly: 564 } }))
+    expect(() => planPriceContract(plans, { ...ALL_FOUR_USD, max: { monthly: 60, yearly: 564 } }))
       .toThrow(/Ministry/);
   });
 });
@@ -389,7 +398,6 @@ describe('6 · all six prices pass the strict equality check — no exclusion', 
 describe('7 · the three add-on prices are unchanged', () => {
   it('AI Assistant $20, Admin Seat $10, Unlimited Contacts $30 / $360', () => {
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
-      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
       ['Unlimited contacts', 30, 360],
     ]);
@@ -397,13 +405,12 @@ describe('7 · the three add-on prices are unchanged', () => {
 });
 
 /* ── 8 ──────────────────────────────────────────────────────────────────────── */
-describe('8 · contact caps are unchanged', () => {
-  it('the cards and the FAQ state THE-370\'s caps, untouched', () => {
-    expect(individual.features).toContain('500 contacts · 2 admins');
-    expect(smallTeam.features.some((f) => f.startsWith('2,000 contacts'))).toBe(true);
-    expect(ministry.features.some((f) => f.startsWith('4,000 contacts'))).toBe(true);
-    expect(FAQ_PLAN_CLAIMS.map((c) => [c.planId, c.contacts])).toEqual([
-      ['plus', '500'], ['pro', '2,000'], ['max', '4,000'],
+describe('8 · the people caps are the approved 500 and 5,000', () => {
+  it('the cards and the FAQ state them', () => {
+    expect(individual.features).toContain('500 people · 2 admins');
+    expect(ministry.features).toContain('5,000 people · 15 admins');
+    expect(FAQ_PLAN_CLAIMS.map((c) => [c.planId, c.people])).toEqual([
+      ['plus', '500'], ['max', '5,000'],
     ]);
   });
 });

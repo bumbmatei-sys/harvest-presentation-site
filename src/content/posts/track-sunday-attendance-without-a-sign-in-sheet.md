@@ -3,7 +3,7 @@ title: Sunday attendance without a sign-in sheet
 category: inside-harvest
 status: published
 publish_date: 2026-09-24
-updated: 2026-09-24
+updated: 2026-10-27
 description: A paper sign-in sheet never becomes data. What a church check-in system actually has to do, a checklist for your welcome desk, and where the names should land.
 reading_time: 5 min
 ---
@@ -38,7 +38,7 @@ You can fix most of this with a printed code and twenty minutes of thought:
 
 ## How this works in Harvest
 
-Harvest's Check-In System is on the Small Team and Ministry plans. You create a check-in session — optionally linked to an event — and it gives you a QR code to print. Somebody scans it with their phone camera, enters a first name, and they are done: no app, no account, no login. What they see is a branded self check-in page, not a generic form with somebody else's logo on it.
+Harvest's Check-In System is on the Ministry plan, with event registration. You create a check-in session — optionally linked to an event — and it gives you a QR code to print. Somebody scans it with their phone camera, enters a first name, and they are done: no app, no account, no login. What they see is a branded self check-in page, not a generic form with somebody else's logo on it.
 
 On your side, you get a live attendee count while the service is running, the ability to check somebody in by hand when their phone is dead, and a CSV export of the full attendee list. There is also a bundled QR generator that produces codes for five destinations, so the one you tape to the door comes from the same place as everything else.
 
@@ -50,8 +50,8 @@ Here is the version of this problem a lot of churches actually have. The check-i
 
 Now somebody checks in for the first time on a Sunday in October. In a stack like that, the name enters at the edge and has to be walked inward by hand — exported, deduplicated, imported, retyped. It usually isn't. That is why, in January, the person assembling [year-end giving statements](/blog/year-end-giving-statements-what-to-include) discovers three records for the same household and no way to prove which is right.
 
-In Harvest the scan lands on a contact record that is already the only one. The CRM is on every paid plan, it merges app members and manually added contacts into one list, and it deduplicates on email — so a person's history does not scatter across three rows. On the Small Team plan, where check-in starts, that record carries giving, events, check-ins and forms on a single timeline, and it sits in a five-stage discipleship pipeline that runs from New to Champion — so "came twice in October" is a thing you can see rather than a thing you half-remember. It is the same row whichever surface the person touched, rather than three vendors' copies of them.
+In Harvest the scan lands on a contact record that is already the only one. The CRM is on every paid plan, it merges app members and manually added contacts into one list, and it deduplicates on email — so a person's history does not scatter across three rows. On the Ministry plan, where check-in lives, that record carries giving, events, check-ins and forms on a single timeline, and it sits in a five-stage discipleship pipeline that runs from New to Champion — so "came twice in October" is a thing you can see rather than a thing you half-remember. It is the same row whichever surface the person touched, rather than three vendors' copies of them.
 
 A standalone check-in app cannot do that, and it is not a criticism of the app — it does not hold your giving history, so there is nowhere for the scan to land. You pay a second subscription for the privilege of moving names between systems yourself.
 
-Harvest's platform fee is 0% on every paid plan — the company takes no cut of a gift. Card processing is charged separately by whoever handles the payment and is not a Harvest number, so a gift does not arrive in full. Check-in itself starts on Small Team, at $40/mo, or $31.67/mo billed as $380 every 12 months. What you get for it is not a check-in feature. It is one subscription, one member record, one login — and a clipboard you can finally throw away. The full ladder is on the [pricing page](/#pricing).
+Harvest's fee on donations is 0% on both paid plans — the company takes no cut of a gift. Card processing is charged separately by whoever handles the payment and is not a Harvest number, so a gift does not arrive in full. Check-in itself is on Ministry, at $90/mo, or $75/mo billed as $900 every 12 months — two months free. What you get for it is not a check-in feature. It is one subscription, one member record, one login — and a clipboard you can finally throw away. The full ladder is on the [pricing page](/#pricing).

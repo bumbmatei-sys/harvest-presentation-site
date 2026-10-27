@@ -1190,6 +1190,40 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...HERO_FABALE_MOVED,
   };
 
+  // Repricing changes shared navigation and pricing copy; route names are unchanged.
+  const REPRICE_PAGES: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': '98828c862d086b1ae2375dd654719a2082d9d7d8f6778eda4c7f7f091121501c',
+    'blog/category/inside-harvest/index.html': '412983a299ce2de87a7b4926f3a0d21f3c3714fa998c5074f892ed01620226a9',
+    'blog/category/rooted/index.html': '9b13fa82b834500b3d2e871d2add9ed80de566d51804038c4b12cead4bf5ac8a',
+    'blog/generosity-without-pressure/index.html': '26a0461adff79de9e39ebc7797b6ade653f77a41fcc46f1ce3f0a8629cf26394',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '0a42f2275a02d46025a2e599f74b7056fee95051425a159c7f73f52110219120',
+    'blog/index.html': 'cb49a6ca0798765c7d8551d3b04b0511535a5f34746a6d78352ae85d63a055bf',
+    'blog/planning-center-alternative-small-churches/index.html': '9bca1aa782427de17350a3ebd9178543662f9e1354176c9b545d92d39e301a54',
+    'blog/skool-alternative-for-churches/index.html': '4ab68db953bef74ecf5d119c1a8822e609a7ebd4fc666e64d18bc9178aa24d34',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': '5c2cd95b1f36b470f45cdd7c6025c8c18ff486bdcc6c501c58fe018dd39bcdee',
+    'blog/work-that-outlives-you/index.html': 'abaed034dc688e463f476916cf5a2502cfe20bf30f0fdbd38b8d2c8505ae760c',
+    'blog/year-end-giving-statements-what-to-include/index.html': '44f0f32c434f489b622970c089ee4300eec76e120080fcf543e407421e90c090',
+    'contact/index.html': 'e2105403dbbeb75066e59dc9aa0a286e3f3d5e18916c6b4779e62dfd62122fee',
+    'faq/index.html': 'dd686dd07faa321ed753d22d3e6fbcf1cd34eef27a8f415a415f2ffe2a725220',
+    'features/ai-automation/index.html': '99f06e396e188421de389f7bc1162f5391993908bc1ac91dff35f3aa508bd4f2',
+    'features/coming-soon/index.html': '9622263819991350db0cb6fa96e90f4ada4b0a30337ca404dc882652cd9792a9',
+    'features/community-engagement/index.html': '99169329793e3626d383515c8a8297f2660ec84b27a0c700ec656b60af9a4f51',
+    'features/discipleship-content/index.html': '54ca20732158da5ed0327128ce6da3b3e1d08a3a4ccebeec911d5dfb33c6b122',
+    'features/giving-finance/index.html': '704bd34b5c7891d7981ec94216f0c0bccc579894e55b93240539bf358e52ebd5',
+    'features/harvest-scheduler/index.html': '8e9a9028a14861363e657608f2967d228c7ccc3bab720a97dd0b7d7ffd469bb9',
+    'features/index.html': 'ca3476aec507d045174304065d58169a357b754f94be359df5883fdea42387b9',
+    'features/platform-brand/index.html': '334ebfad3d0b2110b793c0ca90ca348e72d5304d801edff3481c9f844b37c17a',
+    'index.html': '16e603816334e2c65dfd153c1dfdc80a01f8d512ec9239406a44fee5be785ef1',
+    'pricing/index.html': 'd9d66a8996fda6fb11525571d9ecacd7b756eb7f2139443b966c701de78fbe6a',
+    'privacy/index.html': '1b8444c0bc544c6f45101f73b4c798f303d06075bce5e49b11eda8887f35ce9a',
+    'refunds/index.html': 'a549e8b770ba5486c25b6dda95ba7266743bcd55c886fe0c998bef8db4ade4c4',
+    'solutions/churches/index.html': '601e91a24eae20c4678ede8ce35f72c5811af320d7a5a4e451aebd9010a7ecc7',
+    'solutions/evangelistic-organizations/index.html': '899a0467bea7eaa3b06eca790ceac5b475721678222c6aaffab3210bffbc07d4',
+    'solutions/missionaries/index.html': 'd33b2b91eb0760afc94de47e82a99a84f510ef58168ea8b448376ba3b8fae584',
+    'terms/index.html': '0837c2e96a6ee37e5b53a6337b0d72c0acccf38f1eb97ae7615ebc2896a5fdc7',
+    'waitlist/index.html': '32db69cc078c864e84e928e15fd2c18684bf3798f5e94719af0138d426ea29ed',
+  };
+
   /** The same 22 as one number, so an ADDED or DROPPED page is caught too.
    *
    *  ⚠️ THIS MOVES WHENEVER ANY PAGE MOVES — it is one hash over all 22, so it
@@ -1284,6 +1318,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 40d8d2c — the quarterly plan withdrawn. Four pages moved, none added or
     // dropped (30 pages). See QUARTERLY_WITHDRAWN_MOVED.
     'ca66bf7fc181286bba9154396a3daefbd89cf3f2d8f67826d93c4ca10fd7cd94',
+    // Church and Ministry reprice: all existing routes remain.
+    '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
     // Hero and shared navigation redesign; all 30 pages move.
     'b70e83cec9a55108c9521e60b2567610a3fad2e2ff3a46d33f764059639987ad',
   ];
@@ -1601,9 +1637,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     return out.sort();
   };
 
+  it('the reprice retains exactly the existing route set', () => {
+    expect(Object.keys(REPRICE_PAGES).sort()).toEqual(Object.keys(BASELINE).sort());
+    if (comparable) expect(pagesInDist()).toEqual(Object.keys(BASELINE).sort());
+  });
+
   it.runIf(comparable).each(Object.keys(BASELINE))('%s renders exactly as it did before', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved — Tailwind changed an existing page`).toBe(BASELINE[page]);
+    expect(actual, `${page} moved since repricing`).toBe(REPRICE_PAGES[page]);
   });
 
   it('🔴 THE-306 moved exactly three pages, and added and dropped none', () => {
@@ -2008,9 +2049,9 @@ describe('7 — index.css\'s original 400 lines are untouched', () => {
 /* ═══ 8 — the cross-repo price contract ══════════════════════════════════ */
 describe('8 — the six plan prices are unchanged and the contract still has teeth', () => {
   const NINE = {
-    plus: { monthly: 20, yearly: 190 },
-    pro: { monthly: 40, yearly: 380 },
-    max: { monthly: 80, yearly: 752 },
+    plus: { monthly: 30, yearly: 300 },
+
+    max: { monthly: 90, yearly: 900 },
   } as const;
 
   it('all six prices are exactly what the app charges', () => {
@@ -2029,9 +2070,9 @@ describe('8 — the six plan prices are unchanged and the contract still has tee
 
   it('🔴 and still THROWS when the two repos disagree — a contract nobody has seen fail is not a contract', () => {
     const wrong = plans.map((p) =>
-      p.planId === 'pro' ? { ...p, price: { ...p.price, yearly: p.price.yearly + 1 } } : p,
+      p.planId === 'max' ? { ...p, price: { ...p.price, yearly: p.price.yearly + 1 } } : p,
     );
-    expect(() => planPriceContract(wrong)).toThrow(/pro/);
+    expect(() => planPriceContract(wrong)).toThrow(/max/);
   });
 
   it('it throws at MODULE SCOPE, which is what fails the prerender', () => {

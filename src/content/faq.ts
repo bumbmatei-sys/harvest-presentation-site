@@ -1,4 +1,4 @@
-import { ADVERTISED_DISCOUNT_PCT, discountClaim } from '../components/Pricing';
+import { discountClaim, PROCESSOR_FEES_NOTE } from '../components/Pricing';
 import { SITE_ORIGIN } from './post-core';
 import { TRIAL_LENGTH_DAYS } from './legal';
 import {
@@ -66,12 +66,16 @@ export interface FaqPlanClaim {
   monthly: number;
   /** Charged once for a year of service. */
   annual: number;
-  /** Contact ceiling, exactly as the pricing card writes it (grouped). */
-  contacts: string;
+  /** People ceiling in the CRM, exactly as the pricing card writes it (grouped). */
+  people: string;
   /** Admin accounts included. */
   admins: string;
-  /** Courses included. */
-  courses: string;
+  /** Harvest's cut of a product sale, as a decimal fraction. Paid product
+   *  checkout is not live, so the FAQ only ever states it with "coming soon". */
+  productFee: number;
+  /** AI assistant messages a month. Not built yet; always quoted with its
+   *  real number and with "coming soon". */
+  aiMessages: number;
 }
 
 /**
@@ -91,9 +95,8 @@ export interface FaqPlanClaim {
  * mismatch is a build failure rather than a warning.
  */
 export const FAQ_PLAN_CLAIMS: FaqPlanClaim[] = [
-  { planId: 'plus', name: 'Individual', monthly: 20, annual: 190, contacts: '500', admins: '2', courses: '2' },
-  { planId: 'pro', name: 'Small Team', monthly: 40, annual: 380, contacts: '2,000', admins: '5', courses: '5' },
-  { planId: 'max', name: 'Ministry', monthly: 80, annual: 752, contacts: '4,000', admins: '15', courses: '15' },
+  { planId: 'plus', name: 'Church', monthly: 30, annual: 300, people: '500', admins: '2', productFee: 0.05, aiMessages: 300 },
+  { planId: 'max', name: 'Ministry', monthly: 90, annual: 900, people: '5,000', admins: '15', productFee: 0.02, aiMessages: 5000 },
 ];
 
 /** Shape of the bits of `Plan` this check needs. Passed in rather than imported
@@ -107,8 +110,12 @@ export interface FaqPricedPlan {
   /** Platform fee as a decimal fraction. The 0% answer is the page's strongest
    *  claim; a nonzero fee on any tier makes it a lie. */
   fee: number;
-  /** The pricing card's own bullet list — where the contact, admin and course
-   *  ceilings are written on the site today. */
+  /** Product-sales fee as a decimal fraction. */
+  productFee: number;
+  /** AI assistant messages a month. */
+  aiMessages: number;
+  /** The pricing card's own bullet list — where the people and admin ceilings
+   *  are written on the site today. */
   features: readonly string[];
 }
 
@@ -139,17 +146,20 @@ export function faqPlanMismatches(plans: readonly FaqPricedPlan[]): string[] {
         problems.push(`the FAQ quotes $${claimed}/${term} for ${plan.name}, the pricing cards charge $${charged}/${term}`);
       }
     }
-    // The ceilings are written on the pricing card as one bullet — "150 contacts
+    // The ceilings are written on the pricing card as one bullet — "500 people
     // · 2 admins" — so that exact string is what the FAQ has to agree with.
-    const limits = `${claim.contacts} contacts · ${claim.admins} admins`;
+    const limits = `${claim.people} people · ${claim.admins} admins`;
     if (!plan.features.some((f) => f.includes(limits))) {
       problems.push(`the FAQ says ${plan.name} includes "${limits}", which is not what the ${plan.name} card lists`);
     }
-    if (!plan.features.some((f) => f.includes(`${claim.courses} courses`))) {
-      problems.push(`the FAQ says ${plan.name} includes ${claim.courses} courses, which is not what the ${plan.name} card lists`);
-    }
     if (plan.fee !== 0) {
       problems.push(`the FAQ says Harvest takes 0% of every gift, but ${plan.name} carries a ${plan.fee * 100}% platform fee`);
+    }
+    if (claim.productFee !== plan.productFee) {
+      problems.push(`the FAQ quotes a ${claim.productFee * 100}% product-sales fee for ${plan.name}, the pricing cards carry ${plan.productFee * 100}%`);
+    }
+    if (claim.aiMessages !== plan.aiMessages) {
+      problems.push(`the FAQ quotes ${claim.aiMessages} AI assistant messages a month for ${plan.name}, the pricing cards carry ${plan.aiMessages}`);
     }
   }
 
@@ -171,8 +181,12 @@ const priceLines = FAQ_PLAN_CLAIMS.map(
 );
 
 const limitLines = FAQ_PLAN_CLAIMS.map(
-  (c) => `${c.name} — ${c.contacts} contacts, ${c.admins} admin accounts, ${c.courses} courses.`,
+  (c) => `${c.name} — ${c.people} people, ${c.admins} admin accounts.`,
 );
+
+const [CHURCH_CLAIM, MINISTRY_CLAIM] = FAQ_PLAN_CLAIMS;
+const pct = (fraction: number) => `${Math.round(fraction * 100)}%`;
+const aiLine = (n: number) => `${usd(n)} messages a month`;
 
 /* ------------------------------------------------------------------ *
  * The questions.
@@ -195,7 +209,8 @@ export const FAQS: Faq[] = [
     id: 'donation-fee',
     question: 'Do you take a cut of our donations?',
     answer: [
-      'No. Harvest charges a 0% platform fee on giving, and it is 0% on every paid plan — Individual, Small Team and Ministry alike. It is not an introductory rate, and there is no tier of Harvest that takes a percentage of a gift. (Forever Free has no donation page at all, so there is no giving on it to take a cut of; giving starts on Individual.)',
+      'No. Harvest charges a 0% platform fee on giving — a 0% Harvest fee on donations — and it is 0% on both paid plans, Church and Ministry alike. It is not an introductory rate, and there is no tier of Harvest that takes a percentage of a gift. (Forever Free has no donation page at all, so there is no giving on it to take a cut of; giving starts on Church.)',
+      `Product sales are a different thing from donations, and not live yet. When paid product checkout launches, Harvest's fee on a product sale will be ${pct(CHURCH_CLAIM.productFee)} on Church and ${pct(MINISTRY_CLAIM.productFee)} on Ministry — coming soon, and not charged today. ${PROCESSOR_FEES_NOTE}`,
       /* 🔴 THE-355 — THE SECOND AND THIRD PARAGRAPHS DESCRIBED A RAIL THAT
          REFUSES. `/api/stripe/donate` answers 503 while the app's
          `STRIPE_CONNECT_ENABLED` is false, so no gift settles into a connected
@@ -213,7 +228,7 @@ export const FAQS: Faq[] = [
       ] : [
         'Card giving inside the app is off, and giving does not run through Harvest at all. Your ministry publishes its own payment links — PayPal, Cash App, Venmo, Zelle, Revolut and Wise — on one giving page, and a member taps the one they already use. The gift goes from them to your account without passing through anything Harvest operates, so there is nothing for us to hold, forward, or take a share of.',
         'What each of those providers charges is a matter between your ministry and that provider, under your agreement with them. What you pay Harvest is the subscription, and nothing else.',
-        'A gift you record in the CRM counts everywhere a gift should: it posts to your dashboard, into accounting, onto the giver\'s own history and onto their year-end giving statement.',
+        'A gift you record in the CRM counts everywhere a gift should: it posts to your dashboard, into your giving records, onto the giver\'s own history and onto their year-end giving statement.',
       ]),
     ],
   },
@@ -221,17 +236,20 @@ export const FAQS: Faq[] = [
     id: 'pricing',
     question: 'What does Harvest cost, and what is in each plan?',
     answer: [
-      `Harvest is sold on three plans, priced in US dollars, each payable monthly or annually. ${priceLines.join(' ')}`,
-      // 🔴 The wording comes from `discountClaim`, which decides from the PRICES
-      // whether a percentage may be claimed flat or has to say "up to". Yearly
-      // reads "up to 30%" because the cheapest tier saves 29.7% and a flat claim
-      // would overstate it. Never restate a percentage here as a literal.
-      `${discountClaim('yearly')} by paying for a year up front, against paying month by month. The annual term is one charge, not a smaller monthly one: a year of Individual is a single payment of $${usd(FAQ_PLAN_CLAIMS[0].annual)}.`,
-      /* 🔴 THE-335 — three claims came out of this answer, each because the app
-         stopped answering for it: the newsletter on Small Team, the automated
-         newsletter on Ministry, and the QuickBooks sync. Service planning went
-         IN, because it shipped and is a Ministry capability. */
-      `Every plan includes the web and mobile app, your news feed, the full Bible, courses, the donor and member CRM, and your donation page and fundraising. Small Team adds docs and sermon notes, livestream with live giving, QR check-in${NEWSLETTER_MARKETING_ENABLED ? ', the church map and the newsletter' : ' and the church map'}. Ministry adds your own branding${CUSTOM_DOMAIN_MARKETING_ENABLED ? ' and domain' : ''}, community groups and events, service planning with volunteer rotas, custom forms that feed the CRM, tax receipts and giving statements, automated SEO blog articles${NEWSLETTER_MARKETING_ENABLED ? ' and the automated newsletter' : ''}, and ${QUICKBOOKS_MARKETING_ENABLED ? 'QuickBooks accounting sync' : 'the accounting receipt ledger'}.`,
+      `Harvest is sold on two paid plans, priced in US dollars, each payable monthly or annually. ${priceLines.join(' ')}`,
+      // 🔴 The claim comes from `discountClaim`, and the Pricing module stops the
+      // build if the prices stop delivering it. Never restate a percentage here
+      // as a literal: a year is ten months' price for twelve, which is 16.67%,
+      // and "2 months free" is the honest way to say it.
+      `${discountClaim('yearly')} when you pay for a year up front, against paying month by month. The annual term is one charge, not a smaller monthly one: a year of Church is a single payment of $${usd(CHURCH_CLAIM.annual)}.`,
+      /* 🔴 What is named here is what the pricing cards name, and "coming soon"
+         is said wherever it applies: livestream, chat and prayer requests in
+         every community, the Discovery listing, the storefront, the website
+         builder, the social scheduler and the AI assistant are in the plans and
+         are not built; the newsletter and SMS are the same until their flags
+         flip. Service planning and giving records ship. */
+      `Both plans include the web and mobile app, courses, the full Bible, the donor and member CRM with signups, your donation page and fundraising campaigns, a blog, docs and sermon notes, a link-in-bio page, campuses and up to three products (paid product checkout is coming soon). Church has one community with a feed and chat. Ministry adds unlimited communities, community groups, event registration with QR check-in, the church map, livestream with live giving, service planning with volunteer rotas, custom forms that feed the CRM, giving records (statements and year-end giving receipts), automated SEO blog articles, the AI knowledge base, and your own branding${CUSTOM_DOMAIN_MARKETING_ENABLED ? ' and domain' : ''}.`,
+      `Coming soon, and in the plans when it ships: livestream, chat and prayer requests in every community and a Discovery listing; all product types with a storefront; a website builder with pre-made templates; the social scheduler; ${NEWSLETTER_MARKETING_ENABLED ? '' : 'the newsletter; '}${SMS_MARKETING_ENABLED ? '' : 'SMS and text-to-give; '}and the AI assistant, at ${aiLine(CHURCH_CLAIM.aiMessages)} on Church and ${aiLine(MINISTRY_CLAIM.aiMessages)} on Ministry.`,
       'The full plan-by-plan comparison is on the pricing page. What is on that page is what you are buying — there is nothing else to add at checkout.',
     ],
   },
@@ -246,10 +264,10 @@ export const FAQS: Faq[] = [
   },
   {
     id: 'limits',
-    question: 'How many contacts and admin accounts do we get?',
+    question: 'How many people and admin accounts do we get?',
     answer: [
-      `Contacts and admin accounts are the ladder between the three plans. ${limitLines.join(' ')}`,
-      'A contact is one person in your CRM, whether they signed up in the app themselves or you added them by hand — app members and manual contacts are merged into a single record, deduplicated by email, rather than counted twice.',
+      `People and admin accounts are the ladder between the two plans. ${limitLines.join(' ')}`,
+      'A person is one record in your CRM, whether they signed up in the app themselves or you added them by hand — app members and manual contacts are merged into a single record, deduplicated by email, rather than counted twice.',
       'An admin account is someone who can sign in to the dashboard. Each one carries its own permissions across content, money, broadcasting and administration, so the volunteer running check-in never sees donation records and the treasurer never sees prayer requests.',
     ],
   },
@@ -267,7 +285,7 @@ export const FAQS: Faq[] = [
     question: 'Is Harvest built for small churches?',
     answer: [
       'Yes. Harvest is church software for small churches and growing congregations that are tired of paying for a tool stack just to run Sunday.',
-      'Small Team covers the day-to-day ops most plants need — including QR check-in, livestream and the church map — at $40/month (or less when billed annually). Ministry adds service planning with volunteer rotas, groups and events, custom forms, tax receipts and branding.',
+      `Church covers what most small congregations need — one community with a feed and chat, courses, a donation page and fundraising, a CRM of up to ${CHURCH_CLAIM.people} people and a link-in-bio page — at $${CHURCH_CLAIM.monthly}/month ($${CHURCH_CLAIM.annual} a year, ${discountClaim('yearly')}). Ministry adds event registration with QR check-in, service planning with volunteer rotas, groups, custom forms, giving records and branding.`,
       'One member record follows giving, attendance, groups and courses, so you are not reconciling three spreadsheets after every service.',
     ],
   },
@@ -276,7 +294,7 @@ export const FAQS: Faq[] = [
     question: 'Does Harvest include church membership software and volunteer scheduling?',
     answer: [
       'Church membership software and church CRM live in the same record: anyone who gives, registers, checks in or fills a form becomes a contact, deduplicated by email.',
-      'Church check-in is QR self check-in — no app required — and attendance lands in the CRM (Small Team and Ministry).',
+      'Church check-in is QR self check-in — no app required — and attendance lands in the CRM (Ministry).',
       'Volunteer scheduling for Sunday sits inside Service Planning on the Ministry plan: build the order of service, assign people, flag double-bookings, and invite volunteers by email with one link to accept or decline.',
       'Details: [CRM](/features/giving-finance#crm), [Check-In](/features/community-engagement#checkin), [Service Planning](/features/community-engagement#services).',
     ],
@@ -329,7 +347,7 @@ export const FAQS: Faq[] = [
     question: 'Is Harvest a phone app?',
     answer: [
       'It is an installable web app. Members open it in any browser and add it to their home screen on iPhone and Android alike, where it launches standalone like any other app. There is no App Store review to wait for, no update cycle to manage, and nothing for your members to approve. Push notifications work on every plan.',
-      'On Ministry the installed app carries your name, your icon and your colour right down to the install manifest, so it is your app on the home screen. On every other plan — Forever Free included — it installs with Harvest branding.',
+      'On Ministry the installed app carries your name, your icon and your colour right down to the install manifest, so it is your app on the home screen. On Church and Forever Free it installs with Harvest branding.',
       'The same app is a real desktop layout in a browser, not a stretched phone view, and public pages — a post, an event, a giving page, a form — open for anyone with no account at all.',
     ],
   },

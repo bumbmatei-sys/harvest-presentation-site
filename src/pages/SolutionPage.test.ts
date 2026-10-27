@@ -318,8 +318,14 @@ for (const fixture of FIXTURES) {
     describe('the aichat pocket tile (when present) makes no plan or price claim', () => {
       const tile = c.pocket.tiles.find((t) => t.id === 'aichat');
 
-      it.runIf(!!tile)('its own copy never says "add-on" or names a price', () => {
-        expect(pageText).toContain(tile!.title);
+      it('its own copy never says "add-on" or names a price', () => {
+        if (!tile) {
+          expect(c.pocket.tiles.map(t => t.id)).not.toContain('aichat');
+          expect(c.pocket.tiles.map(t => t.title).join(' ')).not.toMatch(/assistant/i);
+          return;
+        }
+        expect(pageText).toContain(tile.title);
+        expect(tile.title).toMatch(/coming soon/i);
         const ownCopy = `${tile!.title} ${tile!.body}`;
         expect(ownCopy.toLowerCase()).not.toContain('add-on');
         expect(ownCopy).not.toMatch(/\$\d/);

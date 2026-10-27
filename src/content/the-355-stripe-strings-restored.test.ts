@@ -191,7 +191,7 @@ describe('2 — the flip restores the Stripe half and nothing else', () => {
       const ids = s.cats.find((c) => c.slug === 'giving-finance')!.features.map((f) => f.id);
       expect(ids, 'the pledges block is gated on the Stripe flag').toContain('pledges');
       expect(ids.indexOf('pledges')).toBe(ids.indexOf('fundraising') + 1);
-      expect(s.feature('pledges').tiers).toEqual([0, 0, 1]);
+      expect(s.feature('pledges').tiers).toEqual([0, 1]);
       expect(s.feature('fundraising').name).toBe('Fundraising Campaigns');
       const f = s.feature('fundraising');
       expect([f.title, f.oneliner, f.moment, ...f.admin, ...f.member].join(' '))
@@ -207,7 +207,7 @@ describe('2 — the flip restores the Stripe half and nothing else', () => {
       vi.resetModules();
       vi.doMock('../lib/flags', () => flags);
       const { CATALOG_TOOL_COUNT, CATALOG } = await import('../components/catalog');
-      expect(CATALOG_TOOL_COUNT).toBe(27);
+      expect(CATALOG_TOOL_COUNT).toBe(26);
       expect(CATALOG.flatMap((g) => g.items).map((i) => i.title))
         .toContain('Pledge Campaigns');
       vi.doUnmock('../lib/flags');

@@ -71,14 +71,14 @@ describe('1 — every affiliate surface claims 30%', () => {
       `$${fiveMonthly} a month for twelve months, roughly $${yearTotal.toLocaleString()} in total`,
     );
     // The concrete numbers, so a silent change to the derivation is still
-    // caught. ⚠️ These moved at THE-343 and again at THE-372, not here: five
-    // churches on the $80 Ministry plan at 30% is $120 a month and $1,440 over
-    // the twelve. The RATE
+    // caught. ⚠️ These moved with the plan price (THE-343, THE-372, and the
+    // two-plan reprice), not here: five churches on the $90 Ministry plan at
+    // 30% is $135 a month and $1,620 over the twelve. The RATE
     // is what this file guards and it is untouched — 0.30 both before and
     // after — which is exactly what the derivation above proves.
     expect(AFFILIATE_COMMISSION_RATE).toBe(0.30);
-    expect(fiveMonthly).toBe(120);
-    expect(yearTotal.toLocaleString()).toBe('1,440');
+    expect(fiveMonthly).toBe(135);
+    expect(yearTotal.toLocaleString()).toBe('1,620');
   });
 
   it('🔴 NO file in the repo still claims a 15% commission — repo-wide sweep', () => {
@@ -151,15 +151,14 @@ describe('3 — what this change must NOT have moved', () => {
     expect(read('lib/flags.ts')).toMatch(/^export const AFFILIATE_PROGRAM_ENABLED = false;$/m);
   });
 
-  it('the six plan prices are unchanged', () => {
+  it('the four plan prices are the approved ones', () => {
     // The cross-repo price contract throws at module scope during prerender if
     // these disagree with the app. The commission rate is deliberately not one
-    // of the six, and this is the check that it stayed that way.
+    // of the four, and this is the check that it stayed that way.
     const table = Object.fromEntries(plans.map((p) => [p.planId, p.price]));
-    expect(table).toMatchObject({
-      plus: { monthly: 20, yearly: 190 },
-      pro:  { monthly: 40, yearly: 380 },
-      max:  { monthly: 80, yearly: 752 },
+    expect(table).toEqual({
+      plus: { monthly: 30, yearly: 300 },
+      max:  { monthly: 90, yearly: 900 },
     });
   });
 
@@ -174,24 +173,24 @@ describe('3 — what this change must NOT have moved', () => {
    4 — every 15% / 0.15 left alone, pinned so a future sweep cannot eat it.
    ═══════════════════════════════════════════════════════════════════════════ */
 describe('4 — the 15%s that are not the commission', () => {
-  it('the only term discount is the yearly 20%, and the quarterly 15% is gone for good', () => {
+  it('the only term discount is yearly ("2 months free", contract number 16), and the quarterly 15% is gone for good', () => {
     // The yearly discount is not a commission and sits beside real prices. The
     // quarterly term (and its badge) was withdrawn on 2026-10-23, so there is no
     // longer a 15% discount anywhere for a rate sweep to mistake for one.
     expect(read('components/Pricing.tsx')).toContain(
-      'ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { yearly: 20 }',
+      'ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { yearly: 16 }',
     );
     expect(read('components/Pricing.tsx')).not.toMatch(/15% off a quarter|−15% quarterly/);
   });
 
-  it('the pricing suites still describe the badge as 20% and not computed from the prices', () => {
+  it('the pricing suites still describe the badge as "2 months free" and not computed from the prices', () => {
     for (const f of [
       'components/PricingAddOns.test.ts',
       'components/PricingComparison.test.ts',
       'content/plan-claims.test.ts',
     ]) {
       expect(read(f), `${f} lost the discount-badge note`)
-        .toContain('badge is 20% and is NOT computed from the prices');
+        .toContain('badge reads "2 months free"');
     }
   });
 

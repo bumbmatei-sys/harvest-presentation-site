@@ -82,14 +82,15 @@ describe('THE-196 — the headline is the per-month figure', () => {
     }
   });
 
-  it('the six headlines are the figures the founder signed off', () => {
+  it('the four headlines are the figures the founder signed off', () => {
     // Named explicitly, so a change to the rounding RULE has to come here and
     // restate what it now shows rather than sliding through a derivation.
     const table = plans.map((p) => BILLING_TERMS.map((t) => formatMonthlyHeadline(p.price[t], t)));
+    // Both yearly prices are ten months' worth and divide by twelve exactly,
+    // so neither headline carries cents.
     expect(table).toEqual([
-      ['$20', '$15.84'],
-      ['$40', '$31.67'],
-      ['$80', '$62.67'],
+      ['$30', '$25'],
+      ['$90', '$75'],
     ]);
   });
 
@@ -200,10 +201,11 @@ describe('THE-196 — the honesty guard', () => {
     expect(() => monthlyHeadlineContract(Math.round, HAZARD))
       .toThrow(/never promise less than the bill/);
     expect(() => monthlyHeadlineContract(Math.round, HAZARD)).toThrow(/Ministry yearly/);
-    // `Math.floor` still understates on the SHIPPED table — $15.83 and $31.67
-    // floor to $15 and $31 — so it keeps the real prices in the mutation.
-    expect(() => monthlyHeadlineContract(Math.round, HAZARD)).toThrow(/Ministry yearly/);
-    expect(() => monthlyHeadlineContract(Math.floor)).toThrow(/never promise less than the bill/);
+    // `Math.floor` understates on the hazard table too: 1325/12 floors to 110.
+    // (It cannot be pointed at the SHIPPED table, whose two yearly prices divide
+    // by twelve exactly — $25 and $75 — so no rounding rule could understate
+    // them; that is why the rule, not the shipped data, is the subject.)
+    expect(() => monthlyHeadlineContract(Math.floor, HAZARD)).toThrow(/never promise less than the bill/);
     // Ceiling to the dollar never understates, so the guard accepts it; it is
     // the reconciliation test that rules it out.
     expect(() => monthlyHeadlineContract(Math.ceil)).not.toThrow();
@@ -246,9 +248,8 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
        and its own suite asserts those against its rendered cards. If either
        repo changes the shape, one of the two fails. */
     const APP_HEADLINES: Record<string, Record<BillingTerm, string>> = {
-      plus: { monthly: '$20', yearly: '$15.84' },
-      pro:  { monthly: '$40', yearly: '$31.67' },
-      max:  { monthly: '$80', yearly: '$62.67' },
+      plus: { monthly: '$30', yearly: '$25' },
+      max:  { monthly: '$90', yearly: '$75' },
     };
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
@@ -301,9 +302,9 @@ describe('THE-196 — the presentation matches the in-app cards', () => {
       priceText.push(['Replaces cost', m[1]] as const);
     }
 
-    // A floor so an empty scan cannot pass: six cards, two spans each, three
-    // yearly term totals and the Replaces costs are 16 today.
-    expect(priceText.length).toBeGreaterThan(12);
+    // A floor so an empty scan cannot pass: four cards, two spans each, two
+    // yearly term totals and the Replaces costs are 11 today.
+    expect(priceText.length).toBeGreaterThan(8);
     for (const [where, style] of priceText) {
       const size = Number(style.match(/font-size:\s*([0-9.]+)px/)?.[1]);
       if (!Number.isNaN(size)) {

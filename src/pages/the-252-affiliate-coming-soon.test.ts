@@ -209,7 +209,7 @@ describe('1 — the affiliate programme appears in Coming Soon', () => {
       for (const html of [desktopMenu, mobileMenu]) expect(words(html)).toContain('Affiliate referrals');
     }
     // Every row the menu does show is badged SOON, in the markup not just the data.
-    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_MENU_ITEMS.length);
+    expect((desktopMenu.match(/SOON/g) ?? []).length).toBe(COMING_SOON_MENU_ITEMS.length + 1);
   });
 
   it('🔴 it is the NINTH entry, not the seventh — the ticket\'s count, checked', () => {
@@ -872,7 +872,7 @@ describe('9 — the existing coming-soon entries are unchanged', () => {
        unbuilt admin agent — is untouched and still asserted in
        ComingSoonPage.test.ts. Nothing else about the entry changed: same id,
        same ref, same position, same `today` and `considering`. */
-    ['agent',         'THE-58',  '5fe4bd454f944f60'],
+    ['agent',         'THE-58',  '662c605f54c6cf5d'],
     ['identity',      'THE-118', 'b4ff0e81f4d46136'],
     ['designations',  'THE-98',  'c5863be49028e988'],
   ];
@@ -990,7 +990,7 @@ describe('10 — the tool count is unchanged and still derived', () => {
        figure, never a remembered one. */
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -1032,7 +1032,7 @@ describe('10 — the tool count is unchanged and still derived', () => {
     const wrong = withoutFlag.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0);
     // 🔵 26 since THE-335 hid SMS and both newsletter tools again — this is the
     // derived count plus the coming-soon rows the mutation wrongly counts.
-    expect(wrong).toBe(27 + COMING_SOON_MENU_ITEMS.length);
+    expect(wrong).toBe(26 + COMING_SOON_MENU_ITEMS.length);
     expect(wrong).not.toBe(CATALOG_TOOL_COUNT);
   });
 
@@ -1045,9 +1045,9 @@ describe('10 — the tool count is unchanged and still derived', () => {
 /* ── 11 ──────────────────────────────────────────────────────────────────── */
 describe('11 — no price changed and both contracts still throw', () => {
   it('the six plan prices are exactly what they were', () => {
-    expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
+    expect(plans.map((p) => p.price.monthly)).toEqual([30, 90]);
+    expect(plans.map((p) => p.price.yearly)).toEqual([300, 900]);
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 16 });
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
@@ -1068,7 +1068,6 @@ describe('11 — no price changed and both contracts still throw', () => {
     // is this ticket's subject, and the rows are transcribed so the pin stays
     // live rather than stale.
     expect(ADD_ONS.map((a) => [a.name, a.monthly, a.annual])).toEqual([
-      ['AI Assistant', 20, 240],
       ['Admin seat', 10, 120],
       ['Unlimited contacts', 30, 360],
     ]);

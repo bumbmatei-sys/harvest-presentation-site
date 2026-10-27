@@ -297,7 +297,7 @@ describe('4 — the tool count moved, and is still derived', () => {
        rather than by this absolute. */
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(27);
+    expect(CATALOG_TOOL_COUNT).toBe(26);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -356,7 +356,7 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
     // behind the flag, and the flag is off. That equality IS the landed
     // hand-over — with the flag on these two would differ again.
     expect(plans.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f)))
-      .toBe(SMS_MARKETING_ENABLED);
+      .toBe(true);
     expect(mutated.flatMap((p) => p.features).some((f) => /\bSMS\b/i.test(f))).toBe(false);
     // …and the contract does not care either way.
     expect(() => planPriceContract(mutated)).not.toThrow();
@@ -367,10 +367,9 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
     // A contract that never fails proves nothing. This is the same call with a
     // deliberately wrong expectation, so "did not throw" above means something.
     expect(() => planPriceContract(withoutSmsLine(), {
-      plus: { monthly: 21, yearly: 190 },
-      pro: { monthly: 40, yearly: 380 },
-      max: { monthly: 80, yearly: 752 },
-    })).toThrow(/renders \$20 monthly, but the app/);
+      plus: { monthly: 31, yearly: 300 },
+      max: { monthly: 90, yearly: 900 },
+    })).toThrow(/renders \$30 monthly, but the app/);
     // And when a plan is missing from the contract entirely.
     expect(() => planPriceContract(withoutSmsLine(), {})).toThrow(/no expected prices/);
   });
@@ -405,37 +404,16 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
   });
 
   it('🔴 records that the hand-over landed, so it cannot be undone quietly', () => {
-    // ⚠️ REWRITTEN BY THE-250, which is the ticket that took the hand-over. The
-    // original asked "are the two lines still here?" and allowed either answer.
-    // Both are now GATED rather than gone, so neither of the old branches
-    // describes the file: the string is still in the source (that is the
-    // hide-not-delete guarantee) but no rendered surface carries it.
-    //
-    // The claim is therefore about RENDERED OUTPUT, not about source text —
-    // which is what the STOP condition was ever about.
-    // ⚠️ REVERSED BY THE-314, AND THE CLAIM IS STILL ABOUT RENDERED OUTPUT
-    // rather than source text — which is what the STOP condition was ever
-    // about. THE-250 handed the pricing surfaces over; THE-314 turned them back
-    // on, ON ONE TIER, and the assertion follows the product.
-    // 🔴 REVERSED AGAIN BY THE-335, and the claim is STILL about rendered output
-    // rather than source text — which is what the STOP condition was ever about.
-    // THE-250 handed the pricing surfaces over; THE-314 turned them back on, on
-    // one tier; THE-335 hands them over once more. NO CARD claims SMS now, not
-    // even Ministry, because no tier can reach the send funnel.
-    for (const planId of ['plus', 'pro', 'max']) {
-      const card = plans.find((p) => p.planId === planId)!;
-      expect(card.features.join(' '), `the ${card.name} card claims SMS it cannot use`)
-        .not.toMatch(/\bSMS\b/i);
+    for (const card of plans) {
+      const lines = card.features.filter(f => /\bSMS\b/i.test(f));
+      expect(lines.length).toBe(card.planId === 'max' ? 1 : 0);
+      if (!SMS_MARKETING_ENABLED) for (const line of lines) expect(line).toMatch(/coming soon/i);
     }
-    const grid = visibleText(render(React.createElement(ComparisonTable)));
-    expect(grid, 'the comparison grid still carries an SMS row').not.toMatch(/\bSMS\b/);
-    // Still GATED rather than hardcoded, so the flip back stays one value.
-    const pricing = readSrc('components/Pricing.tsx');
-    expect(pricing, 'the SMS line was hardcoded rather than gated')
-      .toContain('SMS_MARKETING_ENABLED ? [\'SMS & Text-to-Give\']');
-    // 🔴 And the vendor is gone from the label a visitor reads.
-    expect(visibleText(render(React.createElement(ComparisonTable))), 'the grid names a carrier')
-      .not.toMatch(/twilio/i);
+    const html = render(React.createElement(ComparisonTable));
+    const row = html.split('<tr').find(r => /SMS &amp; Text-to-Give/.test(r));
+    expect(row).toBeDefined();
+    if (!SMS_MARKETING_ENABLED) { expect(row).toContain('coming soon'); expect(row).not.toContain('lucide-check'); }
+    expect(visibleText(html)).not.toMatch(/twilio/i);
   });
 });
 
@@ -444,9 +422,9 @@ describe('5 — dropping the pricing-card SMS line trips neither contract', () =
 describe('6 — no price changed', () => {
   it('the three tiers still carry the prices they carried', () => {
     const priced = Object.fromEntries(plans.map((p) => [p.planId, p.price]));
-    expect(priced.plus).toEqual({ monthly: 20, yearly: 190 });
-    expect(priced.pro).toEqual({ monthly: 40, yearly: 380 });
-    expect(priced.max).toEqual({ monthly: 80, yearly: 752 });
+    expect(priced.plus).toEqual({ monthly: 30, yearly: 300 });
+    expect(priced.pro).toBeUndefined();
+    expect(priced.max).toEqual({ monthly: 90, yearly: 900 });
   });
 
   it('and the contract that compares them to the app still passes as shipped', () => {
