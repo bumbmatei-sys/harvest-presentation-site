@@ -274,12 +274,11 @@ describe('the catalogue is a different object from the grid', () => {
 
 describe('what this change must not have touched', () => {
   it('plan prices and the annual discount are unchanged', () => {
-    // 🔴 Data and rendered cards both. Nine stored prices, three terms; the
-    // badges are 15% and 30% and are NOT computed from the prices.
+    // 🔴 Data and rendered cards both. Six stored prices, two terms; the
+    // badge is 20% and is NOT computed from the prices.
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
     expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
     for (const p of plans) {
       for (const term of BILLING_TERMS) {
         // 🔴 THE-196 flipped the hierarchy: the headline is now the per-month
@@ -311,11 +310,11 @@ describe('what this change must not have touched', () => {
     // hand it a table that disagrees on one cell and it must throw.
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, quarterly: 54, yearly: 190 },
-        pro: { monthly: 40, quarterly: 109, yearly: 380 },
-        max: { monthly: 80, quarterly: 216, yearly: 752 },
+        plus: { monthly: 20, yearly: 190 },
+        pro: { monthly: 40, yearly: 381 },
+        max: { monthly: 80, yearly: 752 },
       }),
-    ).toThrow(/Small Team.*quarterly/);
+    ).toThrow(/Small Team.*yearly/);
 
     // The grid's own width check is the same idiom and stays a build failure.
     expect(src).toMatch(/throw new Error\(`Pricing comparison row/);
@@ -325,8 +324,8 @@ describe('what this change must not have touched', () => {
     // Shipped in #58 and untouched by the three-term change: twelve months a
     // year, the availability wording derived from `plans`, and the qualifier
     // that keeps a discount badge from reading as if it applied to these prices
-    // too. 🔴 ADD_ON_BILLED_MONTHS stays 12 — quarterly did not add a column,
-    // because a quarterly product carries the MONTHLY add-on ids.
+    // too. 🔴 ADD_ON_BILLED_MONTHS stays 12 — add-ons have a monthly and a
+    // yearly price and no other column.
     // 🔴 THE-223 corrected all five figures against live Dodo and added Campus,
     // which the section had never listed. The three-term change this test was
     // written for still did not touch them — that is what it guards — so the
@@ -522,7 +521,7 @@ describe('the Forever Free card', () => {
     expect(text()).toContain('no card required');
     // "/mo" would imply a cycle free does not have.
     expect(text()).not.toContain('/mo');
-    for (const term of ['monthly', 'quarterly', 'yearly', 'annually', 'billed as']) {
+    for (const term of ['monthly', 'yearly', 'annually', 'billed as']) {
       expect(text().toLowerCase(), `the free card quotes "${term}"`).not.toContain(term);
     }
   });

@@ -579,17 +579,17 @@ describe('4 — the subdomain still ships, and the entry says so', () => {
 
 /* ── 5 ─────────────────────────────────────────────────────────────────────
    🔴 No price moved, and all three contracts still throw.                    */
-describe('5 — the nine plan prices are unchanged and the contracts still throw', () => {
+describe('5 — the six plan prices are unchanged and the contracts still throw', () => {
   const NINE = {
-    plus: { monthly: 20, quarterly: 54, yearly: 190 },
-    pro: { monthly: 40, quarterly: 108, yearly: 380 },
+    plus: { monthly: 20, yearly: 190 },
+    pro: { monthly: 40, yearly: 380 },
     // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
     // the quarter and year at $216 / $752). plus and pro are enumerated
     // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 80, quarterly: 216, yearly: 752 },
+    max: { monthly: 80, yearly: 752 },
   } as const;
 
-  it('all nine prices are exactly what the app charges', () => {
+  it('all six prices are exactly what the app charges', () => {
     for (const [planId, terms] of Object.entries(NINE)) {
       const plan = plans.find((p) => p.planId === planId);
       if (plan === undefined) throw new Error(`plan ${planId} vanished from the table`);
@@ -689,14 +689,20 @@ describe('6 — the prerendered page count is unchanged', () => {
        restored straight onto main, so this workflow never saw it. It is the
        29th route. NOT THE-373's, and corrected here only because CI gates
        this PR on it. */
-    expect(routes).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — `how-to-keep-track-of-church-prayer-requests`, pushed
+       straight onto main, so this workflow (pull_request only) never saw it. It
+       is the 30th route; main was red on these five count assertions before the
+       quarterly withdrawal, which is corrected here only because CI gates this
+       PR on it. */
+    expect(routes).toHaveLength(30);
     // 🔵 26 with the scheduler page taken out, and all three Solutions pages
     // counted — 25 before the Sep 15 `skool-alternative-for-churches` post,
     // 22 with the scheduler taken out and no Solutions pages, 21 before the
     // Sep 10 post.
     // 🔵 27 since #106 added /waitlist.
     // 🔵 28 since c5b7143's check-in post, with the scheduler page taken out.
-    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(28);
+    // 🔵 29 since ddf3529's prayer-requests post.
+    expect(routes.filter((r) => r !== SCHEDULER_HREF)).toHaveLength(29);
     expect(routes, 'the custom-domain entry grew a route').not.toContain('/features/custom-domains');
   });
 
@@ -712,7 +718,8 @@ describe('6 — the prerendered page count is unchanged', () => {
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-280's. */
-    expect(count, `this checkout built ${count} pages, not 29`).toBe(29);
+    /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-280's. */
+    expect(count, `this checkout built ${count} pages, not 30`).toBe(30);
   });
 
   it('the entry is an anchor on an existing page, not a route of its own', () => {

@@ -95,39 +95,37 @@ describe('the prices and limits quoted in the FAQ', () => {
     },
   );
 
-  it('quotes the quarterly price for every tier as well', () => {
+  it('quotes no quarterly price — the term was withdrawn on 2026-10-23', () => {
+    expect(body).not.toMatch(/quarterly|every three months|per three months|billed quarterly/i);
     for (const claim of FAQ_PLAN_CLAIMS) {
-      expect(body, `the FAQ does not quote $${claim.quarterly} every three months for ${claim.name}`)
-        .toContain(`$${grouped(claim.quarterly)} every three months`);
+      expect(Object.keys(claim), `${claim.name} still carries a quarterly claim`).not.toContain('quarterly');
     }
   });
 
   it('describes each discount in the wording the prices permit', () => {
     // 🔴 The sentence carries `discountClaim`, which decides FROM THE PRICES
-    // whether a percentage may be stated flat or has to say "up to". Both terms
-    // are flat as of THE-248: quarterly's worst tier saves exactly 10.0% against
-    // an advertised 10%, and yearly's worst saves 20.83% against 20. Asserting
-    // the RENDERED prose is what proves the hedge is absent from the page — the
-    // sentence is built from `discountClaim`, so it moved without a copy edit.
-    expect(body).toContain(discountClaim('quarterly'));
+    // whether a percentage may be stated flat or has to say "up to". The one
+    // discounted term is flat: yearly's worst tier saves 20.83% against an
+    // advertised 20. Asserting the RENDERED prose is what proves the hedge is
+    // absent from the page — the sentence is built from `discountClaim`, so it
+    // moved without a copy edit.
     expect(body.toLowerCase()).toContain(discountClaim('yearly').toLowerCase());
-    expect(discountClaim('quarterly')).toBe('Save 10%');
     expect(discountClaim('yearly')).toBe('Save 20%');
     expect(body.toLowerCase()).toMatch(/\bsave 20%/);
     // 🔴 And the qualifier is GONE from the page, not merely unused in code.
-    // Both terms, because quarterly is the one now sitting on the knife edge:
-    // it MEETS its claim exactly rather than clearing it, so a regression in
-    // `actualSavingPct` would surface here as "up to 10%" on a live page.
+    // A regression in `actualSavingPct` would surface here as "up to 20%" on a
+    // live page; "up to 10%" is the withdrawn quarterly term's hedge and must
+    // not appear either.
     expect(body.toLowerCase()).not.toContain('up to 20%');
     expect(body.toLowerCase()).not.toContain('up to 10%');
     // The old 9-of-12 sentence must not survive: there is no such multiplier.
     expect(body.toLowerCase()).not.toContain('nine months of the monthly rate');
   });
 
-  it('says the longer terms are one charge, not a cheaper monthly one', () => {
+  it('says the annual term is one charge, not a cheaper monthly one', () => {
     // ⚠️ What a church is actually charged must be unambiguous.
     expect(body).toContain(`a single payment of $${grouped(FAQ_PLAN_CLAIMS[0].annual)}`);
-    expect(ADVERTISED_DISCOUNT_PCT.quarterly).toBe(10);
+    expect(ADVERTISED_DISCOUNT_PCT.yearly).toBe(20);
   });
 });
 
@@ -237,7 +235,7 @@ describe('what the FAQ must not claim', () => {
    * one lands on $19, $59 or $10, that pattern drops in turn.
    */
   const PLAN_PRICE_FIGURES = new Set(
-    plans.flatMap((p) => [p.price.monthly, p.price.quarterly, p.price.yearly].map(String)),
+    plans.flatMap((p) => [p.price.monthly, p.price.yearly].map(String)),
   );
   const collidesWithAPlanPrice = ([, re]: [string, RegExp]) => {
     const figure = re.source.match(/\\\$(\d+)/)?.[1];

@@ -210,8 +210,9 @@ describe('🔴 the comment stripper is verified before anything is grepped throu
 /* ── 12 · the site shows $60 for Ministry ─────────────────────────────────── */
 describe('12 · the site shows Ministry at the price THE-372 restored', () => {
   it('holds them in the plan data', () => {
-    // ⚠️ MOVED AT THE-372: THE-343's 60 / 162 / 564 became 80 / 216 / 752.
-    expect(ministry.price).toEqual({ monthly: 80, quarterly: 216, yearly: 752 });
+    // ⚠️ MOVED AT THE-372: THE-343's 60 / 162 / 564 became 80 / 216 / 752, and
+    // the 216 quarter went when the quarterly term was withdrawn (2026-10-23).
+    expect(ministry.price).toEqual({ monthly: 80, yearly: 752 });
   });
 
   it('🔴 RENDERS them on the card, per term — not merely holds them', () => {
@@ -220,27 +221,25 @@ describe('12 · the site shows Ministry at the price THE-372 restored', () => {
         .replace(/<[^>]*>/g, ' ');
     // Monthly: the headline IS the charged figure.
     expect(text('monthly')).toContain('$80');
-    // The other two print the per-month equivalent AND the charged total.
-    expect(text('quarterly')).toContain('billed as $216 every 3 months');
-    expect(text('quarterly')).toContain('$72');
+    // The yearly term prints the per-month equivalent AND the charged total.
     expect(text('yearly')).toContain('billed as $752 every 12 months');
     expect(text('yearly')).toContain('$62.67');
   });
 
-  it('the Terms and the FAQ quote the same three, and neither disagrees with the cards', () => {
+  it('the Terms and the FAQ quote the same two, and neither disagrees with the cards', () => {
     // Both run as module-scope guards on their own pages; running them here too
     // means a failure names THIS ticket rather than only stopping the prerender.
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(faqPlanMismatches(plans)).toEqual([]);
     const terms = TIER_PRICE_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([terms.monthly, terms.quarterly, terms.annual]).toEqual([80, 216, 752]);
+    expect([terms.monthly, terms.annual]).toEqual([80, 752]);
     const faq = FAQ_PLAN_CLAIMS.find((c) => c.planId === 'max')!;
-    expect([faq.monthly, faq.quarterly, faq.annual]).toEqual([80, 216, 752]);
+    expect([faq.monthly, faq.annual]).toEqual([80, 752]);
   });
 
   it('🔴 plus and pro are UNCHANGED — enumerated, so an overreaching reprice fails', () => {
-    expect(individual.price).toEqual({ monthly: 20, quarterly: 54, yearly: 190 });
-    expect(smallTeam.price).toEqual({ monthly: 40, quarterly: 108, yearly: 380 });
+    expect(individual.price).toEqual({ monthly: 20, yearly: 190 });
+    expect(smallTeam.price).toEqual({ monthly: 40, yearly: 380 });
   });
 });
 
@@ -272,8 +271,8 @@ describe('13 · the cross-repo contract agrees, and still has teeth', () => {
     // not — or the reverse. Both of Ministry's earlier tables: THE-248's and
     // THE-343's.
     for (const old of [
-      { monthly: 80, quarterly: 216, yearly: 760 },
-      { monthly: 60, quarterly: 162, yearly: 564 },
+      { monthly: 80, yearly: 760 },
+      { monthly: 60, yearly: 564 },
     ]) {
       expect(() => planPriceContract(plans, {
         plus: { ...individual.price },
@@ -286,11 +285,16 @@ describe('13 · the cross-repo contract agrees, and still has teeth', () => {
 
 /* ── 3, 4, 5 · the discounts and the monthly equivalent ───────────────────── */
 describe('3, 4, 5 · the delivered discounts and Ministry\'s monthly equivalent', () => {
-  it('🔴 quarterly is exactly 10% off on ALL THREE tiers', () => {
+  it('🔴 there is no quarterly term — withdrawn 2026-10-23, so it is sold nowhere', () => {
+    // The quarter was exactly 10% off on all three tiers. It is gone from the
+    // term list, the price table and the discount table, so it cannot be
+    // selected, priced or advertised; this is the guard against it coming back
+    // on this side alone.
+    expect([...BILLING_TERMS]).toEqual(['monthly', 'yearly']);
     for (const p of plans) {
-      expect(actualSavingPct(p, 'quarterly'), `${p.name} quarterly`).toBe(10);
+      expect(Object.keys(p.price), `${p.name} still carries a quarterly price`).toEqual(['monthly', 'yearly']);
     }
-    expect(ministry.price.quarterly).toBe(ministry.price.monthly * 3 * 0.9);
+    expect(Object.keys(ADVERTISED_DISCOUNT_PCT)).toEqual(['yearly']);
   });
 
   it('🔴 the delivered yearly percentages, per tier — Ministry now differs', () => {
@@ -303,18 +307,14 @@ describe('3, 4, 5 · the delivered discounts and Ministry\'s monthly equivalent'
 
   it('🔴 the discount validator PASSES, and would throw one point higher', () => {
     expect(() => discountClaimContract(plans)).not.toThrow();
-    expect(discountClaimShape('quarterly')).toBe('flat');
     expect(discountClaimShape('yearly')).toBe('flat');
-    expect(discountClaim('quarterly')).toBe('Save 10%');
     expect(discountClaim('yearly')).toBe('Save 20%');
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
     // 🔴 THE MUTATION. A claim above the BEST tier is false under any wording.
     // Ministry's 21.67 raises the yearly ceiling, so 22 is the first figure that
     // no longer clears it — the threshold moved WITH the prices, which is the
     // guard deriving rather than remembering.
-    expect(() => discountClaimContract(plans, { quarterly: 11, yearly: 20 }))
-      .toThrow(/quarterly advertises 11%/);
-    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 22 }))
+    expect(() => discountClaimContract(plans, { yearly: 22 }))
       .toThrow(/yearly advertises 22%/);
   });
 

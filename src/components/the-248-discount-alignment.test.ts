@@ -61,18 +61,19 @@ const pageText = () => words(renderToStaticMarkup(React.createElement(Pricing)))
 const toggleMarkup = (value: BillingTerm = 'yearly') =>
   renderToStaticMarkup(React.createElement(TermToggle, { value, onChange: () => {} }));
 
-/** The nine, transcribed from the authenticated live Dodo API on 2026-08-27
- *  (2000 / 5400 / 19000 minor units on Individual, and so on) rather than read
+/** The six, transcribed from the authenticated live Dodo API on 2026-08-27
+ *  (2000 / 19000 minor units on Individual, and so on; the quarterly 5400 column
+ *  was withdrawn with the term on 2026-10-23) rather than read
  *  off `plans` — a test that reads its own subject asserts only that the
  *  subject equals itself. */
 const LIVE_DODO_USD: Record<string, Record<BillingTerm, number>> = {
-  plus: { monthly: 20, quarterly: 54, yearly: 190 },
-  pro: { monthly: 40, quarterly: 108, yearly: 380 },
-  max: { monthly: 80, quarterly: 216, yearly: 752 },
+  plus: { monthly: 20, yearly: 190 },
+  pro: { monthly: 40, yearly: 380 },
+  max: { monthly: 80, yearly: 752 },
 };
 
 /* ── 1 ─────────────────────────────────────────────────────────────────────── */
-describe('the nine plan prices match the new table exactly', () => {
+describe('the six plan prices match the new table exactly', () => {
   it.each(
     plans.flatMap((p) => BILLING_TERMS.map((term) => [p.planId, p.name, term] as const)),
   )('%s (%s) on %s — in the data and on the card', (planId, name, term) => {
@@ -95,15 +96,15 @@ describe('the nine plan prices match the new table exactly', () => {
 
   it('every discounted price went UP, which is what a smaller discount means', () => {
     const BEFORE: Record<string, Record<string, number>> = {
-      plus: { quarterly: 49, yearly: 165 },
-      pro: { quarterly: 99, yearly: 329 },
-      max: { quarterly: 199, yearly: 659 },
+      plus: { yearly: 165 },
+      pro: { yearly: 329 },
+      max: { yearly: 659 },
     };
     // ⚠️ ALL THREE TIERS AGAIN SINCE THE-372. THE-343 had cut Ministry, which
     // put its quarter and year BELOW THE-248's predecessors and scoped this
     // check to two tiers; THE-372 put Ministry back up (monthly $80, with the
-    // quarter and year keeping THE-343's discount ratios), so every discounted
-    // cell sits above its pre-THE-248 figure once more.
+    // year keeping THE-343's discount ratio), so every discounted cell sits
+    // above its pre-THE-248 figure once more. (The quarter went with the term.)
     for (const p of plans) {
       for (const term of DISCOUNTED_TERMS) {
         expect(p.price[term], `${p.name} ${term} did not rise`).toBeGreaterThan(BEFORE[p.planId][term]);
@@ -111,16 +112,15 @@ describe('the nine plan prices match the new table exactly', () => {
     }
   });
 
-  it('the Terms and the FAQ quote the same nine, and neither disagrees with the cards', () => {
+  it('the Terms and the FAQ quote the same six, and neither disagrees with the cards', () => {
     // Both are module-scope guards on their own pages; run them here too so a
     // failure names THIS ticket rather than only stopping the prerender.
     expect(tierPriceMismatches(plans)).toEqual([]);
     expect(faqPlanMismatches(plans)).toEqual([]);
     for (const claims of [TIER_PRICE_CLAIMS, FAQ_PLAN_CLAIMS]) {
       for (const c of claims) {
-        expect([c.monthly, c.quarterly, c.annual], `${c.name} in a claim table`).toEqual([
+        expect([c.monthly, c.annual], `${c.name} in a claim table`).toEqual([
           LIVE_DODO_USD[c.planId].monthly,
-          LIVE_DODO_USD[c.planId].quarterly,
           LIVE_DODO_USD[c.planId].yearly,
         ]);
       }
@@ -129,10 +129,9 @@ describe('the nine plan prices match the new table exactly', () => {
 });
 
 /* ── 2 ─────────────────────────────────────────────────────────────────────── */
-describe('quarterly claims a flat 10% and yearly a flat 20%', () => {
+describe('yearly claims a flat 20% and there is no quarterly claim', () => {
   it('the helper says so', () => {
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
-    expect(discountClaim('quarterly')).toBe('Save 10%');
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
     expect(discountClaim('yearly')).toBe('Save 20%');
     for (const term of DISCOUNTED_TERMS) {
       expect(discountClaim(term), `${term} hedges`).not.toContain('up to');
@@ -141,8 +140,8 @@ describe('quarterly claims a flat 10% and yearly a flat 20%', () => {
 
   it('🔴 and the rendered toggle and page say so', () => {
     const toggle = toggleMarkup();
-    expect(toggle).toContain('-10%');
     expect(toggle).toContain('-20%');
+    expect(toggle).not.toContain('-10%');
     const page = pageText().toLowerCase();
     expect(page).not.toContain('save up to');
     expect(page).not.toContain('up to 10%');
@@ -162,15 +161,15 @@ describe('monthly carries no discount badge at all', () => {
     for (const value of BILLING_TERMS) {
       const html = toggleMarkup(value);
       expect(html, `with ${value} selected`).not.toContain('data-testid="term-toggle-badge" data-term="monthly"');
-      // Exactly two badges exist, one per discounted term, whichever is selected.
-      expect(html.match(/data-testid="term-toggle-badge"/g), `with ${value} selected`).toHaveLength(2);
-      expect(html.match(/-[0-9]+%/g), `with ${value} selected`).toHaveLength(2);
+      // Exactly one badge exists, one per discounted term, whichever is selected.
+      expect(html.match(/data-testid="term-toggle-badge"/g), `with ${value} selected`).toHaveLength(1);
+      expect(html.match(/-[0-9]+%/g), `with ${value} selected`).toHaveLength(1);
     }
   });
 
   it('draws no percentage and no zero beside the Monthly label', () => {
     const html = toggleMarkup('monthly');
-    // The Monthly segment, isolated from the two beside it — and reduced to the
+    // The Monthly segment, isolated from the one beside it — and reduced to the
     // text a visitor actually reads. Scanning raw markup would trip over
     // `min-width:0` in the inline style, which is a layout rule and not a
     // discount of nought.
@@ -193,8 +192,8 @@ describe('monthly carries no discount badge at all', () => {
   });
 
   it('monthly is not a discounted term in the data either', () => {
-    expect(DISCOUNTED_TERMS).toEqual(['quarterly', 'yearly']);
-    expect(Object.keys(ADVERTISED_DISCOUNT_PCT).sort()).toEqual(['quarterly', 'yearly']);
+    expect(DISCOUNTED_TERMS).toEqual(['yearly']);
+    expect(Object.keys(ADVERTISED_DISCOUNT_PCT).sort()).toEqual(['yearly']);
     expect(actualSavingPct(plans[0], 'monthly')).toBe(0);
   });
 });
@@ -210,21 +209,18 @@ describe('the claim shape is derived from the price table, not hardcoded', () =>
     return advertised <= Math.min(...Object.keys(table).map(saving)) ? 'flat' : 'upTo';
   };
 
-  it('🔴 resolves FLAT for both terms — reported, not assumed', () => {
-    expect(discountClaimShape('quarterly')).toBe('flat');
+  it('🔴 resolves FLAT for the discounted term — reported, not assumed', () => {
     expect(discountClaimShape('yearly')).toBe('flat');
   });
 
   it('the same rule answers "upTo" for a table that does not deliver the claim', () => {
     // A hardcoded 'flat' would be right for today's prices by luck. One point
-    // over the live quarterly saving is the smallest claim that must hedge.
-    expect(shapeOf(LIVE_DODO_USD, 'quarterly', 11)).toBe('upTo');
+    // over the live worst yearly saving (20.83) is the smallest claim that must
+    // hedge.
     expect(shapeOf(LIVE_DODO_USD, 'yearly', 21)).toBe('upTo');
-    expect(shapeOf(LIVE_DODO_USD, 'quarterly', 10)).toBe('flat');
     expect(shapeOf(LIVE_DODO_USD, 'yearly', 20)).toBe('flat');
-    // And a table that genuinely under-delivers, at the live percentages.
-    const meaner = { plus: { monthly: 20, quarterly: 57, yearly: 200 } };
-    expect(shapeOf(meaner, 'quarterly', ADVERTISED_DISCOUNT_PCT.quarterly)).toBe('upTo');
+    // And a table that genuinely under-delivers, at the live percentage.
+    const meaner = { plus: { monthly: 20, yearly: 220 } };
     expect(shapeOf(meaner, 'yearly', ADVERTISED_DISCOUNT_PCT.yearly)).toBe('upTo');
   });
 
@@ -246,13 +242,11 @@ describe('the claim shape is derived from the price table, not hardcoded', () =>
 
 /* ── 5 ─────────────────────────────────────────────────────────────────────── */
 describe('no copy claims a saving larger than the smallest actual saving', () => {
-  it('the smallest savings are exactly 10.0% quarterly and 20.83% yearly, on every tier', () => {
+  it('the smallest saving is 20.83% yearly, asserted per tier', () => {
     for (const p of plans) {
-      expect(actualSavingPct(p, 'quarterly'), `${p.name} quarterly`).toBe(10);
       expect(actualSavingPct(p, 'yearly'), `${p.name} yearly`)
         .toBeCloseTo(p.planId === 'max' ? 21.6667 : 20.8333, 3);
     }
-    expect(Math.min(...plans.map((p) => actualSavingPct(p, 'quarterly')))).toBe(10);
     expect(Math.min(...plans.map((p) => actualSavingPct(p, 'yearly')))).toBeCloseTo(20.8333, 3);
   });
 
@@ -266,9 +260,9 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
   });
 
   it('🔴 no percentage RENDERED on the page exceeds the worst saving on its own term', () => {
-    // Held against the worst tier ON THE TERM IT BELONGS TO. Comparing a yearly
-    // badge against quarterly's worst would fail a truthful figure and pass an
-    // untruthful one.
+    // Held against the worst tier ON THE TERM IT BELONGS TO. Comparing one
+    // term's badge against another term's worst would fail a truthful figure
+    // and pass an untruthful one.
     const rendered = [...pageText().matchAll(/-(\d+)%/g)].map((m) => Number(m[1]));
     expect(rendered).toHaveLength(DISCOUNTED_TERMS.length);
     for (const pct of rendered) {
@@ -282,18 +276,22 @@ describe('no copy claims a saving larger than the smallest actual saving', () =>
 /* ── 6 ── 🔴 THE KNIFE EDGE ─────────────────────────────────────────────────── */
 describe('a saving exactly equal to the claim passes the percentage guard', () => {
   it('🔴 the guard is `>` — equal passes, one point over throws', () => {
-    // Quarterly advertises 10 and every tier delivers exactly 10.0. If the
-    // guard were `>=` this would fail the build on an honest claim; if the
-    // claim could exceed the best tier and pass, the guard would be useless.
-    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 20 })).not.toThrow();
-    expect(() => discountClaimContract(plans, { quarterly: 11, yearly: 20 }))
-      .toThrow(/quarterly advertises 11%/);
+    // The withdrawn quarterly term advertised 10 and every tier delivered
+    // exactly 10.0, which is the equality this guard exists for. It is proved
+    // here on a synthetic yearly price that is exactly 10% off ($216 against
+    // 12 x $20): if the guard were `>=` this would fail the build on an honest
+    // claim; if the claim could exceed the best tier and pass, the guard would
+    // be useless.
+    const tenOff = [{ ...plans[0], price: { monthly: 20, yearly: 216 } }];
+    expect(() => discountClaimContract(tenOff, { yearly: 10 })).not.toThrow();
+    expect(() => discountClaimContract(tenOff, { yearly: 11 }))
+      .toThrow(/yearly advertises 11%/);
     // ⚠️ 21 NO LONGER CLEARS THE BEST TIER. THE-343 took Ministry's year to
     // 21.67%, so 21 is a claim the best tier honours and the guard must NOT
     // throw on it — the threshold moved with the prices, which is the guard
     // deriving rather than remembering. 22 is the first figure no tier reaches.
-    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 21 })).not.toThrow();
-    expect(() => discountClaimContract(plans, { quarterly: 10, yearly: 22 }))
+    expect(() => discountClaimContract(plans, { yearly: 21 })).not.toThrow();
+    expect(() => discountClaimContract(plans, { yearly: 22 }))
       .toThrow(/yearly advertises 22%/);
     // And for what the site actually advertises, at module scope and here.
     expect(() => discountClaimContract(plans)).not.toThrow();
@@ -307,14 +305,15 @@ describe('a saving exactly equal to the claim passes the percentage guard', () =
     // a percentage the prices genuinely deliver. The comparison operators were
     // never wrong; `actualSavingPct` now subtracts in dollars so the numerator
     // stays a whole number.
+    // Shown today on a yearly price that is exactly 10% off ($216 against 12 x
+    // $20), because the quarterly cells where it was found are gone.
     const naive = (monthly: number, price: number, months: number) =>
       (1 - price / (monthly * months)) * 100;
-    expect(naive(20, 54, 3)).not.toBe(10);          // the defect, pinned
-    expect(naive(20, 54, 3)).toBeLessThan(10);      // …and on the failing side
-    for (const p of plans) {
-      expect(actualSavingPct(p, 'quarterly'), `${p.name}`).toBe(10);      // the fix
-      expect(actualSavingPct(p, 'quarterly') >= ADVERTISED_DISCOUNT_PCT.quarterly).toBe(true);
-    }
+    expect(naive(20, 216, 12)).not.toBe(10);        // the defect, pinned
+    expect(naive(20, 216, 12)).toBeLessThan(10);    // …and on the failing side
+    const tenOff = { ...plans[0], price: { monthly: 20, yearly: 216 } };
+    expect(actualSavingPct(tenOff, 'yearly')).toBe(10);                  // the fix
+    expect(actualSavingPct(tenOff, 'yearly') >= 10).toBe(true);
   });
 });
 
@@ -327,20 +326,17 @@ describe("no term's price is a whole number of months at the monthly rate", () =
       expect(Number.isInteger(inMonths), `${planId} ${term} is exactly ${inMonths} months`).toBe(false);
     });
 
-  it('the arithmetic in full, for all six discounted cells', () => {
-    // 🔴 EVERY TIER LANDS ON THE SAME TWO MULTIPLES, because the discount is
-    // flat: 2.7 months on a quarter, 9.5 on a year. Closer to an integer than
-    // THE-222's six distinct multiples were — a year rounded to $200 (×10) or a
-    // quarter to $60 (×3) would resurrect the multiplier this guard buries.
+  it('the arithmetic in full, for every discounted cell', () => {
+    // 🔴 INDIVIDUAL AND SMALL TEAM LAND ON THE SAME MULTIPLE: 9.5 months on a
+    // year. Closer to an integer than THE-222's six distinct multiples were — a
+    // year rounded to $200 (×10) would resurrect the multiplier this guard
+    // buries. (The quarter's 2.7 went with the term.)
     const inMonths = (planId: string, term: BillingTerm) => {
       const p = plans.find((x) => x.planId === planId)!;
       return p.price[term] / p.price.monthly;
     };
-    expect(inMonths('plus', 'quarterly')).toBe(2.7);   // 54 / 20
     expect(inMonths('plus', 'yearly')).toBe(9.5);      // 190 / 20
-    expect(inMonths('pro', 'quarterly')).toBe(2.7);    // 108 / 40
     expect(inMonths('pro', 'yearly')).toBe(9.5);       // 380 / 40
-    expect(inMonths('max', 'quarterly')).toBe(2.7);    // 216 / 80
     // ⚠️ 9.4, not 9.5 — THE-343 repriced Ministry alone, so the yearly column
     // no longer lands on one multiple, and THE-372 kept that ratio when it put
     // Ministry back to $80. Still not an integer, which is the rule.

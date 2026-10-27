@@ -54,7 +54,7 @@ import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
 
 const html = (el: React.ReactElement) => renderToStaticMarkup(el);
 const cardHtml = (addOn: AddOn) => html(React.createElement(AddOnCard, { addOn }));
-const sectionHtml = (term: 'monthly' | 'quarterly' | 'yearly') =>
+const sectionHtml = (term: 'monthly' | 'yearly') =>
   html(React.createElement(AddOns, { term }));
 const pageHtml = () => html(React.createElement(Pricing));
 
@@ -353,8 +353,8 @@ describe('THE-370 — Campus and Contacts +500 are withdrawn', () => {
 describe("every add-on's annual price is exactly twelve times its monthly", () => {
   it('holds on every rendered card', () => {
     // Read off the card, because the card is what quotes it. ADD_ON_BILLED_MONTHS
-    // stays 12: Dodo bills an add-on on its product's cycle and a quarterly plan
-    // product carries the MONTHLY add-on ids, so there is no third figure.
+    // stays 12: Dodo bills an add-on on its product's cycle, so an add-on has a
+    // monthly and a yearly figure and no third.
     expect(ADD_ON_BILLED_MONTHS).toBe(12);
     for (const a of ADD_ONS) {
       const [monthly, annual] = dollars(cardHtml(a));
@@ -376,7 +376,6 @@ describe("every add-on's annual price is exactly twelve times its monthly", () =
 
   it('the prices do not move with the term toggle, because they do not move in Dodo', () => {
     const monthly = dollars(sectionHtml('monthly'));
-    expect(dollars(sectionHtml('quarterly'))).toEqual(monthly);
     expect(dollars(sectionHtml('yearly'))).toEqual(monthly);
   });
 });
@@ -394,7 +393,7 @@ describe('the page still states that add-ons are not discounted annually', () =>
   });
 
   it('says so for every discounted term, not only the yearly one', () => {
-    // A visitor under a −15% quarterly badge reads these prices as discounted
+    // A visitor under any discount badge reads these prices as discounted
     // exactly as an annual visitor does.
     for (const term of DISCOUNTED_TERMS) {
       const read = words(sectionHtml(term));
@@ -429,7 +428,6 @@ describe('no discount badge is applied to an add-on', () => {
     // cannot pass by the badges having quietly disappeared everywhere.
     const toggle = words(html(React.createElement(TermToggle, { value: 'yearly' as const, onChange: () => {} })));
     expect(toggle).toContain(`-${ADVERTISED_DISCOUNT_PCT.yearly}%`);
-    expect(toggle).toContain(`-${ADVERTISED_DISCOUNT_PCT.quarterly}%`);
 
     for (const term of BILLING_TERMS) {
       const read = words(sectionHtml(term));
@@ -468,15 +466,14 @@ describe('no discount badge is applied to an add-on', () => {
 });
 
 /* ── 7 ─────────────────────────────────────────────────────────────────────── */
-describe('the nine plan prices are unchanged', () => {
+describe('the six plan prices are unchanged', () => {
   it('holds in the plan table', () => {
     // 🔴 EXPLICITLY OUT OF SCOPE AND ASSERTED ANYWAY. $20/$49/$165,
     // $40/$99/$329 and $80/$199/$659 are live in Dodo and correct — confirmed
-    // against the nine live plan products in the same API read as the add-ons.
+    // against the live plan products in the same API read as the add-ons.
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
     expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
   });
 
   it('holds on the rendered plan cards, on every term', () => {
@@ -499,20 +496,20 @@ describe('the nine plan prices are unchanged', () => {
 describe('the cross-repo plan contract still throws when the repos disagree', () => {
   it('throws on a one-sided change, named by tier and term', () => {
     // 🔴 BY MUTATION, not by pattern-matching the source. The contract compares
-    // the site's nine cells against the app's PLAN_PRICING transcribed; handing
+    // the site's six cells against the app's PLAN_PRICING transcribed; handing
     // it a table with one cell moved is the two repos disagreeing.
     expect(() =>
       planPriceContract(plans, {
-        plus: { monthly: 20, quarterly: 54, yearly: 190 },
-        pro: { monthly: 40, quarterly: 108, yearly: 380 },
-        max: { monthly: 80, quarterly: 216, yearly: 753 },
+        plus: { monthly: 20, yearly: 190 },
+        pro: { monthly: 40, yearly: 380 },
+        max: { monthly: 80, yearly: 753 },
       }),
     ).toThrow(/Ministry.*yearly/);
   });
 
   it('throws on every cell, not just the one that has been tested before', () => {
     // A contract that only ever fails on the top-right cell is a contract with
-    // one working assertion. All nine are exercised, each on its own mutation.
+    // one working assertion. All six are exercised, each on its own mutation.
     const base: Record<string, Record<string, number>> = Object.fromEntries(
       plans.map((p) => [p.planId, { ...p.price }]),
     );

@@ -78,7 +78,7 @@ import { CATEGORIES } from '../content/features';
 
 const html = (el: React.ReactElement) => renderToStaticMarkup(el);
 const cardHtml = (addOn: AddOn) => html(React.createElement(AddOnCard, { addOn }));
-const sectionHtml = (term: 'monthly' | 'quarterly' | 'yearly') =>
+const sectionHtml = (term: 'monthly' | 'yearly') =>
   html(React.createElement(AddOns, { term }));
 const pageHtml = () => html(React.createElement(Pricing));
 
@@ -327,13 +327,12 @@ describe('an intentionally unadvertised live product is expressible without disa
 
 /* ── 4 ─────────────────────────────────────────────────────────────────────── */
 describe('no price changed', () => {
-  it('the nine plan prices are exactly what they were', () => {
+  it('the six plan prices are exactly what they were', () => {
     // 🔴 CONTRACT-PINNED AND LIVE. THE-224 is a card removal; if any of these
     // moved, the change did something it was explicitly forbidden to do.
     expect(plans.map((p) => p.price.monthly)).toEqual([20, 40, 80]);
-    expect(plans.map((p) => p.price.quarterly)).toEqual([54, 108, 216]);
     expect(plans.map((p) => p.price.yearly)).toEqual([190, 380, 752]);
-    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ quarterly: 10, yearly: 20 });
+    expect(ADVERTISED_DISCOUNT_PCT).toEqual({ yearly: 20 });
     expect(plans.every((p) => p.fee === 0)).toBe(true);
   });
 
@@ -379,7 +378,6 @@ describe('no price changed', () => {
       expect(dollars(cardHtml(a))).toEqual([pinned.monthlyCents / 100, pinned.annualCents / 100]);
     }
     const monthly = dollars(sectionHtml('monthly'));
-    expect(dollars(sectionHtml('quarterly'))).toEqual(monthly);
     expect(dollars(sectionHtml('yearly'))).toEqual(monthly);
   });
 

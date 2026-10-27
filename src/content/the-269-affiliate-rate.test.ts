@@ -20,7 +20,7 @@ import { plans } from '../components/Pricing';
  *
  * `APP_AFFILIATE_RATE_PERCENT` below is the app's `AFFILIATE_RATE` transcribed
  * as a literal — the same mechanism `EXPECTED_PLAN_PRICES` in Pricing.tsx uses
- * for the nine plan prices, and for the same reason: two repos, no shared code.
+ * for the six plan prices, and for the same reason: two repos, no shared code.
  * The app pins the site's number in `src/lib/__tests__/the-269-affiliate-rate.
  * test.ts`; this file pins the app's. A one-sided edit fails one of them.
  *
@@ -33,8 +33,6 @@ import { plans } from '../components/Pricing';
  * COMMISSION. Section 4 pins every one that was deliberately left alone, so a
  * future rate sweep cannot eat them:
  *
- *   · the −15% QUARTERLY DISCOUNT badge (Pricing.tsx and five pricing suites) —
- *     a term discount, not a commission
  *   · `2.15%` in the Planning Center comparison post — that competitor's CARD
  *     PROCESSING rate, and the post makes no affiliate claim at all
  *   · `rgba(…, 0.15)` in FeatureMock.tsx and ContactPage.tsx — a border and a
@@ -88,8 +86,8 @@ describe('1 — every affiliate surface claims 30%', () => {
     // only as good as its list, and the app-side twin of this test passed while
     // four real claims were still wrong.
     //
-    // A bare "15%" grep is useless here — it hits the −15% QUARTERLY DISCOUNT
-    // badge and the competitor's 2.15% card rate (§ 4). What is swept for is a
+    // A bare "15%" grep is useless here — it hits the competitor's 2.15% card
+    // rate (§ 4). What is swept for is a
     // 15% sitting in a COMMISSION SENTENCE: the two within a few words.
     const COMMISSION_15 =
       /(commission|affiliate|refer(?:ral|red|s)?|earns?|pays? you)[^.\n]{0,80}\b15%|\b15%[^.\n]{0,80}(commission|of what|of subscription|of revenue|recurring)/i;
@@ -145,7 +143,7 @@ describe('2 — the site and the app agree', () => {
 });
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   3 — no-regression: the flag and the nine plan prices.
+   3 — no-regression: the flag and the six plan prices.
    ═══════════════════════════════════════════════════════════════════════════ */
 describe('3 — what this change must NOT have moved', () => {
   it('AFFILIATE_PROGRAM_ENABLED is still false', () => {
@@ -153,15 +151,15 @@ describe('3 — what this change must NOT have moved', () => {
     expect(read('lib/flags.ts')).toMatch(/^export const AFFILIATE_PROGRAM_ENABLED = false;$/m);
   });
 
-  it('the nine plan prices are unchanged', () => {
+  it('the six plan prices are unchanged', () => {
     // The cross-repo price contract throws at module scope during prerender if
     // these disagree with the app. The commission rate is deliberately not one
-    // of the nine, and this is the check that it stayed that way.
+    // of the six, and this is the check that it stayed that way.
     const table = Object.fromEntries(plans.map((p) => [p.planId, p.price]));
     expect(table).toMatchObject({
-      plus: { monthly: 20, quarterly: 54,  yearly: 190 },
-      pro:  { monthly: 40, quarterly: 108, yearly: 380 },
-      max:  { monthly: 80, quarterly: 216, yearly: 752 },
+      plus: { monthly: 20, yearly: 190 },
+      pro:  { monthly: 40, yearly: 380 },
+      max:  { monthly: 80, yearly: 752 },
     });
   });
 
@@ -176,24 +174,24 @@ describe('3 — what this change must NOT have moved', () => {
    4 — every 15% / 0.15 left alone, pinned so a future sweep cannot eat it.
    ═══════════════════════════════════════════════════════════════════════════ */
 describe('4 — the 15%s that are not the commission', () => {
-  it('the quarterly DISCOUNT badge is still 15%', () => {
-    // −15% is what a church saves on the quarterly term. It is not a commission,
-    // it sits beside real prices, and changing it would misstate what a visitor
-    // pays. The 30%/15% pair here is the yearly/quarterly discount, and the
-    // pricing suites assert both.
-    expect(read('components/Pricing.tsx')).toContain('15% off a quarter is x2.55');
-    expect(read('components/Pricing.tsx')).toContain('looking at a −15% quarterly badge');
-    expect(read('components/the-248-discount-alignment.test.ts')).toContain("not.toContain('-15%')");
+  it('the only term discount is the yearly 20%, and the quarterly 15% is gone for good', () => {
+    // The yearly discount is not a commission and sits beside real prices. The
+    // quarterly term (and its badge) was withdrawn on 2026-10-23, so there is no
+    // longer a 15% discount anywhere for a rate sweep to mistake for one.
+    expect(read('components/Pricing.tsx')).toContain(
+      'ADVERTISED_DISCOUNT_PCT: Record<DiscountedTerm, number> = { yearly: 20 }',
+    );
+    expect(read('components/Pricing.tsx')).not.toMatch(/15% off a quarter|−15% quarterly/);
   });
 
-  it('the pricing suites still describe the badges as 15% and 30% OFF', () => {
+  it('the pricing suites still describe the badge as 20% and not computed from the prices', () => {
     for (const f of [
       'components/PricingAddOns.test.ts',
       'components/PricingComparison.test.ts',
       'content/plan-claims.test.ts',
     ]) {
       expect(read(f), `${f} lost the discount-badge note`)
-        .toContain('badges are 15% and 30% and are NOT computed from the prices');
+        .toContain('badge is 20% and is NOT computed from the prices');
     }
   });
 

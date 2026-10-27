@@ -749,7 +749,12 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        restored straight onto main, so this workflow never saw it. It is the
        29th route. NOT THE-373's, and corrected here only because CI gates
        this PR on it. */
-    expect(routes).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — `how-to-keep-track-of-church-prayer-requests`, pushed
+       straight onto main, so this workflow (pull_request only) never saw it. It
+       is the 30th route; main was red on these five count assertions before the
+       quarterly withdrawal, which is corrected here only because CI gates this
+       PR on it. */
+    expect(routes).toHaveLength(30);
     expect(new Set(routes).size, 'a route is listed twice').toBe(routes.length);
     for (const r of BEFORE) expect(routes, `${r} dropped out of the prerender list`).toContain(r);
     /* 🔵 SIX ADDITIONS NOW, AND THE-284's IS STILL EXACTLY ONE OF THEM. `BEFORE`
@@ -770,6 +775,8 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
       '/solutions/missionaries',
       // 🔵 SEVENTH: #106's /waitlist page, merged with CI red. Not THE-284's.
       '/waitlist',
+      // 🔵 NINTH: ddf3529's prayer-requests post, pushed straight to main. Not THE-284's.
+      '/blog/how-to-keep-track-of-church-prayer-requests',
       // 🔵 EIGHTH: c5b7143's check-in post, pushed straight to main. Not THE-284's.
       '/blog/track-sunday-attendance-without-a-sign-in-sheet',
       '/blog/skool-alternative-for-churches',
@@ -789,7 +796,8 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
        It is the 28th route. NOT THE-372's, and corrected here only because CI
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-284's. */
-    expect(pages, `this checkout built ${pages.length} pages, not 29`).toHaveLength(29);
+    /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-284's. */
+    expect(pages, `this checkout built ${pages.length} pages, not 30`).toHaveLength(30);
     expect(pages.map(([f]) => f)).toContain('features/harvest-scheduler/index.html');
   });
 
@@ -818,15 +826,15 @@ describe('10 — the prerendered page count is 22, and the new page is the only 
    The prices and the add-on catalogue are untouched.                        */
 describe('11 — no plan price moved and nothing was added to the add-on catalogue', () => {
   const NINE = {
-    plus: { monthly: 20, quarterly: 54, yearly: 190 },
-    pro: { monthly: 40, quarterly: 108, yearly: 380 },
+    plus: { monthly: 20, yearly: 190 },
+    pro: { monthly: 40, yearly: 380 },
     // ⚠️ Moved by THE-343 (Ministry $80 → $60) and back by THE-372 ($80, with
     // the quarter and year at $216 / $752). plus and pro are enumerated
     // above so a reprice that reached past its brief still fails here.
-    max: { monthly: 80, quarterly: 216, yearly: 752 },
+    max: { monthly: 80, yearly: 752 },
   } as const;
 
-  it('all nine plan prices are exactly what the app charges', () => {
+  it('all six plan prices are exactly what the app charges', () => {
     for (const [planId, terms] of Object.entries(NINE)) {
       const plan = plans.find((p) => p.planId === planId);
       if (plan === undefined) throw new Error(`plan ${planId} vanished from the table`);
