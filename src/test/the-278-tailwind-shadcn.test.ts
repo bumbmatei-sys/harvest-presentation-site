@@ -87,23 +87,23 @@ const contrast = (fg: string, bg: string) => {
  * means a re-point of an underlying ramp cannot silently move a shadcn colour.
  */
 const TOKENS: ReadonlyArray<readonly [string, string, string]> = [
-  ['--background', '--surface-page', '#FAF8F5'],
-  ['--foreground', '--text-heading', '#2D2519'],
-  ['--card', '--surface-card', '#FFFFFF'],
-  ['--card-foreground', '--text-heading', '#2D2519'],
-  ['--popover', '--surface-card', '#FFFFFF'],
-  ['--popover-foreground', '--text-heading', '#2D2519'],
+  ['--background', '--surface-page', '#000000'],
+  ['--foreground', '--text-heading', '#FFFFFF'],
+  ['--card', '--surface-card', '#0F0F0F'],
+  ['--card-foreground', '--text-heading', '#FFFFFF'],
+  ['--popover', '--surface-card', '#0F0F0F'],
+  ['--popover-foreground', '--text-heading', '#FFFFFF'],
   ['--primary', '--gold-500', '#C9963A'],
-  ['--primary-foreground', '--earth', '#2D2519'],
-  ['--secondary', '--surface-sunken', '#F3EEE7'],
-  ['--secondary-foreground', '--text-heading', '#2D2519'],
-  ['--muted', '--surface-sunken', '#F3EEE7'],
-  ['--muted-foreground', '--text-soon', '#6D6A66'],
-  ['--accent', '--surface-gold', '#F5EDE0'],
-  ['--accent-foreground', '--text-heading', '#2D2519'],
+  ['--primary-foreground', '--ink-on-gold', '#000000'],
+  ['--secondary', '--surface-sunken', '#121212'],
+  ['--secondary-foreground', '--text-heading', '#FFFFFF'],
+  ['--muted', '--surface-sunken', '#121212'],
+  ['--muted-foreground', '--text-soon', '#A5A29C'],
+  ['--accent', '--surface-gold', '#211A0E'],
+  ['--accent-foreground', '--text-heading', '#FFFFFF'],
   ['--destructive', '--danger', '#C4553B'],
-  ['--border', '--border-light', '#E8E2D9'],
-  ['--input', '--border-strong', '#D6CCBE'],
+  ['--border', '--border-light', '#1F1F1F'],
+  ['--input', '--border-strong', '#2E2E2E'],
   ['--ring', '--gold-600', '#B5862F'],
 ];
 
@@ -251,17 +251,20 @@ describe('5 — every foreground/background pair clears WCAG AA', () => {
    *  compared to a threshold, so a re-point that stays legal but moves the
    *  number still has to be looked at. */
   const PAIRS: ReadonlyArray<readonly [string, string, number]> = [
-    ['--foreground', '--background', 14.25],
-    ['--card-foreground', '--card', 15.11],
-    ['--popover-foreground', '--popover', 15.11],
-    ['--primary-foreground', '--primary', 5.69],
-    ['--secondary-foreground', '--secondary', 13.09],
-    ['--accent-foreground', '--accent', 13.00],
-    ['--muted-foreground', '--muted', 4.66],
-    ['--muted-foreground', '--background', 5.07],
-    ['--muted-foreground', '--card', 5.38],
-    ['--foreground', '--card', 15.11],
-    ['--foreground', '--muted', 13.09],
+    /* Re-measured for the black theme (Matei, 2026-10-27, "Black overall
+       like Fabale"); the light-palette ratios this table used to pin are in
+       git history. */
+    ['--foreground', '--background', 21.00],
+    ['--card-foreground', '--card', 19.17],
+    ['--popover-foreground', '--popover', 19.17],
+    ['--primary-foreground', '--primary', 7.91],
+    ['--secondary-foreground', '--secondary', 18.73],
+    ['--accent-foreground', '--accent', 17.23],
+    ['--muted-foreground', '--muted', 7.36],
+    ['--muted-foreground', '--background', 8.25],
+    ['--muted-foreground', '--card', 7.53],
+    ['--foreground', '--card', 19.17],
+    ['--foreground', '--muted', 18.73],
   ];
 
   it.each(PAIRS)('%s on %s clears AA', (fg, bg, expected) => {
@@ -289,17 +292,20 @@ describe('5 — every foreground/background pair clears WCAG AA', () => {
        sentence in a PR description nobody re-reads. */
     const onCard = contrast(resolve('--destructive'), resolve('--card'));
     const onBackground = contrast(resolve('--destructive'), resolve('--background'));
-    expect(onCard).toBeCloseTo(4.46, 1);
-    expect(onBackground).toBeCloseTo(4.21, 1);
+    expect(onCard).toBeCloseTo(4.30, 1);
+    expect(onBackground).toBeCloseTo(4.71, 1);
     expect(onCard).toBeLessThan(4.5);
   });
 
-  it('the navy ramp is checked as a dark SECTION, not as a dark mode', () => {
-    /* The site has no dark mode. Navy is a band inside a light page, so the
-       pairing that matters is white-on-navy, and it is not part of the shadcn
-       bridge at all — asserted here so a later ticket cannot quietly map a
-       shadcn token onto navy and call it checked. */
-    expect(contrast('#FFFFFF', resolve('--navy-900'))).toBeGreaterThanOrEqual(4.5);
+  it('the site is black (Matei, 2026-10-27): the navy ramp is now the white text ramp', () => {
+    /* "Black overall like Fabale." The light palette was re-pointed at black
+       grounds in the black-theme block at the end of index.css, and the navy
+       ramp (used ~180 times as heading/body text inline) now resolves to white
+       so that text reads on black. Navy written as a GROUND is caught by an
+       attribute selector and painted #1a1a1a. The pairing that matters is
+       therefore navy-as-text on the page ground, and no shadcn token may map
+       onto the old navy literal. */
+    expect(contrast(resolve('--navy-900'), resolve('--background'))).toBeGreaterThanOrEqual(4.5);
     for (const [token] of TOKENS) {
       expect(resolve(token).toUpperCase()).not.toBe('#0C1526');
     }

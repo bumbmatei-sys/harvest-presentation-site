@@ -613,7 +613,7 @@ a:hover { color: var(--brand-active); }
 .hero-hills-front { position: absolute; z-index: 3; bottom: 0; left: 0; width: 100%; height: 700px; object-fit: cover; object-position: center bottom; pointer-events: none; }
 .landing-hero .hero-bottom-fade { height: 110px; }
 .harvest-nav { position: fixed; z-index: 60; top: 0; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; padding: 12px 20px; transition: background .3s; }
-.harvest-nav-solid { background: rgba(12,24,36,.72); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.harvest-nav-solid { background: rgba(0,0,0,.72); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .harvest-nav-inner { position: relative; width: 100%; max-width: 1240px; height: 40px; display: flex; align-items: center; justify-content: space-between; }
 .harvest-nav-logo { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 9px; color: white; text-decoration: none; font-family: var(--font-serif); font-weight: 600; font-size: 21px; }
 .harvest-nav .nav-links { display: flex; align-items: center; gap: 16px; }
@@ -636,3 +636,83 @@ a:hover { color: var(--brand-active); }
   .hero-dashboard-wrap { margin-top: 42px; }
   .hero-hills-front { height: 320px; }
 }
+
+/* ==========================================================================
+   Site-wide black theme (Fabale). Matei: "Black overall like Fabale."
+   Every page sits on black with white / grey text and dark cards. Done as
+   a token flip so the 40-odd inline-styled components follow without
+   touching each one: the light palette is re-pointed at dark values, the
+   navy text ramp turns into a white ramp, and the few literal light
+   backgrounds written inline (#fff, the sky gradient, the frosted nav
+   panels) are caught by attribute selectors below.
+   ========================================================================== */
+:root {
+  --cream: #000000;
+  --stone-100: #121212;
+  --stone-200: #1e1e1e;
+  --stone-300: #2c2c2c;
+  --warm-brown: rgba(255, 255, 255, 0.64);
+  --earth: #ffffff;
+  --warm-dark: #ffffff;
+
+  --navy-950: #ffffff;
+  --navy-900: #ffffff;
+  --navy-800: #f2f2f2;
+  --navy-700: rgba(255, 255, 255, 0.82);
+  --navy-600: rgba(255, 255, 255, 0.72);
+  --navy-500: rgba(255, 255, 255, 0.6);
+
+  --gold-50: rgba(201, 150, 58, 0.10);
+  --gold-100: rgba(201, 150, 58, 0.16);
+  --gold-200: rgba(201, 150, 58, 0.32);
+  --gold-700: #DCBB74;
+  --sky-100: rgba(79, 151, 214, 0.16);
+  --sky-200: rgba(79, 151, 214, 0.30);
+  --sky-700: #93C1E7;
+  --green-100: rgba(110, 142, 82, 0.20);
+  --green-200: rgba(110, 142, 82, 0.34);
+  --green-600: #A6C085;
+  --green-700: #A6C085;
+
+  --surface-page: #000000;
+  --surface-card: #0f0f0f;
+  --surface-sunken: #121212;
+  --surface-gold: #211a0e;
+  --surface-night: #0a0a0a;
+  --text-heading: #ffffff;
+  --text-body: rgba(255, 255, 255, 0.64);
+  --text-muted: rgba(255, 255, 255, 0.44);
+  --text-soon: #A5A29C;
+  --text-soon-soft: #6f6c67;
+  --surface-soon: #121212;
+  --soon-rule: #1b1b1b;
+  --border-light: #1f1f1f;
+  --border-strong: #2e2e2e;
+  --ink-on-gold: #000000;
+  --primary-foreground: var(--ink-on-gold);
+  color-scheme: dark;
+}
+html, body { background: #000; }
+/* literal light grounds written inline. Both spellings: the prerendered
+   HTML ("background:#fff") and the hydrated DOM ("background: rgb(...)"). */
+[style*="background:#fff"], [style*="background:#FFF"], [style*="background:white"],
+[style*="background: rgb(255, 255, 255)"], [style*="background-color: rgb(255, 255, 255)"],
+[style*="background:#F4F1EB"], [style*="background: rgb(244, 241, 235)"],
+[style*="background:#eef2f5"], [style*="background: rgb(238, 242, 245)"],
+[style*="background:rgba(255,255,255,0.9"], [style*="background: rgba(255, 255, 255, 0.9"],
+[style*="background:rgba(255,255,255,0.8"], [style*="background: rgba(255, 255, 255, 0.8"] {
+  background: #0f0f0f !important;
+}
+/* the old daytime sky band behind inner-page heroes and the closing CTA */
+[style*="#bcdaf1"], [style*="rgb(188, 218, 241)"] { background: #000 !important; }
+/* navy used as a ground (dark bands, dark buttons, chips) stays dark */
+[style*="background:var(--navy-"], [style*="background: var(--navy-"],
+[style*="background:linear-gradient(160deg,#20395f"], [style*="rgb(32, 57, 95)"] {
+  background: #1a1a1a !important;
+}
+[style*="background:var(--navy-"][style*="border:1px solid var(--navy-"],
+[style*="background: var(--navy-"][style*="border: 1px solid var(--navy-"] { border-color: rgba(255,255,255,0.14) !important; }
+[style*="solid #fff"], [style*="solid rgb(255, 255, 255)"] { border-color: #000 !important; }
+::selection { background: rgba(201, 150, 58, 0.45); color: #fff; }
+[style*="color:#2f4023"], [style*="color: rgb(47, 64, 35)"] { color: var(--green-300) !important; }
+:root { --scrim-night: rgba(0, 0, 0, 0.82); --scrim-soft: rgba(0, 0, 0, 0.5); }

@@ -38,6 +38,18 @@ function MiniPost() {
   );
 }
 
+function MiniChat() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ alignSelf: 'flex-start', background: 'var(--stone-100)', borderRadius: '14px 14px 14px 4px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-800)', maxWidth: '85%' }}>What does baptism mean for our church?</div>
+      <div style={{ alignSelf: 'flex-end', background: 'var(--gold-100)', border: '1px solid rgba(201,150,58,0.25)', borderRadius: '14px 14px 4px 14px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-900)', maxWidth: '88%' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--gold-700)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em' }}>{I.sparkles({ size: 11 })} YOUR MINISTRY'S AI</span>
+        <div style={{ marginTop: 4 }}>Based on your teaching series…</div>
+      </div>
+    </div>
+  );
+}
+
 function MiniFeed() {
   const posts: [number, string, string][] = [
     [1, 'Sarah', 'shared a prayer request'],
@@ -77,9 +89,9 @@ export function Features() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }} className="bento-grid">
           <Reveal style={{ display: 'flex' }}>
-            <BentoCard icon={I.ai({ size: 24 })} name="Social Scheduler" to="/features/harvest-scheduler" minH={320}
+            <BentoCard icon={I.send({ size: 24 })} name="Social Scheduler" to="/features/harvest-scheduler" minH={320}
               desc="Write once, schedule to Facebook, Instagram and Threads. Included on Ministry.">
-              <div style={{ flex: 1, paddingTop: 6 }}>{chip('var(--gold-100)', 'var(--gold-600)', I.ai)}<div style={{ marginTop: 16 }}><MiniPost /></div></div>
+              <div style={{ flex: 1, paddingTop: 6 }}>{chip('var(--gold-100)', 'var(--gold-600)', I.send)}<div style={{ marginTop: 16 }}><MiniPost /></div></div>
             </BentoCard>
           </Reveal>
           <Reveal style={{ display: 'flex' }}>
@@ -119,6 +131,12 @@ export function Features() {
                   {[38, 52, 44, 66, 58, 78, 92].map((h, i) => <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 4, background: i === 6 ? 'var(--brand)' : 'rgba(201,150,58,0.25)' }} />)}
                 </div>
               </div>
+            </BentoCard>
+          </Reveal>
+          <Reveal delay={200} style={{ display: 'flex', gridColumn: '1 / -1' }}>
+            <BentoCard icon={I.ai({ size: 24 })} name="AI Assistant" to="/features/ai-automation#knowledge" minH={260}
+              desc="Answers in your ministry's voice, trained on your own teaching.">
+              <div style={{ flex: 1, paddingTop: 6 }}><MiniChat /></div>
             </BentoCard>
           </Reveal>
         </div>

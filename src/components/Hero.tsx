@@ -12,7 +12,7 @@ function DashboardMock() {
       {items.map(([label, Icon], i) => <div className={i === 0 ? 'hero-dashboard-item active' : 'hero-dashboard-item'} key={label}><Icon size={15} />{label}</div>)}
     </aside>
     <div className="hero-dashboard-main">
-      <div className="hero-dashboard-top"><span>Workspace / Overview</span><div><span aria-hidden="true">♧</span><span className="hero-dashboard-status">● &nbsp; 3 posts scheduled</span></div></div>
+      <div className="hero-dashboard-top"><span>Workspace / Overview</span><div><span aria-hidden="true">♧</span><span className="hero-dashboard-status">● &nbsp; AI assistant active</span></div></div>
       <div className="hero-dashboard-content">
         <div className="hero-dashboard-heading"><div><strong>Overview</strong><p>Your ministry at a glance</p></div><span>New devotional</span></div>
         <div className="hero-dashboard-stats">{[['Members', '2,480'], ['Given', '$12.4k'], ['Active', '640']].map(([label, value]) => <div key={label}><small>{label}</small><b>{value}</b></div>)}</div>
@@ -31,7 +31,7 @@ export function Hero() {
     <div className="hero-copy">
       <div className="hero-badge">From Conversion to Devotion <span aria-hidden="true">→</span></div>
       <h1>Every Believer<br />Deserves a Next Step</h1>
-      <p>Community, courses, giving and social scheduling in one app, under your ministry's name.</p>
+      <p>Community, courses, giving, social scheduling and an AI assistant in one app, under your ministry's name.</p>
       <div className="hero-actions"><Link className="hero-primary" to="/#pricing">{TRIAL_CTA_LABEL}</Link><Link className="hero-secondary" to="#features">See the features <span aria-hidden="true">▶</span></Link></div>
     </div>
     <div className="hero-dashboard-wrap"><DashboardMock /></div>

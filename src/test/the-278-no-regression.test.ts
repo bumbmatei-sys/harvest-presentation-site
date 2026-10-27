@@ -1161,8 +1161,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'features/harvest-scheduler/index.html': '5c981a2a706acad350bc89e1fde5728c075cd76a4b3833677fa3aba375a8cb7a',
     'features/index.html': 'd79aa96f36e5a495e3ad6556ad2000db544b47eba1b2d384d2fb05747da77a1e',
     'features/platform-brand/index.html': '48bd3e9135798581447026c5571c6d34afe52874f49621942ec8fa76b4dd769a',
-    'index.html': 'ed0cdb19d2cfebfa3595f77db1d5f131e54e9b095aaea37299bb24c1015a1a31',
-    'pricing/index.html': '34cb00fa157133ff1f7a78d955292baf655c26e15db428632bc65be3c338aebf',
+    'index.html': '162c30663bf31d9141d3256604e73c94cd6743a65b710d09e004e5df22cdb3a7',
+    'pricing/index.html': '178e4602b501aada085bbed647f7f1a3e2230435af280d567bbca21ee457c682',
     'privacy/index.html': '6bde6d877e240e866f35372c4e11d70ab016decebb4482d437f47935016aa962',
     'refunds/index.html': '81a18397ab0454a0a4e80bb375d447c43c5a4ec31b101b2fee59c2c15cd0f47e',
     'solutions/churches/index.html': '8906acce7fa5e7fc415cafe99a7977ab8bc6d17dbcc0b8cc0c0e0ec21a283bf6',
@@ -1321,7 +1321,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // Church and Ministry reprice: all existing routes remain.
     '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
     // Hero and shared navigation redesign and the 10-day trial (2026-10-27); 29 pages.
-    'adc9ed00d44f4cf70195607e53f033384b947a9f14973df837ae2ef6ffe53d79',
+    'bc19e848bcca39c5df36ed35d9ec1a880da64d9f8ec8e9a42e5b692bf6028c24',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1995,8 +1995,8 @@ describe('6b — the hand-written stylesheet still ships, outside Tailwind\'s la
        established by test 7: the source region is unmodified. */
     const banner = /^\/\*![^*]*\*\//;
     expect(sha(unlayered.replace(banner, '').trim())).toBe(
-      // Hero scenery and fixed navigation rules appended for the redesign.
-      'b1d0d6b37764d81eb4bcd9f126d696ec37d6a70d741f0d7ba73de3a6a37c5ea9',
+      // Hero scenery, fixed navigation and the site-wide black theme (Matei, 2026-10-27) appended for the redesign.
+      '831eaf5bab3b9646bf1612b7be6402ede756fd070eb5bcbe1061cba9d3865867',
     );
   });
 
