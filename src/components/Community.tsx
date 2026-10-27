@@ -7,7 +7,7 @@ import { Kicker, H2, Checklist, container, softCard, AV } from './shared';
 function CommunityCard() {
   const rows: [string, string, string, (p?: { size?: number; color?: string }) => React.ReactElement][] = [
     ['Prayer for the Nations', 'var(--sky-500)', 'Prayer', I.prayer],
-    ['New believers group', 'var(--gold-500)', 'Community', I.community],
+    ['Foundations group', 'var(--gold-500)', 'Community', I.community],
     ['Foundations course', 'var(--green-500)', 'Course', I.courses],
     ['Sunday livestream', 'var(--sky-500)', 'Event', I.livestream],
   ];
@@ -39,7 +39,7 @@ export function Community() {
           <ParallaxLayer speed={0.05}><Reveal><CommunityCard /></Reveal></ParallaxLayer>
           <div>
             <Kicker align="left" color="var(--sky-600)">Community</Kicker>
-            <H2 align="left" style={{ marginTop: 14 }}>Keep Every New Believer Close</H2>
+            <H2 align="left" style={{ marginTop: 14 }}>Keep Every Believer Close</H2>
             <Reveal delay={140}>
               <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-body)', lineHeight: 1.6, margin: '18px 0 26px', maxWidth: 480 }}>
                 A feed, a prayer wall, groups and events in a private space you own. No algorithm decides who sees your post.

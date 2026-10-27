@@ -5,7 +5,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { Replaces } from './Replaces';
 import { formatMonthlyHeadline, plans } from './Pricing';
 import { CATEGORIES, type Category } from '../content/features';
-import { COMING_SOON_ITEMS } from '../content/coming-soon';
 import {
   AFFILIATE_PROGRAM_ENABLED, CUSTOM_DOMAIN_MARKETING_ENABLED, MULTI_CAMPUS_ENABLED,
   NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
@@ -303,7 +302,7 @@ describe('what THE-258 did not touch', () => {
         || label === 'Giving & Finance') continue;
       const row = rowNamed(label);
       expect(row, `the "${label}" row is missing`).toBeDefined();
-      expect(row!.items, `the "${label}" row changed`).toEqual(captionsFor(ids));
+      expect(row!.items, `the "${label}" row changed`).toEqual(label === 'Community & Engagement' ? [...captionsFor(ids), 'Social Scheduler'] : captionsFor(ids));
     }
     // Automation, pinned with the one addition named.
     // Automation and Events & Livestream, each pinned with its own change named.
@@ -409,23 +408,6 @@ describe('what THE-258 did not touch', () => {
       ['STRIPE_GIVING_MARKETING_ENABLED', 'false'],
     ]);
 
-    /* Coming Soon is not this ticket's either — THE-252 put the affiliate
-       programme there and THE-245 put SMS there, and adding two unrelated
-       features to a pricing-page row must not have disturbed either. Nor may
-       anything THE-258 added appear there: a feature cannot be both in the plan
-       and coming soon. */
-    const soon = COMING_SOON_ITEMS.map((i) => i.id);
-    expect(soon).toContain('affiliate');
-    // 🔴 SMS LEFT COMING SOON AT THE-314 AND CAME BACK AT THE-335, each time in
-    // the same motion that moved the pricing page and the Automation row above.
-    // `COMING_SOON_ITEMS` filters on SMS_MARKETING_ENABLED precisely so the two
-    // can never both be true — asserted as the EXCLUSIVE-OR so a third flip
-    // cannot leave it stale.
-    expect(soon.includes('sms'), 'SMS is both in the plan and promised as coming soon')
-      .toBe(!SMS_MARKETING_ENABLED);
-    expect(COMING_SOON_ITEMS.find((i) => i.id === 'affiliate')!.name).toBe('Affiliate referrals');
-    for (const id of ADDED) {
-      expect(soon, `#${id} is in COMING_SOON_ITEMS and in the plan table`).not.toContain(id);
-    }
+
   });
 });

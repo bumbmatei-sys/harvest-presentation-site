@@ -14,7 +14,7 @@ export function WaitlistPage() {
     <main>
       <Seo
         title="Join the Harvest waitlist"
-        description="Be first to hear when new Harvest plans and features open — product news only, not member email."
+        description="Product news from Harvest when new features open. Never member email."
         canonical="https://theharvest.site/waitlist"
       />
       <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 90, overflow: 'hidden' }}>
@@ -24,7 +24,7 @@ export function WaitlistPage() {
           <Reveal y={14}><Kicker>Early interest</Kicker></Reveal>
           <AnimatedText
             as="h1"
-            text={WAITLIST_LEAD_COPY.headline}
+            text={'Hear It First'}
             startOnView={false}
             delay={100}
             stagger={80}
@@ -41,7 +41,7 @@ export function WaitlistPage() {
               fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 520,
               margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85,
             }}>
-              {WAITLIST_LEAD_COPY.subcopy}
+              Product news from Harvest when new features open. Never member email.
             </p>
           </Reveal>
         </div>

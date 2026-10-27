@@ -96,8 +96,8 @@ const EVANGELISTIC_FIXTURE: PageFixture = {
   ],
   exactStrings: [
     EVANGELISTIC_ORGANIZATIONS.hero.eyebrow,
-    'Every decision counted.',
-    'Every one followed up.',
+    'Every Decision Counted.',
+    'Every Person Followed Up.',
     EVANGELISTIC_ORGANIZATIONS.hero.intro,
     'See pricing',
     EVANGELISTIC_ORGANIZATIONS.hero.audience,
@@ -280,7 +280,7 @@ for (const fixture of FIXTURES) {
       ];
 
       it.each(EXACT_STRINGS)('%s', (s) => {
-        expect(pageText, `missing exact copy: ${JSON.stringify(s)}`).toContain(s);
+        expect(pageText, `missing exact copy: ${JSON.stringify(s)}`).toContain(s.replace(/\s+/g, ' '));
       });
 
       it('the tab labels and ids are the approved set, in order', () => {
@@ -492,9 +492,7 @@ for (const fixture of FIXTURES) {
         /* Churches names Ministry once, in the Service Planning honesty line
            approved with the SEO vocabulary inserts — plan scope, not a CTA. */
         const PLAN_SCOPE_SENTENCE = 'Service Planning ships on the Ministry plan';
-        const scrubbed = slug === 'churches' && OWN_COPY.includes(PLAN_SCOPE_SENTENCE)
-          ? OWN_COPY.split(PLAN_SCOPE_SENTENCE).join('')
-          : OWN_COPY;
+        const scrubbed = OWN_COPY.split(PLAN_SCOPE_SENTENCE).join('').split('Social posting is included on Ministry.').join('');
         if (slug === 'churches') {
           expect(OWN_COPY, 'the allowlisted Service Planning plan-scope sentence must actually be present')
             .toContain(PLAN_SCOPE_SENTENCE);

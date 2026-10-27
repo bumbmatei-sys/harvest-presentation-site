@@ -25,12 +25,7 @@ import { CHEAPEST_MONTHLY } from './Pricing';
 // throws on every route.
 const groupHref = (name: string) => categoryHref((CATEGORY_BY_NAME[name] || CATEGORIES[0]).slug);
 
-/* Where a mega-menu entry goes.
-   The five live groups resolve through LEGACY_ANCHORS, which maps a retired
-   /features#<slug> URL onto the category page and section that feature moved
-   to. The Coming Soon group cannot: an unbuilt feature has no retired URL and
-   no section on a live category page, so it carries its destination on the
-   entry itself. Falling back to the derived lookup keeps the five unchanged. */
+/* Most items use the category lookup; items with their own page carry an explicit destination. */
 /* Exported so content/features.test.ts can assert on the resolver the menu
    actually uses rather than re-deriving it — the same reason
    `MegaMenuFooterLabel` below is its own export. A test that re-implements the
@@ -41,13 +36,7 @@ export const columnHref = (g: CatalogGroup) => g.href ?? groupHref(g.name);
 /* Inline SOON pill for mega-menu items, sized to sit next to the item title
    rather than absolutely positioned.
 
-   🔴 GREY, NOT SKY. This carried --sky-100 / --sky-700 while nothing in the
-   catalogue was marked `soon`, so it never rendered. It renders now, on all
-   eight Coming Soon entries, and sky is the LIVE colour of Community &
-   Engagement — a badge in another category's brand tint next to an unbuilt
-   feature is the opposite of the signal it exists to send. Dashed, because
-   dashed already means "not included" in this codebase (an unlit plan chip in
-   FeatureBlock). */
+   Unbuilt items use the neutral status colours. */
 const soonPill: React.CSSProperties = {
   background: 'var(--surface-soon)', color: 'var(--text-soon)',
   border: '1px dashed var(--text-soon-soft)', fontSize: 8.5, fontWeight: 700,
@@ -124,20 +113,7 @@ export function FeatureMenuColumns({ variant, onNavigate = () => {} }:
               </Link>
             ))}
             {g.more && (
-              /* 🔴 THE-297 — the "see all" row, drawn only for a group whose
-                 `items` are a shortlist. Today that is Coming Soon and only it.
-
-                 NAVIGATION, NOT A CALL TO ACTION. A plain link in the group's
-                 own tint, no button ground and no arrow-shaped urgency: it goes
-                 to /features/coming-soon, a page that deliberately closes with a
-                 note instead of the trial band. Giving it a filled ground would
-                 make the one unbuilt column the loudest thing in a menu of
-                 shipped work.
-
-                 44px MINIMUM. The items above it are a pointer-first mega-menu
-                 at their inherited density; this row is new, so it is built to
-                 the tap-target floor in both variants rather than matching them
-                 down to it. */
+              /* An optional link to the rest of a group. */
               <Link
                 to={g.more.href}
                 role={desktop ? 'menuitem' : undefined}

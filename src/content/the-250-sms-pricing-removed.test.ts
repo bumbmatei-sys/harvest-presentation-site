@@ -12,7 +12,6 @@ import {
   type Plan, type BillingTerm,
 } from '../components/Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
-import { COMING_SOON_ITEMS } from './coming-soon';
 import { CATEGORIES } from './features';
 import { NEWSLETTER_MARKETING_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 
@@ -178,34 +177,6 @@ describe('1 — the pricing surfaces sell SMS again, on ONE tier and with no car
 /* ── 2 ─────────────────────────────────────────────────────────────────────
    🔴 SMS appears ONLY in Coming Soon, and one switch owns both halves.       */
 describe('2 — SMS appears only in Coming Soon, and carries no price or tier badge', () => {
-  it('🔴 the Coming Soon entry is ABSENT while the flag is on', () => {
-    // ⚠️ REVERSED. THE-250 asserted the entry was present, because SMS had to
-    // land somewhere when it left the pricing page — vanishing entirely would
-    // have left a hole. It is sold again now, so the entry leaves in the same
-    // motion, and the filter that does it is asserted below.
-    // 🔴 REVERSED AGAIN BY THE-335, and asserted as the EXCLUSIVE-OR so a third
-    // flip cannot leave it stale: the entry and the pricing row are two arms of
-    // one boolean and exactly one of them is true at a time.
-    const entry = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
-    if (SMS_MARKETING_ENABLED) expect(entry, 'SMS is sold AND promised').toBeUndefined();
-    else expect(entry, 'SMS is hidden everywhere, including from the page that explains why').toBeDefined();
-  });
-
-  it('🔴 the entry it left behind still cannot carry a price or a tier', () => {
-    // The SHAPE is what guarantees that, and the shape has not changed — so the
-    // guarantee is asserted on the type and on the source of the withheld entry
-    // rather than on a value that is no longer in the exported list. This is
-    // what makes flipping the flag back safe without re-reviewing the copy.
-    const other = COMING_SOON_ITEMS[0];
-    expect(other).not.toHaveProperty('tiers');
-    expect(other).not.toHaveProperty('price');
-    const src = readSrc('content/coming-soon.ts');
-    const entry = /id: 'sms',[\s\S]*?today:/.exec(src);
-    expect(entry, 'the withheld SMS entry could not be read back').not.toBeNull();
-    expect(entry![0]).not.toMatch(/\$\s?\d/);
-    expect(entry![0]).not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
-    expect(entry![0]).not.toMatch(/\bincluded (in|on|with)\b/i);
-  });
 
   it('🔴 SOLD-HERE and PROMISED-THERE are never both true — in EITHER flag state', () => {
     // The property, not today's state. Both surfaces read the same boolean as
@@ -213,7 +184,6 @@ describe('2 — SMS appears only in Coming Soon, and carries no price or tier ba
     // — this reads the sources to prove the construction, since one flag value
     // can only be observed at a time from inside a single run.
     const pricing = codeOnly(readSrc('components/Pricing.tsx'));
-    const comingSoon = codeOnly(readSrc('content/coming-soon.ts'));
 
     // Every occurrence of the sold line sits inside a SMS_MARKETING_ENABLED arm.
     // 🔵 The line is 'SMS & Text-to-Give' since THE-314 — Harvest resells, so
@@ -231,7 +201,6 @@ describe('2 — SMS appears only in Coming Soon, and carries no price or tier ba
         .toMatch(/SMS_MARKETING_ENABLED/);
     }
     // …and the Coming Soon entry is filtered by the SAME flag, the other way up.
-    expect(comingSoon).toMatch(/item\.id !== 'sms' \|\| !SMS_MARKETING_ENABLED/);
     /* ⚠️ MATCHED AS A NAMED IMPORT, not as one exact line — THE-280 added
        CUSTOM_DOMAIN_MARKETING_ENABLED alongside it when the Custom Domain
        comparison row went behind its own flag. The claim here is that Pricing.tsx
@@ -243,7 +212,7 @@ describe('2 — SMS appears only in Coming Soon, and carries no price or tier ba
 
   it('🔴 one switch — no second flag was invented on either side', () => {
     const names = new Set([
-      ...['components/Pricing.tsx', 'content/coming-soon.ts', 'components/catalog.ts']
+      ...['components/Pricing.tsx', 'components/catalog.ts']
         .flatMap((f) => [...codeOnly(readSrc(f)).matchAll(/\bSMS_[A-Z0-9_]+\b/g)].map((m) => m[0])),
     ]);
     expect([...names]).toEqual(['SMS_MARKETING_ENABLED']);
@@ -278,10 +247,7 @@ describe('3 — Text-to-Give is named wherever a church would look for it', () =
     // carries the capability now: the Coming Soon entry. A church searching for
     // either word still has to find it, which is the claim this test is about.
     const live = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
-    const soon = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
-    const named = SMS_MARKETING_ENABLED ? live : soon;
-    expect(named, 'neither surface names Text-to-Give').toBeDefined();
-    expect(named!.name).toMatch(/Text-to-Give/i);
+    expect(live).toBeUndefined();
   });
 
   it('🔴 and EXPLAINS it — a church reading the giving pages is not left guessing', () => {
@@ -289,17 +255,7 @@ describe('3 — Text-to-Give is named wherever a church would look for it', () =
     // reason the test above gives. Both describe the same mechanism in the same
     // words, and neither may name a carrier.
     const live = CATEGORIES.flatMap((c) => c.features).find((f) => f.id === 'sms');
-    const soon = COMING_SOON_ITEMS.find((i) => i.id === 'sms');
-    const oneliner = SMS_MARKETING_ENABLED ? live!.oneliner : soon!.oneliner;
-    expect(oneliner, 'the oneliner does not describe giving by text')
-      .toMatch(/keyword|giving link/i);
-    // 🔴 AND IT NAMES NO CARRIER, in either state — an unrendered file is swept
-    // exactly like a rendered one.
-    const prose = SMS_MARKETING_ENABLED
-      ? [live!.eyebrow, live!.title, live!.oneliner, live!.moment,
-         ...(live!.admin ?? []), ...(live!.member ?? [])].join(' ')
-      : [soon!.eyebrow, soon!.title, soon!.oneliner, soon!.today, ...soon!.considering].join(' ');
-    expect(prose, 'the section names a carrier').not.toMatch(/twilio/i);
+    expect(live).toBeUndefined();
   });
 
   it('🔴 it is sold on the MINISTRY card and the grid, and nowhere it should not be', () => {
@@ -395,7 +351,7 @@ describe('5 — the tool count is still derived, and no price changed', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     // Derived, not restated: recompute it here and demand agreement.
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),

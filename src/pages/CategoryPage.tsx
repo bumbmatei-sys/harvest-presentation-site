@@ -104,7 +104,7 @@ function CategoryBand({ slug }: { slug: string }) {
         kicker="Why our AI is different"
         kickerColor="var(--green-300)"
         heading="Every vendor is bolting on AI. Ours knows when to stop."
-        body="It answers only from your ministry's own teaching, never a generic model's guess — and after a few questions it points members to Scripture and prayer instead of keeping them talking. Restraint, not just capability."
+        body="The coming-soon assistant will answer from your ministry's own teaching and point members to Scripture and prayer."
       />
     );
   }

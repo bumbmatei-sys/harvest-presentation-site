@@ -1139,41 +1139,41 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'c809f11e3152fd1a3f49fa86f16334ad398c59ba414e4a91c15c40c3c5e7b471',
   };
 
-  /* Hero and shared fixed navigation redesign moves every prerendered page. */
+  /* Hero and shared fixed navigation redesign moves every prerendered page; pins also reflect the 10-day trial (2026-10-27). */
   const HERO_FABALE_MOVED: Readonly<Record<string, string>> = {
-    'blog/category/harvest-vs/index.html': 'fe740dc0f2767e08e9718837ef5113e03a682c5ceb1adbace6e6fdcb58c2b9fd',
-    'blog/category/inside-harvest/index.html': '257b76566040b03be28c5a7930b53365b1c6e65bdae95dcaf23b4eb54b770f6d',
-    'blog/category/rooted/index.html': 'bed38137f347e8ab26582ead46dc8be4a1e1bb64b643efd32872e498b41322d3',
-    'blog/generosity-without-pressure/index.html': 'a38a9678d4af567dff3efe1eed130ca420fac19f50f3337fc67ddf410bec374d',
-    'blog/how-to-keep-track-of-church-prayer-requests/index.html': 'd12c4df8edb0a14f5e54ce14aa16ea3ff44cdac55d14d0e829c82be5709943a3',
-    'blog/index.html': '712db32aaac751711db7db898ad048e1870ee5c088f63bb2e1645d45bc5ead35',
-    'blog/planning-center-alternative-small-churches/index.html': '588ba86bce1553e3f3cf69dc53a7514df96d5f3f3e8f60751dbcf34c690a1e2d',
-    'blog/skool-alternative-for-churches/index.html': '5628d3b6e61083466152e1b3b5d4119a03a27f54a00b5b1e89e5a5480cee38ef',
-    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': 'f09692b7e451e44884405c1862f61b27b6f3a5230ad038dd8f222a0f0772ddad',
-    'blog/work-that-outlives-you/index.html': 'a95d05a188fe251959f70b86f1d39194519e48ee1f7ab3635f17f558fb9b824e',
-    'blog/year-end-giving-statements-what-to-include/index.html': '000df7f532530c807c540a6a216217b81c4a4e74ff9b052a70b9d255cefb5d32',
-    'contact/index.html': '54c354886f6221c87f468a1ac97bb0523b3118163ef7d09b588f2e839e74d0af',
-    'faq/index.html': 'ae7884a8f75f60ae87f53f81668c9df3cd0f9f0952e2ef80849b2642688e0c26',
-    'features/ai-automation/index.html': 'b51ebc5b412619166eb89e93405e42c7b98b95a8ca0fc8c8bb1b793af2f5c33a',
-    'features/coming-soon/index.html': '6854446b8e180a4da33f3109a392c4a36259594883c73c7d3525755a084755f3',
-    'features/community-engagement/index.html': '49137f3351b747741d83b99587bec406bd1c5180f8cf8bf907fcfa43f3994ad3',
-    'features/discipleship-content/index.html': 'd70bca105d08d4443f1884a06fe6e102c7da25237ce62f9712c7e5076f2d175f',
-    'features/giving-finance/index.html': '6d99f54d47a9022ed4c6a4ee707f0fd3f38721b98edc517ca19792b7cf0a7013',
-    'features/harvest-scheduler/index.html': '56f05f673d1911a09b001c41224c178ab0456ace4a0c611c3d2e279e8dc4df17',
-    'features/index.html': '2d648b38e0bb56556c4c572c27e2dc9b5f44179210a93883e41e7729354c6b2a',
-    'features/platform-brand/index.html': 'ef41fae949ae13289e1101ed45e710a44f7726cab7c5701933fcdbcaca76034f',
-    'index.html': 'c35074c5a66751dcf40d6c122c5b7dcf8aaaedc1b506c73215125780617f4bc5',
-    'pricing/index.html': 'c4e41f87d6ca598272f6737e02a3ac06ff4447aa99b2119dfc8da5a3aa6ee9a9',
-    'privacy/index.html': '7acd7b1956d110ae24f879d5695c001c224f65f8a849f9112d36cefd2bd0d698',
-    'refunds/index.html': '18d2161e02bae922239f4a7846beef5684051f6f08814406dac91a31f0cf221f',
-    'solutions/churches/index.html': '51c6864c347b912b6ce6a3b2cf6ef4c7f826739d03d014670f8ccc0c49bf4047',
-    'solutions/evangelistic-organizations/index.html': '6e35e5a9254a86f8266faf47c18114132fdb2c405f139a3cdd5b8b96a0b4e830',
-    'solutions/missionaries/index.html': '857de1b9ef9d217caa94ff279df676a71688e8bf23b0be1187617c06d4aadcd6',
-    'terms/index.html': '94e78960d51a905dba973a1a1a3059f083ef1f3916426bced49cd9e91288c558',
-    'waitlist/index.html': '10972a749623890072ae46b15c70030234063be7d6671535091815d7a47b85b3',
+    'blog/category/harvest-vs/index.html': 'b8827f1a149f24a64cd41a0af3d14d68b3cfddcd07c390eeea3d669066c35005',
+    'blog/category/inside-harvest/index.html': '76acd0f5603f95ac7f16a89ed723bf071a7d79b9bc618b2c07d2130726ca417f',
+    'blog/category/rooted/index.html': '722eddb9d6558ce39cfdf8542c9c149e7bdafb71ddd4c9a9b7258d7ef9bd21f6',
+    'blog/generosity-without-pressure/index.html': 'e2dbab453e2959139ce16925f3fdc0023caa0350b1b24d797e4955dc839751d9',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '9faca00f4aa74af103d67b6d3cb519bcc35e4755f83ca226a17c594b65947209',
+    'blog/index.html': '9c0710d93dd01c97be01b67cacc883d2a322ab35595b6ae617409e5c3967c7b2',
+    'blog/planning-center-alternative-small-churches/index.html': '789f70f6f0b7aa5a48823d019afa452851274a5b66d6f0e5d62a917e2d07e2a8',
+    'blog/skool-alternative-for-churches/index.html': '85bb0c951b5223bb2b7fbde28eff845fa754a669c0b244cb5b0ddcb56347aaa2',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': 'eb3def95ccb9defce6cb6479a19cea55f20342c996a420780300038b7e82f445',
+    'blog/work-that-outlives-you/index.html': '6abb4920450df125f90f3368217c5fede752a2918a653a27911faf6164871d9a',
+    'blog/year-end-giving-statements-what-to-include/index.html': '823429be419de263b39610f3bfcbe09f29ccacfeea84d22118cb32d9b39d4dea',
+    'contact/index.html': '7ec8bc35649401984bfd8a7705e5f0c8538c4bb76c3bc846894e8d1afdcf0e37',
+    'faq/index.html': 'cdc98a5c0b22cdab241a80f7cd30ab652158f1210fad6fd9697b1bfa6b1a3510',
+    'features/ai-automation/index.html': '396b1dbe6634113db24ad138392a9f902c64922eb35c17d7e4e75bc8e9e732b3',
+    'features/community-engagement/index.html': '101dd55c54ae6b31d62e71fe09c2703faa3f2aae47190ae851dba6e2466846b0',
+    'features/discipleship-content/index.html': '743eb795daa041faea8ec643c644d540bfa918f2b45a96409e1abdd9f5270df3',
+    'features/giving-finance/index.html': 'afaadfc9ba968b813f6cdf033dade66a0fd7e962f6376da4e1249d13aa8bbb7b',
+    'features/harvest-scheduler/index.html': '5c981a2a706acad350bc89e1fde5728c075cd76a4b3833677fa3aba375a8cb7a',
+    'features/index.html': 'd79aa96f36e5a495e3ad6556ad2000db544b47eba1b2d384d2fb05747da77a1e',
+    'features/platform-brand/index.html': '48bd3e9135798581447026c5571c6d34afe52874f49621942ec8fa76b4dd769a',
+    'index.html': 'ed0cdb19d2cfebfa3595f77db1d5f131e54e9b095aaea37299bb24c1015a1a31',
+    'pricing/index.html': '34cb00fa157133ff1f7a78d955292baf655c26e15db428632bc65be3c338aebf',
+    'privacy/index.html': '6bde6d877e240e866f35372c4e11d70ab016decebb4482d437f47935016aa962',
+    'refunds/index.html': '81a18397ab0454a0a4e80bb375d447c43c5a4ec31b101b2fee59c2c15cd0f47e',
+    'solutions/churches/index.html': '8906acce7fa5e7fc415cafe99a7977ab8bc6d17dbcc0b8cc0c0e0ec21a283bf6',
+    'solutions/evangelistic-organizations/index.html': '7c07bc6140656eabb58d957d3f98dd0b50617e344f05738caca4b176316e559b',
+    'solutions/missionaries/index.html': '619ec3d5d986ceeb1da7918dd4f180649e28c06ea29e0b345e37d62d1037e88f',
+    'terms/index.html': 'bfd5c7e43300c2120f8dfb7d89e7dce49fa1de50523bbd91135e0d9718097621',
+    'waitlist/index.html': 'ca4f3bc3787e7ac8e8034469af15f9b446b3934ce48e7cda86b7a03044a1c884',
   };
 
-  const BASELINE: Readonly<Record<string, string>> = {
+  // Round 3 removes the Coming Soon page; older tables retain its history.
+  const BASELINE: Readonly<Record<string, string>> = Object.fromEntries(Object.entries({
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
     ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
@@ -1188,7 +1188,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...PRAYER_POST_MOVED, ...PRAYER_POST_ADDED,
     ...QUARTERLY_WITHDRAWN_MOVED,
     ...HERO_FABALE_MOVED,
-  };
+  }).filter(([page]) => page !== 'features/coming-soon/index.html'));
 
   // Repricing changes shared navigation and pricing copy; route names are unchanged.
   const REPRICE_PAGES: Readonly<Record<string, string>> = {
@@ -1320,8 +1320,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'ca66bf7fc181286bba9154396a3daefbd89cf3f2d8f67826d93c4ca10fd7cd94',
     // Church and Ministry reprice: all existing routes remain.
     '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
-    // Hero and shared navigation redesign; all 30 pages move.
-    'b70e83cec9a55108c9521e60b2567610a3fad2e2ff3a46d33f764059639987ad',
+    // Hero and shared navigation redesign and the 10-day trial (2026-10-27); 29 pages.
+    'adc9ed00d44f4cf70195607e53f033384b947a9f14973df837ae2ef6ffe53d79',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1543,7 +1543,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     /* 🔵 25 KEYS SINCE SOLUTIONS_MISSIONARIES_ADDED added the third new page.
        The claim here is unchanged — THE-293 added and dropped nothing. */
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED)
         && !(p in THE_314_MOVED) && !(p in THE_335_MOVED) && !(p in THE_343_MOVED)
@@ -1622,7 +1622,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 🔵 25 keys since SOLUTIONS_MISSIONARIES_ADDED added the third new page —
     // nothing added or dropped BY THE-301 itself.
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   const pagesInDist = (): string[] => {
@@ -1638,13 +1638,13 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
   };
 
   it('the reprice retains exactly the existing route set', () => {
-    expect(Object.keys(REPRICE_PAGES).sort()).toEqual(Object.keys(BASELINE).sort());
+    expect(Object.keys(REPRICE_PAGES).filter((p) => p !== 'features/coming-soon/index.html').sort()).toEqual(Object.keys(BASELINE).sort());
     if (comparable) expect(pagesInDist()).toEqual(Object.keys(BASELINE).sort());
   });
 
   it.runIf(comparable).each(Object.keys(BASELINE))('%s renders exactly as it did before', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved since repricing`).toBe(REPRICE_PAGES[page]);
+    expect(actual, `${page} moved since repricing`).toBe(HERO_FABALE_MOVED[page]);
   });
 
   it('🔴 THE-306 moved exactly three pages, and added and dropped none', () => {
@@ -1719,7 +1719,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 🔵 25 keys since SOLUTIONS_MISSIONARIES_ADDED added the third new page —
     // nothing added or dropped BY THE-306 itself.
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   it('🔴 SOLUTIONS / MISSIONARIES added exactly one page, and moved none of the other twenty-five', () => {
@@ -1757,7 +1757,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // cannot have been moved by it, which is how SOLUTIONS_CHURCHES_ADDED and
     // AF7A7BA_ADDED are already treated. The three pages 525f630 MOVED stay in
     // this loop and are asserted against SKOOL_POST_MOVED in the chain below.
-    expect(others).toHaveLength(23);
+    expect(others).toHaveLength(22); // Round 3 removes Coming Soon.
     for (const page of others) {
       // 🔵 THE_HONEST_OFFER_MOVED JOINS AT THE FRONT, on identical terms to every
       // table before it: the six pages it moved (homepage meta, Ministry card,
@@ -1791,7 +1791,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         .not.toBe(previous);
     }
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   it('🔴 MAIN_105_106 moved exactly nine pages and added one, and dropped none', () => {
@@ -1832,7 +1832,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(previous, `${page} is not a page that existed`).toBeDefined();
       expect(THE_372_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(previous);
     }
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   it('🔴 PRAYER_POST moved exactly four pages and added one, and dropped none', () => {
@@ -1884,7 +1884,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(before[page], `${page} is not a page that existed`).toBeDefined();
       expect(QUARTERLY_WITHDRAWN_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(before[page]);
     }
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   it('🔴 HERO_FABALE moved all 30 existing pages and added none', () => {
@@ -1898,7 +1898,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       ...THE_372_MOVED, ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED, ...PRAYER_POST_MOVED,
       ...PRAYER_POST_ADDED, ...QUARTERLY_WITHDRAWN_MOVED } as Record<string, string>;
     expect(Object.keys(HERO_FABALE_MOVED).sort()).toEqual(Object.keys(BASELINE).sort());
-    expect(Object.keys(HERO_FABALE_MOVED)).toHaveLength(30);
+    expect(Object.keys(HERO_FABALE_MOVED)).toHaveLength(29);
     for (const page of Object.keys(HERO_FABALE_MOVED)) {
       expect(before[page]).toBeDefined();
       expect(HERO_FABALE_MOVED[page]).not.toBe(before[page]);
@@ -2129,7 +2129,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
        is the 30th route; main was red on these five count assertions before the
        quarterly withdrawal, which is corrected here only because CI gates this
        PR on it. */
-    expect(blogRoutes()).toHaveLength(30);
+    expect(blogRoutes()).toHaveLength(29); // Round 3 removes Coming Soon.
   });
 
   it.runIf(built)('and the build emits all 30 of them', () => {
@@ -2152,7 +2152,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
       }
       return n;
     })(DIST);
-    expect(count, `this checkout built ${count} pages, not 30`).toBe(30);
+    expect(count, `this checkout built ${count} pages, not 29`).toBe(29);
   });
 });
 
@@ -2181,9 +2181,9 @@ describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identi
    * unedited — see the assertion against its source two tests below.
    */
   it.each([
-    ['vercel.json', 'e24c36c7bdfc981973ac94ccefeb11b24d107a0c99c17d03d57dc12e43ae0965'],
+    ['vercel.json', 'd3fffe4c98affcb96605563495f725faf292741c49ed2540e8c5107933ddaa0a'],
     ['vite.config.ts', '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66'],
-    ['build/blog-plugin.ts', '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2'],
+    ['build/blog-plugin.ts', '50ee959bc815ab0cb8f68ecd111fcd9131ede8a03e04f541369b8bf05e53cb28'],
   ])('%s is unchanged', (file, hash) => {
     expect(sha(readFileSync(path.join(ROOT, file))), `${file} was modified`).toBe(hash);
   });
@@ -2204,7 +2204,7 @@ describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identi
     /* And the new route is DERIVED from the content module, not typed as a
        literal here — the same property every other route in the list has, so
        the path cannot drift between the router and the prerender list. */
-    expect(plugin).toMatch(/import \{ COMING_SOON_HREF, SCHEDULER_HREF \} from '\.\.\/src\/content\/coming-soon';/);
+    expect(plugin).toMatch(/import \{ SCHEDULER_HREF \} from '\.\.\/src\/content\/scheduler';/);
     expect(plugin, 'a route path was typed as a literal').not.toContain("'/features/harvest-scheduler'");
   });
 

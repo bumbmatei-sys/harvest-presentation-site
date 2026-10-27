@@ -6,8 +6,7 @@ import { Kicker, container, softCard, SKY } from '../components/shared';
 import { L } from '../components/icons';
 import { ContentLeads } from '../components/content-1';
 import { CATEGORIES, categoryHref } from '../content/features';
-import { FAQ_HREF, FAQ_STANDFIRST } from '../content/faq';
-import { COMING_SOON_HREF, NOT_BUILT_NOTICE } from '../content/coming-soon';
+import { FAQ_HREF } from '../content/faq';
 
 /* /contact — a minimal general-enquiry form for the public marketing site.
    Reuses the landing design language (SKY header band + Clouds + Particles,
@@ -122,7 +121,7 @@ export function ContactPage() {
     <main>
       <Seo
         title="Contact — Harvest"
-        description="Questions, feedback, or a partnership idea? Send the Harvest team a message and we’ll get back to you."
+        description="Questions, feedback or a partnership idea? Send the Harvest team a message and we'll get back to you."
         canonical="https://theharvest.site/contact"
       />
       {/* Header band — mirrors the /features header treatment. */}
@@ -133,7 +132,7 @@ export function ContactPage() {
           <Reveal y={14}><Kicker>We’re here to help</Kicker></Reveal>
           <AnimatedText
             as="h1"
-            text={'Get in touch'}
+            text={'Talk to the Team That Builds Harvest'}
             startOnView={false}
             delay={100}
             stagger={80}
@@ -227,13 +226,12 @@ export function ContactPage() {
       <ContentLeads
         heading="Or find it without asking"
         items={[
-          { term: 'Read the FAQ.', detail: FAQ_STANDFIRST, to: FAQ_HREF },
+          { term: 'Read the FAQ.', detail: 'Straight answers about price, giving, data and cancelling.', to: FAQ_HREF },
           {
             term: `Browse ${CATEGORIES[0].name}.`,
             detail: CATEGORIES[0].seo,
             to: categoryHref(CATEGORIES[0].slug),
           },
-          { term: 'See what is not built.', detail: NOT_BUILT_NOTICE, to: COMING_SOON_HREF },
         ]}
       />
     </main>

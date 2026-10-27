@@ -330,7 +330,7 @@ describe("the two priced tiers' cards are the approved lineup", () => {
       '500 people · 2 admins', 'One community — feed & chat', 'Mobile App (PWA)', 'Courses',
       'Blog, News Feed, Docs & Notes', 'Bible', 'CRM (Donors & Members)',
       'Signups & Evangelism Analytics', 'Donations & Fundraising Campaigns',
-      'Campuses & Church Map', 'Link-in-bio page', 'Up to 3 products (paid checkout coming soon)',
+      'Locations & Map', 'Link-in-bio page', 'Up to 3 products (paid checkout coming soon)',
       '300 AI assistant messages a month — coming soon',
     ],
     max: [
@@ -341,7 +341,7 @@ describe("the two priced tiers' cards are the approved lineup", () => {
       CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
       NEWSLETTER_MARKETING_ENABLED ? 'Newsletter' : 'Newsletter — coming soon',
       SMS_MARKETING_ENABLED ? 'SMS & Text-to-Give' : 'SMS & Text-to-Give — coming soon',
-      'Social scheduler — coming soon', 'All product types & storefront — coming soon',
+      'Social scheduler (Facebook, Instagram, Threads)', 'All product types & storefront — coming soon',
       'Website builder with pre-made templates — coming soon',
       '5,000 AI assistant messages a month — coming soon',
     ],
@@ -369,7 +369,7 @@ describe("the two priced tiers' cards are the approved lineup", () => {
   });
 
   it('🔴 never lets a coming-soon item read as shipped: every one says so on its line', () => {
-    const SOON_WORDS = /storefront|website builder|discovery|social scheduler|AI assistant|paid checkout|in every community/i;
+    const SOON_WORDS = /storefront|website builder|discovery|AI assistant|paid checkout|in every community/i;
     for (const p of plans) {
       for (const line of p.features.filter((f) => SOON_WORDS.test(f))) {
         expect(line, `"${line}" is a coming-soon item that does not say so`).toMatch(/coming soon/);

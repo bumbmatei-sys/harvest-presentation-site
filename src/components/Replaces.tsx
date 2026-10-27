@@ -47,7 +47,7 @@ import {
  * differentiator the product has, so omitting it understated the plan in the
  * one place that enumerates it. Only this row changed. */
 const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
-  { c: 'Community & Engagement', ids: ['feed', 'groups', 'prayer', 'map'] },
+  { c: 'Community & Engagement', ids: ['feed', 'groups', 'prayer', 'map', 'scheduler'] },
   // 🔴 THE-335 — `services` joined this row when service planning became a live
   // feature entry. `visibleNames` is built from the catalogue, and the coverage
   // guard requires every visible feature to appear in this table.
@@ -90,7 +90,7 @@ const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
  * table cannot advertise something the rest of the site is hiding, and it does
  * not need its own copy of the flag logic to manage it. */
 const visibleNames: ReadonlyMap<string, string> = new Map(
-  CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f.name] as const)),
+  [...CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f.name] as const)), ['scheduler', 'Social Scheduler'] as const],
 );
 
 /* 🔴 THE ONE PERMITTED DEVIATION FROM A VERBATIM CATALOGUE NAME. features.ts

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Reveal } from '../components/effects';
 import { HBtn } from '../components/magic';
@@ -306,6 +307,11 @@ export function SolutionPage({ slug }: { slug: string }) {
       <Numbers numbers={c.numbers} />
       <Pocket pocket={c.pocket} />
       <DeepDives deepDives={c.deepDives} />
+      {c.scheduler && <section style={{ ...container, padding: '48px 24px' }}>
+        <h2>{c.scheduler.heading}</h2>
+        <p>{c.scheduler.body}</p>
+        <Link to="/features/harvest-scheduler">Social Scheduler →</Link>
+      </section>}
       <FounderNote founder={c.founder} />
       <Support support={c.support} />
       <Recap pillars={c.pillars} />

@@ -22,7 +22,6 @@ import {
 import { CATALOG } from './catalog';
 import { FeatureBlock } from './FeatureBlock';
 import { CATEGORIES } from '../content/features';
-import { COMING_SOON_ITEMS } from '../content/coming-soon';
 
 /* ─── THE-253 — the AI chat is an add-on, and it is sold again ────────────────
  *
@@ -197,13 +196,6 @@ describe('no site surface claims AI Chat as a plan feature', () => {
       expect(note).toMatch(/5,000/);
     }
     expect(featureById('knowledge')!.tiersNote).toMatch(/included on Ministry/i);
-  });
-
-  it('🔴 surface 3 — the coming-soon agent no longer puts the chat in a plan', () => {
-    const agent = COMING_SOON_ITEMS.find(i => i.id === 'agent')!;
-    expect(agent.notThis).toMatch(/AI Chat.*coming soon/i);
-    expect(agent.notThis).toMatch(/members/i);
-    expect(agent.notThis).toMatch(/staff/i);
   });
 
   it('🔴 surface 4 — the unadvertised declaration, and its claim, are gone', () => {

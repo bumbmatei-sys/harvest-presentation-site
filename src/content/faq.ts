@@ -47,13 +47,13 @@ import {
 export const FAQ_HREF = '/faq';
 export const FAQ_CANONICAL = `${SITE_ORIGIN}${FAQ_HREF}`;
 
-export const FAQ_SEO_TITLE = 'Frequently Asked Questions — Harvest';
+export const FAQ_SEO_TITLE = 'FAQ — Harvest';
 export const FAQ_SEO_DESCRIPTION =
-  `What Harvest costs, what each plan includes, and the answers churches ask before buying church management software: a 0% platform fee on every gift, a ${TRIAL_LENGTH_DAYS}-day trial, who owns member data, and what happens to it if you cancel.`;
+  "Straight answers about Harvest's price, giving fees, data ownership and cancelling, for churches, evangelistic organisations and ministries.";
 
-export const FAQ_TITLE = 'Questions churches ask before they buy';
+export const FAQ_TITLE = 'Straight Answers Before You Start';
 export const FAQ_STANDFIRST =
-  'Straight answers about price, giving, data and what happens if you leave. If something is not here, it is because we cannot yet say it truthfully — ask us and we will tell you where we are.';
+  "Price, giving, data and what happens if you leave. If it isn't here, ask us and we'll tell you where we are.";
 
 /* ------------------------------------------------------------------ *
  * Plan prices and limits quoted on this page.
@@ -245,11 +245,11 @@ export const FAQS: Faq[] = [
       /* 🔴 What is named here is what the pricing cards name, and "coming soon"
          is said wherever it applies: livestream, chat and prayer requests in
          every community, the Discovery listing, the storefront, the website
-         builder, the social scheduler and the AI assistant are in the plans and
+         builder and the AI assistant are in the plans and
          are not built; the newsletter and SMS are the same until their flags
          flip. Service planning and giving records ship. */
-      `Both plans include the web and mobile app, courses, the full Bible, the donor and member CRM with signups, your donation page and fundraising campaigns, a blog, docs and sermon notes, a link-in-bio page, campuses and up to three products (paid product checkout is coming soon). Church has one community with a feed and chat. Ministry adds unlimited communities, community groups, event registration with QR check-in, the church map, livestream with live giving, service planning with volunteer rotas, custom forms that feed the CRM, giving records (statements and year-end giving receipts), automated SEO blog articles, the AI knowledge base, and your own branding${CUSTOM_DOMAIN_MARKETING_ENABLED ? ' and domain' : ''}.`,
-      `Coming soon, and in the plans when it ships: livestream, chat and prayer requests in every community and a Discovery listing; all product types with a storefront; a website builder with pre-made templates; the social scheduler; ${NEWSLETTER_MARKETING_ENABLED ? '' : 'the newsletter; '}${SMS_MARKETING_ENABLED ? '' : 'SMS and text-to-give; '}and the AI assistant, at ${aiLine(CHURCH_CLAIM.aiMessages)} on Church and ${aiLine(MINISTRY_CLAIM.aiMessages)} on Ministry.`,
+      `Both plans include the web and mobile app, courses, the full Bible, the donor and member CRM with signups, your donation page and fundraising campaigns, a blog, docs and sermon notes, a link-in-bio page, locations and up to three products (paid product checkout is coming soon). Church has one community with a feed and chat. Ministry adds unlimited communities, community groups, event registration with QR check-in, the church map, social scheduler, livestream with live giving, service planning with volunteer rotas, custom forms that feed the CRM, giving records (statements and year-end giving receipts), automated SEO blog articles, the AI knowledge base, and your own branding${CUSTOM_DOMAIN_MARKETING_ENABLED ? ' and domain' : ''}.`,
+      `Discovery and a website builder are not built yet. Coming soon, and in the plans when it ships: livestream, chat and prayer requests in every community; all product types with a storefront; ${NEWSLETTER_MARKETING_ENABLED ? '' : 'the newsletter; '}${SMS_MARKETING_ENABLED ? '' : 'SMS and text-to-give; '}and the AI assistant, at ${aiLine(CHURCH_CLAIM.aiMessages)} on Church and ${aiLine(MINISTRY_CLAIM.aiMessages)} on Ministry.`,
       'The full plan-by-plan comparison is on the pricing page. What is on that page is what you are buying — there is nothing else to add at checkout.',
     ],
   },
@@ -276,18 +276,19 @@ export const FAQS: Faq[] = [
     question: 'Is Harvest church management software (ChMS)?',
     answer: [
       'Yes. Harvest is church management software built for ministries that want membership, online giving, check-in, events, community and discipleship courses in one subscription — not a stack of logins. Service planning with volunteer rotas ships on the Ministry plan.',
-      'Harvest charges a 0% platform fee on giving on every paid plan. Gifts go through your church\'s own payment links (PayPal, Cash App, Venmo, Zelle, Revolut and Wise); Harvest never sits in the money path.',
+      'Harvest charges a 0% platform fee on giving on every paid plan. Gifts go through your ministry\'s own payment links (PayPal, Cash App, Venmo, Zelle, Revolut and Wise); Harvest never sits in the money path.',
       'See how it fits a church on the [Churches](/solutions/churches) page, or compare plans on [pricing](/#pricing).',
     ],
   },
   {
+    id: 'social-scheduler',
+    question: 'Can Harvest post to Facebook and Instagram?',
+    answer: ["Yes. The social scheduler is included on the Ministry plan. Connect your Facebook, Instagram, Threads and TikTok accounts — as many as you run — write a post once, pick the channels and a time, and see everything on a month calendar and in a queue. Posts go out to Facebook, Instagram and Threads today. Image and video upload, and with them TikTok and YouTube posts, are coming soon. It isn't included on Forever Free or Church."],
+  },
+  {
     id: 'small-churches',
-    question: 'Is Harvest built for small churches?',
-    answer: [
-      'Yes. Harvest is church software for small churches and growing congregations that are tired of paying for a tool stack just to run Sunday.',
-      `Church covers what most small congregations need — one community with a feed and chat, courses, a donation page and fundraising, a CRM of up to ${CHURCH_CLAIM.people} people and a link-in-bio page — at $${CHURCH_CLAIM.monthly}/month ($${CHURCH_CLAIM.annual} a year, ${discountClaim('yearly')}). Ministry adds event registration with QR check-in, service planning with volunteer rotas, groups, custom forms, giving records and branding.`,
-      'One member record follows giving, attendance, groups and courses, so you are not reconciling three spreadsheets after every service.',
-    ],
+    question: 'Who is Harvest for?',
+    answer: ['Churches, evangelistic organisations and ministries of any size that want their people, giving, discipleship and outreach in one app instead of a stack of tools.'],
   },
   {
     id: 'membership-volunteers',
@@ -303,9 +304,9 @@ export const FAQS: Faq[] = [
     id: 'alternatives',
     question: 'How is Harvest different from Planning Center, Skool, or other church tools?',
     answer: [
-      'Most churches do not stop at a member database — they also need community, courses, giving and a public presence. Harvest puts those in one subscription and one member record.',
+      'Most ministries do not stop at a member database — they also need community, courses, giving and a public presence. Harvest puts those in one subscription and one member record.',
       'For a stack-cost walkthrough, read [Planning Center alternative for small churches](/blog/planning-center-alternative-small-churches) and [Skool alternative for churches](/blog/skool-alternative-for-churches).',
-      'We do not claim feature-for-feature parity with every Planning Center product. Where Harvest ships Service Planning, we say so; where something is still Coming Soon (SMS, newsletter, custom domains), we say that too — including on this FAQ.',
+      'We do not claim feature-for-feature parity with every Planning Center product. Where Harvest ships Service Planning, we say so; where something isn\'t built yet (SMS, newsletter, custom domains), we say that too — including on this FAQ.',
     ],
   },
   {
@@ -339,7 +340,7 @@ export const FAQS: Faq[] = [
           'Not yet. You cannot point a domain you own at Harvest today, and we would rather say so here than let you find out after you have paid.',
           'What every workspace does get, on every plan, is its own address on theharvest.app — your-church.theharvest.app — so you have a public home from the first day. It is yours alone and it does not change.',
           'Branding is a separate thing and it does ship on the Ministry plan: your ministry name, your logo, a square app icon and one brand colour. Your colour is applied before first paint, so members never see a flash of Harvest gold before yours loads, and your branding carries onto the artifacts people keep — donation receipts, PDF certificates, public forms and check-in pages.',
-          'One thing to be clear about: there is no page builder in Harvest. Your public presence is the Harvest app itself, wearing your name rather than ours. Pointing your own domain at it is on our Coming Soon page with everything else we are not shipping yet.',
+          'One thing to be clear about: there is no page builder in Harvest. Your public presence is the Harvest app itself, wearing your name rather than ours. Pointing your own domain at it is not built yet.',
         ],
   },
   {
@@ -385,8 +386,8 @@ export const FAQS: Faq[] = [
             ? 'Bulk newsletters go out through your own Mailchimp account, on whatever plan you hold with them. Transactional email that Harvest itself sends — sign-in links, notifications, receipts, check-in and registration confirmations — goes through our own provider and is included in your subscription.'
             : 'The email Harvest sends is the email a person is owed one at a time — sign-in links, notifications, donation receipts, check-in and event registration confirmations, and an invitation when you put someone on a serving rota. It goes through our own provider and is included in your subscription.',
           NEWSLETTER_MARKETING_ENABLED
-            ? 'Harvest does not send SMS. There is no broadcast composer and no keyword a member can text you; anything you have read about texting in Harvest describes work that is not finished. It is on our Coming Soon page with everything else we are not shipping yet.'
-            : 'What Harvest does not send is anything to everybody at once. Harvest does not send SMS: there is no broadcast composer and no keyword a member can text you. Nor does it send a newsletter. To reach the whole church today you post to your feed, which notifies every member, or publish to your blog. Both are on our Coming Soon page with everything else we are not shipping yet.',
+            ? 'Harvest does not send SMS. There is no broadcast composer and no keyword a member can text you; anything you have read about texting in Harvest describes work that is not finished. It is not built yet.'
+            : 'What Harvest does not send is anything to everybody at once. Harvest does not send SMS: there is no broadcast composer and no keyword a member can text you. Nor does it send a newsletter. SMS and newsletters are not built yet. To reach your people today you post to your feed, which notifies every member, or publish to your blog.',
           ...(NEWSLETTER_MARKETING_ENABLED
             ? ['You contract directly with Mailchimp, you pay them, and their terms and prices apply to you. If that connection breaks, the rest of Harvest keeps working.']
             : []),
@@ -398,7 +399,7 @@ export const FAQS: Faq[] = [
     answer: [
       'Your ministry does. For the data you hold about your members — contacts, donors, attendance, course progress, giving history — your ministry is the data controller and Harvest is the data processor. You decide what to collect, why, who may see it and when it should go; we store and process it on your instructions, to run the service you are paying for, and for nothing else.',
       'We do not sell it, we do not rent it, we do not use it to build advertising profiles, and we do not use one ministry\'s member data to serve another. Subscribing to Harvest does not transfer your content to us and does not give us a claim over it.',
-      'That split is why a member who wants their record corrected or removed should ask their church rather than us: your ministry can act on it directly in its own workspace. The whole arrangement is written down in the Privacy Policy.',
+      'That split is why a member who wants their record corrected or removed should ask their ministry rather than us: your ministry can act on it directly in its own workspace. The whole arrangement is written down in the Privacy Policy.',
     ],
   },
   {

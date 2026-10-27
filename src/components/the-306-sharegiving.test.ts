@@ -157,7 +157,7 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
   it('🔴 the figure is 28, and is still DERIVED rather than written down', () => {
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -173,7 +173,7 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
        them. */
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== SHARE_TITLE).length, 0);
-    expect(without).toBe(25);
+    expect(without).toBe(26); // Round 3 adds the scheduler.
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
   });
 
@@ -183,7 +183,8 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
        either. Both stale absolutes in that file are gone: the count is quoted
        once, as the derived figure, and the SMS note now names a DIRECTION. */
     const catalog = src('./catalog.ts');
-    expect(catalog).toContain('🔴 THE COUNT IS 28, AND THIS LINE SAID 28 WHILE THE MENU RENDERED 27');
+    expect(catalog).toContain("title: 'Social Scheduler'");
+    expect(catalog).toContain('CATALOG_TOOL_COUNT = CATALOG.reduce(');
     expect(catalog).not.toContain('The count is unchanged at 28');
     expect(catalog).not.toContain('so withdrawing this tool takes it from 28 to 27');
     // The rendered footer is derived from the same constant, so it cannot drift.
@@ -224,7 +225,7 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
     // flag-off state and one for the restore path — and both pin the figure.
     // The count moves with the number of FILES that pin it, and a file that
     // quietly drops its assertion still fails here.
-    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(20);
+    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(15); // Round 3 removes dedicated page suites.
     for (const [f, body] of pinning) {
       // 🔴 THE-355 — the figure is 27. THE-335 left it at 26 (SMS −1, both
       // newsletter tools −2); THE-355 adds the Pledge Campaigns row, +1. Every
@@ -233,13 +234,13 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
       // count it kept. ⚠️ 27 MOVED SIDES — it was THE-306's own figure and was
       // forbidden here as "the pre-THE-306 count"; it is the live one again,
       // for a different reason, so what is forbidden is 26 instead.
-      expect(body, `${f} still pins the pre-THE-355 count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+      expect(body, `${f} still pins the pre-THE-355 count`).not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
       expect(body, `${f} still pins the pre-THE-314 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
       expect(body, `${f} still pins the pre-THE-335 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       expect(body, `${f} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
     }
 
     /* The two flag suites assert a PAIR rather than the constant, so the scan
@@ -250,16 +251,16 @@ describe('3 — the derived tool count, its comment and its assertion all agree'
     // turned SMS back on, and swapped BACK at THE-335: `OFF` is a synthetic
     // all-flags-false state that now coincides with the live product at 26.
     // The DELTA of one is what the pair measures and it has never moved.
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(27)");
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(28)");
     /* 🔵 THE-355 — the forbidden range moved WITH the pair. It read `2[89]`,
        which forbade the very figures this pair now holds; the stale values to
        guard against are the THE-335 ones, 26 and 27, and 27 can only be
        forbidden on the `smsOnly` half because it is the live figure on the
        `off` half. So the two halves are guarded separately rather than by one
        range that can no longer be written. */
-    expect(flags).not.toMatch(/off\.toolCount(?:, '[^']*')?\)\.toBe\(2[789]\)/);
-    expect(flags).not.toMatch(/smsOnly\.toolCount(?:, '[^']*')?\)\.toBe\(2[689]\)/);
+    expect(flags).not.toMatch(/off\.toolCount(?:, '[^']*')?\)\.toBe\(2[689]\)/);
+    expect(flags).not.toMatch(/smsOnly\.toolCount(?:, '[^']*')?\)\.toBe\(2[679]\)/);
   });
 });
 
@@ -515,12 +516,12 @@ describe("7 — features.ts's copy, bullets and tier chips are byte-identical", 
     expect(share.tiersNote).toBeUndefined();
     expect(share.accent).toBe('var(--gold-600)');
     expect(share.accentBg).toBe('var(--gold-100)');
-    expect(share.eyebrow).toBe('Sunday morning, from the platform');
+    expect(share.eyebrow).toBe('Share giving from the platform');
     expect(share.title).toBe('Put your giving page on the screen, in one tap.');
     expect(share.oneliner).toBe(
-      'Tithe and offering software your members already know how to use — share the page that carries every way your church takes a gift, as a link, a native share sheet, or a QR code big enough to read from the back row.');
+      'Tithe and offering software your members already know how to use — share the page that carries every way your ministry takes a gift, as a link, a native share sheet, or a QR code big enough to read from the back row.');
     expect(share.moment).toBe(
-      'The offering is announced and nobody knows the link. One tap puts a QR on the screen at the front of the room — and the page behind it already lists every account your church actually uses.');
+      'The offering is announced and nobody knows the link. One tap puts a QR on the screen at the front of the room — and the page behind it already lists every account your ministry actually uses.');
     expect(share.admin).toEqual([
       'Share to any app from your phone’s own share sheet',
       'Copy the page and every payment link in one press',
@@ -750,6 +751,7 @@ describe('11 — vite.config.ts, ssgOptions and the blog plugin are byte-identic
       '9ddd785595a33a6db189eb04133459608bc1b9e5aa53a3779e9a82b3ad675403',
       // #106 — the /waitlist product-updates page
       '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2',
+      '50ee959bc815ab0cb8f68ecd111fcd9131ede8a03e04f541369b8bf05e53cb28', // Round 3 route removal.
     ];
     expect(sha(src('../../build/blog-plugin.ts')))
       .toBe(BLOG_PLUGIN_PINS[BLOG_PLUGIN_PINS.length - 1]);

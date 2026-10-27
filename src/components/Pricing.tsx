@@ -244,8 +244,7 @@ export const aiMessagesLine = (plan: Pick<Plan, 'aiMessages'>) =>
 // 🔴 SMS AND NEWSLETTER ARE ON THE MINISTRY CARD, AND LABELLED "coming soon"
 // while SMS_MARKETING_ENABLED / NEWSLETTER_MARKETING_ENABLED are false. They are
 // in the approved Ministry plan, but the app does not send either today, so the
-// card says what the Coming Soon page says — in the same tense. Flipping a flag
-// on drops the label and the Coming Soon entry together.
+// card labels them as coming soon until the flags turn on.
 const SOON = ' — coming soon';
 export const plans: Plan[] = [
   { name: 'Church', planId: 'plus', price: { monthly: 30, yearly: 300 }, fee: 0, productFee: 0.05, aiMessages: 300, blurb: 'For a church or ministry running its people, giving and discipleship in one place.', features: [
@@ -258,7 +257,7 @@ export const plans: Plan[] = [
     crmLabel('plus'),
     'Signups & Evangelism Analytics',
     'Donations & Fundraising Campaigns',
-    'Campuses & Church Map',
+    'Locations & Map',
     'Link-in-bio page',
     'Up to 3 products (paid checkout coming soon)',
     `${aiMessagesLine({ aiMessages: 300 })}${SOON}`,
@@ -277,7 +276,7 @@ export const plans: Plan[] = [
     CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
     NEWSLETTER_MARKETING_ENABLED ? 'Newsletter' : `Newsletter${SOON}`,
     SMS_MARKETING_ENABLED ? 'SMS & Text-to-Give' : `SMS & Text-to-Give${SOON}`,
-    `Social scheduler${SOON}`,
+    'Social scheduler (Facebook, Instagram, Threads)',
     `All product types & storefront${SOON}`,
     `Website builder with pre-made templates${SOON}`,
     `${aiMessagesLine({ aiMessages: 5000 })}${SOON}`,
@@ -593,8 +592,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
        church which pays for that tier gets a custom domain, and it cannot work:
        the provisioning route answers 503. Withheld rather than turned to `false`,
        because `false` on every tier would read as "we have decided not to offer
-       this" rather than "not yet" — and the Coming Soon entry is where "not yet"
-       belongs. Custom BRANDING keeps its row above: separate plan cell in the
+       this" rather than "not yet". Custom BRANDING keeps its row above: separate plan cell in the
        app, and it ships. */
     ...(CUSTOM_DOMAIN_MARKETING_ENABLED
       ? [['Custom Domain', [false, false, T]] as [string, Cell[]]]
@@ -610,7 +608,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Prayer Requests', [T, T, T]],
     ['Event Registration', [false, false, T]],
     ['Check-In System (QR)', [false, false, T]],
-    ['Campuses & Church Map', [false, T, T]],
+    ['Locations & Map', [false, T, T]],
     ['Livestream + Live Giving', [false, false, T]],
     ['Livestream, chat & prayer requests in every community', [false, false, SOONCELL]],
     ['Discovery listing', [false, false, SOONCELL]],
@@ -637,12 +635,11 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Automation & AI', rows: [
     /* 🔴 THE-335 — newsletter and SMS ARE in the Ministry plan, and the app does
        not send either today, so while their flags are off the cell says
-       "coming soon" rather than carrying a tick or vanishing. The Coming Soon
-       page lists the same two, in the same tense. A flag flipped on turns the
-       cell into a tick and removes the Coming Soon entry, in one value each. */
+       "coming soon" rather than carrying a tick or vanishing. A flag flipped
+       on turns the cell into a tick. */
     ['Newsletter', [false, false, NEWSLETTER_MARKETING_ENABLED ? T : SOONCELL]],
     ['SMS & Text-to-Give', [false, false, SMS_MARKETING_ENABLED ? T : SOONCELL]],
-    ['Social scheduler', [false, false, SOONCELL]],
+    ['Social scheduler', [false, false, T]],
     ['Custom Forms → CRM', [false, false, T]],
     ['AI Knowledge Base', [false, false, T]],
     /* The real allowance, never "unlimited" — and the feature is not built, so
