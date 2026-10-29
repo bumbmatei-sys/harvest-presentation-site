@@ -30,7 +30,7 @@ describe('live social scheduler', () => {
     expect(html).toContain(TRIAL_CTA_LABEL);
     expect(html).toContain('href="/#pricing"');
     const item = CATALOG.find((g) => g.name === 'Community & Engagement')!.items.find((i) => i.title === 'Social Scheduler');
-    expect(item).toMatchObject({ href: SCHEDULER_HREF, desc: 'Write once, schedule to Facebook, Instagram and Threads. Included on Ministry.' });
+    expect(item).toMatchObject({ href: SCHEDULER_HREF, desc: 'Write once, schedule to Facebook, Instagram, TikTok and Threads. Included on Ministry.' });
     expect(routes[0].children!.map((route) => route.path)).toContain(SCHEDULER_HREF);
     expect(blogRoutes()).toContain(SCHEDULER_HREF);
     expect(blogRoutes()).not.toContain('/features/coming-soon');

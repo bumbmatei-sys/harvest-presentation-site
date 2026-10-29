@@ -45,7 +45,7 @@ export const CATALOG: CatalogGroup[] = [
   {
     name: 'Community & Engagement', kicker: 'Belong', tint: 'var(--sky-600)', bg: 'var(--sky-100)',
     items: [
-      { icon: 'calendar-clock', title: 'Social Scheduler', desc: 'Write once, schedule to Facebook, Instagram and Threads. Included on Ministry.', href: '/features/harvest-scheduler' },
+      { icon: 'calendar-clock', title: 'Social Scheduler', desc: 'Write once, schedule to Facebook, Instagram, TikTok and Threads. Included on Ministry.', href: '/features/harvest-scheduler' },
       item('rss', 'Community Feed', 'Posts, comments, polls and prayer requests in a private space that belongs to your ministry.'),
       item('users', 'Groups', 'Organise members into community groups for classes, teams and small groups.'),
       item('heart-handshake', 'Prayer Requests', 'A living prayer wall where members request, pray and follow up together.'),

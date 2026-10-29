@@ -722,6 +722,8 @@ html, body { background: #000; }
 .fab-container { width:min(1160px, calc(100% - 40px)); margin:0 auto; }
 .fab-header { display:flex; justify-content:space-between; align-items:end; gap:40px; margin-bottom:56px; }
 .fab-pill { display:inline-flex; align-items:center; gap:8px; background:var(--secondary); color:var(--foreground); border:1px solid color-mix(in srgb, var(--foreground) 6%, transparent); border-radius:999px; padding:9px 15px; font:400 13px/1 var(--font-sans); }
+.fab-post-channels { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.fab-channel-pill { gap:4px; padding:4px 8px; font-size:12px; white-space:nowrap; flex-shrink:0; }
 .fab-header h1, .fab-header h2 { margin:24px 0 0; font:400 clamp(42px,4.2vw,60px)/1.02 var(--font-display); letter-spacing:-.03em; color:var(--foreground); }
 .fab-header h2 span, .fab-muted { color:color-mix(in srgb, var(--foreground) 50%, transparent); }
 .fab-header > p { max-width:330px; margin:0; color:color-mix(in srgb, var(--foreground) 60%, transparent); text-align:right; font:400 15px/1.55 var(--font-sans); }
