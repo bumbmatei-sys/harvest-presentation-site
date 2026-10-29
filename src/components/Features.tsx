@@ -1,40 +1,27 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
-import { I, L } from './icons';
-import { Kicker, H2, container, AV } from './shared';
+import { I } from './icons';
+import { AV } from './shared';
 import { CATALOG_TOOL_COUNT } from './catalog';
 
-function BentoCard({ icon, name, desc, to, children, span = 1, minH = 300, soon = false }:
-  { icon: React.ReactNode; name: string; desc: string; to: string; children?: React.ReactNode; span?: number; minH?: number; soon?: boolean }) {
+function MiniPost() {
   return (
-    <Link to={to} className="bento" style={{
-      gridColumn: `span ${span}`, width: '100%', display: 'flex', flexDirection: 'column',
-      textDecoration: 'none', position: 'relative', overflow: 'hidden',
-      background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 28,
-      boxShadow: '0 20px 50px rgba(45,37,25,0.07)', padding: 28, minHeight: minH, boxSizing: 'border-box',
-    }}>
-      {soon && <span style={{ position: 'absolute', top: 16, right: 16, zIndex: 2, background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.06em', padding: '4px 9px', borderRadius: 999 }}>SOON</span>}
-      {children}
-      <div className="bento-body" style={{ marginTop: 'auto', paddingTop: 18 }}>
-        <span style={{ display: 'inline-flex', color: 'var(--gold-600)', marginBottom: 10 }}>{icon}</span>
-        <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 20, color: 'var(--navy-900)', margin: '0 0 6px' }}>{name}</h3>
-        <p style={{ fontFamily: 'var(--font-sans)', color: 'var(--text-body)', fontSize: 14, lineHeight: 1.55, margin: 0, maxWidth: 520 }}>{desc}</p>
-      </div>
-      <span className="bento-cta" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, position: 'absolute', bottom: 20, left: 28, fontSize: 13.5, fontWeight: 600, color: 'var(--brand)' }}>
-        Learn more <L name="arrow-right" size={14} color="var(--brand)" />
-      </span>
-    </Link>
+    <div style={{ background: 'var(--stone-100)', borderRadius: 14, padding: 16, fontSize: 12.5, color: 'var(--navy-800)' }}>
+      <div>Join us this week.</div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>{['Facebook', 'Instagram', 'Threads'].map((channel) => <span key={channel} style={{ background: 'white', borderRadius: 999, padding: '4px 8px' }}>{channel}</span>)}</div>
+      <div style={{ marginTop: 12, fontWeight: 700 }}>Scheduled · Sun 9:00 AM</div>
+    </div>
   );
 }
 
 function MiniChat() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ alignSelf: 'flex-start', background: 'var(--stone-100)', borderRadius: '14px 14px 14px 4px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-800)', maxWidth: '85%' }}>What does baptism mean for a new believer?</div>
+      <div style={{ alignSelf: 'flex-start', background: 'var(--stone-100)', borderRadius: '14px 14px 14px 4px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-800)', maxWidth: '85%' }}>Summarise what we've taught on baptism this year.</div>
       <div style={{ alignSelf: 'flex-end', background: 'var(--gold-100)', border: '1px solid rgba(201,150,58,0.25)', borderRadius: '14px 14px 4px 14px', padding: '9px 13px', fontSize: 12.5, color: 'var(--navy-900)', maxWidth: '88%' }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--gold-700)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em' }}>{I.sparkles({ size: 11 })} YOUR MINISTRY'S AI</span>
-        <div style={{ marginTop: 4 }}>Based on your pastor's teaching series…</div>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--gold-700)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em' }}>{I.sparkles({ size: 11 })} PREVIEW · COMING SOON</span>
+        <div style={{ marginTop: 4 }}>Three sermons and one lesson cover it…</div>
       </div>
     </div>
   );
@@ -66,67 +53,26 @@ function VerseCard() {
   );
 }
 
+const scenes = ['/scenes/feature-1-wheat-closeup.webp', '/scenes/feature-2-wheat-dusk.webp', '/scenes/feature-3-wheat-night-sky.webp', '/scenes/why-1-wheat-meadow-day.webp', '/scenes/why-2-wheat-sunset.webp'];
+
+function Photo({ scene, children, soon = false }: { scene: string; children: React.ReactNode; soon?: boolean }) {
+  return <div className="fab-photo"><img className="fab-photo-image" src={scene} alt="" />{soon && <span className="fab-soon">Coming soon</span>}<div className="fab-glass">{children}</div></div>;
+}
+
 export function Features() {
-  const chip = (bg: string, tint: string, ic: (p?: { size?: number }) => React.ReactElement) => (
-    <div style={{ width: 46, height: 46, borderRadius: 13, background: bg, color: tint, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{ic({ size: 22 })}</div>
-  );
   return (
-    <section id="features" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
-      <div style={container}>
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <Kicker>Features</Kicker>
-          <H2 style={{ marginTop: 14 }}>{'Built for ministries,\npowered by simplicity'}</H2>
+    <section id="features" className="fab-section">
+      <div className="fab-container">
+        <Reveal><div className="fab-header"><div><span className="fab-pill">Features</span><h2>Everything You Need to<br /><span>Disciple and Grow</span></h2></div><p>{`${CATALOG_TOOL_COUNT} tools across community, discipleship, giving and AI`}</p></div></Reveal>
+        <div className="fab-feature-cards">
+          <Reveal><Link className="fab-feature-link" to="/features/harvest-scheduler"><Photo scene={scenes[0]}><MiniPost /></Photo><h3>Social Scheduler</h3><p>Write once, schedule to Facebook, Instagram and Threads. Included on Ministry.</p></Link></Reveal>
+          <Reveal delay={80}><Link className="fab-feature-link" to="/features/community-engagement#feed"><Photo scene={scenes[1]}><MiniFeed /><div className="fab-mini-prayer"><div className="fab-avatars">{[1, 2, 3].map((n) => <img key={n} src={AV(n)} width={34} height={34} alt="" />)}</div>{I.prayer({ size: 13 })} 12 praying now</div></Photo><h3>Community</h3><p>Feed, prayer, groups and events your people open every day.</p></Link></Reveal>
+          <Reveal delay={160}><Link className="fab-feature-link" to="/features/discipleship-content#bible"><Photo scene={scenes[2]}><VerseCard /><div className="fab-progress"><span>Foundations of Faith</span><span>72%</span></div><div className="fab-progress-track"><div /></div></Photo><h3>Bible &amp; Courses</h3><p>The full Bible, plus courses with progress tracking.</p></Link></Reveal>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }} className="bento-grid">
-          <Reveal style={{ display: 'flex' }}>
-            <BentoCard icon={I.ai({ size: 24 })} name="AI Knowledge Base" to="/features/ai-automation#knowledge" minH={320}
-              desc="Trained on your teachings — members get answers in your ministry's voice.">
-              <div style={{ flex: 1, paddingTop: 6 }}>{chip('var(--gold-100)', 'var(--gold-600)', I.ai)}<div style={{ marginTop: 16 }}><MiniChat /></div></div>
-            </BentoCard>
-          </Reveal>
-          <Reveal style={{ display: 'flex' }}>
-            <BentoCard icon={I.feed({ size: 24 })} name="Community in realtime" to="/features/community-engagement#feed" minH={320}
-              desc="Feeds, prayer, events and groups — a private space that belongs to you.">
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <MiniFeed />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ display: 'flex' }}>{[1, 2, 3].map((n) => <img key={n} src={AV(n)} width={34} height={34} style={{ borderRadius: '50%', border: '2.5px solid #fff', marginLeft: n > 1 ? -10 : 0 }} alt="" />)}</div>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--sky-100)', color: 'var(--sky-700)', fontSize: 11.5, fontWeight: 600, padding: '6px 12px', borderRadius: 999 }}>{I.prayer({ size: 13 })} 12 praying now</span>
-                </div>
-              </div>
-            </BentoCard>
-          </Reveal>
-          <Reveal delay={80} style={{ display: 'flex' }}>
-            <BentoCard icon={I.bible({ size: 24 })} name="Bible & Courses" to="/features/discipleship-content#bible" minH={320}
-              desc="Reading plans and structured discipleship paths with progress tracking.">
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <VerseCard />
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 7 }}><span>Foundations of Faith</span><span style={{ color: 'var(--green-600)' }}>72%</span></div>
-                  <div style={{ height: 8, borderRadius: 5, background: 'var(--stone-100)' }}><div style={{ width: '72%', height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, var(--green-400), var(--green-600))' }} /></div>
-                </div>
-              </div>
-            </BentoCard>
-          </Reveal>
-          <Reveal delay={160} style={{ display: 'flex' }}>
-            <BentoCard icon={I.giving({ size: 24 })} name="Giving & Analytics" to="/features/giving-finance#donation" minH={320}
-              desc="Branded giving, fundraising, receipts — and a 0% platform fee.">
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--navy-900)', fontWeight: 500 }}>$12,480</span>
-                  <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>this month</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: 'var(--green-600)' }}>↑ 18%</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 56 }}>
-                  {[38, 52, 44, 66, 58, 78, 92].map((h, i) => <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 4, background: i === 6 ? 'var(--brand)' : 'rgba(201,150,58,0.25)' }} />)}
-                </div>
-              </div>
-            </BentoCard>
-          </Reveal>
+        <div className="fab-splits">
+          <Reveal><div className="fab-split"><Photo scene={scenes[3]}><div className="fab-chart-heading"><span>$12,480</span><small>this month</small><b>↑ 18%</b></div><div className="fab-chart">{[38, 52, 44, 66, 58, 78, 92].map((h, i) => <div key={i} style={{ height: `${h}%` }} />)}</div></Photo><div className="fab-split-copy"><h3>Giving</h3><p>Donation pages, campaigns and pledges, with a 0% fee on donations.</p><Link className="fab-button" to="/features/giving-finance#donation">Learn more</Link></div></div></Reveal>
+          <Reveal><div className="fab-split fab-split-reverse"><Photo scene={scenes[4]} soon><MiniChat /></Photo><div className="fab-split-copy"><span className="fab-coming-pill">Coming soon</span><h3>AI Assistant</h3><p>Coming soon for the plan owner: 300 messages a month planned on Church, 5,000 on Ministry.</p><Link className="fab-button" to="/features/ai-automation#assistant">Learn more</Link></div></div></Reveal>
         </div>
-        <Reveal delay={120} style={{ textAlign: 'center', marginTop: 40 }}>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>{`${CATALOG_TOOL_COUNT} tools across community, discipleship, giving and AI`}</p>
-        </Reveal>
       </div>
     </section>
   );

@@ -8,7 +8,7 @@ import { Replaces } from '../components/Replaces';
 import { CHEAPEST_MONTHLY, Pricing, plans } from '../components/Pricing';
 import { softwareSchema } from '../lib/structured-data';
 import { Affiliate } from '../components/Affiliate';
-import { AFFILIATE_PROGRAM_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
+import { AFFILIATE_PROGRAM_ENABLED } from '../lib/flags';
 import { FinalCTA } from '../components/FinalCTA';
 import { LeadCaptureBand } from '../components/LeadCaptureForm';
 import { Seo } from '../components/Seo';
@@ -19,8 +19,8 @@ export function Landing() {
       {/* /pricing renders this same page, so it self-canonicals to / rather than
           competing with the homepage for the same content. */}
       <Seo
-        title="Harvest — From Conversion to Devotion"
-        description={`Ministry platform for churches — AI, CRM${SMS_MARKETING_ENABLED ? ', SMS' : ''}, Livestream, Check-In, and more. From $${CHEAPEST_MONTHLY}/mo.`}
+        title="The Harvest — From Conversion to Devotion"
+        description={`One app for churches, evangelistic organisations and ministries: community, courses, giving, AI and livestream. From $${CHEAPEST_MONTHLY}/mo.`}
         canonical="https://theharvest.site/"
         jsonLd={softwareSchema(plans)}
       />

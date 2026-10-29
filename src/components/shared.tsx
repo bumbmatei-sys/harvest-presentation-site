@@ -11,12 +11,11 @@ export const FIELD = '/logos/harvest-field.jpg';
 export const AV = (n: number | string) => `/logos/avatar-${n}.jpg`;
 
 export const container: React.CSSProperties = {
-  width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 28px', boxSizing: 'border-box',
+  width: '100%', maxWidth: 1208, margin: '0 auto', padding: '0 var(--gutter)', boxSizing: 'border-box',
 };
-export const SKY = 'linear-gradient(180deg, #bcdaf1 0%, #cee3f3 50%, #eef4f5 78%, var(--cream) 100%)';
+export const SKY = 'var(--background)';
 export const softCard: React.CSSProperties = {
-  background: '#fff', border: '1px solid rgba(45,37,25,0.07)', borderRadius: 28,
-  boxShadow: '0 20px 50px rgba(45,37,25,0.07)',
+  background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16,
 };
 
 // Wheat mark at natural aspect ratio (portrait PNG — never squash).
@@ -26,14 +25,10 @@ export function Mark({ h = 30, style = {} }: { h?: number; style?: React.CSSProp
 
 export function Kicker({ children, align = 'center', color = 'var(--warm-brown)' }:
   { children: React.ReactNode; align?: React.CSSProperties['textAlign']; color?: string }) {
-  return (
-    <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color, textAlign: align, margin: 0, opacity: 0.75 }}>
-      {children}
-    </p>
-  );
+  return <div style={{ textAlign: align }}><span className="fab-pill">{children}</span></div>;
 }
 
-// Big section heading — Fraunces, blur-in-up by word.
+// Shared display heading, revealed by word.
 export function H2({ children, align = 'center', style = {} }:
   { children: React.ReactNode; align?: React.CSSProperties['textAlign']; style?: React.CSSProperties }) {
   return (
@@ -41,8 +36,8 @@ export function H2({ children, align = 'center', style = {} }:
       as="h2"
       text={children}
       style={{
-        fontFamily: 'var(--font-serif)', fontWeight: 500,
-        fontSize: 'clamp(2rem, 4vw, 3.1rem)', lineHeight: 1.06, letterSpacing: '-0.02em',
+        fontFamily: 'var(--font-display)', fontWeight: 400,
+        fontSize: 'clamp(2.3rem, 4.2vw, 3.6rem)', lineHeight: 1.06, letterSpacing: '-0.02em',
         color: 'var(--navy-900)', textAlign: align, margin: 0, ...style,
       }}
     />

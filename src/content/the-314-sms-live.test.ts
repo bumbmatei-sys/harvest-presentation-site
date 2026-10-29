@@ -10,7 +10,6 @@ import { ComparisonTable, plans } from '../components/Pricing';
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
 import { Replaces } from '../components/Replaces';
 import { CATEGORIES } from './features';
-import { COMING_SOON_ITEMS } from './coming-soon';
 import {
   NEWSLETTER_MARKETING_ENABLED, QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
 } from '../lib/flags';
@@ -122,9 +121,6 @@ describe('15 — Twilio appears nowhere on the site', () => {
     ['the feature catalogue', CATEGORIES.flatMap((c) => [c.intro, c.seo, ...c.features.flatMap((f) => [
       f.name, f.eyebrow, f.title, f.oneliner, f.moment, ...(f.admin ?? []), ...(f.member ?? []),
     ])]).join(' ')],
-    ['the coming-soon entries', COMING_SOON_ITEMS.flatMap((i) => [
-      i.name, i.eyebrow, i.title, i.oneliner, i.today, i.notThis ?? '', ...i.considering, i.navDesc,
-    ]).join(' ')],
   ];
 
   it.each(RENDERED)('%s names no carrier', (_where, text) => {
@@ -244,38 +240,12 @@ describe('16 — SMS\'s tier claim is Ministry only, and matches the app', () =>
 
 /* ── 17 ────────────────────────────────────────────────────────────────────
    No price, date or CTA reached a coming-soon entry.                         */
-describe('17 — no price, date or CTA was added to a coming-soon entry', () => {
-  it('every entry is still claim-free — the whole list, not just the one that left', () => {
-    for (const item of COMING_SOON_ITEMS) {
-      const aboutTheUnbuiltThing = [item.name, item.eyebrow, item.title, item.oneliner,
-        ...item.considering].join(' ');
-      expect(aboutTheUnbuiltThing, `"${item.name}" grew a price`).not.toMatch(/\$\s?\d/);
-      expect(aboutTheUnbuiltThing, `"${item.name}" grew a tier`)
-        .not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
-      expect(aboutTheUnbuiltThing, `"${item.name}" grew a call to action`)
-        .not.toMatch(/\b(buy|purchase|subscribe|start (your |a )?(free )?trial|upgrade now|get started)\b/i);
-      expect(aboutTheUnbuiltThing, `"${item.name}" grew a date`)
-        .not.toMatch(/\b(20\d\d|Q[1-4]\b|next (month|quarter|year)|by (spring|summer|autumn|winter))\b/i);
-    }
-  });
-
-  it('🔴 and the SHAPE still forbids it, which is what makes the above cheap', () => {
-    // `SoonItem` has no `tiers`, no price and no CTA field. That is why six
-    // false-claim corrections could be made once, here, rather than per entry.
-    const src = readSrc('content/coming-soon.ts');
-    const shape = /export (?:interface|type) SoonItem[\s\S]*?\n}/.exec(src);
-    expect(shape, 'the SoonItem shape could not be read').not.toBeNull();
-    for (const field of ['tiers', 'price', 'cta', 'href']) {
-      expect(shape![0], `SoonItem grew a "${field}" field`).not.toMatch(new RegExp(`\\b${field}\\??:`));
-    }
-  });
-});
 
 /* ── 18 ────────────────────────────────────────────────────────────────────
    The tool count, and every assertion that pins it.                          */
 describe('18 — the tool count is 26, and every assertion agrees', () => {
   it('🔴 it is 26, derived, and the SMS tool is what took it off there', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
@@ -310,7 +280,7 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
     // flag-off state and one for the restore path — and both pin the figure.
     // The count moves with the number of FILES that pin it, and a file that
     // quietly drops its assertion still fails here.
-    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(20);
+    expect(pinning.length, 'a suite gained or lost its tool-count assertion').toBe(15); // Round 3 removes dedicated page suites.
     for (const [f, body] of pinning) {
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-314 count`)
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(28\)/);
@@ -318,9 +288,9 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
         .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(29\)/);
       // 🔵 THE-355 — 26 → 27, the Pledge Campaigns row. 26 is now the stale one.
       expect(body, `${path.relative(ROOT, f)} still pins the pre-THE-355 count`)
-        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
+        .not.toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
       expect(body, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(26\)/);
+        .toMatch(/CATALOG_TOOL_COUNT\)\.toBe\(27\)/);
     }
 
     /* The flag suite asserts a PAIR rather than the constant, so the scan cannot
@@ -332,8 +302,8 @@ describe('18 — the tool count is 26, and every assertion agrees', () => {
     // 🔵 THE-355 — 26/27 → 27/28. The Pledge Campaigns row is a live tool on
     // BOTH halves, so it moved the pair together and the delta did not move.
     const flags = readSrc('lib/flags.test.ts');
-    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26)");
-    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(27)");
+    expect(flags).toContain("expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27)");
+    expect(flags).toContain("expect(smsOnly.toolCount, 'the count with SMS live').toBe(28)");
   });
 
   it('the rendered figure is interpolated, never retyped', () => {
@@ -392,7 +362,7 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-314's. */
     /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-314's. */
-    expect(pagesInDist()).toHaveLength(30);
+    expect(pagesInDist()).toHaveLength(29); // Round 3 removes Coming Soon.
   });
 
   it.runIf(built)('🔴 only the eight pages THE-314 accounts for moved — NAMED, not counted', () => {
@@ -416,7 +386,8 @@ describe('19 & 20 — the prerendered set is unchanged, and only the named pages
     ]);
     // Every one of them is a real page in the build, so the table cannot drift
     // into naming something that does not exist.
-    for (const page of moved) expect(pagesInDist(), `${page} is not a built page`).toContain(page);
+    for (const page of moved.filter((p) => p !== 'features/coming-soon/index.html')) expect(pagesInDist(), `${page} is not a built page`).toContain(page);
+    expect(pagesInDist()).not.toContain('features/coming-soon/index.html');
   });
 
   it('🔴 TERMS did NOT move, which is the one that looks like it should have', () => {
@@ -439,7 +410,7 @@ describe('the whole change is still one value', () => {
     // exactly ONE SMS flag, which is unchanged by its value.
     expect(SMS_MARKETING_ENABLED).toBe(false);
     const names = new Set(
-      ['components/Pricing.tsx', 'content/coming-soon.ts', 'components/catalog.ts',
+      ['components/Pricing.tsx', 'components/catalog.ts',
        'content/features.ts', 'content/legal.ts', 'content/faq.ts', 'components/Replaces.tsx']
         .flatMap((f) => [...readSrc(f).matchAll(/\bSMS_[A-Z0-9_]+\b/g)].map((m) => m[0])),
     );

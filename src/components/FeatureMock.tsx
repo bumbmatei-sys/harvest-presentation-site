@@ -93,7 +93,7 @@ export const FEATURE_ICONS: Record<string, React.ReactElement> = {
       <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" />
     </svg>
   ),
-  aichat: (
+  assistant: (
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-5A8 8 0 1 1 21 11.5Z" />
       <path d="M12 7.5l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9L12 7.5Z" />
@@ -1055,30 +1055,23 @@ export const MOCKS: Record<string, React.ReactElement> = {
       </div>
     </>
   ),
-  aichat: (
+  assistant: (
     <>
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--green-500)' }} />
-          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Ask Grace Chapel</span>
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Preview · coming soon</span>
         </div>
         <div style={{ padding: '12px 13px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
-          <div style={{ alignSelf: 'flex-end', maxWidth: '78%', fontSize: '11.5px', lineHeight: '1.4', color: '#fff', background: 'var(--navy-900)', borderRadius: '12px 12px 3px 12px', padding: '8px 11px' }}>What does our church teach about baptism?</div>
-          <div style={{ alignSelf: 'flex-start', maxWidth: '82%', fontSize: '11.5px', lineHeight: '1.45', color: 'var(--earth)', background: 'var(--stone-100)', borderRadius: '12px 12px 12px 3px', padding: '8px 11px' }}>We practise believer's baptism by immersion — a public step of obedience after someone puts their faith in Christ.</div>
-          <div style={{ marginTop: '2px', border: '1px solid var(--green-200)', background: 'var(--green-100)', borderRadius: '14px', padding: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '8px' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: 'var(--green-600)', color: '#fff', flexShrink: '0' }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 21V9M12 9c0-2.5 1.7-4 4-4 0 2.5-1.7 4-4 4ZM12 9C12 6.5 10.3 5 8 5c0 2.5 1.7 4 4 4Z" />
-                </svg>
-              </span>
-              <span style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--green-700)' }}>Some questions are best taken to God</span>
-            </div>
-            <p style={{ fontSize: '11px', lineHeight: '1.5', color: '#2f4023', margin: '0 0 8px' }}>You've asked a lot today — and that's good. For this one, try getting quiet, opening Scripture, and praying honestly before you listen.</p>
-            <div style={{ fontSize: '10px', color: 'var(--green-700)', fontWeight: '600' }}>John 14:26 · Psalm 46:10 · 1 Kings 19:11–12</div>
+          <div style={{ alignSelf: 'flex-end', maxWidth: '78%', fontSize: '11.5px', lineHeight: '1.4', color: '#fff', background: 'var(--navy-900)', borderRadius: '12px 12px 3px 12px', padding: '8px 11px' }}>Summarise what we've taught on baptism this year.</div>
+          <div style={{ alignSelf: 'flex-start', maxWidth: '82%', fontSize: '11.5px', lineHeight: '1.45', color: 'var(--earth)', background: 'var(--stone-100)', borderRadius: '12px 12px 12px 3px', padding: '8px 11px' }}>Three sermons and one course lesson cover it. The common thread: baptism as a public step of faith, taken with the church.</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {['Sermon · 12 May', 'Sermon · 8 Sep', 'Foundations · Lesson 4'].map((t) => (
+              <span key={t} style={{ fontSize: '10px', fontWeight: '600', color: 'var(--green-700)', background: 'var(--green-100)', border: '1px solid var(--green-200)', borderRadius: '999px', padding: '4px 9px' }}>{t}</span>
+            ))}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '0 13px 13px', border: '1px solid rgba(45,37,25,0.1)', borderRadius: '999px', padding: '8px 12px', fontSize: '11px', color: 'var(--text-muted)' }}>Message…<span style={{ marginLeft: 'auto', display: 'inline-flex', width: '24px', height: '24px', borderRadius: '50%', background: 'var(--green-600)', color: '#fff', alignItems: 'center', justifyContent: 'center' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '0 13px 13px', border: '1px solid rgba(45,37,25,0.1)', borderRadius: '999px', padding: '8px 12px', fontSize: '11px', color: 'var(--text-muted)' }}>Ask your assistant…</div>
       </div>
     </>
   ),
@@ -1518,7 +1511,7 @@ export const MOCKS: Record<string, React.ReactElement> = {
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '700', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '2px 7px', borderRadius: '999px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>Recorded</span>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', margin: '2px 13px 13px', fontSize: '11px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', borderRadius: '9px', padding: '9px' }}>Sync all receipts</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', margin: '2px 13px 13px', fontSize: '11px', fontWeight: '700', color: '#fff', background: 'var(--navy-900)', borderRadius: '9px', padding: '9px' }}>View all receipts</div>
       </div>
     </>
   ),
@@ -1675,7 +1668,7 @@ export const MOCKS: Record<string, React.ReactElement> = {
     <>
       <div style={{ background: '#fff', border: '1px solid rgba(45,37,25,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 13px', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
-          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Campuses</span>
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--navy-900)' }}>Locations</span>
           <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>3 locations</span>
         </div>
         <div style={{ padding: '11px 13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>

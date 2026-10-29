@@ -121,10 +121,14 @@ describe('no surface claims the AI Assistant add-on grants a capability the plan
 
   it('🔴 and no feature entry claims it as a plan capability any more', () => {
     const byId = (id: string) => CATEGORIES.flatMap(c => c.features).find(f => f.id === id)!;
-    expect(byId('aichat').tiers).toEqual([0, 0]);
+    // Member AI Chat was dropped (Matei, 2026-10-27). The plan owner's AI
+    // assistant is not built yet: no plan claims it, and it reads coming soon.
+    expect(CATEGORIES.flatMap(c => c.features).find(f => f.id === 'aichat')).toBeUndefined();
+    expect(byId('assistant').tiers).toEqual([0, 0]);
     expect(byId('knowledge').tiers).toEqual([0, 1]);
-    for (const id of ['aichat', 'knowledge']) expect(byId(id).tiersNote).toMatch(/coming soon/i);
-    expect(CATALOG.flatMap(g => g.items).find(i => i.title === 'AI Chat')?.soon).toBe(true);
+    expect(byId('assistant').tiersNote).toMatch(/coming soon/i);
+    expect(CATALOG.flatMap(g => g.items).find(i => i.title === 'AI Assistant')?.soon).toBe(true);
+    expect(CATALOG.flatMap(g => g.items).find(i => i.title === 'AI Chat')).toBeUndefined();
   });
 
   it('the site never suggests an AI seat, per person or otherwise', () => {
@@ -270,7 +274,7 @@ describe('the tool count is unchanged at its derived value', () => {
     // subject moved it.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );

@@ -60,6 +60,12 @@ const TERMS_PINS: ReadonlyArray<{ ticket: string; why: string; sha256: string }>
     sha256: '6172c0fad453e6d75cf705f503938d0b5bf86b530a0f7d9aa6dac85d5c9fb6e9',
   },
   { ticket: 'CHURCH-MINISTRY', why: 'Two-plan repricing and fees', sha256: '8981fdaab2e0620cd1f7722fe0928650a43c20e7e3e401ce93363e5fbbf15150' },
+  { ticket: 'TRIAL-2026-10-27', why: 'Matei changed the live Dodo trial to 10 days', sha256: 'c80ef0913a0da891da3348541acc7e678e6d76bd58daa560de5f32553b9b6e52' },
+];
+
+const REFUNDS_PINS: ReadonlyArray<{ ticket: string; why: string; sha256: string }> = [
+  { ticket: 'PRE-TRIAL-2026-10-27', why: 'Refund policy before the trial change', sha256: '0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0' },
+  { ticket: 'TRIAL-2026-10-27', why: 'Matei changed the live Dodo trial to 10 days', sha256: '672bccf6df5f51652c4b38d296ac297dededf91e92c038ecd36224ae6034bf97' },
 ];
 
 describe('the legal document set', () => {
@@ -321,9 +327,9 @@ describe('product facts stated in the policies', () => {
     // the live Dodo products started running 14, at which point defending 7 was
     // defending the false number. Inverted, never loosened: a Terms clause
     // stating a trial length the product does not run is the failure mode, in
-    // whichever direction it points.
-    expect(text(terms)).toMatch(/14-day free trial/i);
-    expect(text(terms)).not.toMatch(/\b(7|30)-day/i);
+    // whichever direction it points. Matei changed it to 10 on 2026-10-27.
+    expect(text(terms)).toMatch(/10-day free trial/i);
+    expect(text(terms)).not.toMatch(/\b(7|14|30)-day/i);
   });
 
   it('describes the branded app, which exists, rather than a builder, which does not', () => {
@@ -462,12 +468,9 @@ const renderedProse = (source: string) =>
 
 describe('the trial length', () => {
   it('states the trial length the product actually runs', () => {
-    // 14 is not this repo's choice. It is DODO_TRIAL_DAYS on the six live Dodo
-    // products (the app's src/lib/dodo/catalogue.ts), and the app's checkout
-    // path sets no override — so this is what a church signing up today gets.
-    // The site said 7 from the moment Dodo went live for subscriptions, which
-    // under-advertised Harvest's own trial by half.
-    expect(TRIAL_LENGTH_DAYS).toBe(14);
+    // Matei changed the trial to 10 days on 2026-10-27; all four live Dodo
+    // products now carry trial_period_days=10.
+    expect(TRIAL_LENGTH_DAYS).toBe(10);
 
     // Every surface that quotes a length derives it from that one constant.
     expect(TRIAL_CTA_LABEL).toBe(`Start your FREE ${TRIAL_LENGTH_DAYS}-day trial`);
@@ -780,7 +783,7 @@ describe('what the analytics disclosure must not have touched', () => {
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
       .toBe(TERMS_PINS[TERMS_PINS.length - 1].sha256);
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
-      .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
+      .toBe(REFUNDS_PINS[REFUNDS_PINS.length - 1].sha256);
   });
 
   it('no price or tool count changed', () => {
@@ -790,7 +793,7 @@ describe('what the analytics disclosure must not have touched', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.annual}`)).toEqual([
       'plus:30/300',
       // ⚠️ Moved by THE-343, and back by THE-372. plus and pro are enumerated beside it so a reprice
@@ -968,7 +971,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'terms')!)))
       .toBe(TERMS_PINS[TERMS_PINS.length - 1].sha256);
     expect(sha256(text(LEGAL_DOCS.find((d) => d.slug === 'refunds')!)))
-      .toBe('0a169518e5929793709b6127bc8719e68382cf0f206c1c326766c61a147a9fb0');
+      .toBe(REFUNDS_PINS[REFUNDS_PINS.length - 1].sha256);
     // And neither was restated as revised.
     expect(LEGAL_DOCS.find((d) => d.slug === 'terms')!.updated).toBe(LEGAL_UPDATED);
     expect(LEGAL_DOCS.find((d) => d.slug === 'refunds')!.updated).toBe(LEGAL_UPDATED);
@@ -1009,7 +1012,7 @@ describe('THE-209 — the public pages are now counted, and the policy says so',
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(TIER_PRICE_CLAIMS.map((c) => `${c.planId}:${c.monthly}/${c.annual}`)).toEqual([
       'plus:30/300',
       // ⚠️ Moved by THE-343, and back by THE-372. plus and pro are enumerated beside it so a reprice

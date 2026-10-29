@@ -6,7 +6,7 @@ import { CATEGORIES } from '../src/content/categories';
 import { CATEGORIES as FEATURE_CATEGORIES, categoryHref } from '../src/content/features';
 import { LEGAL_DOCS, legalHref } from '../src/content/legal';
 import { FAQ_HREF } from '../src/content/faq';
-import { COMING_SOON_HREF, SCHEDULER_HREF } from '../src/content/coming-soon';
+import { SCHEDULER_HREF } from '../src/content/scheduler';
 import { SOLUTIONS, solutionHref } from '../src/content/solutions';
 import { byNewest, type ImageSizes, type Post } from '../src/content/post-core';
 import { parsePost } from './parse-post';
@@ -94,7 +94,6 @@ export function blogRoutes(): string[] {
     '/pricing',
     '/features',
     ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
-    COMING_SOON_HREF,
     SCHEDULER_HREF,
     ...SOLUTIONS.map((s) => solutionHref(s.slug)),
     '/contact',

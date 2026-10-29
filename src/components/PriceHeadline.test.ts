@@ -40,8 +40,11 @@ const composite = (fg: number[], alpha: number, bg: number[]) =>
   fg.map((c, i) => Math.round(c * alpha + bg[i] * (1 - alpha)));
 
 /** The two card grounds, resolved from index.css. */
-const WHITE = [255, 255, 255];
-const NAVY_900 = [0x0c, 0x15, 0x26];
+// The shared black-theme guard pins these token values in index.css.
+// Regular cards use --background; the recommended card uses --card.
+const PAGE_GROUND = [0, 0, 0];
+const POPULAR_GROUND = [20, 20, 20];
+const HEADING_INK = [255, 255, 255];
 
 /**
  * Pull the term-total line's own declaration off the rendered card — the
@@ -63,7 +66,7 @@ function resolveColour(color: string, ground: number[]): number[] {
   if (rgba) {
     return composite([Number(rgba[1]), Number(rgba[2]), Number(rgba[3])], Number(rgba[4]), ground);
   }
-  if (color.includes('--navy-900')) return NAVY_900;
+  if (color.includes('--navy-900')) return HEADING_INK;
   throw new Error(`Unrecognised term-total colour: ${color}`);
 }
 
@@ -142,8 +145,8 @@ describe('THE-196 — the term total beneath it', () => {
       for (const term of DISCOUNTED_TERMS) {
         const line = termTotalLine(card(p, term))!;
         expect(line.fontSize, `${p.name} ${term} size`).toBeGreaterThanOrEqual(11);
-        // The popular card is navy, the others white.
-        const ground = p.popular ? NAVY_900 : WHITE;
+        // Measure the actual rebuilt charcoal and black grounds.
+        const ground = p.popular ? POPULAR_GROUND : PAGE_GROUND;
         const ratio = contrast(resolveColour(line.color, ground), ground);
         expect(ratio, `${p.name} ${term} contrast ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
       }
@@ -157,7 +160,7 @@ describe('THE-196 — the term total beneath it', () => {
     for (const p of plans.filter((x) => !x.popular)) {
       const line = termTotalLine(card(p, 'yearly'))!;
       expect(line.color).not.toContain('--text-muted');
-      expect(contrast(resolveColour(line.color, WHITE), WHITE)).toBeGreaterThan(7);
+      expect(contrast(resolveColour(line.color, PAGE_GROUND), PAGE_GROUND)).toBeGreaterThan(7);
     }
   });
 });

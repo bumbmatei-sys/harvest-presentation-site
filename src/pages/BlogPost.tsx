@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Link, useParams } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { HBtn } from '../components/magic';
@@ -26,7 +27,7 @@ function NotFound() {
         description="That post does not exist or has moved. Browse everything on the Harvest resources index."
         canonical={`${SITE_ORIGIN}/blog`}
       />
-      <main style={blogPage}>
+      <main className="marketing-blog-post" style={blogPage}>
         <div style={measure}>
           <h1 style={pageTitle}>Post not found</h1>
           <p style={standfirst}>That post does not exist, or it has not been published yet.</p>
@@ -41,7 +42,7 @@ function Related({ post }: { post: Post }) {
   const related = relatedPosts(post, 3);
   if (!related.length) return null;
   return (
-    <section style={{ marginTop: 56 }}>
+    <section className="marketing-related" style={{ marginTop: 56 }}>
       <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, color: 'var(--navy-900)', margin: 0 }}>
         More in {categoryName(post.category)}
       </h2>
@@ -51,7 +52,7 @@ function Related({ post }: { post: Post }) {
             key={r.slug}
             to={`/blog/${r.slug}`}
             style={{
-              display: 'block', padding: '18px 0', borderTop: '1px solid rgba(45,37,25,0.1)',
+              display: 'block', padding: '22px', border: '1px solid var(--border)', borderRadius: 16, background: 'var(--card)', marginTop: 12,
               textDecoration: 'none', transition: 'color 200ms var(--ease-out)',
             }}
           >
@@ -68,13 +69,7 @@ function Related({ post }: { post: Post }) {
 
 function CtaBand() {
   return (
-    <aside
-      style={{
-        marginTop: 56, padding: 'clamp(26px, 5vw, 38px)',
-        background: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-        border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-        boxShadow: '0 12px 34px rgba(45,37,25,0.1)', textAlign: 'center',
-      }}
+    <aside className="marketing-blog-cta"
     >
       <p style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.25rem, 3vw, 1.6rem)', fontWeight: 500, color: 'var(--navy-900)', margin: 0, lineHeight: 1.25 }}>
         Run your whole ministry in one place
@@ -123,10 +118,10 @@ export function BlogPost() {
         }}
       />
 
-      <main style={blogPage}>
+      <main className="marketing-blog-post" style={blogPage}>
         <div style={{ padding: '0 22px' }}>
           <article style={prose}>
-            <header>
+            <header className="marketing-post-header">
               <CategoryTag category={post.category} />
               <h1 style={{ ...pageTitle, margin: '12px 0 0' }}>{post.title}</h1>
               <p style={{ ...standfirst, fontSize: 'var(--text-lg)' }}>{post.description}</p>

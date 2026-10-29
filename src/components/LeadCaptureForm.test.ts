@@ -95,10 +95,10 @@ describe('LeadCaptureForm — claim safety on rendered markup', () => {
   it('/waitlist page renders Alternate A', () => {
     const html = render(React.createElement(WaitlistPage), '/waitlist');
     const text = words(html);
-    expect(text).toContain('Join the Harvest waitlist');
+    expect(text).toContain('Hear It First');
     expect(text).toContain('Join waitlist');
-    expect(text).toMatch(/product news only/i);
-    expect(text).toMatch(/not member email/i);
+    expect(text).toContain('Product news from Harvest when new features open. Never member email.');
+    expect(text).toContain("Never member email.");
   });
 
   it('Landing embeds the lead-capture band before FinalCTA', () => {

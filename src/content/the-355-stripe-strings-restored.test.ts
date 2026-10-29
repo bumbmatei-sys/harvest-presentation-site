@@ -65,7 +65,6 @@ async function surfacesWith(flags: Flags) {
   vi.doMock('../lib/flags', () => flags);
   const { CATEGORIES } = await import('./features');
   const { FAQS, answerText } = await import('./faq');
-  const { COMING_SOON_ITEMS } = await import('./coming-soon');
   const { FeatureMock } = await import('../components/FeatureMock');
   const cats = CATEGORIES as Category[];
   const features = new Map<string, Feature>(
@@ -81,7 +80,6 @@ async function surfacesWith(flags: Flags) {
     givingIntro: cats.find((c) => c.slug === 'giving-finance')!.intro,
     givingSeo: cats.find((c) => c.slug === 'giving-finance')!.seo,
     feeAnswer: answerText(FAQS.find((f) => f.id === 'donation-fee')!),
-    affiliateNotThis: COMING_SOON_ITEMS.find((i) => i.id === 'affiliate')!.notThis!,
     mock: (id: string) => renderToStaticMarkup(React.createElement(FeatureMock, { id })),
   };
 }
@@ -98,7 +96,7 @@ describe('1 — the Stripe strings are restored byte for byte', () => {
     expect(d.eyebrow).toBe('You keep more');
     expect(d.title).toBe('Keep 100% of every gift, on every paid plan.');
     expect(d.oneliner).toBe(
-      'Give in three taps. Every dollar lands in your church\'s own Stripe account — '
+      'Give in three taps. Every dollar lands in your ministry\'s own Stripe account — '
       + 'Harvest takes 0% of every donation on every paid plan, and never holds your money.');
     expect(d.moment).toBe(
       'Most platforms take 2–5% of every gift, forever, with no way down. Harvest takes zero — '
@@ -160,8 +158,6 @@ describe('1 — the Stripe strings are restored byte for byte', () => {
     expect(s.feeAnswer).toContain(
       'Stripe\'s own processing fees are a matter between your ministry and Stripe, under your '
       + 'agreement with them. What you pay Harvest is the subscription, and nothing else.');
-    expect(s.affiliateNotThis).toContain(
-      'every gift lands in your church\'s own Stripe account — that ships today and is unchanged');
   });
 
   it('the two vignettes come back too — a picture is a claim', async () => {
@@ -207,7 +203,7 @@ describe('2 — the flip restores the Stripe half and nothing else', () => {
       vi.resetModules();
       vi.doMock('../lib/flags', () => flags);
       const { CATALOG_TOOL_COUNT, CATALOG } = await import('../components/catalog');
-      expect(CATALOG_TOOL_COUNT).toBe(26);
+      expect(CATALOG_TOOL_COUNT).toBe(27);
       expect(CATALOG.flatMap((g) => g.items).map((i) => i.title))
         .toContain('Pledge Campaigns');
       vi.doUnmock('../lib/flags');
@@ -281,7 +277,6 @@ describe('3 — the two states really differ', () => {
     differs(on.givingIntro, off.givingIntro, 'the giving-finance intro');
     differs(on.givingSeo, off.givingSeo, 'the giving-finance SEO line');
     differs(on.feeAnswer, off.feeAnswer, 'the donation-fee FAQ answer');
-    differs(on.affiliateNotThis, off.affiliateNotThis, 'the affiliate notThis');
     differs(on.mock('donation'), off.mock('donation'), 'the donation vignette');
     differs(on.mock('sharegiving'), off.mock('sharegiving'), 'the sharegiving vignette');
   });

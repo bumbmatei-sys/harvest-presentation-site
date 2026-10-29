@@ -2,9 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CATEGORIES, CATEGORY_BY_SLUG, LEGACY_ANCHORS, categoryHref, featureHref } from './features';
 import { CATALOG, slugify } from '../components/catalog';
 import { columnHref, itemHref } from '../components/Nav';
-import {
-  COMING_SOON_HREF, COMING_SOON_IDS, COMING_SOON_ITEMS, COMING_SOON_NAME, SCHEDULER_HREF,
-} from './coming-soon';
+import { SCHEDULER_HREF } from './scheduler';
 
 /* LEGACY_ANCHORS is the redirect table for every retired /features#<slug> URL —
  * indexed links, the Nav mega-menu, and anything a church has bookmarked. A
@@ -67,7 +65,7 @@ describe('the mega-menu reaches every feature it lists', () => {
   it('is split into exactly the five live groups and the one unbuilt one', () => {
     // Guards every `it.each` below against silently running on an empty list.
     expect(live).toHaveLength(5);
-    expect(soon.map((g) => g.name)).toEqual([COMING_SOON_NAME]);
+    expect(soon).toHaveLength(0);
     // ⚠️ A SANITY FLOOR, NOT A PIN. It guards the `it.each` blocks below against
     // silently running on an empty list; the real figure is CATALOG_TOOL_COUNT,
     // pinned in the suites that own it. 🔵 Lowered from 30 at THE-335, which
@@ -77,7 +75,7 @@ describe('the mega-menu reaches every feature it lists', () => {
     expect(CATALOG.flatMap((g) => g.items).length).toBeGreaterThan(25);
   });
 
-  it.each(live.flatMap((g) => g.items.map((i) => i.title)))(
+  it.each(live.flatMap((g) => g.items.filter((i) => !i.href).map((i) => i.title)))(
     '"%s" has a mapped destination, not the fallback',
     (title) => {
       // `featureHref` falls back to the first category page for an unmapped
@@ -102,70 +100,17 @@ describe('the mega-menu reaches every feature it lists', () => {
       expect(href.startsWith('/features/'), `"${href}" is not a feature page`).toBe(true);
       const slug = href.slice('/features/'.length).split('#')[0];
       expect(
-        slug === COMING_SOON_HREF.slice('/features/'.length) || !!CATEGORY_BY_SLUG[slug],
+        !!CATEGORY_BY_SLUG[slug],
         `no page at /features/${slug}`,
       ).toBe(true);
     },
   );
 
-  it.each(soon.flatMap((g) => g.items.map((i) => [i.title, i] as const)))(
-    '"%s" is an unbuilt item: marked soon, and anchored on the Coming Soon page',
-    (_title, item) => {
-      // 🔴 `soon` is what keeps it out of CATALOG_TOOL_COUNT. An entry that
-      // lost the flag would start being counted as a tool in the platform.
-      expect(item.soon).toBe(true);
-      expect(item.href).toBeDefined();
-      const [path, fragment] = item.href!.split('#');
-
-      /* ⚠️ TWO SHAPES SINCE THE-284, and both land on a page that exists.
-         Every entry but one sends the menu to its anchor on
-         /features/coming-soon, where its whole story is. The Harvest Scheduler
-         entry has a page of its own — the founder asked for it by name — so its
-         menu item goes there instead: sending a reader to a one-paragraph
-         anchor when a whole page exists is the worse of the two, and the anchor
-         is still reachable from that page's own jump-to index.
-         🔴 THE CHECK IS STILL A WHITELIST OF DESTINATIONS, not "any href". A
-         menu item pointing anywhere else — a pricing anchor, an outside URL —
-         still fails here. */
-      if (path === SCHEDULER_HREF) {
-        expect(fragment, 'the full page takes no fragment').toBeUndefined();
-        const entry = COMING_SOON_ITEMS.find((i) => i.page === SCHEDULER_HREF);
-        expect(entry, 'no coming-soon entry claims that page').toBeDefined();
-        expect(entry!.name).toBe(item.title);
-        // And it is still on the Coming Soon page too, not moved off it.
-        expect(COMING_SOON_IDS).toContain(entry!.id);
-      } else {
-        expect(path).toBe(COMING_SOON_HREF);
-        expect(COMING_SOON_IDS, `#${fragment} is not a section on the page`).toContain(fragment);
-      }
-
-      /* And it is NOT in the redirect table — see the note above.
-       *
-       * ⚠️ ONE NAMED EXCEPTION, added by THE-245. The rule's reasoning is that
-       * an unbuilt feature has no retired URL to redirect, which held for all
-       * eight original entries because none of them had ever shipped. SMS had:
-       * it was a live, SOLD feature that this ticket RELOCATED to Coming Soon
-       * while it is untested, so `sms-automation` and `sms-text-to-give` are
-       * genuinely indexed URLs that predate the entry and still have to land
-       * somewhere. They resolve to the LIVE category page with the fragment
-       * stripped — a different destination from the coming-soon anchor, not a
-       * second one for it — which is the affiliate treatment exactly.
-       *
-       * The exception is spelled as a literal so it cannot widen: a NEW
-       * coming-soon item that collided with a legacy slug would still fail,
-       * which is the failure this assertion is for. Delete this branch when
-       * SMS is switched back on and its entry leaves the page. */
-      const RELOCATED_FROM_LIVE = ['sms-text-to-give'];
-      if (!RELOCATED_FROM_LIVE.includes(slugify(item.title))) {
-        expect(LEGACY_ANCHORS[slugify(item.title)]).toBeUndefined();
-      } else {
-        // It IS mapped, and it must point at the live category page rather than
-        // at this item — two destinations for one name is the real hazard.
-        expect(LEGACY_ANCHORS[slugify(item.title)]).toBe('/features/ai-automation');
-        expect(LEGACY_ANCHORS[slugify(item.title)]).not.toContain('coming-soon');
-      }
-    },
-  );
+  it('links the live scheduler directly from the menu', () => {
+    const item = CATALOG.flatMap((g) => g.items).find((i) => i.title === 'Social Scheduler');
+    expect(item).toBeDefined();
+    expect(itemHref(item!)).toBe(SCHEDULER_HREF);
+  });
 });
 
 describe('feature ids', () => {

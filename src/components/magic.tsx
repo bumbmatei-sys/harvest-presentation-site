@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { L } from './icons';
+import { Button } from './ui/button';
 
 /* Harvest — premium interaction components adapted from MagicUI
    (ScrollProgress, ProgressiveBlur, Particles, TextAnimate, Marquee,
@@ -45,10 +46,10 @@ export function ScrollProgress() {
 // ---------- Progressive blur (fixed at viewport bottom) ----------
 export function ProgressiveBlur({ height = 100 }: { height?: number }) {
   const layers: [number, string][] = [
-    [0.5, 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 75%)'],
-    [1.5, 'linear-gradient(to bottom, rgba(0,0,0,0) 25%, rgba(0,0,0,1) 50%, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%)'],
-    [3, 'linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,1) 75%, rgba(0,0,0,1) 100%)'],
-    [6, 'linear-gradient(to bottom, rgba(0,0,0,0) 75%, rgba(0,0,0,1) 100%)'],
+    [0.5, 'linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--background) 100%, transparent) 25%, color-mix(in srgb, var(--background) 100%, transparent) 50%, transparent 75%)'],
+    [1.5, 'linear-gradient(to bottom, transparent 25%, color-mix(in srgb, var(--background) 100%, transparent) 50%, color-mix(in srgb, var(--background) 100%, transparent) 75%, transparent 100%)'],
+    [3, 'linear-gradient(to bottom, transparent 50%, color-mix(in srgb, var(--background) 100%, transparent) 75%, color-mix(in srgb, var(--background) 100%, transparent) 100%)'],
+    [6, 'linear-gradient(to bottom, transparent 75%, color-mix(in srgb, var(--background) 100%, transparent) 100%)'],
   ];
   return (
     <div style={{ position: 'fixed', left: 0, right: 0, bottom: 0, height, zIndex: 55, pointerEvents: 'none' }} aria-hidden="true">
@@ -188,36 +189,15 @@ export function HBtn({ children, href, to, variant = 'light', size = 'md', style
     children: React.ReactNode; href?: string; to?: string; variant?: Variant; size?: 'sm' | 'md' | 'lg';
     style?: React.CSSProperties; onClick?: () => void; block?: boolean;
   }) {
-  const sizes = {
-    sm: { padding: '9px 20px', fontSize: 13.5 },
-    md: { padding: '13px 28px', fontSize: 15 },
-    lg: { padding: '17px 38px', fontSize: 16.5 },
-  } as const;
-  const variants = {
-    light: { background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(45,37,25,0.12)', color: 'var(--navy-900)', dot: 'var(--brand)', alt: '#fff' },
-    dark: { background: 'var(--navy-900)', border: '1px solid var(--navy-900)', color: '#fff', dot: 'var(--brand)', alt: '#fff' },
-    gold: { background: 'var(--brand)', border: '1px solid var(--brand)', color: '#fff', dot: 'var(--navy-900)', alt: '#fff' },
-  } as const;
-  const v = variants[variant] || variants.light;
-  // Internal route → react-router Link (client nav); external/hash → <a>; else <button>.
-  const Tag = (to ? Link : href ? 'a' : 'button') as React.ElementType;
-  const navProps = to ? { to } : href ? { href } : {};
-  return (
-    <Tag
-      {...navProps}
-      onClick={onClick}
-      className="hbtn"
-      style={{
-        ...sizes[size], background: v.background, border: v.border, color: v.color,
-        '--hb-dot': v.dot, '--hb-alt-color': v.alt,
-        width: block ? '100%' : undefined, boxSizing: 'border-box',
-        ...style,
-      } as Style}
-    >
-      <span className="hb-main"><span className="hb-dot" /><span className="hb-label">{children}</span></span>
-      <span className="hb-alt">{children} <L name="arrow-right" size={16} color="currentColor" /></span>
-    </Tag>
-  );
+  const render = to ? <Link to={to} /> : href ? <a href={href} /> : undefined;
+  return <Button
+    render={render}
+    nativeButton={!to && !href}
+    type={to || href ? undefined : onClick ? 'button' : 'submit'}
+    onClick={onClick}
+    className={`marketing-button marketing-button-${variant} marketing-button-${size}${block ? ' marketing-button-block' : ''}`}
+    style={style}
+  >{children}</Button>;
 }
 
 // ---------- 3D tilt-in on scroll ----------
@@ -255,13 +235,13 @@ export function TiltIn({ children, maxTilt = 17, style = {} }: { children: React
 // ---------- Safari browser frame ----------
 export function SafariFrame({ url = 'theharvest.app', children }: { url?: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(45,37,25,0.1)', boxShadow: '0 24px 54px rgba(12,21,38,0.1)', background: '#fff' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '11px 16px', background: '#F4F1EB', borderBottom: '1px solid rgba(45,37,25,0.07)' }}>
+    <div style={{ borderRadius: 18, overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 24px 54px var(--border)', background: 'var(--card)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '11px 16px', background: 'var(--secondary)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', gap: 7 }}>
-          {['#FF5F57', '#FEBC2E', '#28C840'].map((c) => <span key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c, display: 'block' }} />)}
+          {['var(--danger)', 'var(--gold-400)', 'var(--green-400)'].map((c) => <span key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c, display: 'block' }} />)}
         </div>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', borderRadius: 999, padding: '6px 18px', fontSize: 12, color: 'var(--text-muted)', border: '1px solid rgba(45,37,25,0.06)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--card)', borderRadius: 999, padding: '6px 18px', fontSize: 12, color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
             <L name="lock" size={11} color="var(--text-muted)" /> {url}
           </div>
         </div>
@@ -276,11 +256,11 @@ export function SafariFrame({ url = 'theharvest.app', children }: { url?: string
 export function IphoneFrame({ width = 272, children }: { width?: number; children: React.ReactNode }) {
   return (
     <div style={{ width, aspectRatio: '433/882', position: 'relative', margin: '0 auto' }}>
-      <div style={{ position: 'absolute', inset: 0, borderRadius: width * 0.165, background: '#14110E', boxShadow: '0 36px 84px rgba(12,21,38,0.42), inset 0 0 0 3px #3B362F' }} />
+      <div style={{ position: 'absolute', inset: 0, borderRadius: width * 0.165, background: 'var(--card)', boxShadow: '0 36px 84px color-mix(in srgb, var(--background) 42%, transparent), inset 0 0 0 3px var(--border-strong)' }} />
       <div style={{ position: 'absolute', inset: width * 0.03, borderRadius: width * 0.14, overflow: 'hidden', background: 'var(--cream)', display: 'flex', flexDirection: 'column' }}>
         {children}
       </div>
-      <div style={{ position: 'absolute', top: width * 0.052, left: '50%', transform: 'translateX(-50%)', width: width * 0.29, height: width * 0.082, borderRadius: 999, background: '#14110E', zIndex: 6 }} />
+      <div style={{ position: 'absolute', top: width * 0.052, left: '50%', transform: 'translateX(-50%)', width: width * 0.29, height: width * 0.082, borderRadius: 999, background: 'var(--card)', zIndex: 6 }} />
     </div>
   );
 }

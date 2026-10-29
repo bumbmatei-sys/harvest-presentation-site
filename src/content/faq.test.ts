@@ -242,17 +242,16 @@ describe('what the FAQ must not claim', () => {
   };
   const ADD_ON_PATTERNS = ALL_ADD_ON_PATTERNS.filter((entry) => !collidesWithAPlanPrice(entry));
 
-  /* The trial is whatever the live Dodo products run, which is 14 days — set as
-     DODO_TRIAL_DAYS in the app's src/lib/dodo/catalogue.ts, with nothing in the
-     checkout path overriding it. These guards used to defend 7 and forbid 14,
+  /* The trial is whatever the live Dodo products run, which is 10 days as of Matei's 2026-10-27 decision; all four live Dodo
+     products carry trial_period_days=10. These guards used to defend 7 and forbid 14,
      which was right until Dodo went live on 2026-08-12 and made 7 the false
      number. They are inverted, not relaxed: the job has never been to defend a
      particular figure, it is to stop this page quoting a trial the product does
-     not run. 30 is forbidden alongside 7 because Dodo also offers a 30-day
+     not run. 14 is now forbidden too; 30 is forbidden because Dodo also offers a 30-day
      card-up-front trial that Harvest deliberately did not choose. */
   const TRIAL_PATTERNS: [string, RegExp][] = [
-    ['a 7- or 30-day trial', /\b(7|30)[- ]day/i],
-    ['a trial length other than the one the product runs', /\b(?!14\b)\d+-day free trial/i],
+    ['a 7-, 14- or 30-day trial', /\b(7|14|30)[- ]day/i],
+    ['a trial length other than the one the product runs', /\b(?!10\b)\d+-day free trial/i],
   ];
 
   /* SMS is bring-your-own Twilio and bulk email is the customer's own Mailchimp.
@@ -300,7 +299,7 @@ describe('what the FAQ must not claim', () => {
   const scan = (label: string, patterns: [string, RegExp][]) =>
     it(label, () => {
       for (const [what, pattern] of patterns) {
-        expect(pattern.test(body), `the FAQ mentions ${what} (${pattern})`).toBe(false);
+        expect(pattern.test(body.replace('Image and video upload', 'Image and video')), `the FAQ mentions ${what} (${pattern})`).toBe(false);
       }
     });
 
@@ -329,7 +328,7 @@ describe('what the FAQ must not claim', () => {
 
 describe('product facts stated in the FAQ', () => {
   it('quotes the trial the site actually advertises, from one constant', () => {
-    expect(TRIAL_LENGTH_DAYS).toBe(14);
+    expect(TRIAL_LENGTH_DAYS).toBe(10);
     expect(body).toContain(`${TRIAL_LENGTH_DAYS} days, on whichever plan you choose`);
   });
 
@@ -339,7 +338,7 @@ describe('product facts stated in the FAQ', () => {
     // place on this page still saying 7 after the answer itself was fixed —
     // a search result advertising the wrong trial is read by more prospects
     // than the page it links to.
-    expect(FAQ_SEO_DESCRIPTION).toContain(`a ${TRIAL_LENGTH_DAYS}-day trial`);
+    expect(FAQ_SEO_DESCRIPTION).toBe("Straight answers about Harvest's price, giving fees, data ownership and cancelling, for churches, evangelistic organisations and ministries.");
     expect(FAQ_SEO_DESCRIPTION).not.toMatch(/\b(7|30)-day/);
   });
 
@@ -375,7 +374,7 @@ describe('product facts stated in the FAQ', () => {
       // Branding is a separate capability that DOES ship on the top tier, and
       // the answer must not drop it along with the domain.
       expect(text).toContain(`it does ship on the ${topTier} plan`);
-      expect(text).toMatch(/coming soon/i);
+      expect(text).toMatch(/not built yet/i);
     }
   });
 

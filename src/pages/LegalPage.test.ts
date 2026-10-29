@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest';
 import { blogRoutes } from '../../build/blog-plugin';
 import { routes } from '../App';
 import { Footer } from '../components/Footer';
-import { COMING_SOON_HREF } from '../content/coming-soon';
 import { LEGAL_DOCS, legalHref, legalLinks, type LegalSlug } from '../content/legal';
 import { LegalPage } from './LegalPage';
 
@@ -120,7 +119,7 @@ describe('the prerender list', () => {
        is the 30th route; main was red on these five count assertions before the
        quarterly withdrawal, which is corrected here only because CI gates this
        PR on it. */
-    expect(prerendered).toHaveLength(30);
+    expect(prerendered).toHaveLength(29); // Round 3 removes Coming Soon.
     expect(new Set(prerendered).size).toBe(prerendered.length);
   });
 
@@ -130,7 +129,7 @@ describe('the prerender list', () => {
     // says so. Left out of the prerender it would ship as an empty shell, which
     // is the one way this page could mislead by omission.
     expect(prerendered, 'the Coming Soon page would ship as an empty shell')
-      .toContain(COMING_SOON_HREF);
+      .not.toContain('/features/coming-soon');
   });
 
   it('prerenders every route the router declares, catch-all and dynamic aside', () => {

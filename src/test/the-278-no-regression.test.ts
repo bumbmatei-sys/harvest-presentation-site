@@ -1139,7 +1139,76 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'c809f11e3152fd1a3f49fa86f16334ad398c59ba414e4a91c15c40c3c5e7b471',
   };
 
-  const BASELINE: Readonly<Record<string, string>> = {
+  /* Hero and shared fixed navigation redesign moves every prerendered page; pins also reflect the 10-day trial (2026-10-27). */
+  const HERO_FABALE_MOVED: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': 'b8827f1a149f24a64cd41a0af3d14d68b3cfddcd07c390eeea3d669066c35005',
+    'blog/category/inside-harvest/index.html': '76acd0f5603f95ac7f16a89ed723bf071a7d79b9bc618b2c07d2130726ca417f',
+    'blog/category/rooted/index.html': '722eddb9d6558ce39cfdf8542c9c149e7bdafb71ddd4c9a9b7258d7ef9bd21f6',
+    'blog/generosity-without-pressure/index.html': 'e2dbab453e2959139ce16925f3fdc0023caa0350b1b24d797e4955dc839751d9',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '9faca00f4aa74af103d67b6d3cb519bcc35e4755f83ca226a17c594b65947209',
+    'blog/index.html': '9c0710d93dd01c97be01b67cacc883d2a322ab35595b6ae617409e5c3967c7b2',
+    'blog/planning-center-alternative-small-churches/index.html': '789f70f6f0b7aa5a48823d019afa452851274a5b66d6f0e5d62a917e2d07e2a8',
+    'blog/skool-alternative-for-churches/index.html': '85bb0c951b5223bb2b7fbde28eff845fa754a669c0b244cb5b0ddcb56347aaa2',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': 'eb3def95ccb9defce6cb6479a19cea55f20342c996a420780300038b7e82f445',
+    'blog/work-that-outlives-you/index.html': '6abb4920450df125f90f3368217c5fede752a2918a653a27911faf6164871d9a',
+    'blog/year-end-giving-statements-what-to-include/index.html': '823429be419de263b39610f3bfcbe09f29ccacfeea84d22118cb32d9b39d4dea',
+    'contact/index.html': '7ec8bc35649401984bfd8a7705e5f0c8538c4bb76c3bc846894e8d1afdcf0e37',
+    'faq/index.html': '0055ac3c51a9de90de661af2b5f4be898aef4ca82bdcdcb00707de9c03afed56',
+    'features/ai-automation/index.html': '65a3d64a20e1e7280b269eb775efc3f6d85282bc7dcbd8d1633975bacada71df',
+    'features/community-engagement/index.html': '35ab4cbf27953c9f2ffa5d06cae62702c98057e4d2df30f2f5c27b9027f384ff',
+    'features/discipleship-content/index.html': '6368d791e693d16d35e7302fbc46aee72aab0f50e71d30ff8321a8f9b598ae73',
+    'features/giving-finance/index.html': '7d129d4a510210e6588314686dd58a7d0d8ffdaed52f4a7a3e3b1775d084c93b',
+    'features/harvest-scheduler/index.html': '5c981a2a706acad350bc89e1fde5728c075cd76a4b3833677fa3aba375a8cb7a',
+    'features/index.html': '3b249bfdbec3be3fda3531283362ca00d9da8caef94c2c25c094f36ddc09a230',
+    'features/platform-brand/index.html': 'ce4c40064eb0b98c87e44cba463ca98e57ef36ed4de7ac5489d5b3c634600bdc',
+    'index.html': 'a62519cd22b790fe4de293106245ae7a4cb781e28c478b021f8db6294412a86e',
+    'pricing/index.html': 'ce2e5f37697e9c307d3de74fa27d440a2c0382a591a91391d2d7f5c0b75ef9d3',
+    'privacy/index.html': '6bde6d877e240e866f35372c4e11d70ab016decebb4482d437f47935016aa962',
+    'refunds/index.html': '81a18397ab0454a0a4e80bb375d447c43c5a4ec31b101b2fee59c2c15cd0f47e',
+    'solutions/churches/index.html': 'e1f523bdf34cd840361e63d050f58f55f67e65b8db63d7ad4760ff7f76db2688',
+    'solutions/evangelistic-organizations/index.html': 'e62f2547e1551a060a47f4158efc948113d952013aa51a130962ce23ecbec201',
+    'solutions/missionaries/index.html': 'bf98210d2a0f33082edb7fc1e2e8b2574da04e732da24503f9e447e9bec34b4d',
+    'terms/index.html': 'bfd5c7e43300c2120f8dfb7d89e7dce49fa1de50523bbd91135e0d9718097621',
+    'waitlist/index.html': 'ca4f3bc3787e7ac8e8034469af15f9b446b3934ce48e7cda86b7a03044a1c884',
+  };
+
+  /* Full Fabale presentation rebuild: shared controls and footer move every
+   * existing page. Copy, links, prices and SEO were compared against the prior
+   * generated pages; route membership and all historical pins remain intact. */
+  const SITE_FABALE_MOVED: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': '8319b9c3ea105ba54c08316704b18bbb2b5d02e3a49b7a67091207aba7c38ccf',
+    'blog/category/inside-harvest/index.html': 'd71de6b9b01b78b6b2dce8aead46f91db3d1f495242292c8819617069371813b',
+    'blog/category/rooted/index.html': '7f24b9a273df41962a46b355a90b9629c7e3855bde5d09414d929e74159a5eea',
+    'blog/generosity-without-pressure/index.html': 'f8ba8cbc07b9cb0e261e4015b6d218dbacb4d5a45550d9bbb0ecf0e4bb83ff00',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': 'b064094c8f7029f201058b0def9832d983ccfd001d51f7122ea13bd77649df29',
+    'blog/index.html': 'f08a919a9be7d7b6bb8a4bfca4b72027211240e64b122afb94369eb7b2e648d4',
+    'blog/planning-center-alternative-small-churches/index.html': 'ab3eb45f9ba8933f28f9290d4fd05d9955aed1cc5e98eabb6e348946c9722319',
+    'blog/skool-alternative-for-churches/index.html': 'af20dccf5ac2ebb7f192b938a8c773c53537a2acc76ca0f8765074a8689045cb',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': '2cd002d500285d483090ecbbc7a261dc3d0275bd5b15ab6bf3162f19e13b1b51',
+    'blog/work-that-outlives-you/index.html': '51f8396fe025e8f919264e19903a74336276ed3c945b72699e7a7e7941d30a17',
+    'blog/year-end-giving-statements-what-to-include/index.html': 'd35bb701b4f9f503fd05e6477b40b24177bb5d009b1211405840f9a46fdbb72f',
+    'contact/index.html': '0721581d50c66bc830ea977395e97cfa1c0a9d4ab05b7b112a5e31bdd1ac288e',
+    'faq/index.html': 'a80063a10dc2a930c030cb950ce0034b59051ce5df23f431482d0bef80d1d0af',
+    'features/ai-automation/index.html': 'c4d1c16d520e58b0faaa34d7c7f500ef2a161c7b9085cd7cd9cf343c785efd47',
+    'features/community-engagement/index.html': 'ff274296324054f64c652e386cae3fe1330db3e2f6d4d23ec2b7b9604554a9ff',
+    'features/discipleship-content/index.html': 'd36f82dbe04478dd51fb01075159a2d5619d6a7f1b22af86321260d3877cb74c',
+    'features/giving-finance/index.html': 'e0165e9fd44a5a481ab247595d63ccb13df1673e1f2bc2f0f0d61f5f2b2a3f3b',
+    'features/harvest-scheduler/index.html': '103a5d08d0efc004505eadb99d6fc63e78ae32e0c769f069191c1b55274ff47e',
+    'features/index.html': 'd215da083b6e26c5629020401995745fc88900516eab6b07dcd443e2512e944f',
+    'features/platform-brand/index.html': 'e573ffda5ba7d674892b4d45723d1be52fc7be01eebd86b2380a5445611ed2df',
+    'index.html': 'b8d3e8f0e7c1dad79f1a54526232cecb256cffd285d05eb0f0f65f825c68e47f',
+    'pricing/index.html': '70337927446a7c87c70b6eecc926e06c87d97350af92f58c488f9bf0815926dd',
+    'privacy/index.html': 'a67e6f63e4d6e6e5a5063798b882ca936c7811e8b1200183a496934592a831d1',
+    'refunds/index.html': '1f04020d73e5755958eeed98f44cb97d74b74565ab1e4ac9498497acfb4a8f56',
+    'solutions/churches/index.html': '445f73e9aba5c624678786aba52c49c9b3571496b5f4cddec95602b8fa672e67',
+    'solutions/evangelistic-organizations/index.html': '8c90a4806a3d61566c6f36f25ee73753adbb3600fcd232fdfa8111ec64e9fb53',
+    'solutions/missionaries/index.html': 'bae5c15a6be9a3e8526f8cc85088445fdd0e4f818f268b36e74a62b26509bf6c',
+    'terms/index.html': 'f3d4f9a20afb076416851a554d8a9b1520ab6d05d7a4f1ef84417a6b3a25cea0',
+    'waitlist/index.html': '4fb1ea0a2bbb39917da6433d62b4462fc58fd38512f2401ef7670d82ce4d18d8',
+  };
+
+  // Round 3 removes the Coming Soon page; older tables retain its history.
+  const BASELINE: Readonly<Record<string, string>> = Object.fromEntries(Object.entries({
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
     ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
     ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
@@ -1153,7 +1222,9 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED,
     ...PRAYER_POST_MOVED, ...PRAYER_POST_ADDED,
     ...QUARTERLY_WITHDRAWN_MOVED,
-  };
+    ...HERO_FABALE_MOVED,
+    ...SITE_FABALE_MOVED,
+  }).filter(([page]) => page !== 'features/coming-soon/index.html'));
 
   // Repricing changes shared navigation and pricing copy; route names are unchanged.
   const REPRICE_PAGES: Readonly<Record<string, string>> = {
@@ -1285,8 +1356,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'ca66bf7fc181286bba9154396a3daefbd89cf3f2d8f67826d93c4ca10fd7cd94',
     // Church and Ministry reprice: all existing routes remain.
     '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
+    // Hero and shared navigation redesign and the 10-day trial (2026-10-27); 29 pages.
+    '48379b0004650a4e0b46b3afe1b875ddb0336ed1f6e7181ef4b737c0b55cacab',
+    // Full-site Fabale rebuild: all 29 routes restyled, none added or removed.
+    '4c7c060fde6048d61be1e045b3f8f4fbac6340b2770995c375b5909bdc5d0eef',
     // SEO_INDEXING: head metadata changes; every complete body remains pinned.
     '69c7bffd14a4715caad34fdf55c494e73cf03bd7ac8653a60d3a1bef2e259339',
+    // Merge #111 and #112: restyled pages with SEO metadata; 29 routes.
+    '11a407887f414a167582e7d7ab00b9152bc8316c3cb779db8ea2a3a8da355ba5',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1361,7 +1438,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(untouched).toHaveLength(0);
     for (const page of untouched) {
       expect(BASELINE[page], `${page} drifted off the fingerprint the table records`)
-        .toBe(PRE_TAILWIND[page]);
+        .toBe(HERO_FABALE_MOVED[page] ?? PRE_TAILWIND[page]);
     }
     /* 🔴 And THE-281's page is still not THE-280's to have moved.
        ⚠️ IT LEFT `untouched` AT THE-306, which drew the Shareable Giving Page's
@@ -1398,7 +1475,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        touched it, which is all this assertion has ever claimed.
        🔵 AND #105 MOVED IT AGAIN (MAIN_105_106_MOVED), so that table takes the
        front — THE-280 still never touched it. */
-    expect(BASELINE[giving]).toBe(MAIN_105_106_MOVED[giving] ?? THE_370_MOVED[giving]);
+    // The shared full-site rebuild supplies the latest recorded presentation.
+    expect(BASELINE[giving]).toBe(SITE_FABALE_MOVED[giving] ?? HERO_FABALE_MOVED[giving] ?? MAIN_105_106_MOVED[giving] ?? THE_370_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -1456,7 +1534,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(others).toHaveLength(0);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-284 had no business moving it`)
-        .toBe(THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
   });
 
@@ -1500,15 +1578,16 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // 🔵 THE_HONEST_OFFER_MOVED JOINS AT THE FRONT — it moved ai-automation
       // (the category intro/SEO no longer sell a newsletter while
       // NEWSLETTER_MARKETING_ENABLED is off). THE-293's claim is untouched.
+      // The full-site rebuild moved shared presentation; retain the historical delta checks.
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(SITE_FABALE_MOVED[page] ?? HERO_FABALE_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
     /* 🔵 25 KEYS SINCE SOLUTIONS_MISSIONARIES_ADDED added the third new page.
        The claim here is unchanged — THE-293 added and dropped nothing. */
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
     const others = Object.keys(BASELINE)
       .filter((p) => !(p in THE_293_MOVED) && !(p in THE_301_MOVED) && !(p in THE_306_MOVED)
         && !(p in THE_314_MOVED) && !(p in THE_335_MOVED) && !(p in THE_343_MOVED)
@@ -1530,7 +1609,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(others).toHaveLength(0);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-293 had no business moving it`)
-        .toBe(THE_335_MOVED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_335_MOVED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
   });
 
@@ -1579,7 +1658,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(others).toHaveLength(0);
     for (const page of others) {
       expect(BASELINE[page], `${page} moved, and THE-301 had no business moving it`)
-        .toBe(THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? THE_293_MOVED[page]
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? THE_293_MOVED[page]
           ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
           ?? PRE_TAILWIND[page]);
     }
@@ -1587,11 +1666,11 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // 🔵 25 keys since SOLUTIONS_MISSIONARIES_ADDED added the third new page —
     // nothing added or dropped BY THE-301 itself.
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
-  // SEO_INDEXING changes head metadata on all pages; the complete bodies
-  // are independently pinned to the pristine b4b42e4 build below.
+  // Historical SEO-only build before the Fabale merge; retained for provenance.
+  // Its complete page bodies were pinned to pristine b4b42e4.
   const SEO_INDEXING_PAGES: Readonly<Record<string, string>> = {
     'blog/category/harvest-vs/index.html': '575c9cc9cd92864818314e0feebcd940c235bbd228f0c052970fb920096af4ad',
     'blog/category/inside-harvest/index.html': '6ad68d3b591b4cea705a46276ea5afd57604a1283cfbed687c483468883b444b',
@@ -1625,6 +1704,41 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'waitlist/index.html': 'ba9f4b1fe4be923955d4fe494ead1cfe9f891f3fcc58f0b7348818802947b6ab',
   };
 
+  // Merge #111 and #112: SHA-256 of complete built HTML, using only
+  // the asset-hash and SSG-nonce normalisation documented above. Bodies are
+  // independently pinned to pristine origin/main in seo-body-baseline.json.
+  const MERGED_SEO_FABALE_PAGES: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': '5210506a81be651851fdca62fcdd2674bf4a82cf336f033d3eb1b79d4218f3ae',
+    'blog/category/inside-harvest/index.html': 'f1be2f28be8eb4bbf768b1ff831eb80056335003bbd6fbc0776cd811c50842bf',
+    'blog/category/rooted/index.html': '27080dae7ef96587988412790e89fc62285f59adcd048bd9f80cb62d4b1d05e2',
+    'blog/generosity-without-pressure/index.html': 'f0c608faf1b890299b0ca6c5d50b3a855099e16d932cb58cf84e9be1dbf540f0',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '7d0996bdaf41f47678fe42b6c83e84c1a9e940617df6bb7dcdcdb5057feac7ee',
+    'blog/index.html': '9e1286076df2aae56973c69e880ac21d6db52b632e6b8843d15767e89361759c',
+    'blog/planning-center-alternative-small-churches/index.html': 'e7f772a6f311626f1a835ad3a491eaaa59bd172c10ef861281ded868404df078',
+    'blog/skool-alternative-for-churches/index.html': 'b07d15af6eeb87096c364c26412cba5fc89f329274d9b15d08cc329d8a91a6cd',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': 'e59fa2cf76475375156f4b38ff8784027ef2833ff272d797cf89627a2134d06e',
+    'blog/work-that-outlives-you/index.html': 'b3ed00eb6ef4f8588e66c67f76a5024277f72dc80ee085522984e4fe4f483ced',
+    'blog/year-end-giving-statements-what-to-include/index.html': 'a3549b6c29e230659c37091a483e0ebd10c14f2f50a2f55118be6bbd30268066',
+    'contact/index.html': '026db0467499d991b0242617be4b599f3372d1ec1332dd4d38f60e6bddbdae08',
+    'faq/index.html': 'f338f3030b8e10f6b2711946c1a38f4d7aebaf20a49c9bcb074240f2c03c7479',
+    'features/ai-automation/index.html': '34aaf6f5c3ee22b6c194e55e5e5a5f1c3b5e805b7ef773e03c270a3edd9c94f8',
+    'features/community-engagement/index.html': 'f101721f38edcac4c66f4a11e7806827cd01a7301c81866f655ec3514cff2998',
+    'features/discipleship-content/index.html': '17719935a5101b4919ab1095fa52b0b53d4b1991448746d8a73173a4300fb267',
+    'features/giving-finance/index.html': '9b5ecbeb63011a1cfac7069113b050687e5406248857f9df70ddbb1c72dc0a3a',
+    'features/harvest-scheduler/index.html': 'fd6738fe5903ee6a6454a26113e5a4555a4edd157c5aecd276d0ed1d013031fc',
+    'features/index.html': '332a540fb231d0c9fbd9f7202190bba70718e7aa72062237069271de21ab228f',
+    'features/platform-brand/index.html': '00a8107dc5045b312501d62f7a20feb4ba76db93baee0375dfa126a8de5a0baf',
+    'index.html': '4d35fe6ae2cf4280595078e6077341d0624ae2c8a916c54a2409e59ec4034cc9',
+    'pricing/index.html': '999d50f02ec3305bd3b11e4de6409529d09a548da72b1cddfb6e8c1892cdc2b2',
+    'privacy/index.html': 'ade02cf14bbd9d2500bdba9cedc32c12f24f4e79e97a2188d74815d7bc865bd5',
+    'refunds/index.html': 'becbdb70aec6e9206af46ba4851d754f5c7c72104cb2a6132c82390d735c89a9',
+    'solutions/churches/index.html': '02a2623ce6586c59cfb5542dfec43423d733fbca3c6e5757b292f07c8820478e',
+    'solutions/evangelistic-organizations/index.html': '58fa57944e281d8ed53a7f1b499124333876bc5c849698cd4b2792828819fe46',
+    'solutions/missionaries/index.html': '1d16cbc34a893ea088a0f587729f895a8907c132f6b806879ed8c85b34897baf',
+    'terms/index.html': '11e16104c7807a46fbb25122975abce5122b5cdf8f807d4aa4ec1b9ee9e3a9ea',
+    'waitlist/index.html': '240d16ac67e25369e4c5bdd389bf34e508a209763b261cdb3fe1462408d1e5d6',
+  };
+
   const pagesInDist = (): string[] => {
     const out: string[] = [];
     (function walk(dir: string) {
@@ -1638,18 +1752,18 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
   };
 
   it('the reprice retains exactly the existing route set', () => {
-    expect(Object.keys(REPRICE_PAGES).sort()).toEqual(Object.keys(BASELINE).sort());
+    expect(Object.keys(REPRICE_PAGES).filter((p) => p !== 'features/coming-soon/index.html').sort()).toEqual(Object.keys(BASELINE).sort());
     if (comparable) expect(pagesInDist()).toEqual(Object.keys(BASELINE).sort());
   });
 
-  it.runIf(comparable).each(Object.keys(BASELINE))('%s renders exactly as it did before', (page) => {
+  it.runIf(comparable).each(Object.keys(BASELINE))('%s matches the approved full-site Fabale presentation', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved since SEO indexing`).toBe(SEO_INDEXING_PAGES[page]);
+    expect(actual, `${page} moved since SEO indexing`).toBe(MERGED_SEO_FABALE_PAGES[page]);
   });
 
   it.runIf(comparable)('SEO indexing leaves every complete page body unchanged', () => {
     const fixture = JSON.parse(read('src/test/fixtures/seo-body-baseline.json')) as { pages: Record<string, string> };
-    expect(Object.keys(SEO_INDEXING_PAGES).sort()).toEqual(Object.keys(REPRICE_PAGES).sort());
+    expect(Object.keys(MERGED_SEO_FABALE_PAGES).sort()).toEqual(Object.keys(SITE_FABALE_MOVED).sort());
     expect(pagesInDist()).toEqual(Object.keys(fixture.pages).sort());
     for (const [page, expected] of Object.entries(fixture.pages)) {
       const html = normalise(read(path.join('dist', page)));
@@ -1724,14 +1838,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       'ai-automation is excluded here but THE-314 does not record it').toBeDefined();
     for (const page of untouched) {
       expect(BASELINE[page], `${page} moved, and THE-306 had no business moving it`)
-        .toBe(THE_301_MOVED[page] ?? THE_293_MOVED[page] ?? THE_284_ADDED[page]
+        .toBe(HERO_FABALE_MOVED[page] ?? THE_301_MOVED[page] ?? THE_293_MOVED[page] ?? THE_284_ADDED[page]
           ?? THE_284_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
     // 🔵 25 keys since SOLUTIONS_MISSIONARIES_ADDED added the third new page —
     // nothing added or dropped BY THE-306 itself.
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   it('🔴 SOLUTIONS / MISSIONARIES added exactly one page, and moved none of the other twenty-five', () => {
@@ -1769,15 +1883,16 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     // cannot have been moved by it, which is how SOLUTIONS_CHURCHES_ADDED and
     // AF7A7BA_ADDED are already treated. The three pages 525f630 MOVED stay in
     // this loop and are asserted against SKOOL_POST_MOVED in the chain below.
-    expect(others).toHaveLength(23);
+    expect(others).toHaveLength(22); // Round 3 removes Coming Soon.
     for (const page of others) {
       // 🔵 THE_HONEST_OFFER_MOVED JOINS AT THE FRONT, on identical terms to every
       // table before it: the six pages it moved (homepage meta, Ministry card,
       // FAQ domain clause, AI intro/SEO, Coming Soon Mailchimp, features index)
       // are asserted against ITS values. The claim here — that adding the
       // Missionaries page moved nothing else — is unchanged.
+      // The full-site rebuild moved shared presentation; retain the historical delta checks.
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(QUARTERLY_WITHDRAWN_MOVED[page] ?? PRAYER_POST_MOVED[page] ?? CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(SITE_FABALE_MOVED[page] ?? HERO_FABALE_MOVED[page] ?? QUARTERLY_WITHDRAWN_MOVED[page] ?? PRAYER_POST_MOVED[page] ?? CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
@@ -1803,7 +1918,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
         .not.toBe(previous);
     }
     // 🔵 28 since #106 added /waitlist (WAITLIST_106_ADDED).
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   it('🔴 MAIN_105_106 moved exactly nine pages and added one, and dropped none', () => {
@@ -1844,7 +1959,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(previous, `${page} is not a page that existed`).toBeDefined();
       expect(THE_372_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(previous);
     }
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
   it('🔴 PRAYER_POST moved exactly four pages and added one, and dropped none', () => {
@@ -1896,7 +2011,33 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       expect(before[page], `${page} is not a page that existed`).toBeDefined();
       expect(QUARTERLY_WITHDRAWN_MOVED[page], `${page} is listed as moved but did not move`).not.toBe(before[page]);
     }
-    expect(Object.keys(BASELINE)).toHaveLength(30);
+    expect(Object.keys(BASELINE)).toHaveLength(29);
+  });
+
+  it('🔴 HERO_FABALE moved all 30 existing pages and added none', () => {
+    const before = { ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
+      ...THE_301_MOVED, ...THE_306_MOVED, ...THE_314_MOVED, ...THE_335_MOVED,
+      ...THE_343_MOVED, ...AF7A7BA_MOVED, ...AF7A7BA_ADDED, ...THE_355_MOVED,
+      ...SOLUTIONS_EVANGELISTIC_MOVED, ...SOLUTIONS_CHURCHES_MOVED, ...SOLUTIONS_CHURCHES_ADDED,
+      ...SOLUTIONS_MISSIONARIES_MOVED, ...SOLUTIONS_MISSIONARIES_ADDED,
+      ...SOLUTIONS_TABS_CENTERED_MOVED, ...THE_358_MOVED, ...SKOOL_POST_MOVED, ...SKOOL_POST_ADDED,
+      ...THE_370_MOVED, ...THE_HONEST_OFFER_MOVED, ...MAIN_105_106_MOVED, ...WAITLIST_106_ADDED,
+      ...THE_372_MOVED, ...CHECKIN_POST_MOVED, ...CHECKIN_POST_ADDED, ...PRAYER_POST_MOVED,
+      ...PRAYER_POST_ADDED, ...QUARTERLY_WITHDRAWN_MOVED } as Record<string, string>;
+    expect(Object.keys(HERO_FABALE_MOVED).sort()).toEqual(Object.keys(BASELINE).sort());
+    expect(Object.keys(HERO_FABALE_MOVED)).toHaveLength(29);
+    for (const page of Object.keys(HERO_FABALE_MOVED)) {
+      expect(before[page]).toBeDefined();
+      expect(HERO_FABALE_MOVED[page]).not.toBe(before[page]);
+    }
+  });
+
+  it('the full-site rebuild moves exactly the existing 29 pages', () => {
+    expect(Object.keys(SITE_FABALE_MOVED).sort()).toEqual(Object.keys(HERO_FABALE_MOVED).sort());
+    expect(Object.keys(SITE_FABALE_MOVED)).toHaveLength(29);
+    for (const page of Object.keys(SITE_FABALE_MOVED)) {
+      expect(SITE_FABALE_MOVED[page], page).not.toBe(HERO_FABALE_MOVED[page]);
+    }
   });
 
   it.runIf(comparable)('and the whole set matches as one number', () => {
@@ -1989,7 +2130,9 @@ describe('6b — the hand-written stylesheet still ships, outside Tailwind\'s la
        established by test 7: the source region is unmodified. */
     const banner = /^\/\*![^*]*\*\//;
     expect(sha(unlayered.replace(banner, '').trim())).toBe(
-      'b2bf9da491ce9fa3dd43e84ac10d1dd6120ce0332675c25fb90ecb20997c8aaf',
+      // Full-site Fabale layout and token rules appended after the original CSS.
+      // Previous presentation pin: 6768b570…; original source region stays pinned below.
+      '473fb279591ad6ffe4751736dd8560f8c07d6a6f76b7b80c9e1bf4519c660720',
     );
   });
 
@@ -2122,7 +2265,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
        is the 30th route; main was red on these five count assertions before the
        quarterly withdrawal, which is corrected here only because CI gates this
        PR on it. */
-    expect(blogRoutes()).toHaveLength(30);
+    expect(blogRoutes()).toHaveLength(29); // Round 3 removes Coming Soon.
   });
 
   it.runIf(built)('and the build emits all 30 of them', () => {
@@ -2145,7 +2288,7 @@ describe('9 — the prerender list and the built page count are unchanged', () =
       }
       return n;
     })(DIST);
-    expect(count, `this checkout built ${count} pages, not 30`).toBe(30);
+    expect(count, `this checkout built ${count} pages, not 29`).toBe(29);
   });
 });
 
@@ -2177,9 +2320,9 @@ describe('10 — deployment config is untouched and SEO build changes are pinned
    * unedited — see the assertion against its source two tests below.
    */
   it.each([
-    ['vercel.json', 'b7c29796ec5df5d87332d573d130ea805956078bd5d3753cef537b2ac73a87be'],
+    ['vercel.json', 'd3fffe4c98affcb96605563495f725faf292741c49ed2540e8c5107933ddaa0a'],
     ['vite.config.ts', '0c14d02079ea936a7749a5deb49eae01c568c0092e8749ef9ddaf88256cfdb80'],
-    ['build/blog-plugin.ts', 'f49d9679c1abf4cc0057fad217178065aa2691c587a8cb9b5481af7be6e74304'],
+    ['build/blog-plugin.ts', '685430636629d863b9c4508abdd6de2795a4bcf600d73d3dbc00df0dad66575c'],
   ])('%s matches its reviewed configuration', (file, hash) => {
     expect(sha(readFileSync(path.join(ROOT, file))), `${file} differs from the reviewed configuration`).toBe(hash);
   });
@@ -2198,7 +2341,7 @@ describe('10 — deployment config is untouched and SEO build changes are pinned
     /* And the new route is DERIVED from the content module, not typed as a
        literal here — the same property every other route in the list has, so
        the path cannot drift between the router and the prerender list. */
-    expect(plugin).toMatch(/import \{ COMING_SOON_HREF, SCHEDULER_HREF \} from '\.\.\/src\/content\/coming-soon';/);
+    expect(plugin).toMatch(/import \{ SCHEDULER_HREF \} from '\.\.\/src\/content\/scheduler';/);
     expect(plugin, 'a route path was typed as a literal').not.toContain("'/features/harvest-scheduler'");
   });
 

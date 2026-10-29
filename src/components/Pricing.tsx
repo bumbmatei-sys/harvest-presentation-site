@@ -1,4 +1,6 @@
 import React from 'react';
+import { Card } from './ui/card';
+import { Button } from './ui/button';
 import { useAppSignupUrl, type BillingPeriod } from '../lib/ref';
 import { Reveal } from './effects';
 import { HBtn } from './magic';
@@ -244,8 +246,7 @@ export const aiMessagesLine = (plan: Pick<Plan, 'aiMessages'>) =>
 // 🔴 SMS AND NEWSLETTER ARE ON THE MINISTRY CARD, AND LABELLED "coming soon"
 // while SMS_MARKETING_ENABLED / NEWSLETTER_MARKETING_ENABLED are false. They are
 // in the approved Ministry plan, but the app does not send either today, so the
-// card says what the Coming Soon page says — in the same tense. Flipping a flag
-// on drops the label and the Coming Soon entry together.
+// card labels them as coming soon until the flags turn on.
 const SOON = ' — coming soon';
 export const plans: Plan[] = [
   { name: 'Church', planId: 'plus', price: { monthly: 30, yearly: 300 }, fee: 0, productFee: 0.05, aiMessages: 300, blurb: 'For a church or ministry running its people, giving and discipleship in one place.', features: [
@@ -258,7 +259,7 @@ export const plans: Plan[] = [
     crmLabel('plus'),
     'Signups & Evangelism Analytics',
     'Donations & Fundraising Campaigns',
-    'Campuses & Church Map',
+    'Locations & Map',
     'Link-in-bio page',
     'Up to 3 products (paid checkout coming soon)',
     `${aiMessagesLine({ aiMessages: 300 })}${SOON}`,
@@ -277,7 +278,7 @@ export const plans: Plan[] = [
     CUSTOM_DOMAIN_MARKETING_ENABLED ? 'Custom Branding & Domain' : 'Custom Branding',
     NEWSLETTER_MARKETING_ENABLED ? 'Newsletter' : `Newsletter${SOON}`,
     SMS_MARKETING_ENABLED ? 'SMS & Text-to-Give' : `SMS & Text-to-Give${SOON}`,
-    `Social scheduler${SOON}`,
+    'Social scheduler (Facebook, Instagram, Threads)',
     `All product types & storefront${SOON}`,
     `Website builder with pre-made templates${SOON}`,
     `${aiMessagesLine({ aiMessages: 5000 })}${SOON}`,
@@ -593,8 +594,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
        church which pays for that tier gets a custom domain, and it cannot work:
        the provisioning route answers 503. Withheld rather than turned to `false`,
        because `false` on every tier would read as "we have decided not to offer
-       this" rather than "not yet" — and the Coming Soon entry is where "not yet"
-       belongs. Custom BRANDING keeps its row above: separate plan cell in the
+       this" rather than "not yet". Custom BRANDING keeps its row above: separate plan cell in the
        app, and it ships. */
     ...(CUSTOM_DOMAIN_MARKETING_ENABLED
       ? [['Custom Domain', [false, false, T]] as [string, Cell[]]]
@@ -610,7 +610,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Prayer Requests', [T, T, T]],
     ['Event Registration', [false, false, T]],
     ['Check-In System (QR)', [false, false, T]],
-    ['Campuses & Church Map', [false, T, T]],
+    ['Locations & Map', [false, T, T]],
     ['Livestream + Live Giving', [false, false, T]],
     ['Livestream, chat & prayer requests in every community', [false, false, SOONCELL]],
     ['Discovery listing', [false, false, SOONCELL]],
@@ -637,12 +637,11 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
   { grp: 'Automation & AI', rows: [
     /* 🔴 THE-335 — newsletter and SMS ARE in the Ministry plan, and the app does
        not send either today, so while their flags are off the cell says
-       "coming soon" rather than carrying a tick or vanishing. The Coming Soon
-       page lists the same two, in the same tense. A flag flipped on turns the
-       cell into a tick and removes the Coming Soon entry, in one value each. */
+       "coming soon" rather than carrying a tick or vanishing. A flag flipped
+       on turns the cell into a tick. */
     ['Newsletter', [false, false, NEWSLETTER_MARKETING_ENABLED ? T : SOONCELL]],
     ['SMS & Text-to-Give', [false, false, SMS_MARKETING_ENABLED ? T : SOONCELL]],
-    ['Social scheduler', [false, false, SOONCELL]],
+    ['Social scheduler', [false, false, T]],
     ['Custom Forms → CRM', [false, false, T]],
     ['AI Knowledge Base', [false, false, T]],
     /* The real allowance, never "unlimited" — and the feature is not built, so
@@ -713,14 +712,14 @@ export function ComparisonTable() {
     );
   };
   return (
-    <div style={{ ...softCard, overflow: 'hidden', padding: 0 }}>
+    <Card className="marketing-comparison">
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', minWidth: 640, borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: 'var(--navy-900)' }}>
-              <th style={{ textAlign: 'left', padding: '16px 22px', color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Feature</th>
+            <tr style={{ background: 'var(--secondary)' }}>
+              <th style={{ textAlign: 'left', padding: '16px 22px', color: 'color-mix(in srgb, var(--foreground) 60%, transparent)', fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Feature</th>
               {planNames.map((n, i) => (
-                <th key={n} style={{ textAlign: 'center', padding: '16px 12px', color: i === popularIdx ? 'var(--gold-400)' : '#fff', fontFamily: 'var(--font-serif)', fontSize: 15, fontWeight: 500, minWidth: 92 }}>{n}</th>
+                <th key={n} style={{ textAlign: 'center', padding: '16px 12px', color: i === popularIdx ? 'var(--gold-400)' : 'var(--foreground)', fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 500, minWidth: 92 }}>{n}</th>
               ))}
             </tr>
           </thead>
@@ -731,9 +730,9 @@ export function ComparisonTable() {
                   <td colSpan={ALL_TIER_NAMES.length + 1} style={{ padding: '18px 22px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--brand)' }}>{sec.grp}</td>
                 </tr>
                 {sec.rows.map(([label, vals], ri) => (
-                  <tr key={label} style={{ borderTop: '1px solid rgba(45,37,25,0.06)', background: ri % 2 ? 'rgba(45,37,25,0.015)' : 'transparent' }}>
+                  <tr key={label} style={{ borderTop: '1px solid var(--border)', background: ri % 2 ? 'var(--border)' : 'transparent' }}>
                     <td style={{ padding: '13px 22px', color: 'var(--text-body)', fontSize: 13.5 }}>{label}</td>
-                    {vals.map((v, ci) => <td key={ci} style={{ textAlign: 'center', padding: '13px 12px', background: ci === popularIdx ? 'rgba(201,150,58,0.05)' : 'transparent' }}>{cell(v)}</td>)}
+                    {vals.map((v, ci) => <td key={ci} style={{ textAlign: 'center', padding: '13px 12px', background: ci === popularIdx ? 'color-mix(in srgb, var(--brand) 5%, transparent)' : 'transparent' }}>{cell(v)}</td>)}
                   </tr>
                 ))}
               </React.Fragment>
@@ -741,7 +740,7 @@ export function ComparisonTable() {
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -1193,13 +1192,10 @@ export function addOnAvailability(planIds: string[]): string {
    No CTA — add-ons are bought inside the app, never from this page. */
 export function AddOnCard({ addOn }: { addOn: AddOn }) {
   return (
-    <div style={{
-      ...softCard, width: '100%', display: 'flex', flexDirection: 'column',
-      borderRadius: 20, padding: 20, boxShadow: '0 12px 30px rgba(45,37,25,0.05)',
-    }}>
+    <Card className="marketing-addon-card">
       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy-900)' }}>{addOn.name}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '10px 0 2px' }}>
-        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 500, color: 'var(--navy-900)' }}>${addOn.monthly}</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 500, color: 'var(--navy-900)' }}>${addOn.monthly}</span>
         <span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>/mo</span>
       </div>
       <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{`or $${addOn.annual} a year`}</div>
@@ -1208,7 +1204,7 @@ export function AddOnCard({ addOn }: { addOn: AddOn }) {
         <span style={{ display: 'inline-flex', color: 'var(--brand)', flexShrink: 0, marginTop: 1 }}>{I.check({ size: 14 })}</span>
         <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--brand)', lineHeight: 1.3 }}>{addOnAvailability(addOn.planIds)}</span>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -1326,8 +1322,8 @@ export function CardEyebrow(
   return (
     <span style={{
       position: 'absolute', top: 18, right: 18,
-      background: filled ? 'var(--brand)' : 'transparent',
-      color: filled ? '#fff' : 'var(--brand)',
+      background: filled ? 'var(--button-fill)' : 'transparent',
+      color: filled ? 'var(--button-ink)' : 'var(--brand)',
       border: filled ? '1px solid transparent' : '1px solid var(--brand)',
       fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
       // 🔴 ONE GEOMETRY, AND THE FILLED PILL'S BOX DOES NOT MOVE. It was
@@ -1351,21 +1347,15 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
   const pop = plan.popular;
   const { price, monthlyHeadline, billing } = cardTerms(plan, term);
   return (
-    <div style={{
-      width: '100%', display: 'flex', flexDirection: 'column',
-      background: pop ? 'var(--navy-900)' : '#fff',
-      border: pop ? '1px solid var(--navy-900)' : '1px solid rgba(45,37,25,0.08)',
-      borderRadius: 24, padding: 24, boxShadow: pop ? '0 30px 60px rgba(12,21,38,0.28)' : '0 12px 30px rgba(45,37,25,0.05)',
-      position: 'relative',
-    }}>
+    <Card className={`marketing-plan-card${pop ? " marketing-plan-popular" : ""}`}>
       {pop && <CardEyebrow variant="filled">RECOMMENDED</CardEyebrow>}
       <div style={{ fontSize: 13, fontWeight: 600, color: pop ? 'var(--gold-400)' : 'var(--brand)' }}>{plan.name}</div>
       {/* 🔴 THE-196 FLIPPED THIS. The headline is the PER-MONTH figure; the
           charged total is the line below. See `ceilToCent` for why the figure
           carries cents. */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '12px 0 4px' }}>
-        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: pop ? '#fff' : 'var(--navy-900)' }}>{monthlyHeadline}</span>
-        <span style={{ fontSize: 13, color: pop ? 'rgba(255,255,255,0.55)' : 'var(--text-muted)' }}>/mo</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 400, color: pop ? 'var(--foreground)' : 'var(--navy-900)' }}>{monthlyHeadline}</span>
+        <span style={{ fontSize: 13, color: pop ? 'color-mix(in srgb, var(--foreground) 55%, transparent)' : 'var(--text-muted)' }}>/mo</span>
       </div>
       {/* ── 🔴 THE CHARGED TOTAL (THE-196) ───────────────────────────────────
           The headline above is a per-month EQUIVALENT — a figure no church is
@@ -1390,20 +1380,21 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
           amount on the charged cycle, so "billed as $39 every 1 month" under
           "$39/mo" is the same sentence twice. `minHeight` still reserves the
           row so the cards keep their baselines across a toggle change. */}
-      <div style={{ minHeight: 18, fontSize: 12.5, fontWeight: 600, color: pop ? 'rgba(255,255,255,0.86)' : 'var(--navy-900)' }}>
+      <div style={{ minHeight: 18, fontSize: 12.5, fontWeight: 600, color: 'var(--navy-900)' }}>
         {term !== 'monthly'
           ? `billed as $${price.toLocaleString()} every ${TERM_MONTHS[term]} months`
           : ''}
       </div>
-      <div style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{plan.blurb}</div>
-      <div style={{ margin: '14px 0', padding: '10px 12px', borderRadius: 12, background: pop ? 'rgba(255,255,255,0.06)' : 'var(--gold-100)' }}>
+      <div style={{ fontSize: 12.5, color: pop ? 'color-mix(in srgb, var(--foreground) 60%, transparent)' : 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{plan.blurb}</div>
+      <PlanCta planId={plan.planId} billing={billing} variant={pop ? 'gold' : 'light'} />
+      <div style={{ margin: '14px 0', padding: '10px 12px', borderRadius: 12, background: pop ? 'color-mix(in srgb, var(--foreground) 6%, transparent)' : 'var(--gold-100)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{plan.fee * 100}%</span>
-          <span style={{ fontSize: 11, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)', lineHeight: 1.2 }}>Harvest fee on donations — Harvest<br />takes nothing from a gift</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: pop ? 'var(--gold-400)' : 'var(--brand)', fontWeight: 500 }}>{plan.fee * 100}%</span>
+          <span style={{ fontSize: 11, color: pop ? 'color-mix(in srgb, var(--foreground) 60%, transparent)' : 'var(--text-body)', lineHeight: 1.2 }}>Harvest fee on donations — Harvest<br />takes nothing from a gift</span>
         </div>
         {/* Product sales: a separate fee, a separate line, and "coming soon"
             beside it — paid product checkout is not live. */}
-        <div style={{ marginTop: 8, paddingTop: 8, borderTop: pop ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(45,37,25,0.08)', fontSize: 11, lineHeight: 1.3, color: pop ? 'rgba(255,255,255,0.6)' : 'var(--text-body)' }}>
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: pop ? '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)' : '1px solid var(--border)', fontSize: 11, lineHeight: 1.3, color: pop ? 'color-mix(in srgb, var(--foreground) 60%, transparent)' : 'var(--text-body)' }}>
           {`${productFeeLine(plan)} — ${PRODUCT_SALES_COMING_SOON}`}
         </div>
       </div>
@@ -1411,12 +1402,11 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
         {plan.features.map((f) => (
           <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
             <span style={{ display: 'inline-flex', color: pop ? 'var(--gold-400)' : 'var(--brand)', flexShrink: 0, marginTop: 1 }}>{I.check({ size: 15 })}</span>
-            <span style={{ fontSize: 12.5, color: pop ? 'rgba(255,255,255,0.82)' : 'var(--text-body)', lineHeight: 1.4 }}>{f}</span>
+            <span style={{ fontSize: 12.5, color: pop ? 'color-mix(in srgb, var(--foreground) 82%, transparent)' : 'var(--text-body)', lineHeight: 1.4 }}>{f}</span>
           </div>
         ))}
       </div>
-      <PlanCta planId={plan.planId} billing={billing} variant={pop ? 'gold' : 'light'} />
-    </div>
+    </Card>
   );
 }
 
@@ -1449,13 +1439,7 @@ export function PlanCard({ plan, term }: { plan: Plan; term: BillingTerm }) {
 export function FreeTierCard({ tier }: { tier: FreeTier }) {
   const href = useAppSignupUrl(tier.planId);
   return (
-    <div style={{
-      width: '100%', display: 'flex', flexDirection: 'column',
-      background: 'var(--cream)',
-      border: '1.5px solid var(--brand)',
-      borderRadius: 24, padding: 24, boxShadow: '0 12px 30px rgba(45,37,25,0.05)',
-      position: 'relative',
-    }}>
+    <Card className="marketing-plan-card marketing-free-card">
       <CardEyebrow variant="outline">FOR EVANGELISTS</CardEyebrow>
       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}>{tier.name}</div>
 
@@ -1463,7 +1447,7 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
           suffix; free is not billed on a month or on anything else, and "$0/mo"
           would imply a cycle it does not have. */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, margin: '12px 0 4px' }}>
-        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 40, fontWeight: 500, color: 'var(--navy-900)' }}>$0</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 400, color: 'var(--navy-900)' }}>$0</span>
         <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>forever</span>
       </div>
 
@@ -1476,6 +1460,7 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
       </div>
 
       <div style={{ fontSize: 12.5, color: 'var(--text-muted)', minHeight: 34, lineHeight: 1.4 }}>{tier.blurb}</div>
+      <HBtn href={href} variant="light" block>Start free</HBtn>
 
       {/* 🔴 WHERE THE OTHER CARDS PUT "0% PLATFORM FEE".
           Every priced card leads with the donation-fee callout, in this exact
@@ -1485,9 +1470,9 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
           in the same box the others use for a benefit. */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0', padding: '10px 12px',
-        borderRadius: 12, background: 'rgba(45,37,25,0.04)', border: '1px dashed rgba(45,37,25,0.18)',
+        borderRadius: 12, background: 'var(--border)', border: '1px dashed var(--border)',
       }}>
-        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: 'var(--text-muted)', fontWeight: 500 }}>—</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-muted)', fontWeight: 500 }}>—</span>
         <span style={{ fontSize: 11, color: 'var(--text-body)', lineHeight: 1.2 }}>{tier.noDonatePage}</span>
       </div>
 
@@ -1504,8 +1489,7 @@ export function FreeTierCard({ tier }: { tier: FreeTier }) {
           documented as omitted for surfaces that quote no term, and this is
           one. And not "Start free trial": the trial belongs to the paid
           products, free is not a trial of anything, and it never expires. */}
-      <HBtn href={href} variant="light" block>Start free</HBtn>
-    </div>
+    </Card>
   );
 }
 
@@ -1564,17 +1548,17 @@ export function TermToggle({
         gap: 4,
         width: '100%',
         maxWidth: 420,
-        background: '#fff',
-        border: '1px solid rgba(45,37,25,0.08)',
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
         borderRadius: 22,
         padding: 4,
-        boxShadow: '0 6px 16px rgba(45,37,25,0.05)',
+        boxShadow: 'none',
       }}
     >
       {BILLING_TERMS.map((t) => {
         const on = t === value;
         return (
-          <button
+          <Button
             key={t}
             type="button"
             role="tab"
@@ -1584,6 +1568,7 @@ export function TermToggle({
             onClick={() => onChange(t)}
             style={{
               minWidth: 0,
+              height: 'auto', minHeight: 48, flexDirection: 'column', gap: 2,
               border: 'none',
               cursor: 'pointer',
               fontFamily: 'var(--font-sans)',
@@ -1592,8 +1577,8 @@ export function TermToggle({
               lineHeight: 1.25,
               padding: '8px 10px',
               borderRadius: 18,
-              background: on ? 'var(--navy-900)' : 'transparent',
-              color: on ? '#fff' : 'var(--text-body)',
+              background: on ? 'var(--button-fill)' : 'transparent',
+              color: on ? 'var(--button-ink)' : 'var(--text-body)',
               transition: 'all 200ms',
             }}
           >
@@ -1602,12 +1587,12 @@ export function TermToggle({
               <span
                 data-testid="term-toggle-badge"
                 data-term={t}
-                style={{ display: 'block', fontSize: 11, color: on ? 'var(--gold-400)' : 'var(--brand)' }}
+                style={{ display: 'block', fontSize: 11, color: on ? 'var(--button-ink)' : 'var(--brand)' }}
               >
                 {discountClaim(t as DiscountedTerm)}
               </span>
             )}
-          </button>
+          </Button>
         );
       })}
     </div>
@@ -1623,9 +1608,9 @@ export function Pricing() {
   const [term, setTerm] = React.useState<BillingTerm>('yearly');
   const [showTable, setShowTable] = React.useState(false);
   return (
-    <section id="pricing" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
-      <div style={container}>
-        <div style={{ textAlign: 'center', marginBottom: 30 }}>
+    <section id="pricing" className="marketing-pricing" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
+      <div className="fab-container">
+        <div className="marketing-pricing-heading">
           <Kicker>Pricing</Kicker>
           <H2 style={{ marginTop: 14 }}>{'Simple plans\nfor serious ministry'}</H2>
         </div>
@@ -1666,9 +1651,9 @@ export function Pricing() {
         <AddOns term={term} />
         {/* Full comparison */}
         <Reveal delay={80} style={{ textAlign: 'center', marginTop: 44 }}>
-          <button onClick={() => setShowTable((s) => !s)} style={{ cursor: 'pointer', border: '1px solid rgba(45,37,25,0.12)', background: '#fff', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600, color: 'var(--navy-900)', padding: '11px 24px', borderRadius: 999, boxShadow: '0 6px 16px rgba(45,37,25,0.05)' }}>
+          <Button onClick={() => setShowTable((s) => !s)} className="marketing-button marketing-button-light" aria-expanded={showTable}>
             {showTable ? 'Hide full comparison ↑' : 'Compare all plans ↓'}
-          </button>
+          </Button>
         </Reveal>
         {showTable && <div style={{ marginTop: 24 }}><ComparisonTable /></div>}
       </div>

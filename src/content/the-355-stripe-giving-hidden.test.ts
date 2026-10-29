@@ -12,7 +12,6 @@ import { CATALOG, CATALOG_TOOL_COUNT, slugify } from '../components/catalog';
 import { itemHref } from '../components/Nav';
 import { FEATURE_ICONS, FeatureMock } from '../components/FeatureMock';
 import { FAQS, answerText } from './faq';
-import { COMING_SOON_ITEMS } from './coming-soon';
 import { CategoryPage } from '../pages/CategoryPage';
 import { FaqPage } from '../pages/FaqPage';
 import { plans } from '../components/Pricing';
@@ -110,7 +109,7 @@ describe('0 — one value, mirroring the app', () => {
        even though nothing renders it today. */
     const features = readSrc('content/features.ts');
     for (const s of [
-      "Give in three taps. Every dollar lands in your church",
+      "Give in three taps. Every dollar lands in your ministry",
       'Gifts are destination charges to your own Stripe',
       'Keep 100% of every gift, on every paid plan.',
       'Progress bar credited automatically as gifts land',
@@ -125,7 +124,6 @@ describe('0 — one value, mirroring the app', () => {
       .toContain("Lands straight in your church's Stripe account — never ours.");
     // ⚠️ The apostrophe is BACKSLASH-ESCAPED in the source (a single-quoted TS
     // string), so the needle stops short of it rather than guessing the escape.
-    expect(readSrc('content/coming-soon.ts')).toContain('own Stripe account — that ships today');
   });
 });
 
@@ -189,7 +187,7 @@ describe('2 — the Donation Page entry describes the church\'s own links', () =
   const donation = byId('donation');
 
   it('🔴 the copy is the flag-off copy, not a half-applied edit', () => {
-    expect(donation.title).toBe('Online giving for churches — without Harvest taking a cut');
+    expect(donation.title).toBe('Online Giving — Without Harvest Taking a Cut');
     expect(donation.oneliner).toBe(
       'Publish your own PayPal, Cash App, Venmo, Zelle, Revolut and Wise links on one giving page. '
       + 'Harvest is never in the flow — no platform fee, nothing held.');
@@ -321,26 +319,19 @@ describe('4 — `pledges` is registered on every surface that keys off an id', (
     }
   });
 
-  it('🔴 the FeatureIndex grid draws one column per feature, and the giving page fits', () => {
-    /* `gridTemplateColumns: repeat(${cat.features.length}, 1fr)` — so an entry
-       added to the data becomes a column with no CSS change. The widths that
-       matter are the breakpoints in index.css: ≤1080px forces 4 columns and
-       ≤900px forces 3, so 901px renders FOUR and the phone renders THREE
-       whatever this number is. Above 1080 the row is the derived count inside a
-       1140px cap — and Community & Engagement already ships EIGHT there, so the
-       giving page's count is not the widest case on the site. */
+  it('🔴 the feature tab track renders one link per feature, and the giving page fits', () => {
+    // The jump-to index became Fabale's tab track (Matei, 2026-10-27).
     const html = render(React.createElement(CategoryPage, { slug: 'giving-finance' }));
-    const cols = /class="feat-index"[^>]*grid-template-columns:repeat\((\d+), 1fr\)/.exec(html);
-    expect(cols, 'the jump-to index is not rendering its derived grid').not.toBeNull();
-    expect(Number(cols![1])).toBe(giving.features.length);
-    expect(html).toContain('Pledge Campaigns');
+    const track = /<nav\b[^>]*class="feat-index fab-index"[^>]*>([\s\S]*?)<\/nav>/.exec(html);
+    expect(track, 'the jump-to tab track is missing').not.toBeNull();
+    const links = [...track![1].matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+    expect(links).toHaveLength(giving.features.length);
+    expect(links.map((link) => link[1])).toEqual(giving.features.map((feature) => `/features/giving-finance#${feature.id}`));
+    expect(links.map((link) => words(link[2]))).toContain('Pledge Campaigns');
     const widest = Math.max(...CATEGORIES.map((c) => c.features.length));
     expect(giving.features.length,
-      'the giving page is now the widest jump-to index on the site — recheck it at 1140px')
+      'the giving page is now the widest jump-to index on the site — recheck it at 1160px')
       .toBeLessThanOrEqual(widest);
-    const css = fs.readFileSync(path.join(ROOT, 'src', 'index.css'), 'utf8');
-    expect(css).toContain('.feat-index { grid-template-columns: repeat(4, 1fr) !important; }');
-    expect(css).toContain('.feat-index { grid-template-columns: repeat(3, 1fr) !important; }');
   });
 
   it('🔴 the mega-menu has a row for it, in the Giving & Finance column', () => {
@@ -383,10 +374,10 @@ describe('4 — `pledges` is registered on every surface that keys off an id', (
        one platform", and a live tool missing from it understates the product.
        The ABSOLUTE is asserted alongside the DELTA so a second tool added in the
        same commit cannot hide inside this one's expected move. */
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     const without = CATALOG.reduce(
       (n, g) => n + g.items.filter((it) => !it.soon && it.title !== 'Pledge Campaigns').length, 0);
-    expect(without).toBe(25);
+    expect(without).toBe(26); // Round 3 adds the scheduler.
     expect(CATALOG_TOOL_COUNT - without).toBe(1);
     expect(readSrc('components/catalog.ts'), 'the tool count was hardcoded')
       .not.toMatch(/CATALOG_TOOL_COUNT\s*=\s*\d+/);
@@ -479,15 +470,6 @@ describe('6 — every other surface that named the rail', () => {
     // And it says what a recorded gift reaches, which is the half a bare
     // withdrawal would have left a treasurer to guess at.
     expect(text).toMatch(/giving statement/i);
-  });
-
-  it('the Affiliate coming-soon entry still separates a share from a gift', () => {
-    const affiliate = COMING_SOON_ITEMS.find((i) => i.id === 'affiliate')!;
-    expect(affiliate.notThis).not.toMatch(/stripe/i);
-    expect(affiliate.notThis).toMatch(/never passes through Harvest at all/);
-    // The rule THE-252 set: no processor is named against the UNBUILT programme.
-    expect([affiliate.name, affiliate.eyebrow, affiliate.title, affiliate.oneliner].join(' '))
-      .not.toMatch(/\b(stripe|dodo|paypal|wise)\b/i);
   });
 
   it('the livestream no longer says a member gives in one tap', () => {

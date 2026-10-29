@@ -1,17 +1,13 @@
 import React from 'react';
+import { Card } from './ui/card';
+import { PageHeader } from './marketing';
 import { Link } from 'react-router-dom';
 import { CATEGORIES, categoryName } from '../content/categories';
 import { formatDate, type ImageMeta, type Post } from '../content/post-core';
 
-/* Shared blog furniture. Same convention as the rest of the site: inline
-   CSSProperties over the design tokens in index.css. The only CSS rules the blog
-   adds are the ones it cannot express inline — styling the HTML that `marked`
-   generates for a post body, and two responsive tweaks (see .blog-* in
-   index.css). */
-
-/** Blog pages are plain reading surfaces on cream, clear of the fixed nav. */
+/* Shared blog cards and reading typography use the presentation theme. */
 export const blogPage: React.CSSProperties = {
-  background: 'var(--cream)',
+  background: 'var(--background)',
   paddingTop: 'clamp(112px, 13vw, 150px)',
   paddingBottom: 'var(--section-y)',
 };
@@ -22,7 +18,7 @@ export const measure: React.CSSProperties = {
 };
 
 export const pageTitle: React.CSSProperties = {
-  fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 'clamp(2.2rem, 5vw, 3.2rem)',
+  fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: 'clamp(2.7rem, 5vw, 4.5rem)',
   lineHeight: 1.08, letterSpacing: '-0.03em', color: 'var(--navy-900)', margin: 0,
 };
 
@@ -31,8 +27,9 @@ export const standfirst: React.CSSProperties = {
 };
 
 const tagStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em',
-  textTransform: 'uppercase', color: 'var(--brand)',
+  display: 'inline-flex', padding: '7px 11px', borderRadius: 999,
+  fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 400,
+  background: 'var(--secondary)', color: 'var(--foreground)',
 };
 
 const metaStyle: React.CSSProperties = {
@@ -55,13 +52,13 @@ export function PostMeta({ post, style = {} }: { post: Post; style?: React.CSSPr
 }
 
 const pillStyle = (active: boolean): React.CSSProperties => ({
-  display: 'inline-flex', alignItems: 'center', padding: '8px 17px',
+  display: 'inline-flex', alignItems: 'center', padding: '12px 17px', minHeight: 44,
   borderRadius: 'var(--radius-pill)', fontFamily: 'var(--font-sans)', fontSize: 13.5,
   fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
   transition: 'background 200ms var(--ease-out), border-color 200ms var(--ease-out), color 200ms var(--ease-out)',
-  background: active ? 'var(--brand)' : 'rgba(255,255,255,0.92)',
-  color: active ? '#fff' : 'var(--navy-800)',
-  border: `1px solid ${active ? 'var(--brand)' : 'rgba(45,37,25,0.12)'}`,
+  background: active ? 'var(--button-fill)' : 'transparent',
+  color: active ? 'var(--button-ink)' : 'var(--text-body)',
+  border: '1px solid var(--border)',
 });
 
 /** Filter row. "All" is included so a category page has a way back to /blog. */
@@ -71,7 +68,7 @@ export function CategoryPills({ active }: { active?: string }) {
     ...CATEGORIES.map((c) => [c.name, `/blog/category/${c.key}`] as [string, string]),
   ];
   return (
-    <nav aria-label="Filter posts by category" style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 30 }}>
+    <nav className="marketing-blog-filters" aria-label="Filter posts by category" style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 30 }}>
       {pills.map(([label, href]) => {
         const isActive = href === (active ? `/blog/category/${active}` : '/blog');
         return (
@@ -81,7 +78,7 @@ export function CategoryPills({ active }: { active?: string }) {
             style={pillStyle(isActive)}
             aria-current={isActive ? 'page' : undefined}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.borderColor = 'var(--brand)'; }}
-            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.borderColor = 'rgba(45,37,25,0.12)'; }}
+            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.borderColor = 'var(--border)'; }}
           >
             {label}
           </Link>
@@ -109,7 +106,7 @@ export function Cover({ src, alt, size, style = {} }:
   { src: string; alt: string; size?: ImageMeta; style?: React.CSSProperties }) {
   const frame: React.CSSProperties = {
     display: 'block', width: '100%', aspectRatio: '16 / 9', overflow: 'hidden',
-    borderRadius: 24, border: '1px solid rgba(45,37,25,0.09)', background: 'var(--stone-100)',
+    borderRadius: 24, border: '1px solid var(--border)', background: 'var(--stone-100)',
     ...style,
   };
   return (
@@ -129,64 +126,29 @@ export function Cover({ src, alt, size, style = {} }:
 /** One entry on a listing. Hairline separated, no card — this is a reading
  *  surface, and a post without a cover has to look deliberate, not broken. */
 export function PostRow({ post }: { post: Post }) {
-  return (
-    <article
-      className="blog-row"
-      style={{
-        display: 'flex', gap: 24, alignItems: 'flex-start',
-        padding: '30px 0', borderTop: '1px solid rgba(45,37,25,0.1)',
-      }}
-    >
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <CategoryTag category={post.category} />
-        <h2 style={{ margin: '10px 0 0', fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 'clamp(1.35rem, 2.6vw, 1.7rem)', lineHeight: 1.22, letterSpacing: '-0.015em' }}>
-          <Link
-            to={`/blog/${post.slug}`}
-            style={{ color: 'var(--navy-900)', textDecoration: 'none', transition: 'color 200ms var(--ease-out)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-900)')}
-          >
-            {post.title}
-          </Link>
-        </h2>
-        <p style={{ margin: '10px 0 0', fontSize: 15.5, lineHeight: 1.6, color: 'var(--text-body)' }}>{post.description}</p>
-        <PostMeta post={post} style={{ marginTop: 12 }} />
-      </div>
-
-      {/* Thumbnail width lives in .blog-thumb (index.css) so it can shrink on phones. */}
-      {post.cover && (
-        <Link to={`/blog/${post.slug}`} className="blog-thumb" style={{ flexShrink: 0, display: 'block' }} tabIndex={-1} aria-hidden="true">
-          <img
-            src={post.cover}
-            alt=""
-            width={post.coverSize?.width}
-            height={post.coverSize?.height}
-            loading="lazy"
-            decoding="async"
-            style={{
-              // `height: auto` is load-bearing: the width/height attributes are
-              // presentational hints, so overriding only `width` would leave the
-              // intrinsic pixel height in force and stretch the thumbnail.
-              width: '100%', height: 'auto', aspectRatio: '16 / 9', objectFit: 'cover', display: 'block',
-              borderRadius: 14, border: '1px solid rgba(45,37,25,0.09)', background: 'var(--stone-100)',
-            }}
-          />
-        </Link>
-      )}
-    </article>
-  );
+  return <article className="blog-row marketing-blog-card"><Card>
+    {post.cover && <Link to={`/blog/${post.slug}`} className="marketing-blog-cover" tabIndex={-1} aria-hidden="true">
+      <img src={post.cover} alt="" width={post.coverSize?.width} height={post.coverSize?.height} loading="lazy" decoding="async" />
+    </Link>}
+    <div className="marketing-blog-card-copy">
+      <CategoryTag category={post.category} />
+      <h2><Link to={`/blog/${post.slug}`}>{post.title}</Link></h2>
+      <p>{post.description}</p>
+      <PostMeta post={post} />
+    </div>
+  </Card></article>;
 }
 
 export function PostList({ posts, empty }: { posts: readonly Post[]; empty: string }) {
   if (!posts.length) {
     return (
-      <p style={{ margin: '44px 0 0', paddingTop: 30, borderTop: '1px solid rgba(45,37,25,0.1)', fontSize: 15.5, color: 'var(--text-muted)' }}>
+      <p style={{ margin: '44px 0 0', paddingTop: 30, borderTop: '1px solid var(--border)', fontSize: 15.5, color: 'var(--text-muted)' }}>
         {empty}
       </p>
     );
   }
   return (
-    <div style={{ marginTop: 44 }}>
+    <div className="marketing-post-grid">
       {posts.map((p) => <PostRow key={p.slug} post={p} />)}
     </div>
   );
@@ -201,10 +163,9 @@ export function Listing({ title, description, activeCategory, posts, empty }: {
   empty: string;
 }) {
   return (
-    <main style={blogPage}>
-      <div style={measure}>
-        <h1 style={pageTitle}>{title}</h1>
-        <p style={{ ...standfirst, maxWidth: 620 }}>{description}</p>
+    <main className="marketing-blog-index" style={blogPage}>
+      <PageHeader title={title} description={description} />
+      <div className="fab-container">
         <CategoryPills active={activeCategory} />
         <PostList posts={posts} empty={empty} />
       </div>

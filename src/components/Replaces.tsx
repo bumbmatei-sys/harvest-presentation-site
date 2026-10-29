@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card } from './ui/card';
 import { Reveal } from './effects';
 import { Kicker, H2, container, softCard } from './shared';
 import { plans, formatMonthlyHeadline } from './Pricing';
@@ -47,7 +48,7 @@ import {
  * differentiator the product has, so omitting it understated the plan in the
  * one place that enumerates it. Only this row changed. */
 const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
-  { c: 'Community & Engagement', ids: ['feed', 'groups', 'prayer', 'map'] },
+  { c: 'Community & Engagement', ids: ['feed', 'groups', 'prayer', 'map', 'scheduler'] },
   // 🔴 THE-335 — `services` joined this row when service planning became a live
   // feature entry. `visibleNames` is built from the catalogue, and the coverage
   // guard requires every visible feature to appear in this table.
@@ -62,8 +63,10 @@ const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
   // from the FLAG-FILTERED `CATEGORIES`, and an id this row lists but the
   // catalogue hides throws at the prerender by design (see `items` below). So a
   // hidden feature must leave this row too, and comes back with its flag.
+  // The plan owner's AI assistant: coming soon, captioned so (member AI chat was dropped).
   { c: 'Automation', ids: [
     'knowledge',
+    'assistant',
     ...(NEWSLETTER_MARKETING_ENABLED ? ['newsletter', 'autonewsletter'] : []),
     ...(SMS_MARKETING_ENABLED ? ['sms'] : []),
     'forms',
@@ -90,7 +93,7 @@ const ROWS: ReadonlyArray<{ c: string; ids: readonly string[] }> = [
  * table cannot advertise something the rest of the site is hiding, and it does
  * not need its own copy of the flag logic to manage it. */
 const visibleNames: ReadonlyMap<string, string> = new Map(
-  CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f.name] as const)),
+  [...CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f.name] as const)), ['scheduler', 'Social Scheduler'] as const],
 );
 
 /* 🔴 THE ONE PERMITTED DEVIATION FROM A VERBATIM CATALOGUE NAME. features.ts
@@ -184,9 +187,9 @@ const topPlanMonthly = formatMonthlyHeadline(topPlan.price.yearly, 'yearly');
 
 export function Replaces() {
   return (
-    <section id="replaces" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
-      <div style={{ ...container, maxWidth: 920 }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+    <section id="replaces" className="marketing-replaces" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
+      <div className="fab-container">
+        <div className="marketing-replaces-heading">
           <Kicker>All-in-one</Kicker>
           <H2 style={{ marginTop: 14 }}>{'Ministry software for churches that want one subscription, not a stack'}</H2>
           <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 640, margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
@@ -196,9 +199,9 @@ export function Replaces() {
         <Reveal delay={80}>
           {/* Rendered as CSS-grid rows (not a <table>) so it stacks to cards on
               phones with every item fully visible — see .replaces-row in index.css. */}
-          <div style={{ ...softCard, overflow: 'hidden', padding: 0, fontSize: 14.5 }}>
+          <div className="marketing-replaces-grid">
             {items.map((r) => (
-              <div key={r.c} className="replaces-row">
+              <Card key={r.c} className="replaces-row marketing-replaces-card">
                 <div className="replaces-cat" style={{ color: 'var(--navy-900)', fontWeight: 600 }}>{r.c}</div>
                 <div className="replaces-tools" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 6px', color: 'var(--text-body)' }}>
                   {r.names.map((n, i) => (
@@ -212,11 +215,11 @@ export function Replaces() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </Card>
             ))}
             {/* One line, where the competitor total and the Harvest row used to
                 be: what it costs to have everything above, and nothing else. */}
-            <div className="replaces-row replaces-row--summary" style={{ background: 'var(--surface-night)' }}>
+            <div className="replaces-row replaces-row--summary marketing-replaces-summary" style={{ background: 'var(--surface-night)' }}>
               <div style={{ color: 'var(--text-heading-dark)', fontSize: 15, fontWeight: 600 }}>
                 {`Everything above, on the ${topPlan.name} plan — `}
                 <span style={{ color: 'var(--gold-400)', fontSize: 15, fontWeight: 800 }}>{`${topPlanMonthly}/mo, billed annually.`}</span>
