@@ -1364,6 +1364,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     '69c7bffd14a4715caad34fdf55c494e73cf03bd7ac8653a60d3a1bef2e259339',
     // Merge #111 and #112: restyled pages with SEO metadata; 29 routes.
     '11a407887f414a167582e7d7ab00b9152bc8316c3cb779db8ea2a3a8da355ba5',
+    // Scheduler pills and TikTok blurb: landing page and /pricing alias only.
+    '2902145e4e2767ca7c358e57b150dafcb76277df46c5af22343878077566e941',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1739,6 +1741,18 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'waitlist/index.html': '240d16ac67e25369e4c5bdd389bf34e508a209763b261cdb3fe1462408d1e5d6',
   };
 
+  // Scheduler pills: only the landing page and its /pricing alias changed.
+  // Keep the SEO baselines intact; all other routes still use their original pins.
+  const SCHEDULER_PILLS_PAGES: Readonly<Record<string, string>> = {
+    'index.html': 'c8847dac6059fdcdb683a44f56a887c1d0b85a41a01f505766cb8b8721a24d54',
+    'pricing/index.html': 'c08c41ab9598c5d4cdd16fd55da7b52e6bafed6074826d4784bd5e3d87f37a68',
+  };
+
+  const SCHEDULER_PILLS_BODIES: Readonly<Record<string, string>> = {
+    'index.html': 'e666f57ecfc92b01691cf01bbecbebe35ef337ef431610e6e0391e7843c2ce44',
+    'pricing/index.html': 'ca6739ce97a9d253d43f69bddd0914991c3e010fe34628c1b822433d1e67aa03',
+  };
+
   const pagesInDist = (): string[] => {
     const out: string[] = [];
     (function walk(dir: string) {
@@ -1758,7 +1772,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
   it.runIf(comparable).each(Object.keys(BASELINE))('%s matches the approved full-site Fabale presentation', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved since SEO indexing`).toBe(MERGED_SEO_FABALE_PAGES[page]);
+    expect(actual, `${page} moved since SEO indexing`).toBe(SCHEDULER_PILLS_PAGES[page] ?? MERGED_SEO_FABALE_PAGES[page]);
   });
 
   it.runIf(comparable)('SEO indexing leaves every complete page body unchanged', () => {
@@ -1769,7 +1783,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       const html = normalise(read(path.join('dist', page)));
       const body = html.match(/<body\b[^>]*>[\s\S]*<\/body>/)?.[0];
       expect(body, `${page} has no body`).toBeDefined();
-      expect(sha(body!), `${page} body changed during SEO work`).toBe(expected);
+      expect(sha(body!), `${page} body changed during SEO work`).toBe(SCHEDULER_PILLS_BODIES[page] ?? expected);
     }
   });
 
@@ -2132,7 +2146,9 @@ describe('6b — the hand-written stylesheet still ships, outside Tailwind\'s la
     expect(sha(unlayered.replace(banner, '').trim())).toBe(
       // Full-site Fabale layout and token rules appended after the original CSS.
       // Previous presentation pin: 6768b570…; original source region stays pinned below.
-      '473fb279591ad6ffe4751736dd8560f8c07d6a6f76b7b80c9e1bf4519c660720',
+      // Scheduler adds only compact pill spacing and a wrapping channel row.
+      // Previous full-site CSS pin: 473fb279…; existing source rules stay pinned.
+      '0df8ccd840116fe5bacb4c9d083e5c8e42613c082a62d56a3a59b3beb23812d5',
     );
   });
 

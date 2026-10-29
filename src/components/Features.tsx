@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Facebook } from 'lucide-react';
 import { Reveal } from './effects';
 import { I } from './icons';
 import { AV } from './shared';
@@ -9,7 +10,12 @@ function MiniPost() {
   return (
     <div style={{ background: 'var(--stone-100)', borderRadius: 14, padding: 16, fontSize: 12.5, color: 'var(--navy-800)' }}>
       <div>Join us this week.</div>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>{['Facebook', 'Instagram', 'Threads'].map((channel) => <span key={channel} style={{ background: 'white', borderRadius: 999, padding: '4px 8px' }}>{channel}</span>)}</div>
+      <div className="fab-post-channels">
+        <span className="fab-pill fab-channel-pill"><Facebook size={12} aria-hidden />Facebook</span>
+        <span className="fab-pill fab-channel-pill">{I.instagram({ size: 12 })}Instagram</span>
+        <span className="fab-pill fab-channel-pill">TikTok</span>
+        <span className="fab-pill fab-channel-pill">Threads</span>
+      </div>
       <div style={{ marginTop: 12, fontWeight: 700 }}>Scheduled · Sun 9:00 AM</div>
     </div>
   );
@@ -65,7 +71,7 @@ export function Features() {
       <div className="fab-container">
         <Reveal><div className="fab-header"><div><span className="fab-pill">Features</span><h2>Everything You Need to<br /><span>Disciple and Grow</span></h2></div><p>{`${CATALOG_TOOL_COUNT} tools across community, discipleship, giving and AI`}</p></div></Reveal>
         <div className="fab-feature-cards">
-          <Reveal><Link className="fab-feature-link" to="/features/harvest-scheduler"><Photo scene={scenes[0]}><MiniPost /></Photo><h3>Social Scheduler</h3><p>Write once, schedule to Facebook, Instagram and Threads. Included on Ministry.</p></Link></Reveal>
+          <Reveal><Link className="fab-feature-link" to="/features/harvest-scheduler"><Photo scene={scenes[0]}><MiniPost /></Photo><h3>Social Scheduler</h3><p>Write once, schedule to Facebook, Instagram, TikTok and Threads. Included on Ministry.</p></Link></Reveal>
           <Reveal delay={80}><Link className="fab-feature-link" to="/features/community-engagement#feed"><Photo scene={scenes[1]}><MiniFeed /><div className="fab-mini-prayer"><div className="fab-avatars">{[1, 2, 3].map((n) => <img key={n} src={AV(n)} width={34} height={34} alt="" />)}</div>{I.prayer({ size: 13 })} 12 praying now</div></Photo><h3>Community</h3><p>Feed, prayer, groups and events your people open every day.</p></Link></Reveal>
           <Reveal delay={160}><Link className="fab-feature-link" to="/features/discipleship-content#bible"><Photo scene={scenes[2]}><VerseCard /><div className="fab-progress"><span>Foundations of Faith</span><span>72%</span></div><div className="fab-progress-track"><div /></div></Photo><h3>Bible &amp; Courses</h3><p>The full Bible, plus courses with progress tracking.</p></Link></Reveal>
         </div>
