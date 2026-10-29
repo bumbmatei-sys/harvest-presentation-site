@@ -1,6 +1,8 @@
 import React from 'react';
+import { Card } from './ui/card';
+import { Scene } from './marketing';
 import { HBtn } from './magic';
-import { softCard } from './shared';
+
 import { L } from './icons';
 
 /* Shared product-updates / waitlist email capture.
@@ -61,8 +63,8 @@ const fieldBase: React.CSSProperties = {
 function Banner({ tone, icon, title, children }:
   { tone: 'error' | 'warn'; icon: string; title: string; children: React.ReactNode }) {
   const palette = tone === 'error'
-    ? { bg: '#FDECEC', border: '#F5C2C2', fg: '#9B1C1C' }
-    : { bg: 'var(--gold-100)', border: 'rgba(201,150,58,0.35)', fg: 'var(--gold-700, #8a6d2f)' };
+    ? { bg: 'var(--destructive-surface)', border: 'var(--destructive-border)', fg: 'var(--destructive-ink)' }
+    : { bg: 'var(--gold-100)', border: 'color-mix(in srgb, var(--brand) 35%, transparent)', fg: 'var(--gold-700)' };
   return (
     <div
       role="status"
@@ -135,8 +137,8 @@ export function LeadCaptureForm({
 
   const fieldStyle: React.CSSProperties = {
     ...fieldBase,
-    border: `1px solid ${focused ? 'var(--brand)' : status === 'invalid' ? '#F5C2C2' : 'transparent'}`,
-    boxShadow: focused ? '0 0 0 3px rgba(201,150,58,0.15)' : 'none',
+    border: `1px solid ${focused ? 'var(--brand)' : status === 'invalid' ? 'var(--destructive-border)' : 'transparent'}`,
+    boxShadow: focused ? '0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent)' : 'none',
   };
 
   const body = status === 'success' ? (
@@ -231,51 +233,24 @@ export function LeadCaptureForm({
 
   if (!card) return body;
   return (
-    <div style={{ ...softCard, padding: compact ? 'clamp(22px, 4vw, 32px)' : 'clamp(26px, 5vw, 44px)' }}>
+    <Card className="marketing-form-card">
       {body}
-    </div>
+    </Card>
   );
 }
 
 /** Homepage band — Recommended default microcopy + embedded form. */
 export function LeadCaptureBand() {
   return (
-    <section
-      id="product-updates"
-      style={{
-        background: 'var(--cream)',
-        padding: 'var(--section-y-tight) 0',
-      }}
-    >
-      <div style={{
-        width: '100%', maxWidth: 720, margin: '0 auto', padding: '0 28px', boxSizing: 'border-box',
-      }}>
-        <p style={{
-          fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, letterSpacing: '0.16em',
-          textTransform: 'uppercase', color: 'var(--warm-brown)', textAlign: 'center', margin: 0, opacity: 0.75,
-        }}>
-          Product updates
-        </p>
-        <h2 style={{
-          fontFamily: 'var(--font-serif)', fontWeight: 500,
-          fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', lineHeight: 1.1, letterSpacing: '-0.02em',
-          color: 'var(--navy-900)', textAlign: 'center', margin: '14px 0 0',
-        }}>
-          {HOMEPAGE_LEAD_COPY.headline}
-        </h2>
-        <p style={{
-          fontSize: 'var(--text-base)', color: 'var(--navy-700)', textAlign: 'center',
-          maxWidth: 480, margin: '14px auto 28px', lineHeight: 1.6, opacity: 0.85,
-        }}>
-          {HOMEPAGE_LEAD_COPY.subcopy}
-        </p>
-        <LeadCaptureForm
-          source="homepage"
-          copy={HOMEPAGE_LEAD_COPY}
-          compact
-          idPrefix="home-lead"
-        />
-      </div>
+    <section id="product-updates" className="marketing-section">
+      <div className="fab-container"><Card className="marketing-lead-band">
+        <Scene src="feature-2-wheat-dusk"><div className="marketing-lead-story">
+          <span className="fab-pill">Product updates</span>
+          <h2>{HOMEPAGE_LEAD_COPY.headline}</h2>
+          <p>{HOMEPAGE_LEAD_COPY.subcopy}</p>
+        </div></Scene>
+        <div className="marketing-lead-form"><LeadCaptureForm source="homepage" copy={HOMEPAGE_LEAD_COPY} compact idPrefix="home-lead" card={false} /></div>
+      </Card></div>
     </section>
   );
 }

@@ -1,8 +1,12 @@
 import React from 'react';
+import { Card } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Scene, SectionHeading } from '../components/marketing';
+import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Reveal } from '../components/effects';
 import { HBtn } from '../components/magic';
-import { Kicker, H2, container, softCard } from '../components/shared';
+
 import { Hero, PositioningBand } from '../components/CategoryHero';
 import { FeatureBlock } from '../components/FeatureBlock';
 import { FeatureMock, FEATURE_ICONS, MOCKS } from '../components/FeatureMock';
@@ -52,15 +56,12 @@ function OneAppTabs({ tabs }: { tabs: readonly { id: string; label: string }[] }
       <div
         role="tablist"
         aria-label="Harvest, in one app"
-        style={{
-          display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch',
-          paddingBottom: 4, scrollbarWidth: 'none', justifyContent: 'center',
-        }}
+        className="marketing-tabs marketing-solution-tabs"
       >
         {tabs.map((t, i) => {
           const on = active === t.id;
           return (
-            <button
+            <Button
               key={t.id}
               ref={(el) => { btnRefs.current[t.id] = el; }}
               type="button"
@@ -71,15 +72,10 @@ function OneAppTabs({ tabs }: { tabs: readonly { id: string; label: string }[] }
               tabIndex={on ? 0 : -1}
               onClick={() => setActive(t.id)}
               onKeyDown={(e) => onKeyDown(e, i)}
-              style={{
-                flexShrink: 0, fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 600,
-                padding: '10px 18px', borderRadius: 999, cursor: 'pointer', whiteSpace: 'nowrap',
-                border: on ? '1px solid var(--navy-900)' : '1px solid rgba(45,37,25,0.14)',
-                background: on ? 'var(--navy-900)' : '#fff', color: on ? '#fff' : 'var(--navy-800)',
-              }}
+              className="marketing-tab"
             >
               {t.label}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -96,25 +92,13 @@ function OneAppTabs({ tabs }: { tabs: readonly { id: string; label: string }[] }
               hidden={!on}
             >
               {feature && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24, maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1.02rem, 1.5vw, 1.18rem)', lineHeight: 1.6, color: 'var(--text-body)', margin: 0 }}>
-                    {feature.oneliner}
-                  </p>
-                  <div style={{ width: '100%', maxWidth: 410, margin: '0 auto', background: '#fff', border: '1px solid rgba(45,37,25,0.10)', borderRadius: 22, boxShadow: '0 30px 66px rgba(12,21,38,0.20)', overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderBottom: '1px solid rgba(45,37,25,0.07)', background: 'var(--cream)' }}>
-                      <span style={{ width: 9, height: 9, borderRadius: '50%', background: feature.accent, flexShrink: 0 }} />
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, fontWeight: 700, color: 'var(--navy-900)' }}>{feature.name}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600 }}>Harvest</span>
-                    </div>
-                    <div style={{ padding: '15px 16px 18px', background: 'var(--stone-100)' }}>
-                      {/* `groups` renders through FeatureMock's own special case
-                          (GroupsMock) rather than a MOCKS[id] entry, so the gate
-                          checks both — otherwise the groups tab would render an
-                          empty panel even though FeatureMock has content for it. */}
-                      {(MOCKS[t.id] || t.id === 'groups') ? <FeatureMock id={t.id} /> : null}
-                    </div>
-                  </div>
-                </div>
+                <Card className="marketing-solution-panel">
+                  <div className="marketing-solution-panel-copy"><h3>{feature.name}</h3><p>{feature.oneliner}</p></div>
+                  <Scene src="usecase-wheat-field-evening"><div className="fab-glass fab-mock">
+                    <div className="fab-mock-bar"><span>{feature.name}</span><span>Harvest</span></div>
+                    <div className="fab-mock-content">{(MOCKS[t.id] || t.id === 'groups') ? <FeatureMock id={t.id} /> : null}</div>
+                  </div></Scene>
+                </Card>
               )}
             </div>
           );
@@ -125,173 +109,76 @@ function OneAppTabs({ tabs }: { tabs: readonly { id: string; label: string }[] }
 }
 
 function OneApp({ oneApp: c }: { oneApp: SolutionPageContent['oneApp'] }) {
-  return (
-    <section style={{ background: 'var(--cream)', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
-      <div style={{ ...container, textAlign: 'center' }}>
-        <Reveal>
-          <Kicker>{c.kicker}</Kicker>
-          <H2 style={{ margin: '10px 0 0' }}>{c.heading}</H2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.6, color: 'var(--text-body)', margin: '16px auto 0', maxWidth: 640 }}>{c.sub}</p>
-        </Reveal>
-        <div style={{ marginTop: 34 }}>
-          <OneAppTabs tabs={c.tabs} />
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="marketing-section"><div className="fab-container">
+    <SectionHeading eyebrow={c.kicker} title={c.heading} description={c.sub} />
+    <OneAppTabs tabs={c.tabs} />
+  </div></section>;
 }
 
 // ---------- Numbers (a generic kicker/heading/body/four-tiles section) ----------
 function Numbers({ numbers: c }: { numbers: SolutionPageContent['numbers'] }) {
-  return (
-    <section style={{ background: '#fff', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
-      <div style={{ ...container, textAlign: 'center' }}>
-        <Reveal>
-          <Kicker>{c.kicker}</Kicker>
-          <H2 style={{ margin: '10px 0 0' }}>{c.heading}</H2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.6, color: 'var(--text-body)', margin: '16px auto 0', maxWidth: 640 }}>{c.body}</p>
-        </Reveal>
-        <div style={{ marginTop: 34, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-          {c.tiles.map((tile) => (
-            <Reveal key={tile.label} style={{ ...softCard, padding: '22px 20px', textAlign: 'left' }}>
-              <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: '1.15rem', color: 'var(--navy-900)' }}>{tile.label}</div>
-              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13.5, color: 'var(--text-muted)', marginTop: 6 }}>{tile.body}</div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="marketing-section"><div className="fab-container">
+    <SectionHeading eyebrow={c.kicker} title={c.heading} description={c.body} />
+    <div className="marketing-number-grid">{c.tiles.map((tile) => <Reveal key={tile.label}><Card className="marketing-number-card"><h3>{tile.label}</h3><p>{tile.body}</p></Card></Reveal>)}</div>
+  </div></section>;
 }
 
 // ---------- In their pocket ----------
 function Pocket({ pocket: c }: { pocket: SolutionPageContent['pocket'] }) {
-  return (
-    <section style={{ background: 'var(--cream)', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
-      <div style={{ ...container, textAlign: 'center' }}>
-        <Reveal>
-          <Kicker>{c.kicker}</Kicker>
-          <H2 style={{ margin: '10px 0 0' }}>{c.heading}</H2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.6, color: 'var(--text-body)', margin: '16px auto 0', maxWidth: 640 }}>{c.sub}</p>
-        </Reveal>
-        <div style={{ marginTop: 34, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>
-          {c.tiles.map((tile) => (
-            <Reveal key={tile.id} style={{ ...softCard, padding: '26px 24px', textAlign: 'left' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 12, background: 'var(--gold-100)', color: 'var(--gold-700)' }}>
-                {FEATURE_ICONS[tile.id]}
-              </span>
-              <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: '1.15rem', color: 'var(--navy-900)', marginTop: 14 }}>{tile.title}</div>
-              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13.5, lineHeight: 1.55, color: 'var(--text-muted)', marginTop: 8 }}>{tile.body}</div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="marketing-section"><div className="fab-container">
+    <SectionHeading eyebrow={c.kicker} title={c.heading} description={c.sub} />
+    <div className="marketing-pocket-grid">{c.tiles.map((tile, i) => <Reveal key={tile.id}><Card className="marketing-pocket-card">
+      <Scene src={i % 2 ? 'feature-2-wheat-dusk' : 'feature-1-wheat-closeup'}><span className="marketing-pocket-icon">{FEATURE_ICONS[tile.id]}</span></Scene>
+      <div><h3>{tile.title}</h3><p>{tile.body}</p></div>
+    </Card></Reveal>)}</div>
+  </div></section>;
 }
 
 // ---------- Deep dives ----------
 function DeepDives({ deepDives }: { deepDives: SolutionPageContent['deepDives'] }) {
-  return (
-    <>
-      {deepDives.map((group) => (
-        <section key={group.heading} style={{ background: '#fff', padding: 'clamp(40px, 5vw, 64px) 0 clamp(8px, 1vw, 16px)' }}>
-          <div style={{ ...container, textAlign: 'center', marginBottom: 20 }}>
-            <Reveal>
-              <Kicker>{group.heading}</Kicker>
-              <H2 style={{ margin: '10px 0 0' }}>{group.heading}</H2>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.6, color: 'var(--text-body)', margin: '16px auto 0', maxWidth: 640 }}>{group.sub}</p>
-            </Reveal>
-          </div>
-          <div style={{ background: 'var(--cream)', padding: 'clamp(28px, 4vw, 48px) 0 clamp(20px, 3vw, 36px)', display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 30px)' }}>
-            {group.featureIds.map((id) => {
-              const feature = FEATURES_BY_ID.get(id);
-              return feature ? <FeatureBlock key={id} feature={feature} /> : null;
-            })}
-          </div>
-        </section>
-      ))}
-    </>
-  );
+  return <>{deepDives.map((group) => <section key={group.heading} className="marketing-section">
+    <div className="fab-container"><SectionHeading eyebrow={group.heading} title={group.heading} description={group.sub} /></div>
+    <div className="marketing-deep-dives">{group.featureIds.map((id) => { const feature = FEATURES_BY_ID.get(id); return feature ? <FeatureBlock key={id} feature={feature} /> : null; })}</div>
+  </section>)}</>;
 }
 
 // ---------- Founder note ----------
 function FounderNote({ founder: c }: { founder: SolutionPageContent['founder'] }) {
-  return (
-    <section style={{ background: 'var(--navy-900)', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
-      <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-        <Reveal>
-          <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(1.3rem, 2.6vw, 1.9rem)', lineHeight: 1.4, color: '#fff', margin: 0 }}>
-            &ldquo;{c.quote}&rdquo;
-          </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--gold-400)', marginTop: 22 }}>
-            {c.attribution}
-          </p>
-        </Reveal>
-      </div>
-    </section>
-  );
+  return <section className="marketing-section"><div className="fab-container"><Card className="marketing-founder-note"><Reveal>
+    <blockquote>&ldquo;{c.quote}&rdquo;</blockquote><p>{c.attribution}</p>
+  </Reveal></Card></div></section>;
 }
 
 // ---------- Support ----------
 function Support({ support: c }: { support: SolutionPageContent['support'] }) {
-  return (
-    <section style={{ background: '#fff', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
-      <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
-        <Reveal>
-          <Kicker>{c.kicker}</Kicker>
-          <H2 style={{ margin: '10px 0 0' }}>{c.heading}</H2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(1rem, 1.4vw, 1.12rem)', lineHeight: 1.6, color: 'var(--text-body)', margin: '16px auto 0' }}>{c.body}</p>
-          <div style={{ marginTop: 26 }}>
-            <HBtn to={c.button.to} size="lg" variant="dark">{c.button.label}</HBtn>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
+  return <section className="marketing-section"><div className="fab-container marketing-support">
+    <SectionHeading eyebrow={c.kicker} title={c.heading} description={c.body} />
+    <HBtn to={c.button.to} size="lg" variant="dark">{c.button.label}</HBtn>
+  </div></section>;
 }
 
 // ---------- Recap (three pillars) ----------
 function Recap({ pillars }: { pillars: SolutionPageContent['pillars'] }) {
-  return (
-    <section style={{ background: 'var(--cream)', padding: 'clamp(48px, 6vw, 80px) 24px' }}>
-      <div style={{ ...container, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18 }}>
-        {pillars.map((p) => (
-          <Reveal key={p.title} style={{ ...softCard, padding: '26px 24px', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: '1.3rem', color: 'var(--navy-900)' }}>{p.title}</div>
-            <div style={{ fontFamily: 'var(--font-sans)', fontSize: 14, lineHeight: 1.55, color: 'var(--text-muted)', marginTop: 10 }}>{p.body}</div>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
+  return <section className="marketing-section"><div className="fab-container marketing-recap-grid">{pillars.map((p) => <Reveal key={p.title}><Card className="marketing-recap-card"><h3>{p.title}</h3><p>{p.body}</p></Card></Reveal>)}</div></section>;
 }
 
 // ---------- Resources ----------
 function Resources({ resources: c }: { resources: SolutionPageContent['resources'] }) {
   const posts = c.slugs.map((slug) => POSTS.find((p) => p.slug === slug)).filter((p): p is NonNullable<typeof p> => !!p);
-  return (
-    <section style={{ background: '#fff', padding: 'clamp(56px, 8vw, 96px) 24px' }}>
-      <div style={{ ...container, maxWidth: 900 }}>
-        <Reveal style={{ textAlign: 'center', marginBottom: 26 }}>
-          <Kicker>{c.kicker}</Kicker>
-        </Reveal>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {posts.map((p) => <PostRow key={p.slug} post={p} />)}
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="marketing-section"><div className="fab-container">
+    <span className="fab-pill">{c.kicker}</span>
+    <div className="marketing-post-grid">{posts.map((p) => <PostRow key={p.slug} post={p} />)}</div>
+  </div></section>;
 }
 
 export function SolutionPage({ slug }: { slug: string }) {
   const c = SOLUTION_PAGES[slug];
   if (!c) return null;
   return (
-    <main>
+    <main className="marketing-solution">
       <Seo title={c.seo.title} description={c.seo.description} canonical={c.seo.canonical} />
       <Hero
-        heroBg="linear-gradient(180deg,#cadff1 0%,#dcebf5 46%,#eef4f3 74%,var(--cream) 100%)"
+        heroBg="var(--background)"
         headWidth={900}
         eyebrowColor="var(--sky-700)"
         eyebrow={c.hero.eyebrow}
@@ -306,6 +193,11 @@ export function SolutionPage({ slug }: { slug: string }) {
       <Numbers numbers={c.numbers} />
       <Pocket pocket={c.pocket} />
       <DeepDives deepDives={c.deepDives} />
+      {c.scheduler && <section className="fab-container marketing-scheduler-link">
+        <h2>{c.scheduler.heading}</h2>
+        <p>{c.scheduler.body}</p>
+        <Link to="/features/harvest-scheduler">Social Scheduler →</Link>
+      </section>}
       <FounderNote founder={c.founder} />
       <Support support={c.support} />
       <Recap pillars={c.pillars} />

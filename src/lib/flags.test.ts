@@ -38,7 +38,6 @@ async function surfacesWith(flags: Flags) {
   vi.doMock('./flags', () => flags);
   const { CATALOG, CATALOG_TOOL_COUNT } = await import('../components/catalog');
   const { CATEGORIES, LEGACY_ANCHORS } = await import('../content/features');
-  const { COMING_SOON_ITEMS } = await import('../content/coming-soon');
   const cats = CATEGORIES as Category[];
   return {
     titles: (CATALOG as CatalogGroup[]).flatMap((g) => g.items.map((i) => i.title)),
@@ -50,15 +49,12 @@ async function surfacesWith(flags: Flags) {
     // THE-245 additions — the Coming Soon side of the relocation, the derived
     // count, and the category prose that names features by hand.
     toolCount: CATALOG_TOOL_COUNT as number,
-    soonIds: COMING_SOON_ITEMS.map((i) => i.id),
-    soonOrdinals: COMING_SOON_ITEMS.map((i) => i.n),
     categoryProse: cats.flatMap((c) => [c.intro, c.seo]),
     adminBullets: cats.flatMap((c) => c.features.flatMap((f) => f.admin ?? [])),
     // THE-280 additions — the reword happens in a feature's NAME and in its
     // member bullets as well as its admin ones, so both are needed to see it.
     featureNames: cats.flatMap((c) => c.features.map((f) => f.name)),
     memberBullets: cats.flatMap((c) => c.features.flatMap((f) => f.member ?? [])),
-    soonRefs: COMING_SOON_ITEMS.map((i) => i.ref),
   };
 }
 
@@ -235,20 +231,6 @@ describe('SMS_MARKETING_ENABLED', () => {
     expect(s.featureIds).toContain('sms');
   });
 
-  it('🔴 false ADDS the Coming Soon entry, and true takes it away again', async () => {
-    // The relocation, both ways. This is the assertion that keeps the site from
-    // promising SMS twice.
-    expect((await surfacesWith(OFF)).soonIds).toContain('sms');
-    expect((await surfacesWith(ON)).soonIds).not.toContain('sms');
-  });
-
-  it('the Coming Soon index is renumbered either way — never 1,2,…,8,10', async () => {
-    for (const flags of [OFF, ON]) {
-      const s = await surfacesWith(flags);
-      expect(s.soonOrdinals).toEqual(s.soonIds.map((_, i) => String(i + 1)));
-    }
-  });
-
   it('🔴 moves the derived tool count by exactly one, and only downward', async () => {
     // ⚠️ SMS ISOLATED. `ON` flips all three flags and the other two each add a
     // tool of their own, so comparing OFF with ON would measure three changes
@@ -268,13 +250,11 @@ describe('SMS_MARKETING_ENABLED', () => {
     // shape: `STRIPE_GIVING_MARKETING_ENABLED` rewords the Donation Page tool
     // rather than withdrawing it, so it belongs to the equality case below.
     // What moved the absolute is the pledge SPLIT, which is not behind any flag.
-    expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(26);
-    expect(smsOnly.toolCount, 'the count with SMS live').toBe(27);
+    expect(off.toolCount, 'the shipped count, with SMS withheld').toBe(27);
+    expect(smsOnly.toolCount, 'the count with SMS live').toBe(28);
     // The Coming Soon entry contributes nothing in either direction — that is
     // what makes the shipped figure honest rather than one tool too high.
     expect(smsOnly.toolCount - off.toolCount).toBe(1);
-    expect(smsOnly.soonIds).not.toContain('sms');
-    expect(off.soonIds).toContain('sms');
   });
 
   it('false strips the #sms fragment off the indexed legacy links', async () => {
@@ -398,25 +378,6 @@ describe('CUSTOM_DOMAIN_MARKETING_ENABLED', () => {
     }
   });
 
-  it('🔴 false ADDS the Coming Soon entry, and true takes it away again', async () => {
-    // The relocation, both ways — the SMS shape exactly. This is the assertion
-    // that keeps the site from claiming custom domains twice, in two tenses.
-    expect((await surfacesWith(OFF)).soonIds).toContain('domains');
-    expect((await surfacesWith(ON)).soonIds).not.toContain('domains');
-  });
-
-  it('the entry traces to this ticket\'s board card', async () => {
-    const s = await surfacesWith(OFF);
-    expect(s.soonRefs[s.soonIds.indexOf('domains')]).toBe('THE-280');
-  });
-
-  it('the Coming Soon index is renumbered either way — never 1,2,…,10,12', async () => {
-    for (const flags of [OFF, ON]) {
-      const s = await surfacesWith(flags);
-      expect(s.soonOrdinals).toEqual(s.soonIds.map((_, i) => String(i + 1)));
-    }
-  });
-
   it('🔴 does NOT move the derived tool count, in either direction', async () => {
     // ⚠️ THE MEASURABLE DIFFERENCE FROM THE SMS FLAG. SMS withdrew a TOOL and
     // took the count down by one. This flag rewords a tool that stays live, so the
@@ -431,8 +392,8 @@ describe('CUSTOM_DOMAIN_MARKETING_ENABLED', () => {
     // STRIPE_GIVING_MARKETING_ENABLED both join this shape rather than the SMS
     // one, for the same reason: they reword a tool that stays live instead of
     // removing it.
-    expect(off.toolCount).toBe(26);
-    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(26);
+    expect(off.toolCount).toBe(27);
+    expect(domainOnly.toolCount, 'rewording a live tool moved the count').toBe(27);
     // The tool is present under both labels, which is why the count holds.
     expect(off.titles).toContain('Custom Branding');
     expect(domainOnly.titles).toContain('Custom Branding & Domain');

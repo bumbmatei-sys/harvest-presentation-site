@@ -168,7 +168,7 @@ describe(`the answers in the prerendered HTML (${built ? 'dist/faq/index.html' :
     // is one keystroke to add. Every answer arrives shut; the reader opens one.
     const tags = [...faqMarkup.matchAll(/<details\b[^>]*>/g)].map((m) => m[0]);
     expect(tags, 'the answers are not in <details> elements').toHaveLength(FAQS.length);
-    expect(FAQS).toHaveLength(16);
+    expect(FAQS).toHaveLength(17); // Round 3 adds the scheduler answer.
     for (const tag of tags) {
       expect(/(?:^|\s)open(?:=|\s|\/|>)/.test(tag), `${tag} ships expanded`).toBe(false);
     }

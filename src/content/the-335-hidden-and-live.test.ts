@@ -7,7 +7,6 @@ import { HelmetProvider } from 'react-helmet-async';
 import { MemoryRouter } from 'react-router-dom';
 
 import { CATEGORIES } from './features';
-import { COMING_SOON_ITEMS, comingSoonContract } from './coming-soon';
 import { FAQS } from './faq';
 import { LEGAL_DOCS } from './legal';
 import { CATALOG, CATALOG_TOOL_COUNT } from '../components/catalog';
@@ -84,7 +83,6 @@ const walkRepo = (d: string): string[] => fs.readdirSync(d, { withFileTypes: tru
   });
 
 const featureById = new Map(CATEGORIES.flatMap((c) => c.features.map((f) => [f.id, f] as const)));
-const soonById = new Map(COMING_SOON_ITEMS.map((i) => [i.id, i] as const));
 const liveTools = CATALOG.filter((g) => !g.href).flatMap((g) => g.items);
 
 /* ── 15 ────────────────────────────────────────────────────────────────────
@@ -112,19 +110,7 @@ describe('15 — SMS is a coming-soon entry again, not a live feature', () => {
     expect(smsRow).toContain('coming soon');
   });
 
-  it('🔴 and it ARRIVED in Coming Soon — the same one value, the other way up', () => {
-    const entry = soonById.get('sms');
-    expect(entry, 'SMS is hidden everywhere, including from the page that explains why').toBeDefined();
-    expect(entry!.name).toContain('Text-to-Give');
-    // The relocation is one flag, so the pair can never both be true.
-    expect(readSrc('content/coming-soon.ts'))
-      .toContain(".filter((item) => item.id !== 'sms' || !SMS_MARKETING_ENABLED)");
-  });
-
   it('🔴 nothing was deleted to hide it', () => {
-    const src = readSrc('content/coming-soon.ts');
-    expect(src, 'the SMS entry was deleted rather than filtered')
-      .toContain("id: 'sms', name: 'SMS & Text-to-Give'");
     expect(readSrc('components/catalog.ts'), 'the SMS tool was deleted rather than gated')
       .toMatch(/SMS_MARKETING_ENABLED \? \[item\('message-square-text', 'SMS Automation'/);
   });
@@ -166,48 +152,6 @@ describe('15b — Newsletter is a coming-soon entry, not a live feature', () => 
     expect(cat, 'the AI & Automation category is gone').toBeDefined();
     expect(cat!.intro, 'the category intro still sells a newsletter').not.toMatch(/newsletter/i);
     expect(cat!.seo, 'the category SEO still sells a newsletter').not.toMatch(/newsletter/i);
-  });
-
-  it('🔴 and a Newsletter entry ARRIVED in Coming Soon, appended not inserted', () => {
-    const entry = soonById.get('newsletter');
-    expect(entry, 'the newsletter is hidden with no page that explains why').toBeDefined();
-    expect(entry!.ref, 'the entry traces to no card').toBe('THE-335');
-    // Appended after `domains` and before `scheduler`, which is deliberately
-    // last — so no existing entry's ordinal moved because a new one arrived.
-    const ids = COMING_SOON_ITEMS.map((i) => i.id);
-    expect(ids[ids.length - 1], 'the scheduler is no longer last').toBe('scheduler');
-    expect(ids.indexOf('newsletter')).toBe(ids.length - 2);
-  });
-
-  it('🔴 the entry is HONEST about a sender that already exists', () => {
-    /* ⚠️ THE HARD PART. A newsletter sender DOES exist in the app today — the
-       campaign goes to the church's own Mailchimp audience — and it is being
-       WITHDRAWN rather than waited for. "Nothing sends email" would be false, so
-       the `today` line says what is true from a church's side and names the
-       paths that DO reach a congregation and still ship. */
-    const entry = soonById.get('newsletter')!;
-    expect(entry.today, 'the entry claims Harvest sends no email at all')
-      .not.toMatch(/harvest sends no email|nothing sends email/i);
-    expect(entry.today, 'the entry does not say what reaches everyone instead')
-      .toMatch(/feed/i);
-    expect(entry.today, 'the entry does not say transactional email still sends')
-      .toMatch(/receipt/i);
-  });
-
-  it('🔴 no price, date, tier or CTA reached it — the shape forbids all four', () => {
-    expect(() => comingSoonContract(COMING_SOON_ITEMS)).not.toThrow();
-    const entry = soonById.get('newsletter')!;
-    expect(entry).not.toHaveProperty('tiers');
-    expect(entry).not.toHaveProperty('price');
-    const unbuilt = [entry.name, entry.eyebrow, entry.title, entry.oneliner, ...entry.considering].join(' ');
-    expect(unbuilt, 'the entry grew a price').not.toMatch(/\$\s?\d/);
-    expect(unbuilt, 'the entry grew a tier').not.toMatch(/\b(Individual|Small Team|Ministry|Forever Free)\b/);
-    expect(unbuilt, 'the entry grew a call to action')
-      .not.toMatch(/\b(buy|purchase|subscribe|upgrade now|get started)\b/i);
-    /* 🔴 AND IT DOES NOT SAY WHEN. "It will come together with harvest
-       scheduler" is a real internal plan and would read here as a commitment
-       about timing, which is what six corrections on this site were about. */
-    expect(unbuilt, 'the entry implies a date').not.toMatch(/\b(soon|shortly|next|scheduler)\b/i);
   });
 });
 
@@ -251,32 +195,6 @@ describe('15c–15e — service planning is live, with a tier that matches the a
     // and email is what replaces it.
     expect(prose, 'the live copy promises a text').not.toMatch(/\btext\b|\bSMS\b/i);
     expect(prose, 'the live copy does not say the invitation is email').toMatch(/email/i);
-  });
-
-  it('🔴 what is still absent kept its own coming-soon entry, narrowed', () => {
-    /* The entry was "Service and worship planning" and its `today` said "there
-       is no order of service, no song library and no rota". Two thirds of that
-       became FALSE, so the entry narrowed to the worship half rather than
-       standing with a false claim about what IS built. */
-    const soon = soonById.get('services');
-    expect(soon, 'the worship half lost its entry').toBeDefined();
-    expect(soon!.name).toBe('Song library and rehearsals');
-    expect(soon!.today, 'the entry still says there is no order of service')
-      .not.toMatch(/no order of service/i);
-    expect(soon!.today, 'the entry still says there is no rota').not.toMatch(/no rota/i);
-    for (const still of [/no song library/i, /no CCLI/i, /no rehearsal/i, /no availability blockout/i]) {
-      expect(soon!.today, `the entry stopped naming what is genuinely absent: ${still}`).toMatch(still);
-    }
-  });
-
-  it('🔴 15e — the SOCIAL-MEDIA Harvest Scheduler is still coming-soon', () => {
-    /* NOT the same product, and confusing them would claim an unbuilt one as
-       shipped. The founder said so himself: "Service scheduler I mean not the
-       one for social media." */
-    const scheduler = soonById.get('scheduler');
-    expect(scheduler, 'the Harvest Scheduler left Coming Soon').toBeDefined();
-    expect(featureById.has('scheduler'), 'the social scheduler became a live feature').toBe(false);
-    expect(scheduler!.id).not.toBe(services!.id);
   });
 });
 
@@ -326,29 +244,19 @@ describe('15f — QuickBooks appears nowhere on the site', () => {
     expect(visibleText(render(React.createElement(ComparisonTable))), 'the giving records row was removed')
       .toMatch(/Giving records/);
   });
-
-  it('🔴 no Coming Soon entry was invented for it', () => {
-    /* "Hide entirely", said in the same breath as "coming soon" for the other
-       two. A coming-soon entry is a promise, and there is none to make. */
-    for (const item of COMING_SOON_ITEMS) {
-      const all = [item.name, item.eyebrow, item.title, item.oneliner, item.today,
-        item.notThis ?? '', item.navDesc, ...item.considering].join(' ');
-      expect(all, `the "${item.id}" entry names QuickBooks`).not.toMatch(/quickbooks/i);
-    }
-  });
 });
 
 /* ── 15g & 18 ──────────────────────────────────────────────────────────────
    🔴 The tool count, and every assertion that pins it.                       */
 describe('15g & 18 — the tool count is right, and no "replaces N tools" figure is wrong', () => {
   it('🔴 the count is 26, derived, and the three withdrawals are what moved it', () => {
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((i) => !i.soon).length, 0),
     );
     // The delta, as a delta: 29 − 1 (SMS) − 2 (both newsletters) = 26, and
     // QuickBooks moves it by ZERO because its tool was reworded, not removed.
-    expect(29 - 1 - 2).toBe(26);
+    expect(29 - 1 - 2 + 1).toBe(27); // Round 3 adds the scheduler.
     expect(liveTools.filter((i) => /giving records/i.test(i.title)),
       'the Giving records (formerly Accounting) tool was removed, which would have understated the product')
       .toHaveLength(1);
@@ -373,10 +281,10 @@ describe('15g & 18 — the tool count is right, and no "replaces N tools" figure
     // 🔵 TWENTY-THREE SINCE THE-355, which adds two suites of its own — one for
     // the flag-off state and one for the restore path — each pinning the figure
     // once. This scan counts PINS rather than files, so the delta is two.
-    expect(pins.length, 'a suite gained or lost its tool-count assertion').toBe(23);
+    expect(pins.length, 'a suite gained or lost its tool-count assertion').toBe(18); // Round 3 removes dedicated page suites.
     for (const [f, pin] of pins) {
       expect(pin, `${path.relative(ROOT, f)} pins something other than the derived figure`)
-        .toBe('CATALOG_TOOL_COUNT).toBe(26)');
+        .toBe('CATALOG_TOOL_COUNT).toBe(27)');
     }
   });
 
@@ -426,18 +334,10 @@ describe('16, 17 & 21 — the vendor, the coming-soon shape, and the restored gu
        ticket added or rewrote is inside the tree the sweep walks, and the sweep
        runs over the tree rather than over a list. */
     const files = walkRepo(path.join(ROOT, 'src')).map((f) => path.relative(ROOT, f));
-    for (const rel of ['src/lib/flags.ts', 'src/content/coming-soon.ts', 'src/content/features.ts',
+    for (const rel of ['src/lib/flags.ts', 'src/content/features.ts',
       'src/components/catalog.ts', 'src/components/Replaces.tsx', 'src/components/Pricing.tsx',
       'src/content/faq.ts', 'src/content/the-335-hidden-and-live.test.ts']) {
       expect(files, `${rel} is outside the sweep's reach`).toContain(rel);
-    }
-  });
-
-  it('🔴 17 — every coming-soon entry is still claim-free, not just the new one', () => {
-    expect(() => comingSoonContract(COMING_SOON_ITEMS)).not.toThrow();
-    for (const item of COMING_SOON_ITEMS) {
-      expect(item, `"${item.id}" grew a tiers array`).not.toHaveProperty('tiers');
-      expect(item.ref, `"${item.id}" traces to no card`).toMatch(/^(THE-\d+|86[a-z0-9]{7})$/);
     }
   });
 

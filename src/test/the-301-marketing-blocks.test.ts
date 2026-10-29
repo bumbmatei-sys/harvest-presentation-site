@@ -47,8 +47,7 @@ import { describe, expect, it } from 'vitest';
 import { blogRoutes } from '../../build/blog-plugin';
 import { plans, planPriceContract } from '../components/Pricing';
 import { CATEGORIES, categoryHref } from '../content/features';
-import { FAQ_HREF, FAQ_STANDFIRST } from '../content/faq';
-import { COMING_SOON_HREF, NOT_BUILT_NOTICE } from '../content/coming-soon';
+import { FAQ_HREF } from '../content/faq';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -182,11 +181,11 @@ describe('2 — the sections that were replaced render their new content', () =>
 
   it.runIf(built)('/contact carries the three routes, with the copy their own files own', () => {
     const html = page('contact/index.html');
-    for (const href of [FAQ_HREF, categoryHref(CATEGORIES[0].slug), COMING_SOON_HREF]) {
+    for (const href of [FAQ_HREF, categoryHref(CATEGORIES[0].slug)]) {
       expect(html, `the band lost ${href}`).toContain(`href="${href}"`);
     }
-    expect(html).toContain(FAQ_STANDFIRST.slice(0, 48));
-    expect(html).toContain(NOT_BUILT_NOTICE.slice(0, 48));
+    expect(html).toContain('Straight answers about price, giving, data and cancelling.');
+    expect(html).not.toContain('href="/features/coming-soon"');
   });
 
   it('🔴 neither block writes a sentence of its own', () => {
@@ -266,7 +265,7 @@ describe('4 — the prerendered page count is unchanged', () => {
        is the 30th route; main was red on these five count assertions before the
        quarterly withdrawal, which is corrected here only because CI gates this
        PR on it. */
-    expect(blogRoutes()).toHaveLength(30);
+    expect(blogRoutes()).toHaveLength(29); // Round 3 removes Coming Soon.
   });
 
   it('and App.tsx gained no route', () => {
@@ -286,7 +285,7 @@ describe('4 — the prerendered page count is unchanged', () => {
        gates this PR on it — see the PR. */
     /* 🔵 29 SINCE c5b7143 — the check-in post. NOT THE-301's. */
     /* 🔵 30 SINCE ddf3529 — the prayer-requests post. NOT THE-301's. */
-    expect(PAGES).toHaveLength(30);
+    expect(PAGES).toHaveLength(29); // Round 3 removes Coming Soon.
   });
 
   it.runIf(built)('and the twenty-two non-post pages are there on any platform', () => {
@@ -303,7 +302,7 @@ describe('4 — the prerendered page count is unchanged', () => {
        page this ticket added or dropped — which was the point. */
     const nonPosts = PAGES.filter(([f]) => !/^blog\/[^/]+\/index\.html$/.test(f) || f.startsWith('blog/category/'));
     // 🔵 23 since #106 added the /waitlist page, which is not a post.
-    expect(nonPosts.map(([f]) => f)).toHaveLength(23);
+    expect(nonPosts.map(([f]) => f)).toHaveLength(22); // Round 3 removes Coming Soon.
     expect(nonPosts.map(([f]) => f)).toContain('features/index.html');
     expect(nonPosts.map(([f]) => f)).toContain('contact/index.html');
   });
@@ -556,6 +555,14 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/Pricing.tsx': '96f80fa6516d16dcf90e25570c1178a6ec719c25d5ec39bfe0954cf02a3b8fcc',
   };
 
+  /* 🔴 RETIRED BOARD PATH REDIRECT (2026-10-27) — the founder retired that page, so
+     `vercel.json` gained one redirect of its old path to /, beside the existing
+     /features.html one. Nothing else in the file moved. The previous hash was
+     b7c29796…. */
+  const RETIRED_BOARD_REDIRECT_REPINNED: Readonly<Record<string, string>> = {
+    'vercel.json': 'e24c36c7bdfc981973ac94ccefeb11b24d107a0c99c17d03d57dc12e43ae0965',
+  };
+
   // Repricing intentionally changes the plan data and the two price guards.
   const REPRICE_REPINNED: Readonly<Record<string, string>> = {
     'src/components/Pricing.tsx': '9864bd0588146910533038884738607950e7eef84d25471a7ade4b66b2dd5514',
@@ -563,10 +570,31 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/the-258-platform-brand-complete.test.ts': 'ea0da4de3189aa0b1efd52aded0055c1c468f7a1f01464e593c6bc7b7853eb9b',
   };
 
+  // Member AI Chat dropped (Matei, 2026-10-27): the Platform & Brand guard
+  // names the owner's AI Assistant (coming soon) instead.
+  const AI_CHAT_DROPPED_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/the-258-platform-brand-complete.test.ts': 'b7ab48a72641d1c48952cbea7a391b2454adb4cbb4352c4b4bb466fde12cd801',
+  };
+
+  // Round 3 copy, route removal, and the affected guards.
+  const ROUND3_COPY_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': 'e2f21216b9ace46f5c81bcf5cdc34d2012a385330d01d806d156c7963a38cc25',
+    'vercel.json': 'd3fffe4c98affcb96605563495f725faf292741c49ed2540e8c5107933ddaa0a',
+    'build/blog-plugin.ts': '50ee959bc815ab0cb8f68ecd111fcd9131ede8a03e04f541369b8bf05e53cb28',
+    'src/components/the-257-competitor-table-retired.test.ts': 'cda7367c5bcdeb4deec76f16b5f34f1f6f8006d48f55bfd643dd9493a0cdb081',
+    'src/components/the-258-platform-brand-complete.test.ts': '9472efbd04bb930a2d9f8dc515782099747eba015bd63c81979849f6a857ca98',
+  };
+
+  // Full-site Fabale presentation: cards and controls use shadcn and theme
+  // tokens. Plan data, feature rows, contracts and signup attribution are unchanged.
+  const SITE_FABALE_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': 'a0abe36ab2f6e3ecc3b0ed4fa01b38aeeca4124c82857352548e9c8d735ccf62',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        SITE_FABALE_REPINNED[file] ?? AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

@@ -226,7 +226,8 @@ const SUB_PROCESSORS = [
  *  writes the number as a literal; legal.test.ts scans the source to keep it
  *  that way, because a literal is how the number went stale in five places at
  *  once. */
-export const TRIAL_LENGTH_DAYS = 14;
+// 2026-10-27: Matei moved the trial to 10 days; all four live Dodo products carry trial_period_days=10.
+export const TRIAL_LENGTH_DAYS = 10;
 
 /** The one CTA sentence on this site that quotes the trial. Hero, FinalCTA,
  *  Nav and SiteCTA all render this string rather than their own copy of it —

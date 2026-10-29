@@ -9,7 +9,6 @@ import { Nav, ResourcesMenuItems } from './Nav';
 import { Footer } from './Footer';
 import { CATALOG, CATALOG_TOOL_COUNT } from './catalog';
 import { CHANGELOG_URL, DOCS_URL, RESOURCES, isExternalHref } from '../content/resources';
-import { COMING_SOON_ITEMS } from '../content/coming-soon';
 
 /**
  * THE-358 — the documentation exists, and the site now says so.
@@ -308,15 +307,6 @@ describe('6 · no surface claims documentation is coming', () => {
     ['coming ' + 'soon', 'not built ' + 'yet', 'is ' + 'planned', 'on the ' + 'way',
      'will ' + 'come', 'there is no ' + 'manual', 'should be'].join('|'), 'i');
 
-  it('🔴 the coming-soon list carries no documentation entry, by id, name and card', () => {
-    expect(COMING_SOON_ITEMS.map((i) => i.id)).not.toContain('docs');
-    expect(COMING_SOON_ITEMS.map((i) => i.ref)).not.toContain('THE-117');
-    for (const item of COMING_SOON_ITEMS) {
-      expect(item.name, `"${item.name}" is a documentation entry on the coming-soon page`)
-        .not.toMatch(DOC_WORD);
-    }
-  });
-
   it('🔴 no RENDERED copy anywhere pairs documentation with a future tense', () => {
     /* Comments are stripped first: this repo records its own history in them,
        and a comment saying "documentation used to be coming" is the correction,
@@ -358,15 +348,7 @@ describe('6 · no surface claims documentation is coming', () => {
     expect(stripComments(read('src/content/resources.ts'))).toContain('docs.theharvest.site');
   });
 
-  it('🔴 the coming-soon page\'s own SEO line no longer says so either', () => {
-    const src = stripComments(read('src/pages/ComingSoonPage.tsx'));
-    const description = /description="([^"]*)"/.exec(src);
-    expect(description, 'the coming-soon page renders no SEO description').not.toBeNull();
-    expect(description![1], 'the page still tells search engines Harvest has no documentation')
-      .not.toMatch(DOC_WORD);
-    // Not vacuous — the line is still there and still lists the real gaps.
-    expect(description![1]).toContain('What Harvest does not do yet');
-  });
+
 });
 
 /* ═══ 7-8 ════════════════════════════════════════════════════════════════ */
@@ -470,7 +452,7 @@ describe('9 · the tool count is unchanged across every assertion that pins it',
        pin the three scanning suites already hold between them. */
     const pins = pinning.flatMap((f) =>
       [...readFileSync(f, 'utf8').matchAll(/CATALOG_TOOL_COUNT\)\.toBe\((\d+)\)/g)]);
-    expect(pins.length, 'the tool count is barely pinned anywhere').toBeGreaterThanOrEqual(19);
+    expect(pins.length, 'the tool count is barely pinned anywhere').toBe(18); // Round 3 removed Coming Soon's dedicated tests.
 
     const offenders: string[] = [];
     for (const file of pinning) {

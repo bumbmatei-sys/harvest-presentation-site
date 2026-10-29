@@ -1,13 +1,14 @@
 import React from 'react';
+import { PageHeader } from '../components/marketing';
+import { Card } from '../components/ui/card';
 import { Seo } from '../components/Seo';
-import { Clouds, Reveal } from '../components/effects';
-import { Particles, AnimatedText, HBtn } from '../components/magic';
-import { Kicker, container, softCard, SKY } from '../components/shared';
+import { Reveal } from '../components/effects';
+import { HBtn } from '../components/magic';
+
 import { L } from '../components/icons';
 import { ContentLeads } from '../components/content-1';
 import { CATEGORIES, categoryHref } from '../content/features';
-import { FAQ_HREF, FAQ_STANDFIRST } from '../content/faq';
-import { COMING_SOON_HREF, NOT_BUILT_NOTICE } from '../content/coming-soon';
+import { FAQ_HREF } from '../content/faq';
 
 /* /contact — a minimal general-enquiry form for the public marketing site.
    Reuses the landing design language (SKY header band + Clouds + Particles,
@@ -51,8 +52,8 @@ const fieldBase: React.CSSProperties = {
 function Banner({ tone, icon, title, children }:
   { tone: 'error' | 'warn'; icon: string; title: string; children: React.ReactNode }) {
   const palette = tone === 'error'
-    ? { bg: '#FDECEC', border: '#F5C2C2', fg: '#9B1C1C' }
-    : { bg: 'var(--gold-100)', border: 'rgba(201,150,58,0.35)', fg: 'var(--gold-700, #8a6d2f)' };
+    ? { bg: 'var(--destructive-surface)', border: 'var(--destructive-border)', fg: 'var(--destructive-ink)' }
+    : { bg: 'var(--gold-100)', border: 'color-mix(in srgb, var(--brand) 35%, transparent)', fg: 'var(--gold-700)' };
   return (
     <div
       role="status"
@@ -111,7 +112,7 @@ export function ContactPage() {
   const fieldStyle = (name: string): React.CSSProperties => ({
     ...fieldBase,
     border: `1px solid ${focused === name ? 'var(--brand)' : 'transparent'}`,
-    boxShadow: focused === name ? '0 0 0 3px rgba(201,150,58,0.15)' : 'none',
+    boxShadow: focused === name ? '0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent)' : 'none',
   });
   const focusProps = (name: string) => ({
     onFocus: () => setFocused(name),
@@ -119,40 +120,19 @@ export function ContactPage() {
   });
 
   return (
-    <main>
+    <main className="marketing-page marketing-form-page">
       <Seo
         title="Contact — Harvest"
-        description="Questions, feedback, or a partnership idea? Send the Harvest team a message and we’ll get back to you."
+        description="Questions, feedback or a partnership idea? Send the Harvest team a message and we'll get back to you."
         canonical="https://theharvest.site/contact"
       />
       {/* Header band — mirrors the /features header treatment. */}
-      <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 90, overflow: 'hidden' }}>
-        <Clouds dense />
-        <Particles quantity={40} />
-        <div style={{ ...container, position: 'relative', zIndex: 2, textAlign: 'center' }}>
-          <Reveal y={14}><Kicker>We’re here to help</Kicker></Reveal>
-          <AnimatedText
-            as="h1"
-            text={'Get in touch'}
-            startOnView={false}
-            delay={100}
-            stagger={80}
-            y={20}
-            duration={760}
-            style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 'clamp(2.4rem, 5.5vw, 4rem)', lineHeight: 1.05, letterSpacing: '-0.03em', color: 'var(--navy-900)', margin: '20px auto 0', maxWidth: 720 }}
-          />
-          <Reveal delay={360} y={16}>
-            <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 520, margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
-              Questions, feedback, or a partnership idea? Send us a message and we’ll get back to you.
-            </p>
-          </Reveal>
-        </div>
-      </section>
+      <PageHeader eyebrow="We’re here to help" title="Talk to the Team That Builds Harvest" description="Questions, feedback, or a partnership idea? Send us a message and we’ll get back to you." />
 
       {/* Form card — pulled up to straddle the SKY → cream seam. */}
-      <section style={{ background: 'var(--cream)', padding: '0 20px var(--section-y-tight)', position: 'relative', zIndex: 2 }}>
-        <Reveal y={24} style={{ maxWidth: 600, margin: '-20px auto 0' }}>
-          <div style={{ ...softCard, padding: 'clamp(26px, 5vw, 44px)' }}>
+      <section className="fab-container marketing-page-content">
+        <Reveal y={24} className="marketing-form-wrap">
+          <Card className="marketing-form-card">
             {status === 'success' ? (
               <div style={{ textAlign: 'center', padding: '10px 0' }}>
                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--gold-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
@@ -220,20 +200,19 @@ export function ContactPage() {
                 </p>
               </form>
             )}
-          </div>
+          </Card>
         </Reveal>
       </section>
 
       <ContentLeads
         heading="Or find it without asking"
         items={[
-          { term: 'Read the FAQ.', detail: FAQ_STANDFIRST, to: FAQ_HREF },
+          { term: 'Read the FAQ.', detail: 'Straight answers about price, giving, data and cancelling.', to: FAQ_HREF },
           {
             term: `Browse ${CATEGORIES[0].name}.`,
             detail: CATEGORIES[0].seo,
             to: categoryHref(CATEGORIES[0].slug),
           },
-          { term: 'See what is not built.', detail: NOT_BUILT_NOTICE, to: COMING_SOON_HREF },
         ]}
       />
     </main>

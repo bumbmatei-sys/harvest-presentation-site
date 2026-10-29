@@ -432,8 +432,8 @@ describe('9 · a price change does not move the pinned tool count', () => {
         for (const m of stripComments(readFileSync(abs, 'utf8')).matchAll(form)) pins.push([rel(abs), Number(m[1])]);
       }
     })(join(ROOT, 'src'));
-    expect(pins.length, 'nothing pins the count — the sweep is vacuous').toBeGreaterThanOrEqual(19);
-    expect(new Set(pins.map(([f]) => f)).size).toBeGreaterThanOrEqual(16);
+    expect(pins.length, 'nothing pins the count — the sweep is vacuous').toBe(18); // Round 3 removed Coming Soon's dedicated tests.
+    expect(new Set(pins.map(([f]) => f)).size).toBe(15);
     for (const [f, n] of pins) expect(n, `${f} pins a count the catalogue does not have`).toBe(derived);
     // And the catalogue carries no plan price for a reprice to reach.
     const text = JSON.stringify(CATALOG);
@@ -451,12 +451,13 @@ describe('11 · no emoji and no hardcoded colour reached a rendered card', () =>
     }
   });
 
-  it('the eyebrow reads its colours from tokens (the white on the filled pill predates THE-372)', () => {
+  it('the eyebrow reads all its colours from tokens', () => {
     const src = stripComments(readFileSync(join(ROOT, 'src/components/Pricing.tsx'), 'utf8'));
     const from = src.indexOf('export function CardEyebrow(');
     const body = src.slice(from, src.indexOf('export function PlanCard(', from));
     expect(body.length).toBeGreaterThan(200);
-    expect(body.match(/#[0-9a-fA-F]{3,8}\b/g) ?? []).toEqual(['#fff']);
+    // The rebuilt silver pill also uses token ink; the old white exception is gone.
+    expect(body.match(/#[0-9a-fA-F]{3,8}\b/g) ?? []).toEqual([]);
     expect(body).toContain('var(--brand)');
   });
 });

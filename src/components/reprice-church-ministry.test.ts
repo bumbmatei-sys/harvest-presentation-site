@@ -239,7 +239,7 @@ describe('Giving records replaces Accounting, and never claims to replace QuickB
 
 describe('coming-soon items say so on the plan cards and the comparison table', () => {
   it('every unbuilt item on a card carries "coming soon" on its own line', () => {
-    const UNBUILT = /storefront|website builder|discovery|social scheduler|AI assistant|paid checkout|in every community|newsletter|SMS/i;
+    const UNBUILT = /storefront|website builder|discovery|AI assistant|paid checkout|in every community|newsletter|SMS/i;
     for (const p of plans) {
       for (const line of p.features.filter((f) => UNBUILT.test(f))) {
         // A flag flipped on turns the newsletter / SMS line into the plain
@@ -253,7 +253,7 @@ describe('coming-soon items say so on the plan cards and the comparison table', 
   it('the comparison table renders "coming soon" for the unbuilt rows, never a tick', () => {
     const html = renderToStaticMarkup(React.createElement(ComparisonTable));
     const rowOf = (label: string) => html.split('<tr').find((r) => r.includes(`>${label}<`))!;
-    for (const label of ['Storefront', 'Website builder with pre-made templates', 'Discovery listing', 'Social scheduler']) {
+    for (const label of ['Storefront', 'Website builder with pre-made templates', 'Discovery listing']) {
       const row = rowOf(label);
       expect(row, `no "${label}" row`).toBeDefined();
       expect(row).toContain('coming soon');

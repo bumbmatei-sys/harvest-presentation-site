@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { HBtn } from './magic';
 import { L } from './icons';
@@ -25,12 +26,7 @@ import { CHEAPEST_MONTHLY } from './Pricing';
 // throws on every route.
 const groupHref = (name: string) => categoryHref((CATEGORY_BY_NAME[name] || CATEGORIES[0]).slug);
 
-/* Where a mega-menu entry goes.
-   The five live groups resolve through LEGACY_ANCHORS, which maps a retired
-   /features#<slug> URL onto the category page and section that feature moved
-   to. The Coming Soon group cannot: an unbuilt feature has no retired URL and
-   no section on a live category page, so it carries its destination on the
-   entry itself. Falling back to the derived lookup keeps the five unchanged. */
+/* Most items use the category lookup; items with their own page carry an explicit destination. */
 /* Exported so content/features.test.ts can assert on the resolver the menu
    actually uses rather than re-deriving it — the same reason
    `MegaMenuFooterLabel` below is its own export. A test that re-implements the
@@ -41,13 +37,7 @@ export const columnHref = (g: CatalogGroup) => g.href ?? groupHref(g.name);
 /* Inline SOON pill for mega-menu items, sized to sit next to the item title
    rather than absolutely positioned.
 
-   🔴 GREY, NOT SKY. This carried --sky-100 / --sky-700 while nothing in the
-   catalogue was marked `soon`, so it never rendered. It renders now, on all
-   eight Coming Soon entries, and sky is the LIVE colour of Community &
-   Engagement — a badge in another category's brand tint next to an unbuilt
-   feature is the opposite of the signal it exists to send. Dashed, because
-   dashed already means "not included" in this codebase (an unlit plan chip in
-   FeatureBlock). */
+   Unbuilt items use the neutral status colours. */
 const soonPill: React.CSSProperties = {
   background: 'var(--surface-soon)', color: 'var(--text-soon)',
   border: '1px dashed var(--text-soon-soft)', fontSize: 8.5, fontWeight: 700,
@@ -124,20 +114,7 @@ export function FeatureMenuColumns({ variant, onNavigate = () => {} }:
               </Link>
             ))}
             {g.more && (
-              /* 🔴 THE-297 — the "see all" row, drawn only for a group whose
-                 `items` are a shortlist. Today that is Coming Soon and only it.
-
-                 NAVIGATION, NOT A CALL TO ACTION. A plain link in the group's
-                 own tint, no button ground and no arrow-shaped urgency: it goes
-                 to /features/coming-soon, a page that deliberately closes with a
-                 note instead of the trial band. Giving it a filled ground would
-                 make the one unbuilt column the loudest thing in a menu of
-                 shipped work.
-
-                 44px MINIMUM. The items above it are a pointer-first mega-menu
-                 at their inherited density; this row is new, so it is built to
-                 the tap-target floor in both variants rather than matching them
-                 down to it. */
+              /* An optional link to the rest of a group. */
               <Link
                 to={g.more.href}
                 role={desktop ? 'menuitem' : undefined}
@@ -308,7 +285,7 @@ export function Nav() {
   const resourcesBtnRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
@@ -372,96 +349,71 @@ export function Nav() {
   return (
     <nav
       ref={navRef}
-      style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60,
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        padding: scrolled ? '10px 20px' : '18px 20px', transition: 'padding 300ms var(--ease-out)',
-      }}
+      className={scrolled || pathname !== '/' ? 'harvest-nav harvest-nav-solid' : 'harvest-nav'}
     >
-      <div style={{
-        width: '100%', maxWidth: 1160, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '9px 10px 9px 20px', borderRadius: 'var(--radius-pill)',
-        background: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.78)',
-        backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-        border: '1px solid rgba(255,255,255,0.85)',
-        boxShadow: scrolled ? '0 12px 34px rgba(45,37,25,0.1)' : '0 6px 22px rgba(45,37,25,0.06)',
-        transition: 'background 300ms var(--ease-out), box-shadow 300ms var(--ease-out)',
-      }}>
-        <Link to="/#hero" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <Mark h={32} />
-          <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 21, color: 'var(--navy-900)' }}>
-            Harvest<span style={{ color: 'var(--brand)' }}>.</span>
-          </span>
+      <div className="harvest-nav-inner">
+        <Link to="/#hero" className="harvest-nav-logo" aria-label="Harvest home">
+          <Mark h={32} style={{ filter: 'brightness(0) invert(1)' }} />
+          <span>Harvest<span>.</span></span>
         </Link>
 
-        <div style={{ display: 'flex', gap: 26, alignItems: 'center' }} className="nav-links">
-          <button
+        <div className="nav-links" aria-label="Main navigation">
+          <Button variant="ghost"
             ref={featuresBtnRef}
             type="button"
             aria-haspopup="true"
             aria-expanded={mega}
             onClick={toggleMega}
-            style={{ ...linkStyle, color: mega ? 'var(--brand)' : 'var(--navy-800)' }}
-            onMouseEnter={(e) => { if (!mega) e.currentTarget.style.color = 'var(--brand)'; }}
-            onMouseLeave={(e) => { if (!mega) e.currentTarget.style.color = 'var(--navy-800)'; }}
+            style={linkStyle}
           >
             Features
-            <L name="chevron-down" size={13} color="currentColor" style={{ transform: mega ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             ref={solutionsBtnRef}
             type="button"
             aria-haspopup="true"
             aria-expanded={solutions}
             onClick={toggleSolutions}
-            style={{ ...linkStyle, color: solutions || onSolutions ? 'var(--brand)' : 'var(--navy-800)' }}
-            onMouseEnter={(e) => { if (!solutions) e.currentTarget.style.color = 'var(--brand)'; }}
-            onMouseLeave={(e) => { if (!solutions) e.currentTarget.style.color = onSolutions ? 'var(--brand)' : 'var(--navy-800)'; }}
+            style={linkStyle}
           >
             Solutions
-            <L name="chevron-down" size={13} color="currentColor" style={{ transform: solutions ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
           {PAGE_LINKS.map(([label, href]) => (
-            <Link key={label} to={href} style={linkStyle}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--navy-800)')}>{label}</Link>
+            <Link key={label} to={href} style={linkStyle}>{label}</Link>
           ))}
           {/* 🔴 RESOURCES IS A DROPDOWN, NOT A LINK TO THE BLOG.
               It was a flat <Link to="/blog"> labelled "Resources" — a label
               that promised a set and delivered one page. It now opens the three
               the founder named: Documentation, Changelog and the Blog. It keeps
               its blog active state, because the blog is still inside it. */}
-          <button
+          <Button variant="ghost"
             ref={resourcesBtnRef}
             type="button"
             aria-haspopup="true"
             aria-expanded={resources}
             onClick={toggleResources}
-            style={{ ...linkStyle, color: resources || onBlog ? 'var(--brand)' : 'var(--navy-800)' }}
-            onMouseEnter={(e) => { if (!resources) e.currentTarget.style.color = 'var(--brand)'; }}
-            onMouseLeave={(e) => { if (!resources) e.currentTarget.style.color = onBlog ? 'var(--brand)' : 'var(--navy-800)'; }}
+            style={linkStyle}
           >
             Resources
-            <L name="chevron-down" size={13} color="currentColor" style={{ transform: resources ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {/* Hidden on mobile (see .nav-cta in index.css) — the CTA lives in the
               hamburger menu there, so the sticky header shows it only once. */}
-          <span className="nav-cta"><HBtn to="/#pricing" size="sm" variant="dark">Start free trial</HBtn></span>
-          <button
+          <span className="nav-cta"><Link className="hero-primary" to="/#pricing">Start free trial</Link></span>
+          <Button variant="ghost"
             type="button"
             className="nav-hamburger"
             aria-label={mobile ? 'Close menu' : 'Open menu'}
             aria-expanded={mobile}
             onClick={() => setMobile((v) => !v)}
-            style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 12, border: '1px solid rgba(45,37,25,0.12)', background: '#fff', cursor: 'pointer' }}
+            style={{ alignItems: 'center', justifyContent: 'center', width: 44, height: 44, border: 0, background: 'transparent', cursor: 'pointer' }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy-900)" strokeWidth="2" strokeLinecap="round">
-              {mobile ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              {mobile ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M2 8h20M2 16h20" />}
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -473,9 +425,9 @@ export function Nav() {
           aria-label="Features"
           style={{
             width: 'min(1180px, calc(100vw - 40px))', marginTop: 10,
-            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: '26px 30px',
+            background: 'color-mix(in srgb, var(--foreground) 97%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: '26px 30px',
             /* 🔴 The desktop panel had no height cap and could run off the
                bottom of a short window with no way to reach what it hid. The
                mobile panel below has always capped and scrolled; this is the
@@ -502,7 +454,7 @@ export function Nav() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(136px, 1fr))', gap: 18 }}>
             <FeatureMenuColumns variant="desktop" onNavigate={() => setMega(false)} />
           </div>
-          <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}><MegaMenuFooterLabel /></span>
           </div>
         </div>
@@ -515,9 +467,9 @@ export function Nav() {
           aria-label="Solutions"
           style={{
             width: 'min(360px, calc(100vw - 40px))', marginTop: 10,
-            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 12,
+            background: 'color-mix(in srgb, var(--foreground) 97%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: 12,
             maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
@@ -533,9 +485,9 @@ export function Nav() {
           aria-label="Resources"
           style={{
             width: 'min(360px, calc(100vw - 40px))', marginTop: 10,
-            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 12,
+            background: 'color-mix(in srgb, var(--foreground) 97%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: 12,
             maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
@@ -547,17 +499,18 @@ export function Nav() {
       {/* ---------- Mobile panel (accordion) ---------- */}
       {mobile && (
         <div
+          className="marketing-mobile-menu"
           style={{
             width: 'calc(100vw - 40px)', maxWidth: 460, marginTop: 10,
-            background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 18,
+            background: 'color-mix(in srgb, var(--foreground) 98%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: 18,
             maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
         >
           {/* Features accordion */}
-          <button
+          <Button variant="ghost"
             type="button"
             aria-expanded={mobileFeatures}
             onClick={() => setMobileFeatures((v) => !v)}
@@ -565,7 +518,7 @@ export function Nav() {
           >
             Features
             <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileFeatures ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
           {mobileFeatures && (
             <div style={{ padding: '4px 8px 12px' }}>
               <FeatureMenuColumns variant="mobile" onNavigate={closeMobile} />
@@ -573,15 +526,15 @@ export function Nav() {
           )}
 
           {/* Solutions accordion */}
-          <button
+          <Button variant="ghost"
             type="button"
             aria-expanded={mobileSolutions}
             onClick={() => setMobileSolutions((v) => !v)}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid rgba(45,37,25,0.06)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onSolutions ? 'var(--brand)' : 'var(--navy-900)' }}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onSolutions ? 'var(--brand)' : 'var(--navy-900)' }}
           >
             Solutions
             <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileSolutions ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
           {mobileSolutions && (
             <div style={{ padding: '4px 8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <SolutionsMenuItems variant="mobile" onNavigate={closeMobile} />
@@ -590,28 +543,28 @@ export function Nav() {
 
           {PAGE_LINKS.map(([label, href]) => (
             <Link key={label} to={href} onClick={closeMobile}
-              style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
+              style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid var(--border)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
           ))}
           {/* Resources accordion. 🔴 AN ACCORDION, NOT A HOVER TARGET: this is
               the phone panel, and a phone cannot hover. It is the same
               click-to-expand control the Features and Solutions menus use here,
               so the three entries are reachable with one tap. */}
-          <button
+          <Button variant="ghost"
             type="button"
             aria-expanded={mobileResources}
             onClick={() => setMobileResources((v) => !v)}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid rgba(45,37,25,0.06)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onBlog ? 'var(--brand)' : 'var(--navy-900)' }}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onBlog ? 'var(--brand)' : 'var(--navy-900)' }}
           >
             Resources
             <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileResources ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
           {mobileResources && (
             <div style={{ padding: '4px 8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <ResourcesMenuItems variant="mobile" onNavigate={closeMobile} />
             </div>
           )}
 
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(45,37,25,0.06)' }}>
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
             <HBtn to="/#pricing" variant="gold" block onClick={closeMobile}>{TRIAL_CTA_LABEL}</HBtn>
           </div>
         </div>

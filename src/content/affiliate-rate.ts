@@ -49,7 +49,6 @@ export const AFFILIATE_RATE_CLAIMS: ReadonlyArray<readonly [file: string, claim:
   ['components/Affiliate.tsx', 'Earn 30% recurring commission on every invoice for their first 12 months.'],
   ['components/Affiliate.tsx', '30% / month, for 12 months'],
   ['components/FeatureMock.tsx', '30% · every plan'],
-  ['content/coming-soon.ts', 'paying you 30% of what a church that joins through it actually pays for its plan'],
   ['content/features.ts', ", plus a 30% affiliate program"],
   ['content/features.ts', '30% for their first 12 months'],
   ['content/features.ts', 'Refer a ministry. Earn 30% for a year.'],

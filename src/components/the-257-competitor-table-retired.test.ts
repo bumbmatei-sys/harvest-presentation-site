@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { Replaces } from './Replaces';
 import { formatMonthlyHeadline, plans } from './Pricing';
 import { CATEGORIES, type Category } from '../content/features';
-import { COMING_SOON_ITEMS } from '../content/coming-soon';
 import {
   AFFILIATE_PROGRAM_ENABLED, MULTI_CAMPUS_ENABLED, NEWSLETTER_MARKETING_ENABLED,
   QUICKBOOKS_MARKETING_ENABLED, SMS_MARKETING_ENABLED,
@@ -398,29 +397,6 @@ describe('what the change did not touch', () => {
     expect(SMS_MARKETING_ENABLED).toBe(false);
     expect(MULTI_CAMPUS_ENABLED).toBe(false);
 
-    /* 🔴 THE AFFILIATE PROGRAMME'S STATE IS NOT THIS TICKET'S. THE-252 put it
-       on Coming Soon, and it is to be rebuilt on a third-party platform later —
-       the supplier is a board decision (THE-97) that this repo deliberately
-       does not name anywhere, see the-252-affiliate-coming-soon.test.ts §6.
-       Removing the programme from one table must not have moved it anywhere
-       else, so both relocated entries are still exactly where their own tickets
-       put them. */
-    const soon = COMING_SOON_ITEMS.map((i) => i.id);
-    expect(soon).toContain('affiliate');
-    expect(COMING_SOON_ITEMS.find((i) => i.id === 'affiliate')!.name).toBe('Affiliate referrals');
-    // 🔴 SMS LEFT COMING SOON AT THE-314 AND CAME BACK AT THE-335, each time in
-    // the same motion that moved the pricing page — `COMING_SOON_ITEMS` filters
-    // on SMS_MARKETING_ENABLED so the two can never both be true. A capability
-    // sold on one page while another calls it unbuilt is the same claim made
-    // twice, in two tenses. 🔴 ASSERTED AS THE EXCLUSIVE-OR rather than as
-    // whichever half happens to be current, so neither flip can leave this
-    // stale again.
-    if (SMS_MARKETING_ENABLED) {
-      expect(soon, 'SMS is sold on the pricing page AND promised as coming soon')
-        .not.toContain('sms');
-    } else {
-      expect(soon, 'SMS is hidden everywhere, including from the page that explains why')
-        .toContain('sms');
-    }
+
   });
 });

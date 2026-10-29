@@ -82,7 +82,7 @@ export const EVANGELISTIC_POCKET: readonly PocketTile[] = [
   { id: 'bible', title: 'The whole Bible.', body: 'Eight translations, highlighting and one-tap sharing. They never have to leave your app to read Scripture.' },
   { id: 'courses', title: 'Discipleship on video.', body: 'Your teaching videos become step-by-step courses with quizzes, and every finisher earns a certificate.' },
   { id: 'feed', title: 'Your voice in their feed.', body: 'Every post you publish lands in their feed with a push notification. No algorithm between you and them.' },
-  { id: 'aichat', title: 'An assistant that knows your teaching — coming soon.', body: "It will answer questions from your sermons and notes, then point people back to Scripture and prayer." },
+  { id: 'groups', title: 'Their group, in one place.', body: 'Channels for their group and a direct line to any leader, out of the group text.' },
   { id: 'prayer', title: 'A place to pray together.', body: 'They share a request in one line and see how many people prayed.' },
 ];
 
@@ -114,7 +114,7 @@ export interface Pillar { title: string; body: string }
 export const EVANGELISTIC_PILLARS: readonly Pillar[] = [
   { title: 'Fund it', body: 'Gifts, campaigns and pledges, straight to your own accounts.' },
   { title: 'Count it', body: 'Every decision for Jesus, by city and country.' },
-  { title: 'Follow it up', body: 'One record per person, and a course ready for every new believer.' },
+  { title: 'Follow it up', body: 'One record per person, and a course ready for every believer.' },
 ];
 
 export const EVANGELISTIC_RESOURCE_SLUGS: readonly string[] = [
@@ -147,6 +147,7 @@ export interface SolutionPageContent {
   numbers: { kicker: string; heading: string; body: string; tiles: readonly NumberTile[] };
   pocket: { kicker: string; heading: string; sub: string; tiles: readonly PocketTile[] };
   deepDives: readonly DeepDiveGroup[];
+  scheduler?: { heading: string; body: string };
   founder: { quote: string; attribution: string };
   support: { kicker: string; heading: string; body: string; button: { label: string; to: string } };
   pillars: readonly Pillar[];
@@ -174,8 +175,8 @@ export const EVANGELISTIC_ORGANIZATIONS: SolutionPageContent = {
   },
   hero: {
     eyebrow: 'EVANGELISTIC ORGANIZATIONS',
-    headline: 'Every decision counted.\nEvery one followed up.',
-    intro: "Know how many said yes, and in which city. Walk each one into discipleship, while your supporters see the fruit and fund what comes next. One app, under your ministry's name.",
+    headline: 'Every Decision Counted.\nEvery Person Followed Up.',
+    intro: "Know who said yes and where. Walk every believer into discipleship, keep your Facebook and Instagram posting in one place, and show supporters the fruit.",
     secondary: { label: 'See pricing', to: '/#pricing' },
     audience: 'For crusade teams, outreach ministries and mission organizations.',
   },
@@ -198,11 +199,12 @@ export const EVANGELISTIC_ORGANIZATIONS: SolutionPageContent = {
   },
   pocket: {
     kicker: 'IN THEIR POCKET',
-    heading: 'Everything a new believer needs, the day they say yes.',
+    heading: 'Everything a believer needs, from the day they say yes.',
     sub: 'The moment someone joins, your ministry goes home with them. Scripture, teaching and your voice, one tap away.',
     tiles: EVANGELISTIC_POCKET,
   },
   deepDives: EVANGELISTIC_DEEP_DIVES,
+  scheduler: { heading: 'Reach them where they scroll.', body: 'Most of your outreach lives on Facebook and Instagram. Write each post once and schedule it to Facebook, Instagram and Threads from Harvest. Included on Ministry.' },
   founder: {
     quote: "I'm an evangelist, and I serve at crusades. I've seen the gap between the moment someone says yes and the follow-up that should come after it. I built Harvest to close that gap, and to make it as easy as possible for every ministry doing this work.",
     attribution: 'Matei Bumb, Founder, Harvest',
@@ -244,7 +246,7 @@ export const CHURCHES_POCKET: readonly PocketTile[] = [
   { id: 'bible', title: 'The whole Bible.', body: 'Eight translations, highlighting and one-tap sharing.' },
   { id: 'feed', title: 'Your voice in their feed.', body: 'Every post lands with a push notification. No algorithm between you and them.' },
   { id: 'groups', title: 'Their group, in one place.', body: 'Channels for their group and a direct line to any leader, out of the group text.' },
-  { id: 'aichat', title: 'An assistant that knows your teaching — coming soon.', body: 'It will answer from your sermons and notes, then point people back to Scripture and prayer.' },
+  { id: 'prayer', title: 'A place to pray together.', body: 'They share a request in one line and see how many people prayed.' },
 ];
 
 export const CHURCHES_DEEP_DIVES: readonly DeepDiveGroup[] = [
@@ -290,13 +292,13 @@ export const CHURCHES: SolutionPageContent = {
   slug: 'churches',
   seo: {
     title: 'Harvest for Churches',
-    description: 'Church management software for small churches: membership CRM, online giving with a 0% Harvest platform fee, QR check-in, service planning, groups and livestream — one subscription, one member record.',
+    description: 'Church software for members, giving, check-in, groups, livestream and service planning, in one app under your church\'s name. 0% fee on donations.',
     canonical: `https://theharvest.site${solutionHref('churches')}`,
   },
   hero: {
     eyebrow: 'CHURCHES',
-    headline: 'Everything your church runs on, in one place.',
-    intro: "Built as church software for small churches — one plan, one member record. Members, giving, check-in, groups, livestream and service planning under your church's name, without a stack of logins.",
+    headline: 'Everything Your Church Runs On,\nin One Place.',
+    intro: "Members, giving, check-in, groups, livestream and service planning under your church's name. One login, one record per person.",
     secondary: { label: 'See pricing', to: '/#pricing' },
     audience: 'For church plants, growing congregations and established churches.',
   },
@@ -324,6 +326,7 @@ export const CHURCHES: SolutionPageContent = {
     tiles: CHURCHES_POCKET,
   },
   deepDives: CHURCHES_DEEP_DIVES,
+  scheduler: { heading: 'Post to Facebook and Instagram', body: "Schedule Sunday's posts to Facebook, Instagram and Threads from the same app. Included on Ministry." },
   founder: {
     quote: "I believe a church shouldn't have to pay hundreds of dollars every month across a stack of subscriptions just to run. Through Harvest, we're helping small and medium-sized churches get on with the mission God has given them.",
     attribution: 'Matei Bumb, Founder, Harvest',
@@ -376,7 +379,7 @@ export const MISSIONARIES_DEEP_DIVES: readonly DeepDiveGroup[] = [
   },
   {
     heading: 'Keep supporters updated.',
-    sub: 'Updates from the field in your feed and on your blog, straight to the people who send you.',
+    sub: 'Updates from the field in your feed, on your blog and on Facebook and Instagram. Social posting is included on Ministry.',
     featureIds: ['feed', 'blog'],
   },
   {
@@ -411,8 +414,8 @@ export const MISSIONARIES: SolutionPageContent = {
   },
   hero: {
     eyebrow: 'INDIVIDUAL MISSIONARIES',
-    headline: 'Stay funded. Stay in touch.',
-    intro: 'Raise support with your own giving page, campaigns and pledges. Keep every supporter updated through your feed and blog. One app, under your name, without a team to run it.',
+    headline: 'Stay Funded. Stay in Touch.',
+    intro: 'Raise support with your own giving page, campaigns and pledges. Keep supporters close with your feed, blog and scheduled social posts. One app, under your name.',
     secondary: { label: 'See pricing', to: '/#pricing' },
     audience: 'For missionaries, church planters and evangelists raising their own support.',
   },

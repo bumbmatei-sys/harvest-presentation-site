@@ -1,10 +1,12 @@
 import React from 'react';
+import { PageHeader } from '../components/marketing';
+
 import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
-import { Clouds, Reveal } from '../components/effects';
-import { Particles, AnimatedText } from '../components/magic';
+
+
 import { SiteCTA } from '../components/SiteCTA';
-import { Kicker, softCard, SKY } from '../components/shared';
+
 import { plans } from '../components/Pricing';
 import { legalHref } from '../content/legal';
 import {
@@ -109,11 +111,11 @@ export function Answer({ faq, first }: { faq: (typeof FAQS)[number]; first: bool
     <details
       id={faq.id}
       className="faq-item"
-      style={{ scrollMarginTop: 110, borderTop: first ? undefined : '1px solid rgba(45,37,25,0.08)' }}
+      style={{ scrollMarginTop: 110 }}
     >
       <summary className="faq-summary">
         <h2 style={{
-          fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 'clamp(1.15rem, 2.2vw, 1.4rem)',
+          fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 15,
           lineHeight: 1.3, letterSpacing: '-0.01em', color: 'var(--navy-900)', margin: 0,
           overflowWrap: 'anywhere',
         }}>
@@ -134,7 +136,7 @@ export function Answer({ faq, first }: { faq: (typeof FAQS)[number]; first: bool
 
 export function FaqPage() {
   return (
-    <main>
+    <main className="marketing-page marketing-faq">
       <Seo
         title={FAQ_SEO_TITLE}
         description={FAQ_SEO_DESCRIPTION}
@@ -143,36 +145,15 @@ export function FaqPage() {
       />
 
       {/* Header band — the /contact and policy treatment. */}
-      <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 80, overflow: 'hidden' }}>
-        <Clouds dense />
-        <Particles quantity={26} />
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 820, margin: '0 auto', padding: '0 28px', textAlign: 'center' }}>
-          <Reveal y={14}><Kicker>Before you buy</Kicker></Reveal>
-          <AnimatedText
-            as="h1"
-            text={FAQ_TITLE}
-            startOnView={false}
-            delay={100}
-            stagger={80}
-            y={20}
-            duration={760}
-            style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 'clamp(2.1rem, 4.6vw, 3.2rem)', lineHeight: 1.06, letterSpacing: '-0.03em', color: 'var(--navy-900)', margin: '20px auto 0' }}
-          />
-          <Reveal delay={340} y={16}>
-            <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 620, margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
-              {FAQ_STANDFIRST}
-            </p>
-          </Reveal>
-        </div>
-      </section>
+      <PageHeader eyebrow="Before you buy" title={FAQ_TITLE} description={FAQ_STANDFIRST} />
 
       {/* The answers — one column, straddling the sky → cream seam. */}
-      <section style={{ background: 'var(--cream)', padding: '0 20px var(--section-y-tight)', position: 'relative', zIndex: 2 }}>
-        <Reveal y={24} style={{ maxWidth: 780, margin: '-20px auto 0' }}>
-          <article style={{ ...softCard, padding: 'clamp(26px, 5vw, 52px)' }}>
+      <section className="fab-container marketing-page-content">
+        <div>
+          <article className="marketing-answers">
             {FAQS.map((faq, i) => <Answer key={faq.id} faq={faq} first={i === 0} />)}
 
-            <div style={{ marginTop: 10, paddingTop: 22, borderTop: '1px solid rgba(45,37,25,0.08)', display: 'flex', flexWrap: 'wrap', gap: 18 }}>
+            <div style={{ marginTop: 10, paddingTop: 22, borderTop: '1px solid var(--border)', display: 'flex', flexWrap: 'wrap', gap: 18 }}>
               <Link to="/#pricing" style={linkCss}>See pricing →</Link>
               <Link to={legalHref('terms')} style={linkCss}>Terms of Service →</Link>
               <Link to={legalHref('privacy')} style={linkCss}>Privacy Policy →</Link>
@@ -180,7 +161,7 @@ export function FaqPage() {
               <Link to="/contact" style={linkCss}>Ask us something else →</Link>
             </div>
           </article>
-        </Reveal>
+        </div>
       </section>
 
       <SiteCTA heading="Still deciding? Try it on your own ministry." />

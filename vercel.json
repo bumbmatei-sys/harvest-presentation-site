@@ -1,5 +1,7 @@
 {
   "redirects": [
-    { "source": "/features.html", "destination": "/features", "permanent": true }
+    { "source": "/features/coming-soon", "destination": "/features", "permanent": true },
+    { "source": "/features.html", "destination": "/features", "permanent": true },
+    { "source": "/roadmap", "destination": "/", "permanent": true }
   ]
 }

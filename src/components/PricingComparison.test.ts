@@ -268,7 +268,7 @@ describe('the catalogue is a different object from the grid', () => {
     // 🔵 27 → 28 at THE-306, which added the Shareable Giving Page — a live, unflagged tool that shipped in THE-281 with no mega-menu row at all.
     // 🔵 29 since THE-314 turned SMS back on. It was 28 while the SMS tool was
     // withheld, and 27 before THE-306 added the Shareable Giving Page.
-    expect(CATALOG_TOOL_COUNT).toBe(26);
+    expect(CATALOG_TOOL_COUNT).toBe(27);
     expect(CATALOG_TOOL_COUNT).toBe(
       CATALOG.reduce((n, g) => n + g.items.filter((it) => !it.soon).length, 0),
     );
@@ -452,7 +452,7 @@ describe('the Forever Free column claims exactly what the tier has', () => {
       // The row is back and renamed; free still claims none of it.
       'SMS & Text-to-Give', 'Social scheduler',
       'Livestream + Live Giving', 'Check-In System (QR)',
-      'Groups & chat (channels and direct messages)', 'Event Registration', 'Campuses & Church Map', 'Custom Branding',
+      'Groups & chat (channels and direct messages)', 'Event Registration', 'Locations & Map', 'Custom Branding',
       // THE-280 \u2014 the Custom Domain row moved behind
       // CUSTOM_DOMAIN_MARKETING_ENABLED, so with the flag off there is no row
       // to read. Guarded rather than deleted, exactly as THE-250 guarded the
