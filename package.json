@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite-react-ssg build",
     "preview": "vite preview",
+    "indexnow": "node scripts/indexnow.mjs",
     "test": "vitest run"
   },
   "dependencies": {

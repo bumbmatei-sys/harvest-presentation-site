@@ -16,6 +16,7 @@ export function BlogCategory() {
       <>
         <Seo
           title="Category not found — Harvest"
+          noindex
           description="That category does not exist. Browse everything on the Harvest resources index."
           canonical={`${SITE_ORIGIN}/blog`}
         />

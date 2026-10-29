@@ -8,7 +8,7 @@ import { LEGAL_DOCS, legalHref } from '../src/content/legal';
 import { FAQ_HREF } from '../src/content/faq';
 import { SCHEDULER_HREF } from '../src/content/scheduler';
 import { SOLUTIONS, solutionHref } from '../src/content/solutions';
-import { byNewest, SITE_ORIGIN, type ImageSizes, type Post } from '../src/content/post-core';
+import { byNewest, type ImageSizes, type Post } from '../src/content/post-core';
 import { parsePost } from './parse-post';
 
 /* Build-time half of the blog. Everything Node-only lives here:
@@ -18,7 +18,7 @@ import { parsePost } from './parse-post';
      height and the page does not reflow as images load
    - warns about oversized images and broken image references
    - derives the prerender route list from the content directory
-   - writes public/sitemap.xml
+   - supplies published content and prerender routes to the SEO post-build hook
 
    The finished posts reach the app through the `virtual:blog-content` module.
    They are handed over already parsed on purpose: gray-matter reaches for
@@ -33,28 +33,9 @@ const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, 'src', 'content', 'posts');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const BLOG_ASSET_DIR = path.join(PUBLIC_DIR, 'blog');
-const SITEMAP_FILE = path.join(PUBLIC_DIR, 'sitemap.xml');
 
 const IMAGE_EXT = new Set(['.webp', '.png', '.jpg', '.jpeg', '.avif', '.gif']);
 const SIZE_WARN_BYTES = 400 * 1024;
-
-/** Static routes that belong in the sitemap. `/pricing` is deliberately absent —
- *  it renders the homepage and canonicals to `/`, so listing it would compete.
- *  `/features` is absent for the same reason: it only forwards to the category
- *  pages below and is marked noindex. */
-const STATIC_ROUTES = [
-  '/',
-  ...FEATURE_CATEGORIES.map((c) => categoryHref(c.slug)),
-  // The live social scheduler has its own feature page.
-  SCHEDULER_HREF,
-  // Solutions — board card 86bbyv8pp. Indexed: a ministry searching for what
-  // Harvest offers evangelistic organizations should find this page.
-  ...SOLUTIONS.map((s) => solutionHref(s.slug)),
-  '/contact',
-  '/waitlist',
-  FAQ_HREF,
-  ...LEGAL_DOCS.map((d) => legalHref(d.slug)),
-];
 
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -125,20 +106,6 @@ export function blogRoutes(): string[] {
   ];
 }
 
-function sitemapXml(posts: Post[]): string {
-  const entry = (loc: string, lastmod?: string) =>
-    `  <url>\n    <loc>${SITE_ORIGIN}${loc}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}\n  </url>`;
-
-  const urls = [
-    ...STATIC_ROUTES.map((r) => entry(r)),
-    entry('/blog', posts[0]?.updated),
-    ...CATEGORIES.map((c) => entry(`/blog/category/${c.key}`, posts.find((p) => p.category === c.key)?.updated)),
-    ...posts.map((p) => entry(`/blog/${p.slug}`, p.updated)),
-  ];
-
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
-}
-
 export function blogPlugin(): Plugin {
   let module = 'export const posts = [];';
 
@@ -155,10 +122,6 @@ export function blogPlugin(): Plugin {
         if (!sizes[src]) warn(`[blog] ${post.slug}.md references ${src}, which is not a readable image under public/.`);
       }
     }
-
-    // Written into public/ so Vite's static copy puts it at /sitemap.xml.
-    fs.mkdirSync(PUBLIC_DIR, { recursive: true });
-    fs.writeFileSync(SITEMAP_FILE, sitemapXml(posts), 'utf8');
 
     module = `export const posts = ${JSON.stringify(posts)};`;
     return posts;

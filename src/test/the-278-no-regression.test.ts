@@ -1360,6 +1360,10 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     '48379b0004650a4e0b46b3afe1b875ddb0336ed1f6e7181ef4b737c0b55cacab',
     // Full-site Fabale rebuild: all 29 routes restyled, none added or removed.
     '4c7c060fde6048d61be1e045b3f8f4fbac6340b2770995c375b5909bdc5d0eef',
+    // SEO_INDEXING: head metadata changes; every complete body remains pinned.
+    '69c7bffd14a4715caad34fdf55c494e73cf03bd7ac8653a60d3a1bef2e259339',
+    // Merge #111 and #112: restyled pages with SEO metadata; 29 routes.
+    '11a407887f414a167582e7d7ab00b9152bc8316c3cb779db8ea2a3a8da355ba5',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1665,6 +1669,76 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(Object.keys(BASELINE)).toHaveLength(29);
   });
 
+  // Historical SEO-only build before the Fabale merge; retained for provenance.
+  // Its complete page bodies were pinned to pristine b4b42e4.
+  const SEO_INDEXING_PAGES: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': '575c9cc9cd92864818314e0feebcd940c235bbd228f0c052970fb920096af4ad',
+    'blog/category/inside-harvest/index.html': '6ad68d3b591b4cea705a46276ea5afd57604a1283cfbed687c483468883b444b',
+    'blog/category/rooted/index.html': 'c95bb148a46037183c59e714be6bdc24116da7a88fb976337f24c8545877b312',
+    'blog/generosity-without-pressure/index.html': '6c4ec3a8dfccafe8084c5cc47c2c3bc7e0f01af84d9d8b7910a1af4a341ab86b',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '9487f80a72b303c43db72222c97e9e026269e44cb1478d76c33a1f3730266b50',
+    'blog/index.html': '0828a1ac949e0b731e25ece982a9497fb494a861cf69f5f6d3439a52d4093f9e',
+    'blog/planning-center-alternative-small-churches/index.html': '2f4eb81dcc0aa5176f543bc9d1cd97439f52bf53c555631ce31dff7a3926711b',
+    'blog/skool-alternative-for-churches/index.html': 'f0c7ca59516f2cc9ccd8388d4546971e9d68aa4c06f09356ad8b1dea6957f66d',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': '1dbb16e6395df577076b76174e8359b45a8b1f39c362d2e92f246c42bf03772a',
+    'blog/work-that-outlives-you/index.html': 'c1496b33bf6b0212d0e116003e8789d4f0f8ff2778bb431a51db80e7fed0bc8e',
+    'blog/year-end-giving-statements-what-to-include/index.html': '4143d0e1a7483edb5f41a1d35ea80d6c098a29d6c15b3f7b19a7ff0c82ec525c',
+    'contact/index.html': '9c920edb0da2e76bfb6e4446f8b1fb7f23ce534d30dbceb4904fbec7edf02eef',
+    'faq/index.html': '74c1fed12f943c68cf58cf0e74364d2ba8be6e66750e3deb50ed9733e35413be',
+    'features/ai-automation/index.html': '767ef42dd1e47ecad7b130a2d01440eab9755d6580dff17b35851419b7e0f0e0',
+    'features/coming-soon/index.html': 'ea967976bd5597999ad6ced8a4b52d31181aab8361ffc09c191f36e212600dad',
+    'features/community-engagement/index.html': '289444962eefd745ae673f59df5d3eb8bc822e38024774dcd01ea81722b1344e',
+    'features/discipleship-content/index.html': 'a20ecffb1834637cafb62b9c69beaff32cd55ddf44a5050b31e383473dae22dd',
+    'features/giving-finance/index.html': 'b04c0aa7561ef82c6089097a2f856798507100a7085aba7efdf7d6409a3551b7',
+    'features/harvest-scheduler/index.html': '9f71d71c31f17ba9afae06bee0865d6a313711eca59cfc31a35be7955086c566',
+    'features/index.html': 'f8d58a593c0742156e197106a345c74ac1e4499347d63471763688aceed27ce2',
+    'features/platform-brand/index.html': '00c5911416692f83528b370c8c67b5f503cb75183db7dccdc1fa7453243677ad',
+    'index.html': '53ee791c816c34b3f481036c69d5ba740fa4b62a404f835506a10c782f41d598',
+    'pricing/index.html': 'f608b7e7e566b0410311f06971abeaf83cb0656dc18fe55111e1406b62fcbfd6',
+    'privacy/index.html': 'f36567aa1da9c6404361978463bd6c1b1778d028216b7fec00c64c8b5b395129',
+    'refunds/index.html': '12fa0e1c53d0809818fb720268a5a1e9a582b2b14c9d7dd1c1f6833fe2ed730f',
+    'solutions/churches/index.html': '619808b2381c1688a4c54891c69761d6990058a9b061fd89ecad51d6faeb2621',
+    'solutions/evangelistic-organizations/index.html': '30972b77ad8b036306632d1b7da11ac89147af93515fd1a220f877b249756ceb',
+    'solutions/missionaries/index.html': 'ea2086bb7070aab951bcfe72ec531ac2aa40ed57ce7350902dcf378576ae3e92',
+    'terms/index.html': 'e8fbf4d2fafa955f348578abe801672823511567e0468cc27ce9525d6a2a461e',
+    'waitlist/index.html': 'ba9f4b1fe4be923955d4fe494ead1cfe9f891f3fcc58f0b7348818802947b6ab',
+  };
+
+  // Merge #111 and #112: SHA-256 of complete built HTML, using only
+  // the asset-hash and SSG-nonce normalisation documented above. Bodies are
+  // independently pinned to pristine origin/main in seo-body-baseline.json.
+  const MERGED_SEO_FABALE_PAGES: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': '5210506a81be651851fdca62fcdd2674bf4a82cf336f033d3eb1b79d4218f3ae',
+    'blog/category/inside-harvest/index.html': 'f1be2f28be8eb4bbf768b1ff831eb80056335003bbd6fbc0776cd811c50842bf',
+    'blog/category/rooted/index.html': '27080dae7ef96587988412790e89fc62285f59adcd048bd9f80cb62d4b1d05e2',
+    'blog/generosity-without-pressure/index.html': 'f0c608faf1b890299b0ca6c5d50b3a855099e16d932cb58cf84e9be1dbf540f0',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '7d0996bdaf41f47678fe42b6c83e84c1a9e940617df6bb7dcdcdb5057feac7ee',
+    'blog/index.html': '9e1286076df2aae56973c69e880ac21d6db52b632e6b8843d15767e89361759c',
+    'blog/planning-center-alternative-small-churches/index.html': 'e7f772a6f311626f1a835ad3a491eaaa59bd172c10ef861281ded868404df078',
+    'blog/skool-alternative-for-churches/index.html': 'b07d15af6eeb87096c364c26412cba5fc89f329274d9b15d08cc329d8a91a6cd',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': 'e59fa2cf76475375156f4b38ff8784027ef2833ff272d797cf89627a2134d06e',
+    'blog/work-that-outlives-you/index.html': 'b3ed00eb6ef4f8588e66c67f76a5024277f72dc80ee085522984e4fe4f483ced',
+    'blog/year-end-giving-statements-what-to-include/index.html': 'a3549b6c29e230659c37091a483e0ebd10c14f2f50a2f55118be6bbd30268066',
+    'contact/index.html': '026db0467499d991b0242617be4b599f3372d1ec1332dd4d38f60e6bddbdae08',
+    'faq/index.html': 'f338f3030b8e10f6b2711946c1a38f4d7aebaf20a49c9bcb074240f2c03c7479',
+    'features/ai-automation/index.html': '34aaf6f5c3ee22b6c194e55e5e5a5f1c3b5e805b7ef773e03c270a3edd9c94f8',
+    'features/community-engagement/index.html': 'f101721f38edcac4c66f4a11e7806827cd01a7301c81866f655ec3514cff2998',
+    'features/discipleship-content/index.html': '17719935a5101b4919ab1095fa52b0b53d4b1991448746d8a73173a4300fb267',
+    'features/giving-finance/index.html': '9b5ecbeb63011a1cfac7069113b050687e5406248857f9df70ddbb1c72dc0a3a',
+    'features/harvest-scheduler/index.html': 'fd6738fe5903ee6a6454a26113e5a4555a4edd157c5aecd276d0ed1d013031fc',
+    'features/index.html': '332a540fb231d0c9fbd9f7202190bba70718e7aa72062237069271de21ab228f',
+    'features/platform-brand/index.html': '00a8107dc5045b312501d62f7a20feb4ba76db93baee0375dfa126a8de5a0baf',
+    'index.html': '4d35fe6ae2cf4280595078e6077341d0624ae2c8a916c54a2409e59ec4034cc9',
+    'pricing/index.html': '999d50f02ec3305bd3b11e4de6409529d09a548da72b1cddfb6e8c1892cdc2b2',
+    'privacy/index.html': 'ade02cf14bbd9d2500bdba9cedc32c12f24f4e79e97a2188d74815d7bc865bd5',
+    'refunds/index.html': 'becbdb70aec6e9206af46ba4851d754f5c7c72104cb2a6132c82390d735c89a9',
+    'solutions/churches/index.html': '02a2623ce6586c59cfb5542dfec43423d733fbca3c6e5757b292f07c8820478e',
+    'solutions/evangelistic-organizations/index.html': '58fa57944e281d8ed53a7f1b499124333876bc5c849698cd4b2792828819fe46',
+    'solutions/missionaries/index.html': '1d16cbc34a893ea088a0f587729f895a8907c132f6b806879ed8c85b34897baf',
+    'terms/index.html': '11e16104c7807a46fbb25122975abce5122b5cdf8f807d4aa4ec1b9ee9e3a9ea',
+    'waitlist/index.html': '240d16ac67e25369e4c5bdd389bf34e508a209763b261cdb3fe1462408d1e5d6',
+  };
+
   const pagesInDist = (): string[] => {
     const out: string[] = [];
     (function walk(dir: string) {
@@ -1684,7 +1758,19 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
   it.runIf(comparable).each(Object.keys(BASELINE))('%s matches the approved full-site Fabale presentation', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved since the full-site rebuild`).toBe(SITE_FABALE_MOVED[page]);
+    expect(actual, `${page} moved since SEO indexing`).toBe(MERGED_SEO_FABALE_PAGES[page]);
+  });
+
+  it.runIf(comparable)('SEO indexing leaves every complete page body unchanged', () => {
+    const fixture = JSON.parse(read('src/test/fixtures/seo-body-baseline.json')) as { pages: Record<string, string> };
+    expect(Object.keys(MERGED_SEO_FABALE_PAGES).sort()).toEqual(Object.keys(SITE_FABALE_MOVED).sort());
+    expect(pagesInDist()).toEqual(Object.keys(fixture.pages).sort());
+    for (const [page, expected] of Object.entries(fixture.pages)) {
+      const html = normalise(read(path.join('dist', page)));
+      const body = html.match(/<body\b[^>]*>[\s\S]*<\/body>/)?.[0];
+      expect(body, `${page} has no body`).toBeDefined();
+      expect(sha(body!), `${page} body changed during SEO work`).toBe(expected);
+    }
   });
 
   it('🔴 THE-306 moved exactly three pages, and added and dropped none', () => {
@@ -2207,7 +2293,10 @@ describe('9 — the prerender list and the built page count are unchanged', () =
 });
 
 /* ═══ 10 — the build configuration is untouched ══════════════════════════ */
-describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identical', () => {
+describe('10 — deployment config is untouched and SEO build changes are pinned', () => {
+  // SEO_INDEXING intentionally moves sitemap generation from public/ to the
+  // post-SSG finish hook and repins those two files. vercel.json stays pinned.
+  // The history below describes the earlier route-only changes.
   /* ⚠️ THE BLOG PLUGIN'S HASH MOVED AT THE-284, AND ONLY ITS HASH.
    *
    * `blogRoutes()` and `STATIC_ROUTES` are the prerender list and the sitemap,
@@ -2232,23 +2321,21 @@ describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identi
    */
   it.each([
     ['vercel.json', 'd3fffe4c98affcb96605563495f725faf292741c49ed2540e8c5107933ddaa0a'],
-    ['vite.config.ts', '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66'],
-    ['build/blog-plugin.ts', '50ee959bc815ab0cb8f68ecd111fcd9131ede8a03e04f541369b8bf05e53cb28'],
-  ])('%s is unchanged', (file, hash) => {
-    expect(sha(readFileSync(path.join(ROOT, file))), `${file} was modified`).toBe(hash);
+    ['vite.config.ts', '0c14d02079ea936a7749a5deb49eae01c568c0092e8749ef9ddaf88256cfdb80'],
+    ['build/blog-plugin.ts', '685430636629d863b9c4508abdd6de2795a4bcf600d73d3dbc00df0dad66575c'],
+  ])('%s matches its reviewed configuration', (file, hash) => {
+    expect(sha(readFileSync(path.join(ROOT, file))), `${file} differs from the reviewed configuration`).toBe(hash);
   });
 
-  it('🔴 the blog plugin changed only its route list — the plugin itself is untouched', () => {
-    /* What the hash above used to say on its own. Spelled out against the
-       source so that repinning it for a new route cannot quietly cover an edit
-       to the machinery: the parser, the image measurement, the sitemap shape,
-       the virtual module and the watch graph are all still exactly as they
-       were, and the diff at THE-284 is three lines of route list. */
+  it('the blog plugin preserves content loading; sitemap generation lives in the SSG finish hook', () => {
+    // Content parsing, image measurement, watch graph and virtual module remain
+    // in the blog plugin. Only indexing artifacts moved to the post-build hook.
     const plugin = read('build/blog-plugin.ts');
     expect(plugin).toMatch(/export function blogPlugin\(\): Plugin \{/);
     expect(plugin).toMatch(/const VIRTUAL_ID = 'virtual:blog-content';/);
     expect(plugin).toMatch(/const SIZE_WARN_BYTES = 400 \* 1024;/);
-    expect(plugin).toMatch(/fs\.writeFileSync\(SITEMAP_FILE, sitemapXml\(posts\), 'utf8'\);/);
+    expect(plugin).not.toContain('fs.writeFileSync');
+    expect(read('vite.config.ts')).toMatch(/onFinished: \(outDir\) => writeSeoArtifacts\(outDir, blogRoutes\(\), readPublishedPosts\(\)\)/);
     expect(plugin).toMatch(/for \(const file of postFiles\(\)\) this\.addWatchFile\(file\);/);
     expect(plugin).toMatch(/\.\.\.readPublishedPosts\(\)\.map\(\(p\) => `\/blog\/\$\{p\.slug\}`\),/);
     /* And the new route is DERIVED from the content module, not typed as a

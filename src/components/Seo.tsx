@@ -1,4 +1,6 @@
 import { Head } from 'vite-react-ssg';
+import { JsonLd } from './JsonLd';
+import { pageSchema } from '../lib/structured-data';
 
 /* Per-route <head>. index.html no longer carries any page-specific metadata, so
    every route owns its own title, description, canonical and social tags — both
@@ -17,27 +19,31 @@ export interface SeoProps {
   jsonLd?: Record<string, unknown>;
   /** `article` for blog posts; anything else stays a plain page. */
   ogType?: 'website' | 'article';
+  noindex?: boolean;
 }
 
-export function Seo({ title, description, canonical, image = IMAGE_DEFAULT, jsonLd, ogType = 'website' }: SeoProps) {
+export function Seo({ title, description, canonical, image = IMAGE_DEFAULT, jsonLd, ogType = 'website', noindex = false }: SeoProps) {
   return (
-    <Head>
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      <link rel="canonical" href={canonical} />
+    <>
+      <Head>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <link rel="describedby" href="/llms.txt" type="text/plain" />
+        {noindex && <meta name="robots" content="noindex, follow" />}
 
-      <meta property="og:type" content={ogType} />
-      <meta property="og:url" content={canonical} />
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
+        <meta property="og:type" content={ogType} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={image} />
 
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
-
-      {jsonLd && <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>}
-    </Head>
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={image} />
+      </Head>
+      <JsonLd nodes={[...pageSchema(title, description, canonical), ...(jsonLd ? [jsonLd] : [])]} />
+    </>
   );
 }

@@ -591,10 +591,22 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/Pricing.tsx': 'a0abe36ab2f6e3ecc3b0ed4fa01b38aeeca4124c82857352548e9c8d735ccf62',
   };
 
+  // SEO_INDEXING moves sitemap generation into the SSG finish hook; no page
+  // content or visual component changes. Keep earlier configuration pins above.
+  const SEO_INDEXING_REPINNED: Readonly<Record<string, string>> = {
+    'vite.config.ts': '0c14d02079ea936a7749a5deb49eae01c568c0092e8749ef9ddaf88256cfdb80',
+    'build/blog-plugin.ts': 'f49d9679c1abf4cc0057fad217178065aa2691c587a8cb9b5481af7be6e74304',
+  };
+
+  // Merge #111 and #112: retain the route removal and post-SSG indexing.
+  const MERGED_SEO_FABALE_REPINNED: Readonly<Record<string, string>> = {
+    'build/blog-plugin.ts': '685430636629d863b9c4508abdd6de2795a4bcf600d73d3dbc00df0dad66575c',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        SITE_FABALE_REPINNED[file] ?? AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        MERGED_SEO_FABALE_REPINNED[file] ?? SEO_INDEXING_REPINNED[file] ?? SITE_FABALE_REPINNED[file] ?? AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

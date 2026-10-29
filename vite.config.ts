@@ -2,7 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 // Type-only import: augments Vite's UserConfig with `ssgOptions`.
 import type {} from 'vite-react-ssg';
-import { blogPlugin, blogRoutes } from './build/blog-plugin';
+import { blogPlugin, blogRoutes, readPublishedPosts } from './build/blog-plugin';
+import { writeSeoArtifacts } from './build/seo';
 
 export default defineConfig({
   plugins: [react(), blogPlugin()],
@@ -18,5 +19,6 @@ export default defineConfig({
     // /blog/:slug has to be expanded — both come from the content directory, so
     // a new post needs no config change here.
     includedRoutes: () => blogRoutes(),
+    onFinished: (outDir) => writeSeoArtifacts(outDir, blogRoutes(), readPublishedPosts()),
   },
 });

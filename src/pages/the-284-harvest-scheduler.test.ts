@@ -37,7 +37,12 @@ describe('live social scheduler', () => {
     const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
     expect(config.redirects).toContainEqual({ source: '/features/coming-soon', destination: '/features', permanent: true });
     for (const [, page] of distPages()) expect(page).not.toContain('href="/features/coming-soon');
-    if (built) expect(read('public/sitemap.xml')).not.toContain('/features/coming-soon');
+    if (built) {
+      // SEO indexing writes the audited sitemap after SSG finishes.
+      const sitemap = read('dist/sitemap.xml');
+      expect(sitemap).toContain(`https://theharvest.site${SCHEDULER_HREF}</loc>`);
+      expect(sitemap).not.toContain('/features/coming-soon');
+    }
   });
 });
 
