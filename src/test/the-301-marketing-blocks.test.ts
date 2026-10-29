@@ -563,10 +563,17 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/the-258-platform-brand-complete.test.ts': 'ea0da4de3189aa0b1efd52aded0055c1c468f7a1f01464e593c6bc7b7853eb9b',
   };
 
+  // SEO_INDEXING moves sitemap generation into the SSG finish hook; no page
+  // content or visual component changes. Keep earlier configuration pins above.
+  const SEO_INDEXING_REPINNED: Readonly<Record<string, string>> = {
+    'vite.config.ts': '0c14d02079ea936a7749a5deb49eae01c568c0092e8749ef9ddaf88256cfdb80',
+    'build/blog-plugin.ts': 'f49d9679c1abf4cc0057fad217178065aa2691c587a8cb9b5481af7be6e74304',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        SEO_INDEXING_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

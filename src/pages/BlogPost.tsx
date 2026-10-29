@@ -22,6 +22,7 @@ function NotFound() {
     <>
       <Seo
         title="Post not found — Harvest"
+        noindex
         description="That post does not exist or has moved. Browse everything on the Harvest resources index."
         canonical={`${SITE_ORIGIN}/blog`}
       />
@@ -111,10 +112,11 @@ export function BlogPost() {
           datePublished: post.publishDate,
           dateModified: post.updated,
           image: absoluteImageUrl(post.cover),
-          author: { '@type': 'Organization', name: 'Harvest', url: SITE_ORIGIN },
+          author: { '@type': 'Organization', '@id': `${SITE_ORIGIN}/#organization`, name: 'The Harvest', url: SITE_ORIGIN },
           publisher: {
             '@type': 'Organization',
-            name: 'Harvest',
+            '@id': `${SITE_ORIGIN}/#organization`,
+            name: 'The Harvest',
             logo: { '@type': 'ImageObject', url: `${SITE_ORIGIN}/logo.png` },
           },
           mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },

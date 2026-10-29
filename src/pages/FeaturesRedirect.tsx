@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Head } from 'vite-react-ssg';
+import { Seo } from '../components/Seo';
 import { ContentSection, categoryItem } from '../components/content-3';
 import { CATEGORIES, LEGACY_ANCHORS, categoryHref } from '../content/features';
 
@@ -34,11 +34,10 @@ export function FeaturesRedirect() {
 
   return (
     <main>
-      <Head>
-        <title>Features — Harvest</title>
-        <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href={`https://theharvest.site${categoryHref(CATEGORIES[0].slug)}`} />
-      </Head>
+      <Seo title="Features — Harvest"
+        description="Explore Harvest features by category."
+        canonical={`https://theharvest.site${categoryHref(CATEGORIES[0].slug)}`}
+        noindex />
       <Navigate to={target} replace />
       {/* Clears the fixed nav. The block sets its own vertical rhythm from
           --section-y; what it cannot know is that 110px of this page is behind

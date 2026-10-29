@@ -4,5 +4,8 @@ dist
 tsconfig.tsbuildinfo
 .vite-react-ssg-temp
 
-# Generated at build time by build/blog-plugin.ts
+# Legacy generated sitemap (SEO artifacts now go directly to dist/).
 public/sitemap.xml
+
+# Local SEO handoff; intentionally not committed.
+SEO-RESULT.md

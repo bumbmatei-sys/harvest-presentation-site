@@ -1285,6 +1285,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'ca66bf7fc181286bba9154396a3daefbd89cf3f2d8f67826d93c4ca10fd7cd94',
     // Church and Ministry reprice: all existing routes remain.
     '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
+    // SEO_INDEXING: head metadata changes; every complete body remains pinned.
+    '69c7bffd14a4715caad34fdf55c494e73cf03bd7ac8653a60d3a1bef2e259339',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1588,6 +1590,41 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     expect(Object.keys(BASELINE)).toHaveLength(30);
   });
 
+  // SEO_INDEXING changes head metadata on all pages; the complete bodies
+  // are independently pinned to the pristine b4b42e4 build below.
+  const SEO_INDEXING_PAGES: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': '575c9cc9cd92864818314e0feebcd940c235bbd228f0c052970fb920096af4ad',
+    'blog/category/inside-harvest/index.html': '6ad68d3b591b4cea705a46276ea5afd57604a1283cfbed687c483468883b444b',
+    'blog/category/rooted/index.html': 'c95bb148a46037183c59e714be6bdc24116da7a88fb976337f24c8545877b312',
+    'blog/generosity-without-pressure/index.html': '6c4ec3a8dfccafe8084c5cc47c2c3bc7e0f01af84d9d8b7910a1af4a341ab86b',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': '9487f80a72b303c43db72222c97e9e026269e44cb1478d76c33a1f3730266b50',
+    'blog/index.html': '0828a1ac949e0b731e25ece982a9497fb494a861cf69f5f6d3439a52d4093f9e',
+    'blog/planning-center-alternative-small-churches/index.html': '2f4eb81dcc0aa5176f543bc9d1cd97439f52bf53c555631ce31dff7a3926711b',
+    'blog/skool-alternative-for-churches/index.html': 'f0c7ca59516f2cc9ccd8388d4546971e9d68aa4c06f09356ad8b1dea6957f66d',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': '1dbb16e6395df577076b76174e8359b45a8b1f39c362d2e92f246c42bf03772a',
+    'blog/work-that-outlives-you/index.html': 'c1496b33bf6b0212d0e116003e8789d4f0f8ff2778bb431a51db80e7fed0bc8e',
+    'blog/year-end-giving-statements-what-to-include/index.html': '4143d0e1a7483edb5f41a1d35ea80d6c098a29d6c15b3f7b19a7ff0c82ec525c',
+    'contact/index.html': '9c920edb0da2e76bfb6e4446f8b1fb7f23ce534d30dbceb4904fbec7edf02eef',
+    'faq/index.html': '74c1fed12f943c68cf58cf0e74364d2ba8be6e66750e3deb50ed9733e35413be',
+    'features/ai-automation/index.html': '767ef42dd1e47ecad7b130a2d01440eab9755d6580dff17b35851419b7e0f0e0',
+    'features/coming-soon/index.html': 'ea967976bd5597999ad6ced8a4b52d31181aab8361ffc09c191f36e212600dad',
+    'features/community-engagement/index.html': '289444962eefd745ae673f59df5d3eb8bc822e38024774dcd01ea81722b1344e',
+    'features/discipleship-content/index.html': 'a20ecffb1834637cafb62b9c69beaff32cd55ddf44a5050b31e383473dae22dd',
+    'features/giving-finance/index.html': 'b04c0aa7561ef82c6089097a2f856798507100a7085aba7efdf7d6409a3551b7',
+    'features/harvest-scheduler/index.html': '9f71d71c31f17ba9afae06bee0865d6a313711eca59cfc31a35be7955086c566',
+    'features/index.html': 'f8d58a593c0742156e197106a345c74ac1e4499347d63471763688aceed27ce2',
+    'features/platform-brand/index.html': '00c5911416692f83528b370c8c67b5f503cb75183db7dccdc1fa7453243677ad',
+    'index.html': '53ee791c816c34b3f481036c69d5ba740fa4b62a404f835506a10c782f41d598',
+    'pricing/index.html': 'f608b7e7e566b0410311f06971abeaf83cb0656dc18fe55111e1406b62fcbfd6',
+    'privacy/index.html': 'f36567aa1da9c6404361978463bd6c1b1778d028216b7fec00c64c8b5b395129',
+    'refunds/index.html': '12fa0e1c53d0809818fb720268a5a1e9a582b2b14c9d7dd1c1f6833fe2ed730f',
+    'solutions/churches/index.html': '619808b2381c1688a4c54891c69761d6990058a9b061fd89ecad51d6faeb2621',
+    'solutions/evangelistic-organizations/index.html': '30972b77ad8b036306632d1b7da11ac89147af93515fd1a220f877b249756ceb',
+    'solutions/missionaries/index.html': 'ea2086bb7070aab951bcfe72ec531ac2aa40ed57ce7350902dcf378576ae3e92',
+    'terms/index.html': 'e8fbf4d2fafa955f348578abe801672823511567e0468cc27ce9525d6a2a461e',
+    'waitlist/index.html': 'ba9f4b1fe4be923955d4fe494ead1cfe9f891f3fcc58f0b7348818802947b6ab',
+  };
+
   const pagesInDist = (): string[] => {
     const out: string[] = [];
     (function walk(dir: string) {
@@ -1607,7 +1644,19 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
   it.runIf(comparable).each(Object.keys(BASELINE))('%s renders exactly as it did before', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved since repricing`).toBe(REPRICE_PAGES[page]);
+    expect(actual, `${page} moved since SEO indexing`).toBe(SEO_INDEXING_PAGES[page]);
+  });
+
+  it.runIf(comparable)('SEO indexing leaves every complete page body unchanged', () => {
+    const fixture = JSON.parse(read('src/test/fixtures/seo-body-baseline.json')) as { pages: Record<string, string> };
+    expect(Object.keys(SEO_INDEXING_PAGES).sort()).toEqual(Object.keys(REPRICE_PAGES).sort());
+    expect(pagesInDist()).toEqual(Object.keys(fixture.pages).sort());
+    for (const [page, expected] of Object.entries(fixture.pages)) {
+      const html = normalise(read(path.join('dist', page)));
+      const body = html.match(/<body\b[^>]*>[\s\S]*<\/body>/)?.[0];
+      expect(body, `${page} has no body`).toBeDefined();
+      expect(sha(body!), `${page} body changed during SEO work`).toBe(expected);
+    }
   });
 
   it('🔴 THE-306 moved exactly three pages, and added and dropped none', () => {
@@ -2101,7 +2150,10 @@ describe('9 — the prerender list and the built page count are unchanged', () =
 });
 
 /* ═══ 10 — the build configuration is untouched ══════════════════════════ */
-describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identical', () => {
+describe('10 — deployment config is untouched and SEO build changes are pinned', () => {
+  // SEO_INDEXING intentionally moves sitemap generation from public/ to the
+  // post-SSG finish hook and repins those two files. vercel.json stays pinned.
+  // The history below describes the earlier route-only changes.
   /* ⚠️ THE BLOG PLUGIN'S HASH MOVED AT THE-284, AND ONLY ITS HASH.
    *
    * `blogRoutes()` and `STATIC_ROUTES` are the prerender list and the sitemap,
@@ -2126,23 +2178,21 @@ describe('10 — vercel.json, vite.config.ts and the blog plugin are byte-identi
    */
   it.each([
     ['vercel.json', 'b7c29796ec5df5d87332d573d130ea805956078bd5d3753cef537b2ac73a87be'],
-    ['vite.config.ts', '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66'],
-    ['build/blog-plugin.ts', '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2'],
-  ])('%s is unchanged', (file, hash) => {
-    expect(sha(readFileSync(path.join(ROOT, file))), `${file} was modified`).toBe(hash);
+    ['vite.config.ts', '0c14d02079ea936a7749a5deb49eae01c568c0092e8749ef9ddaf88256cfdb80'],
+    ['build/blog-plugin.ts', 'f49d9679c1abf4cc0057fad217178065aa2691c587a8cb9b5481af7be6e74304'],
+  ])('%s matches its reviewed configuration', (file, hash) => {
+    expect(sha(readFileSync(path.join(ROOT, file))), `${file} differs from the reviewed configuration`).toBe(hash);
   });
 
-  it('🔴 the blog plugin changed only its route list — the plugin itself is untouched', () => {
-    /* What the hash above used to say on its own. Spelled out against the
-       source so that repinning it for a new route cannot quietly cover an edit
-       to the machinery: the parser, the image measurement, the sitemap shape,
-       the virtual module and the watch graph are all still exactly as they
-       were, and the diff at THE-284 is three lines of route list. */
+  it('the blog plugin preserves content loading; sitemap generation lives in the SSG finish hook', () => {
+    // Content parsing, image measurement, watch graph and virtual module remain
+    // in the blog plugin. Only indexing artifacts moved to the post-build hook.
     const plugin = read('build/blog-plugin.ts');
     expect(plugin).toMatch(/export function blogPlugin\(\): Plugin \{/);
     expect(plugin).toMatch(/const VIRTUAL_ID = 'virtual:blog-content';/);
     expect(plugin).toMatch(/const SIZE_WARN_BYTES = 400 \* 1024;/);
-    expect(plugin).toMatch(/fs\.writeFileSync\(SITEMAP_FILE, sitemapXml\(posts\), 'utf8'\);/);
+    expect(plugin).not.toContain('fs.writeFileSync');
+    expect(read('vite.config.ts')).toMatch(/onFinished: \(outDir\) => writeSeoArtifacts\(outDir, blogRoutes\(\), readPublishedPosts\(\)\)/);
     expect(plugin).toMatch(/for \(const file of postFiles\(\)\) this\.addWatchFile\(file\);/);
     expect(plugin).toMatch(/\.\.\.readPublishedPosts\(\)\.map\(\(p\) => `\/blog\/\$\{p\.slug\}`\),/);
     /* And the new route is DERIVED from the content module, not typed as a

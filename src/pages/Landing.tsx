@@ -5,7 +5,8 @@ import { Community } from '../components/Community';
 import { Analytics } from '../components/Analytics';
 import { Features } from '../components/Features';
 import { Replaces } from '../components/Replaces';
-import { CHEAPEST_MONTHLY, Pricing } from '../components/Pricing';
+import { CHEAPEST_MONTHLY, Pricing, plans } from '../components/Pricing';
+import { softwareSchema } from '../lib/structured-data';
 import { Affiliate } from '../components/Affiliate';
 import { AFFILIATE_PROGRAM_ENABLED, SMS_MARKETING_ENABLED } from '../lib/flags';
 import { FinalCTA } from '../components/FinalCTA';
@@ -21,6 +22,7 @@ export function Landing() {
         title="Harvest — From Conversion to Devotion"
         description={`Ministry platform for churches — AI, CRM${SMS_MARKETING_ENABLED ? ', SMS' : ''}, Livestream, Check-In, and more. From $${CHEAPEST_MONTHLY}/mo.`}
         canonical="https://theharvest.site/"
+        jsonLd={softwareSchema(plans)}
       />
       <Hero />
       <Sync />

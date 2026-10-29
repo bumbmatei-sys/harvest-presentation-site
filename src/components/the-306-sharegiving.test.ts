@@ -730,8 +730,8 @@ describe('10 — the circles do not overflow at 380px', () => {
 // ═════════════════════════════════════════════════════════════════════════════
 // 11 · the build config
 // ═════════════════════════════════════════════════════════════════════════════
-describe('11 — vite.config.ts, ssgOptions and the blog plugin are byte-identical', () => {
-  it('🔴 neither file was touched — this ticket adds a picture', () => {
+describe('11 — vite.config.ts, ssgOptions and the blog plugin match their reviewed pins', () => {
+  it('pins the original configuration plus the deliberate SEO indexing changes', () => {
     /* `base: '/'` is absolute deliberately, and `ssgOptions` and the blog plugin
        are what produce the pages the fingerprint table pins. Hashed rather
        than grepped so a whitespace edit fails too.
@@ -739,8 +739,13 @@ describe('11 — vite.config.ts, ssgOptions and the blog plugin are byte-identic
        (SOLUTIONS_EVANGELISTIC_MOVED, see src/test/the-278-no-regression.test.ts)
        — three lines adding the new /solutions/evangelistic-organizations route
        to STATIC_ROUTES and blogRoutes(). vite.config.ts is untouched. */
-    expect(sha(src('../../vite.config.ts')))
-      .toBe('709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66');
+    // SEO_INDEXING adds only the post-SSG artifact hook; nested output and
+    // prerender routes are checked independently in the THE-278 guards.
+    const VITE_PINS = [
+      '709677152f5cb12c9f081bbe900643f4f6529d604c749037d16bf7c23de4af66',
+      '0c14d02079ea936a7749a5deb49eae01c568c0092e8749ef9ddaf88256cfdb80',
+    ];
+    expect(sha(src('../../vite.config.ts'))).toBe(VITE_PINS[VITE_PINS.length - 1]);
     /* 🔵 APPENDED, NOT SUBSTITUTED: #106 added '/waitlist' to STATIC_ROUTES
        and blogRoutes() (two lines) and merged with CI red, so this pin was
        never moved with it. Every earlier pin stays in the list with its
@@ -750,6 +755,8 @@ describe('11 — vite.config.ts, ssgOptions and the blog plugin are byte-identic
       '9ddd785595a33a6db189eb04133459608bc1b9e5aa53a3779e9a82b3ad675403',
       // #106 — the /waitlist product-updates page
       '5f3549d2464886c8c806ec82eb8a1a94e69a62af1c179faf294c530235c262c2',
+      // SEO_INDEXING — move sitemap generation to the post-SSG hook.
+      'f49d9679c1abf4cc0057fad217178065aa2691c587a8cb9b5481af7be6e74304',
     ];
     expect(sha(src('../../build/blog-plugin.ts')))
       .toBe(BLOG_PLUGIN_PINS[BLOG_PLUGIN_PINS.length - 1]);
