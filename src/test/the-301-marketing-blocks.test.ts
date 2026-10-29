@@ -585,10 +585,16 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'src/components/the-258-platform-brand-complete.test.ts': '9472efbd04bb930a2d9f8dc515782099747eba015bd63c81979849f6a857ca98',
   };
 
+  // Full-site Fabale presentation: cards and controls use shadcn and theme
+  // tokens. Plan data, feature rows, contracts and signup attribution are unchanged.
+  const SITE_FABALE_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': 'a0abe36ab2f6e3ecc3b0ed4fa01b38aeeca4124c82857352548e9c8d735ccf62',
+  };
+
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        SITE_FABALE_REPINNED[file] ?? AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

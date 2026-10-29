@@ -1172,6 +1172,41 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'waitlist/index.html': 'ca4f3bc3787e7ac8e8034469af15f9b446b3934ce48e7cda86b7a03044a1c884',
   };
 
+  /* Full Fabale presentation rebuild: shared controls and footer move every
+   * existing page. Copy, links, prices and SEO were compared against the prior
+   * generated pages; route membership and all historical pins remain intact. */
+  const SITE_FABALE_MOVED: Readonly<Record<string, string>> = {
+    'blog/category/harvest-vs/index.html': '8319b9c3ea105ba54c08316704b18bbb2b5d02e3a49b7a67091207aba7c38ccf',
+    'blog/category/inside-harvest/index.html': 'd71de6b9b01b78b6b2dce8aead46f91db3d1f495242292c8819617069371813b',
+    'blog/category/rooted/index.html': '7f24b9a273df41962a46b355a90b9629c7e3855bde5d09414d929e74159a5eea',
+    'blog/generosity-without-pressure/index.html': 'f8ba8cbc07b9cb0e261e4015b6d218dbacb4d5a45550d9bbb0ecf0e4bb83ff00',
+    'blog/how-to-keep-track-of-church-prayer-requests/index.html': 'b064094c8f7029f201058b0def9832d983ccfd001d51f7122ea13bd77649df29',
+    'blog/index.html': 'f08a919a9be7d7b6bb8a4bfca4b72027211240e64b122afb94369eb7b2e648d4',
+    'blog/planning-center-alternative-small-churches/index.html': 'ab3eb45f9ba8933f28f9290d4fd05d9955aed1cc5e98eabb6e348946c9722319',
+    'blog/skool-alternative-for-churches/index.html': 'af20dccf5ac2ebb7f192b938a8c773c53537a2acc76ca0f8765074a8689045cb',
+    'blog/track-sunday-attendance-without-a-sign-in-sheet/index.html': '2cd002d500285d483090ecbbc7a261dc3d0275bd5b15ab6bf3162f19e13b1b51',
+    'blog/work-that-outlives-you/index.html': '51f8396fe025e8f919264e19903a74336276ed3c945b72699e7a7e7941d30a17',
+    'blog/year-end-giving-statements-what-to-include/index.html': 'd35bb701b4f9f503fd05e6477b40b24177bb5d009b1211405840f9a46fdbb72f',
+    'contact/index.html': '0721581d50c66bc830ea977395e97cfa1c0a9d4ab05b7b112a5e31bdd1ac288e',
+    'faq/index.html': 'a80063a10dc2a930c030cb950ce0034b59051ce5df23f431482d0bef80d1d0af',
+    'features/ai-automation/index.html': 'c4d1c16d520e58b0faaa34d7c7f500ef2a161c7b9085cd7cd9cf343c785efd47',
+    'features/community-engagement/index.html': 'ff274296324054f64c652e386cae3fe1330db3e2f6d4d23ec2b7b9604554a9ff',
+    'features/discipleship-content/index.html': 'd36f82dbe04478dd51fb01075159a2d5619d6a7f1b22af86321260d3877cb74c',
+    'features/giving-finance/index.html': 'e0165e9fd44a5a481ab247595d63ccb13df1673e1f2bc2f0f0d61f5f2b2a3f3b',
+    'features/harvest-scheduler/index.html': '103a5d08d0efc004505eadb99d6fc63e78ae32e0c769f069191c1b55274ff47e',
+    'features/index.html': 'd215da083b6e26c5629020401995745fc88900516eab6b07dcd443e2512e944f',
+    'features/platform-brand/index.html': 'e573ffda5ba7d674892b4d45723d1be52fc7be01eebd86b2380a5445611ed2df',
+    'index.html': 'b8d3e8f0e7c1dad79f1a54526232cecb256cffd285d05eb0f0f65f825c68e47f',
+    'pricing/index.html': '70337927446a7c87c70b6eecc926e06c87d97350af92f58c488f9bf0815926dd',
+    'privacy/index.html': 'a67e6f63e4d6e6e5a5063798b882ca936c7811e8b1200183a496934592a831d1',
+    'refunds/index.html': '1f04020d73e5755958eeed98f44cb97d74b74565ab1e4ac9498497acfb4a8f56',
+    'solutions/churches/index.html': '445f73e9aba5c624678786aba52c49c9b3571496b5f4cddec95602b8fa672e67',
+    'solutions/evangelistic-organizations/index.html': '8c90a4806a3d61566c6f36f25ee73753adbb3600fcd232fdfa8111ec64e9fb53',
+    'solutions/missionaries/index.html': 'bae5c15a6be9a3e8526f8cc85088445fdd0e4f818f268b36e74a62b26509bf6c',
+    'terms/index.html': 'f3d4f9a20afb076416851a554d8a9b1520ab6d05d7a4f1ef84417a6b3a25cea0',
+    'waitlist/index.html': '4fb1ea0a2bbb39917da6433d62b4462fc58fd38512f2401ef7670d82ce4d18d8',
+  };
+
   // Round 3 removes the Coming Soon page; older tables retain its history.
   const BASELINE: Readonly<Record<string, string>> = Object.fromEntries(Object.entries({
     ...PRE_TAILWIND, ...THE_280_MOVED, ...THE_284_MOVED, ...THE_284_ADDED, ...THE_293_MOVED,
@@ -1188,6 +1223,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     ...PRAYER_POST_MOVED, ...PRAYER_POST_ADDED,
     ...QUARTERLY_WITHDRAWN_MOVED,
     ...HERO_FABALE_MOVED,
+    ...SITE_FABALE_MOVED,
   }).filter(([page]) => page !== 'features/coming-soon/index.html'));
 
   // Repricing changes shared navigation and pricing copy; route names are unchanged.
@@ -1322,6 +1358,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     '14632f23d3a088817ff7a00f57e3a7660eba6f1b4bdae9b6c84b61e613c345c0',
     // Hero and shared navigation redesign and the 10-day trial (2026-10-27); 29 pages.
     '48379b0004650a4e0b46b3afe1b875ddb0336ed1f6e7181ef4b737c0b55cacab',
+    // Full-site Fabale rebuild: all 29 routes restyled, none added or removed.
+    '4c7c060fde6048d61be1e045b3f8f4fbac6340b2770995c375b5909bdc5d0eef',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1433,7 +1471,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
        touched it, which is all this assertion has ever claimed.
        🔵 AND #105 MOVED IT AGAIN (MAIN_105_106_MOVED), so that table takes the
        front — THE-280 still never touched it. */
-    expect(BASELINE[giving]).toBe(HERO_FABALE_MOVED[giving] ?? MAIN_105_106_MOVED[giving] ?? THE_370_MOVED[giving]);
+    // The shared full-site rebuild supplies the latest recorded presentation.
+    expect(BASELINE[giving]).toBe(SITE_FABALE_MOVED[giving] ?? HERO_FABALE_MOVED[giving] ?? MAIN_105_106_MOVED[giving] ?? THE_370_MOVED[giving]);
   });
 
   it('🔴 THE-284 moved exactly one page and added exactly one', () => {
@@ -1535,8 +1574,9 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // 🔵 THE_HONEST_OFFER_MOVED JOINS AT THE FRONT — it moved ai-automation
       // (the category intro/SEO no longer sell a newsletter while
       // NEWSLETTER_MARKETING_ENABLED is off). THE-293's claim is untouched.
+      // The full-site rebuild moved shared presentation; retain the historical delta checks.
       expect(BASELINE[page], `${page} renders FeatureBlock and THE-293 moved it`)
-        .toBe(HERO_FABALE_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
+        .toBe(SITE_FABALE_MOVED[page] ?? HERO_FABALE_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page] ?? THE_355_MOVED[page] ?? THE_335_MOVED[page]
           ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_280_MOVED[page] ?? PRE_TAILWIND[page]);
     }
 
@@ -1642,9 +1682,9 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     if (comparable) expect(pagesInDist()).toEqual(Object.keys(BASELINE).sort());
   });
 
-  it.runIf(comparable).each(Object.keys(BASELINE))('%s renders exactly as it did before', (page) => {
+  it.runIf(comparable).each(Object.keys(BASELINE))('%s matches the approved full-site Fabale presentation', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved since repricing`).toBe(HERO_FABALE_MOVED[page]);
+    expect(actual, `${page} moved since the full-site rebuild`).toBe(SITE_FABALE_MOVED[page]);
   });
 
   it('🔴 THE-306 moved exactly three pages, and added and dropped none', () => {
@@ -1764,8 +1804,9 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       // FAQ domain clause, AI intro/SEO, Coming Soon Mailchimp, features index)
       // are asserted against ITS values. The claim here — that adding the
       // Missionaries page moved nothing else — is unchanged.
+      // The full-site rebuild moved shared presentation; retain the historical delta checks.
       expect(BASELINE[page], `${page} moved, and adding the Missionaries page had no business moving it`)
-        .toBe(HERO_FABALE_MOVED[page] ?? QUARTERLY_WITHDRAWN_MOVED[page] ?? PRAYER_POST_MOVED[page] ?? CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
+        .toBe(SITE_FABALE_MOVED[page] ?? HERO_FABALE_MOVED[page] ?? QUARTERLY_WITHDRAWN_MOVED[page] ?? PRAYER_POST_MOVED[page] ?? CHECKIN_POST_MOVED[page] ?? THE_372_MOVED[page] ?? MAIN_105_106_MOVED[page] ?? THE_HONEST_OFFER_MOVED[page] ?? SKOOL_POST_MOVED[page] ?? THE_370_MOVED[page] ?? THE_358_MOVED[page] ?? SOLUTIONS_CHURCHES_MOVED[page] ?? SOLUTIONS_CHURCHES_ADDED[page] ?? SOLUTIONS_EVANGELISTIC_MOVED[page]
           ?? THE_355_MOVED[page] ?? THE_343_MOVED[page] ?? THE_335_MOVED[page] ?? AF7A7BA_MOVED[page]
           ?? AF7A7BA_ADDED[page] ?? THE_314_MOVED[page] ?? THE_306_MOVED[page] ?? THE_301_MOVED[page]
           ?? THE_293_MOVED[page] ?? THE_284_ADDED[page] ?? THE_284_MOVED[page] ?? THE_280_MOVED[page]
@@ -1905,6 +1946,14 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     }
   });
 
+  it('the full-site rebuild moves exactly the existing 29 pages', () => {
+    expect(Object.keys(SITE_FABALE_MOVED).sort()).toEqual(Object.keys(HERO_FABALE_MOVED).sort());
+    expect(Object.keys(SITE_FABALE_MOVED)).toHaveLength(29);
+    for (const page of Object.keys(SITE_FABALE_MOVED)) {
+      expect(SITE_FABALE_MOVED[page], page).not.toBe(HERO_FABALE_MOVED[page]);
+    }
+  });
+
   it.runIf(comparable)('and the whole set matches as one number', () => {
     /* The per-page results say WHICH page moved; this says whether the SET
        moved, so an added or dropped page is caught as well as an edited one. */
@@ -1995,8 +2044,9 @@ describe('6b — the hand-written stylesheet still ships, outside Tailwind\'s la
        established by test 7: the source region is unmodified. */
     const banner = /^\/\*![^*]*\*\//;
     expect(sha(unlayered.replace(banner, '').trim())).toBe(
-      // Hero scenery, fixed navigation and the site-wide black theme (Matei, 2026-10-27) appended for the redesign.
-      '6768b570a148eb2dddd55e78b74739db443085c46107158c868c0516b7826651',
+      // Full-site Fabale layout and token rules appended after the original CSS.
+      // Previous presentation pin: 6768b570…; original source region stays pinned below.
+      '473fb279591ad6ffe4751736dd8560f8c07d6a6f76b7b80c9e1bf4519c660720',
     );
   });
 

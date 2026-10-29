@@ -412,7 +412,9 @@ describe('11 · every card eyebrow goes through one component — and Ministry c
     const filled = render(React.createElement(CardEyebrow, { variant: 'filled', children: 'X' }));
     expect(filled).toContain('padding:3px 9px');
     expect(filled).toContain('border:1px solid transparent');
-    expect(filled).toContain('background:var(--brand)');
+    // The Fabale rebuild changes the fill to silver; geometry stays pinned.
+    expect(filled).toContain('background:var(--button-fill)');
+    expect(filled).toContain('color:var(--button-ink)');
     const outline = render(React.createElement(CardEyebrow, { variant: 'outline', children: 'X' }));
     expect(outline).toContain('padding:3px 9px');
     expect(outline).toContain('border:1px solid var(--brand)');

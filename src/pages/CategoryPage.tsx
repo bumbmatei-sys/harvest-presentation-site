@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../components/ui/button';
 import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Reveal } from '../components/effects';
@@ -55,9 +56,9 @@ function FeatureIndex({ cat }: { cat: Category }) {
   return (
     <section className="fab-index-wrap">
       <nav aria-label="Jump to feature" className="feat-index fab-index">
-        <button className="fab-index-arrow" type="button" aria-label="Previous feature" disabled={activeIndex === 0} onClick={() => move(-1)}>←</button>
+        <Button className="fab-index-arrow" type="button" aria-label="Previous feature" disabled={activeIndex === 0} onClick={() => move(-1)}>←</Button>
         <ul className="fab-index-list">{cat.features.map((f) => <li key={f.id} className={f.id === activeId ? 'fab-index-item-active' : undefined}><Link to={`${categoryHref(cat.slug)}#${f.id}`} className="feat-index-card fab-index-card" aria-current={f.id === activeId ? 'location' : undefined} onClick={() => setActiveId(f.id)}>{f.name}</Link></li>)}</ul>
-        <button className="fab-index-arrow" type="button" aria-label="Next feature" disabled={activeIndex === cat.features.length - 1} onClick={() => move(1)}>→</button>
+        <Button className="fab-index-arrow" type="button" aria-label="Next feature" disabled={activeIndex === cat.features.length - 1} onClick={() => move(1)}>→</Button>
       </nav>
     </section>
   );

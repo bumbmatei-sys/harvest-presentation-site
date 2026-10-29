@@ -1,9 +1,11 @@
 import React from 'react';
+import { PageHeader } from '../components/marketing';
+
 import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
-import { Clouds, Reveal } from '../components/effects';
-import { Particles, AnimatedText } from '../components/magic';
-import { Kicker, softCard, SKY } from '../components/shared';
+
+
+
 import { plans } from '../components/Pricing';
 import {
   LEGAL_DOCS,
@@ -74,43 +76,22 @@ export function LegalPage({ slug }: { slug: LegalSlug }) {
   const others = LEGAL_DOCS.filter((d) => d.slug !== doc.slug);
 
   return (
-    <main>
+    <main className="marketing-page marketing-legal">
       <Seo title={doc.seoTitle} description={doc.seoDescription} canonical={legalCanonical(doc.slug)} />
 
       {/* Header band — the /contact treatment, one notch calmer. */}
-      <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 80, overflow: 'hidden' }}>
-        <Clouds dense />
-        <Particles quantity={26} />
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 820, margin: '0 auto', padding: '0 28px', textAlign: 'center' }}>
-          <Reveal y={14}><Kicker>Legal</Kicker></Reveal>
-          <AnimatedText
-            as="h1"
-            text={doc.title}
-            startOnView={false}
-            delay={100}
-            stagger={80}
-            y={20}
-            duration={760}
-            style={{ fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 'clamp(2.1rem, 4.6vw, 3.2rem)', lineHeight: 1.06, letterSpacing: '-0.03em', color: 'var(--navy-900)', margin: '20px auto 0' }}
-          />
-          <Reveal delay={340} y={16}>
-            <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 560, margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
-              {doc.standfirst}
-            </p>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '18px 0 0', letterSpacing: '0.02em' }}>
-              Last updated {formatLegalDate(doc.updated)}
-            </p>
-          </Reveal>
-        </div>
-      </section>
+      <PageHeader eyebrow="Legal" title={doc.title} description={doc.standfirst}>
+        <p className="marketing-date">Last updated {formatLegalDate(doc.updated)}</p>
+      </PageHeader>
 
       {/* The document itself — one column, straddling the sky → cream seam. */}
-      <section style={{ background: 'var(--cream)', padding: '0 20px var(--section-y-tight)', position: 'relative', zIndex: 2 }}>
-        <Reveal y={24} style={{ maxWidth: 780, margin: '-20px auto 0' }}>
-          <article style={{ ...softCard, padding: 'clamp(26px, 5vw, 52px)' }}>
+      <section className="fab-container marketing-page-content">
+        <aside className="marketing-legal-index"><nav aria-label={doc.title}>{doc.sections.map((section) => <a key={section.id} href={`#${section.id}`}>{section.heading}</a>)}</nav></aside>
+        <div>
+          <article className="marketing-legal-body">
             {doc.sections.map((section, i) => <Section key={section.id} section={section} first={i === 0} />)}
 
-            <div style={{ marginTop: 44, paddingTop: 22, borderTop: '1px solid rgba(45,37,25,0.08)', display: 'flex', flexWrap: 'wrap', gap: 18 }}>
+            <div style={{ marginTop: 44, paddingTop: 22, borderTop: '1px solid var(--border)', display: 'flex', flexWrap: 'wrap', gap: 18 }}>
               {others.map((d) => (
                 <Link key={d.slug} to={legalHref(d.slug)} style={{ fontSize: 14, fontWeight: 600, color: 'var(--brand)', textDecoration: 'none' }}>
                   {d.nav} →
@@ -121,7 +102,7 @@ export function LegalPage({ slug }: { slug: LegalSlug }) {
               </Link>
             </div>
           </article>
-        </Reveal>
+        </div>
       </section>
     </main>
   );

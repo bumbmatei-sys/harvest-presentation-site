@@ -366,8 +366,11 @@ for (const fixture of FIXTURES) {
         }
         // Roving tabindex: the active tab is reachable by Tab, the rest only by
         // the arrow keys the panel's onKeyDown handler wires up.
-        expect((pageHtml.match(/role="tab"[^>]*tabindex="0"/g) ?? []).length).toBe(1);
-        expect((pageHtml.match(/role="tab"[^>]*tabindex="-1"/g) ?? []).length).toBe(c.oneApp.tabs.length - 1);
+        // Base UI emits tabindex before role. Inspect each tag independently
+        // of attribute order while retaining the same roving-focus contract.
+        const tabButtons = (pageHtml.match(/<button\b[^>]*>/g) ?? []).filter((tag) => tag.includes('role="tab"'));
+        expect(tabButtons.filter((tag) => tag.includes('tabindex="0"'))).toHaveLength(1);
+        expect(tabButtons.filter((tag) => tag.includes('tabindex="-1"'))).toHaveLength(c.oneApp.tabs.length - 1);
       });
 
       it('the first tab\'s panel is present in the prerendered HTML, with its feature\'s oneliner', () => {

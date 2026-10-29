@@ -1,8 +1,8 @@
 import React from 'react';
+import { PageHeader } from '../components/marketing';
 import { Seo } from '../components/Seo';
-import { Clouds, Reveal } from '../components/effects';
-import { Particles, AnimatedText } from '../components/magic';
-import { Kicker, container, SKY } from '../components/shared';
+import { Reveal } from '../components/effects';
+
 import { LeadCaptureForm, WAITLIST_LEAD_COPY } from '../components/LeadCaptureForm';
 
 /* /waitlist — Alternate A microcopy (early interest / waitlist tone).
@@ -11,44 +11,16 @@ import { LeadCaptureForm, WAITLIST_LEAD_COPY } from '../components/LeadCaptureFo
 
 export function WaitlistPage() {
   return (
-    <main>
+    <main className="marketing-page marketing-form-page">
       <Seo
         title="Join the Harvest waitlist"
         description="Product news from Harvest when new features open. Never member email."
         canonical="https://theharvest.site/waitlist"
       />
-      <section style={{ position: 'relative', background: SKY, paddingTop: 150, paddingBottom: 90, overflow: 'hidden' }}>
-        <Clouds dense />
-        <Particles quantity={40} />
-        <div style={{ ...container, position: 'relative', zIndex: 2, textAlign: 'center' }}>
-          <Reveal y={14}><Kicker>Early interest</Kicker></Reveal>
-          <AnimatedText
-            as="h1"
-            text={'Hear It First'}
-            startOnView={false}
-            delay={100}
-            stagger={80}
-            y={20}
-            duration={760}
-            style={{
-              fontFamily: 'var(--font-serif)', fontWeight: 500,
-              fontSize: 'clamp(2.2rem, 5vw, 3.6rem)', lineHeight: 1.05, letterSpacing: '-0.03em',
-              color: 'var(--navy-900)', margin: '20px auto 0', maxWidth: 720,
-            }}
-          />
-          <Reveal delay={360} y={16}>
-            <p style={{
-              fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 520,
-              margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85,
-            }}>
-              Product news from Harvest when new features open. Never member email.
-            </p>
-          </Reveal>
-        </div>
-      </section>
+      <PageHeader eyebrow="Early interest" title="Hear It First" description="Product news from Harvest when new features open. Never member email." />
 
-      <section style={{ background: 'var(--cream)', padding: '0 20px var(--section-y-tight)', position: 'relative', zIndex: 2 }}>
-        <Reveal y={24} style={{ maxWidth: 560, margin: '-20px auto 0' }}>
+      <section className="fab-container marketing-page-content">
+        <Reveal y={24} className="marketing-form-wrap">
           <LeadCaptureForm
             source="waitlist"
             copy={WAITLIST_LEAD_COPY}

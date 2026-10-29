@@ -205,11 +205,12 @@ describe('4 — the 15%s that are not the commission', () => {
     expect(post).not.toMatch(/(?<![\d.])15%/);
   });
 
-  it('the rgba alphas are untouched', () => {
+  it('the decorative alpha values are untouched', () => {
     // A blind find-and-replace here changes a border and a focus ring, and
     // nobody notices for months.
     const mock = read('components/FeatureMock.tsx');
     expect(mock.match(/rgba\(45,37,25,0\.15\)/g)).toHaveLength(2);
-    expect(read('pages/ContactPage.tsx')).toContain('0 0 0 3px rgba(201,150,58,0.15)');
+    // Fabale rebuild expresses the same 15% ring through a theme token.
+    expect(read('pages/ContactPage.tsx')).toContain('0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent)');
   });
 });

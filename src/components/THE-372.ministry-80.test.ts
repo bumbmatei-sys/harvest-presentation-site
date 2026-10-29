@@ -451,12 +451,13 @@ describe('11 · no emoji and no hardcoded colour reached a rendered card', () =>
     }
   });
 
-  it('the eyebrow reads its colours from tokens (the white on the filled pill predates THE-372)', () => {
+  it('the eyebrow reads all its colours from tokens', () => {
     const src = stripComments(readFileSync(join(ROOT, 'src/components/Pricing.tsx'), 'utf8'));
     const from = src.indexOf('export function CardEyebrow(');
     const body = src.slice(from, src.indexOf('export function PlanCard(', from));
     expect(body.length).toBeGreaterThan(200);
-    expect(body.match(/#[0-9a-fA-F]{3,8}\b/g) ?? []).toEqual(['#fff']);
+    // The rebuilt silver pill also uses token ink; the old white exception is gone.
+    expect(body.match(/#[0-9a-fA-F]{3,8}\b/g) ?? []).toEqual([]);
     expect(body).toContain('var(--brand)');
   });
 });

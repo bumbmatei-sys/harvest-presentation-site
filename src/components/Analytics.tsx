@@ -1,7 +1,8 @@
 import React from 'react';
-import { ParallaxLayer, Reveal } from './effects';
+import { StoryCard } from './marketing';
+import { Reveal } from './effects';
 import { HBtn } from './magic';
-import { Kicker, H2, Checklist, container, softCard } from './shared';
+import { Kicker, H2, Checklist, softCard } from './shared';
 
 function AnalyticsCard() {
   return (
@@ -13,7 +14,7 @@ function AnalyticsCard() {
         <div style={{ flex: 1, background: 'var(--sky-100)', borderRadius: 14, padding: '14px 16px' }}><div style={{ fontSize: 11, color: 'var(--sky-700)', fontWeight: 600 }}>Platform fee</div><div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, color: 'var(--navy-900)' }}>0%</div></div>
       </div>
       <svg viewBox="0 0 300 90" style={{ width: '100%', height: 90, display: 'block' }} preserveAspectRatio="none">
-        <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="rgba(110,142,82,0.28)" /><stop offset="1" stopColor="rgba(110,142,82,0)" /></linearGradient></defs>
+        <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="color-mix(in srgb, var(--green-500) 28%, transparent)" /><stop offset="1" stopColor="transparent" /></linearGradient></defs>
         <path d="M0 78 C50 70 70 50 110 46 C150 42 170 30 210 22 C250 14 275 12 300 8 L300 90 L0 90 Z" fill="url(#ag)" />
         <path d="M0 78 C50 70 70 50 110 46 C150 42 170 30 210 22 C250 14 275 12 300 8" fill="none" stroke="var(--green-500)" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
@@ -23,9 +24,8 @@ function AnalyticsCard() {
 
 export function Analytics() {
   return (
-    <section style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
-      <div style={container}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }} className="split-grid">
+    <section className="marketing-section">
+      <div className="fab-container"><Reveal><StoryCard scene="why-2-wheat-sunset" visual={<AnalyticsCard />} reverse>
           <div>
             <Kicker align="left" color="var(--green-600)">Giving</Kicker>
             <H2 align="left" style={{ marginTop: 14 }}>{'Fund the Work.\nKeep Every Gift.'}</H2>
@@ -37,9 +37,7 @@ export function Analytics() {
               <div style={{ marginTop: 26 }}><HBtn to="/features/giving-finance" variant="dark">See giving</HBtn></div>
             </Reveal>
           </div>
-          <ParallaxLayer speed={0.06} style={{ order: 2 }}><Reveal delay={100}><AnalyticsCard /></Reveal></ParallaxLayer>
-        </div>
-      </div>
+      </StoryCard></Reveal></div>
     </section>
   );
 }

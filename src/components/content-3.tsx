@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card } from './ui/card';
 import { Link } from 'react-router-dom';
 import { L } from './icons';
 import { categoryHref } from '../content/features';
@@ -122,7 +123,7 @@ export function ContentSection({
 }) {
   const Heading = headingAs;
   return (
-    <section className="bg-background @container py-[var(--section-y)]">
+    <section className="marketing-content-3 bg-background @container py-[var(--section-y)]">
       <div className="mx-auto max-w-2xl px-6">
         <div className="flex flex-col gap-4">
           <Heading className="text-balance font-serif text-[clamp(2rem,4vw,3.1rem)] font-medium leading-[1.06] [letter-spacing:-0.02em] text-[var(--navy-900)]">
@@ -132,8 +133,7 @@ export function ContentSection({
         </div>
         <div className="@md:grid-cols-2 @xl:grid-cols-3 mt-12 grid grid-cols-1 gap-6 text-sm">
           {items.map((item) => (
-            <Link
-              key={item.to}
+            <Card key={item.to} className="marketing-content-card"><Link
               to={item.to}
               className="flex min-h-[44px] flex-col gap-3 border-t border-[var(--border-light)] pt-6 no-underline"
             >
@@ -146,7 +146,7 @@ export function ContentSection({
                   →
                 </span>
               </p>
-            </Link>
+            </Link></Card>
           ))}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card } from './ui/card';
 import { Link } from 'react-router-dom';
 import { Reveal } from './effects';
 import { FeatureMock, FEATURE_ICONS } from './FeatureMock';
@@ -60,8 +61,8 @@ function PlanChips({ tiers, note, accent }: { tiers: number[]; note?: string; ac
                 display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999,
                 fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap',
                 ...(on
-                  ? { color: '#fff', background: 'var(--navy-900)' }
-                  : { color: 'var(--text-muted)', background: 'transparent', border: '1px dashed rgba(45,37,25,0.18)' }),
+                  ? { color: 'var(--foreground)', background: 'var(--secondary)' }
+                  : { color: 'var(--text-muted)', background: 'transparent', border: '1px dashed var(--border)' }),
               }}
             >
               <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: on ? 'var(--gold-400)' : 'var(--stone-300)' }} />
@@ -130,7 +131,7 @@ export function FeatureBlock({ feature, unbuilt = false }: { feature: FeatureBlo
   const scene = SCENES[Array.from(feature.id).reduce((sum, char) => sum + char.charCodeAt(0), 0) % SCENES.length];
   return (
     <div id={feature.id} style={{ scrollMarginTop: 104 }} className="fab-block-wrap">
-      <Reveal y={22} className="fab-block">
+      <Reveal y={22}><Card className="fab-block">
         <div className="fb-grid fab-block-grid">
           <div className="fab-block-story">
             <span className="fab-pill fab-eyebrow">{FEATURE_ICONS[feature.id]} {feature.eyebrow}</span>
@@ -154,7 +155,7 @@ export function FeatureBlock({ feature, unbuilt = false }: { feature: FeatureBlo
         {!unbuilt && feature.crosslinks && feature.crosslinks.length > 0 && (
           <div className="fab-crosslinks"><span>Works with</span>{feature.crosslinks.map((cl) => <Link key={cl.href} to={cl.href}>{cl.label}<span aria-hidden="true">→</span></Link>)}</div>
         )}
-      </Reveal>
+      </Card></Reveal>
     </div>
   );
 }

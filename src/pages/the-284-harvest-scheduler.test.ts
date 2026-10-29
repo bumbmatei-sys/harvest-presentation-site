@@ -196,8 +196,11 @@ describe('scheduler page presentation', () => {
     expect(listing('public/logos')).toEqual([...existing, 'harvest-mark.png'].sort());
     expect(listing('public/features').filter((f) => /instagram|tiktok|youtube|facebook|threads|bluesky|meta|schedul/i.test(f))).toEqual([]);
   });
-  it('does not add CSS or expose API implementation details', () => {
-    expect(read('src/index.css')).not.toMatch(/scheduler|destination-chip/i);
+  it('uses scoped presentation CSS and does not expose API implementation details', () => {
+    // The all-pages presentation rebuild now styles this page explicitly.
+    expect(read('src/index.css')).toContain('.marketing-scheduler');
+    expect(read('src/index.css')).not.toMatch(/destination-chip/i);
+    expect(source).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     expect(source).not.toMatch(/webhook|endpoint|SDK|OAuth/i);
   });
 });

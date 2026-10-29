@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { HBtn } from './magic';
 import { L } from './icons';
@@ -351,13 +352,13 @@ export function Nav() {
       className={scrolled || pathname !== '/' ? 'harvest-nav harvest-nav-solid' : 'harvest-nav'}
     >
       <div className="harvest-nav-inner">
-        <Link to="/#hero" className="harvest-nav-logo">
+        <Link to="/#hero" className="harvest-nav-logo" aria-label="Harvest home">
           <Mark h={32} style={{ filter: 'brightness(0) invert(1)' }} />
           <span>Harvest<span>.</span></span>
         </Link>
 
-        <div className="nav-links">
-          <button
+        <div className="nav-links" aria-label="Main navigation">
+          <Button variant="ghost"
             ref={featuresBtnRef}
             type="button"
             aria-haspopup="true"
@@ -366,8 +367,8 @@ export function Nav() {
             style={linkStyle}
           >
             Features
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             ref={solutionsBtnRef}
             type="button"
             aria-haspopup="true"
@@ -376,7 +377,7 @@ export function Nav() {
             style={linkStyle}
           >
             Solutions
-          </button>
+          </Button>
           {PAGE_LINKS.map(([label, href]) => (
             <Link key={label} to={href} style={linkStyle}>{label}</Link>
           ))}
@@ -385,7 +386,7 @@ export function Nav() {
               that promised a set and delivered one page. It now opens the three
               the founder named: Documentation, Changelog and the Blog. It keeps
               its blog active state, because the blog is still inside it. */}
-          <button
+          <Button variant="ghost"
             ref={resourcesBtnRef}
             type="button"
             aria-haspopup="true"
@@ -394,25 +395,25 @@ export function Nav() {
             style={linkStyle}
           >
             Resources
-          </button>
+          </Button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {/* Hidden on mobile (see .nav-cta in index.css) — the CTA lives in the
               hamburger menu there, so the sticky header shows it only once. */}
           <span className="nav-cta"><Link className="hero-primary" to="/#pricing">Start free trial</Link></span>
-          <button
+          <Button variant="ghost"
             type="button"
             className="nav-hamburger"
             aria-label={mobile ? 'Close menu' : 'Open menu'}
             aria-expanded={mobile}
             onClick={() => setMobile((v) => !v)}
-            style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, border: 0, background: 'transparent', cursor: 'pointer' }}
+            style={{ alignItems: 'center', justifyContent: 'center', width: 44, height: 44, border: 0, background: 'transparent', cursor: 'pointer' }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               {mobile ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M2 8h20M2 16h20" />}
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -424,9 +425,9 @@ export function Nav() {
           aria-label="Features"
           style={{
             width: 'min(1180px, calc(100vw - 40px))', marginTop: 10,
-            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: '26px 30px',
+            background: 'color-mix(in srgb, var(--foreground) 97%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: '26px 30px',
             /* 🔴 The desktop panel had no height cap and could run off the
                bottom of a short window with no way to reach what it hid. The
                mobile panel below has always capped and scrolled; this is the
@@ -453,7 +454,7 @@ export function Nav() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(136px, 1fr))', gap: 18 }}>
             <FeatureMenuColumns variant="desktop" onNavigate={() => setMega(false)} />
           </div>
-          <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(45,37,25,0.07)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}><MegaMenuFooterLabel /></span>
           </div>
         </div>
@@ -466,9 +467,9 @@ export function Nav() {
           aria-label="Solutions"
           style={{
             width: 'min(360px, calc(100vw - 40px))', marginTop: 10,
-            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 12,
+            background: 'color-mix(in srgb, var(--foreground) 97%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: 12,
             maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
@@ -484,9 +485,9 @@ export function Nav() {
           aria-label="Resources"
           style={{
             width: 'min(360px, calc(100vw - 40px))', marginTop: 10,
-            background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 12,
+            background: 'color-mix(in srgb, var(--foreground) 97%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: 12,
             maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
@@ -498,17 +499,18 @@ export function Nav() {
       {/* ---------- Mobile panel (accordion) ---------- */}
       {mobile && (
         <div
+          className="marketing-mobile-menu"
           style={{
             width: 'calc(100vw - 40px)', maxWidth: 460, marginTop: 10,
-            background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(45,37,25,0.08)', borderRadius: 24,
-            boxShadow: '0 40px 90px rgba(12,21,38,0.2)', padding: 18,
+            background: 'color-mix(in srgb, var(--foreground) 98%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border)', borderRadius: 24,
+            boxShadow: '0 40px 90px color-mix(in srgb, var(--background) 20%, transparent)', padding: 18,
             maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
             animation: 'harvestMenuIn 0.28s var(--ease-out) both',
           }}
         >
           {/* Features accordion */}
-          <button
+          <Button variant="ghost"
             type="button"
             aria-expanded={mobileFeatures}
             onClick={() => setMobileFeatures((v) => !v)}
@@ -516,7 +518,7 @@ export function Nav() {
           >
             Features
             <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileFeatures ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
           {mobileFeatures && (
             <div style={{ padding: '4px 8px 12px' }}>
               <FeatureMenuColumns variant="mobile" onNavigate={closeMobile} />
@@ -524,15 +526,15 @@ export function Nav() {
           )}
 
           {/* Solutions accordion */}
-          <button
+          <Button variant="ghost"
             type="button"
             aria-expanded={mobileSolutions}
             onClick={() => setMobileSolutions((v) => !v)}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid rgba(45,37,25,0.06)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onSolutions ? 'var(--brand)' : 'var(--navy-900)' }}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onSolutions ? 'var(--brand)' : 'var(--navy-900)' }}
           >
             Solutions
             <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileSolutions ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
           {mobileSolutions && (
             <div style={{ padding: '4px 8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <SolutionsMenuItems variant="mobile" onNavigate={closeMobile} />
@@ -541,28 +543,28 @@ export function Nav() {
 
           {PAGE_LINKS.map(([label, href]) => (
             <Link key={label} to={href} onClick={closeMobile}
-              style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid rgba(45,37,25,0.06)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
+              style={{ display: 'block', padding: '12px 8px', borderTop: '1px solid var(--border)', textDecoration: 'none', fontSize: 16, fontWeight: 600, color: 'var(--navy-900)' }}>{label}</Link>
           ))}
           {/* Resources accordion. 🔴 AN ACCORDION, NOT A HOVER TARGET: this is
               the phone panel, and a phone cannot hover. It is the same
               click-to-expand control the Features and Solutions menus use here,
               so the three entries are reachable with one tap. */}
-          <button
+          <Button variant="ghost"
             type="button"
             aria-expanded={mobileResources}
             onClick={() => setMobileResources((v) => !v)}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid rgba(45,37,25,0.06)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onBlog ? 'var(--brand)' : 'var(--navy-900)' }}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, padding: '12px 8px', background: 'none', border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: onBlog ? 'var(--brand)' : 'var(--navy-900)' }}
           >
             Resources
             <L name="chevron-down" size={16} color="currentColor" style={{ transform: mobileResources ? 'rotate(180deg)' : 'none', transition: 'transform 250ms var(--ease-out)' }} />
-          </button>
+          </Button>
           {mobileResources && (
             <div style={{ padding: '4px 8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <ResourcesMenuItems variant="mobile" onNavigate={closeMobile} />
             </div>
           )}
 
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(45,37,25,0.06)' }}>
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
             <HBtn to="/#pricing" variant="gold" block onClick={closeMobile}>{TRIAL_CTA_LABEL}</HBtn>
           </div>
         </div>

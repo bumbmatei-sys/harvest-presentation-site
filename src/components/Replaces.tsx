@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card } from './ui/card';
 import { Reveal } from './effects';
 import { Kicker, H2, container, softCard } from './shared';
 import { plans, formatMonthlyHeadline } from './Pricing';
@@ -186,9 +187,9 @@ const topPlanMonthly = formatMonthlyHeadline(topPlan.price.yearly, 'yearly');
 
 export function Replaces() {
   return (
-    <section id="replaces" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
-      <div style={{ ...container, maxWidth: 920 }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+    <section id="replaces" className="marketing-replaces" style={{ background: 'var(--cream)', padding: 'var(--section-y-tight) 0' }}>
+      <div className="fab-container">
+        <div className="marketing-replaces-heading">
           <Kicker>All-in-one</Kicker>
           <H2 style={{ marginTop: 14 }}>{'Ministry software for churches that want one subscription, not a stack'}</H2>
           <p style={{ fontSize: 'var(--text-lg)', color: 'var(--navy-700)', maxWidth: 640, margin: '18px auto 0', lineHeight: 1.6, opacity: 0.85 }}>
@@ -198,9 +199,9 @@ export function Replaces() {
         <Reveal delay={80}>
           {/* Rendered as CSS-grid rows (not a <table>) so it stacks to cards on
               phones with every item fully visible — see .replaces-row in index.css. */}
-          <div style={{ ...softCard, overflow: 'hidden', padding: 0, fontSize: 14.5 }}>
+          <div className="marketing-replaces-grid">
             {items.map((r) => (
-              <div key={r.c} className="replaces-row">
+              <Card key={r.c} className="replaces-row marketing-replaces-card">
                 <div className="replaces-cat" style={{ color: 'var(--navy-900)', fontWeight: 600 }}>{r.c}</div>
                 <div className="replaces-tools" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 6px', color: 'var(--text-body)' }}>
                   {r.names.map((n, i) => (
@@ -214,11 +215,11 @@ export function Replaces() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </Card>
             ))}
             {/* One line, where the competitor total and the Harvest row used to
                 be: what it costs to have everything above, and nothing else. */}
-            <div className="replaces-row replaces-row--summary" style={{ background: 'var(--surface-night)' }}>
+            <div className="replaces-row replaces-row--summary marketing-replaces-summary" style={{ background: 'var(--surface-night)' }}>
               <div style={{ color: 'var(--text-heading-dark)', fontSize: 15, fontWeight: 600 }}>
                 {`Everything above, on the ${topPlan.name} plan — `}
                 <span style={{ color: 'var(--gold-400)', fontSize: 15, fontWeight: 800 }}>{`${topPlanMonthly}/mo, billed annually.`}</span>

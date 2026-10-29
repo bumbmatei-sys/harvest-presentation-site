@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card } from './ui/card';
 import { Link } from 'react-router-dom';
 
 /* THE-301 — Tailark `veil-content-1`, adopted.
@@ -61,7 +62,7 @@ export function ContentLeads({
   items: readonly ContentLead[];
 }) {
   return (
-    <section className="bg-background @container py-[var(--section-y-tight)]">
+    <section className="marketing-content-1 bg-background @container py-[var(--section-y-tight)]">
       <div className="@2xl:grid-cols-2 mx-auto grid max-w-3xl gap-6 px-6">
         <h2 className="text-balance font-serif text-[clamp(2rem,4vw,3.1rem)] font-medium leading-[1.06] [letter-spacing:-0.02em] text-[var(--navy-900)]">
           {heading}
@@ -69,8 +70,7 @@ export function ContentLeads({
 
         <div className="flex flex-col gap-6">
           {items.map((item) => (
-            <Link
-              key={item.to}
+            <Card key={item.to} className="marketing-content-card"><Link
               to={item.to}
               className="flex min-h-[44px] items-center leading-[var(--leading-relaxed)] text-[var(--text-body)] no-underline"
             >
@@ -83,7 +83,7 @@ export function ContentLeads({
                   →
                 </span>
               </span>
-            </Link>
+            </Link></Card>
           ))}
         </div>
       </div>

@@ -65,6 +65,9 @@ function resolve(name: string, depth = 0): string {
 }
 
 const hex = (h: string): [number, number, number] => {
+  // Fabale surface tokens use modern RGB syntax rather than raw hex.
+  const rgb = /^rgb\(\s*(\d+)\s+(\d+)\s+(\d+)\s*\)$/.exec(h.trim());
+  if (rgb) return rgb.slice(1).map(Number) as [number, number, number];
   const s = h.trim().replace('#', '');
   const f = s.length === 3 ? s.split('').map((c) => c + c).join('') : s;
   return [0, 2, 4].map((i) => parseInt(f.slice(i, i + 2), 16)) as [number, number, number];
@@ -89,9 +92,9 @@ const contrast = (fg: string, bg: string) => {
 const TOKENS: ReadonlyArray<readonly [string, string, string]> = [
   ['--background', '--surface-page', '#000000'],
   ['--foreground', '--text-heading', '#FFFFFF'],
-  ['--card', '--surface-card', '#0F0F0F'],
+  ['--card', '--surface-card', 'rgb(20 20 20)'],
   ['--card-foreground', '--text-heading', '#FFFFFF'],
-  ['--popover', '--surface-card', '#0F0F0F'],
+  ['--popover', '--surface-card', 'rgb(20 20 20)'],
   ['--popover-foreground', '--text-heading', '#FFFFFF'],
   ['--primary', '--gold-500', '#C9963A'],
   ['--primary-foreground', '--ink-on-gold', '#000000'],
@@ -255,15 +258,15 @@ describe('5 — every foreground/background pair clears WCAG AA', () => {
        like Fabale"); the light-palette ratios this table used to pin are in
        git history. */
     ['--foreground', '--background', 21.00],
-    ['--card-foreground', '--card', 19.17],
-    ['--popover-foreground', '--popover', 19.17],
+    ['--card-foreground', '--card', 18.42],
+    ['--popover-foreground', '--popover', 18.42],
     ['--primary-foreground', '--primary', 7.91],
     ['--secondary-foreground', '--secondary', 18.73],
     ['--accent-foreground', '--accent', 17.23],
     ['--muted-foreground', '--muted', 7.36],
     ['--muted-foreground', '--background', 8.25],
-    ['--muted-foreground', '--card', 7.53],
-    ['--foreground', '--card', 19.17],
+    ['--muted-foreground', '--card', 7.24],
+    ['--foreground', '--card', 18.42],
     ['--foreground', '--muted', 18.73],
   ];
 
@@ -290,9 +293,10 @@ describe('5 — every foreground/background pair clears WCAG AA', () => {
        founder, not to a plumbing ticket.
        The numbers are pinned so the gap is a fact in the suite rather than a
        sentence in a PR description nobody re-reads. */
+    // Charcoal cards now use RGB 20/20/20; the 4.5 AA threshold is unchanged.
     const onCard = contrast(resolve('--destructive'), resolve('--card'));
     const onBackground = contrast(resolve('--destructive'), resolve('--background'));
-    expect(onCard).toBeCloseTo(4.30, 1);
+    expect(onCard).toBeCloseTo(4.13, 1);
     expect(onBackground).toBeCloseTo(4.71, 1);
     expect(onCard).toBeLessThan(4.5);
   });
