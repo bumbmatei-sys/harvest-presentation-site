@@ -598,6 +598,12 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
     'build/blog-plugin.ts': 'f49d9679c1abf4cc0057fad217178065aa2691c587a8cb9b5481af7be6e74304',
   };
 
+  // Admin seats (Matei 2026-11-01): Ministry includes 5 admins, not 15. Two strings in
+  // Pricing.tsx (the card line and the comparison row); no price, contract or plan row moved.
+  const ADMIN_SEATS_REPINNED: Readonly<Record<string, string>> = {
+    'src/components/Pricing.tsx': '4c140351a5dda34f2b4bab62fec7ea9bf7e73e11444f618928dbd68528bb7af8',
+  };
+
   // Merge #111 and #112: retain the route removal and post-SSG indexing.
   const MERGED_SEO_FABALE_REPINNED: Readonly<Record<string, string>> = {
     'build/blog-plugin.ts': '685430636629d863b9c4508abdd6de2795a4bcf600d73d3dbc00df0dad66575c',
@@ -606,7 +612,7 @@ describe('6, 7, 11 & 12 — the files this ticket is forbidden to move', () => {
   for (const [file, hash] of Object.entries(PINNED)) {
     it(`${file} is byte-identical`, () => {
       expect(sha(read(file)), `${file} moved`).toBe(
-        MERGED_SEO_FABALE_REPINNED[file] ?? SEO_INDEXING_REPINNED[file] ?? SITE_FABALE_REPINNED[file] ?? AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
+        ADMIN_SEATS_REPINNED[file] ?? MERGED_SEO_FABALE_REPINNED[file] ?? SEO_INDEXING_REPINNED[file] ?? SITE_FABALE_REPINNED[file] ?? AI_CHAT_DROPPED_REPINNED[file] ?? ROUND3_COPY_REPINNED[file] ?? RETIRED_BOARD_REDIRECT_REPINNED[file] ?? REPRICE_REPINNED[file] ?? QUARTERLY_RETIRED_REPINNED[file] ?? THE_372_REPINNED[file] ?? WAITLIST_106_REPINNED[file] ?? hash,
       );
     });
   }

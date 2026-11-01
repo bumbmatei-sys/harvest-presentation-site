@@ -266,7 +266,7 @@ export const plans: Plan[] = [
   ] },
   { name: 'Ministry', planId: 'max', price: { monthly: 90, yearly: 900 }, fee: 0, productFee: 0.02, aiMessages: 5000, popular: true, blurb: 'For established churches and ministries that run many communities and campaigns.', features: [
     'Everything in Church',
-    '5,000 people · 15 admins',
+    '5,000 people · 5 admins',
     'Unlimited communities',
     `Livestream, chat & prayer requests in every community${SOON}`,
     `Discovery listing${SOON}`,
@@ -586,7 +586,7 @@ const featureMatrix: { grp: string; rows: [string, Cell[]][] }[] = [
     ['Web App', [T, T, T]],
     ['Mobile App (PWA)', [T, T, T]],
     ['People in your CRM', ['500', '500', '5,000']],
-    ['Admin accounts', ['1', '2', '15']],
+    ['Admin accounts', ['1', '2', '5']],
     ['Communities', [false, '1', 'Unlimited']],
     ['Custom Branding', [false, false, T]],
     /* 🔴 THE-280 — the Custom Domain ROW is withheld while the app refuses the

@@ -408,7 +408,8 @@ describe('7 · the three add-on prices are unchanged', () => {
 describe('8 · the people caps are the approved 500 and 5,000', () => {
   it('the cards and the FAQ state them', () => {
     expect(individual.features).toContain('500 people · 2 admins');
-    expect(ministry.features).toContain('5,000 people · 15 admins');
+    // WAS 15. Matei 2026-11-01: the Ministry plan includes 5 admins; the Admin seat add-on adds more.
+    expect(ministry.features).toContain('5,000 people · 5 admins');
     expect(FAQ_PLAN_CLAIMS.map((c) => [c.planId, c.people])).toEqual([
       ['plus', '500'], ['max', '5,000'],
     ]);
