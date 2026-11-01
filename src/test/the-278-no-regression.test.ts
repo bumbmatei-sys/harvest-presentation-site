@@ -1366,6 +1366,8 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     '11a407887f414a167582e7d7ab00b9152bc8316c3cb779db8ea2a3a8da355ba5',
     // Scheduler pills and TikTok blurb: landing page and /pricing alias only.
     '2902145e4e2767ca7c358e57b150dafcb76277df46c5af22343878077566e941',
+    // Admin seats: Ministry includes 5 admins; landing, /pricing, FAQ and one post.
+    '29192bad3ebc4bc36332a12e442423c94abe396a631698b6d8ba6e2f521d6fdd',
   ];
 
   it('🔴 THE-280 moved exactly six pages, and the other fifteen did not move', () => {
@@ -1753,6 +1755,22 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
     'pricing/index.html': 'ca6739ce97a9d253d43f69bddd0914991c3e010fe34628c1b822433d1e67aa03',
   };
 
+  // Admin seats (Matei 2026-11-01): the Ministry plan includes 5 admins, not 15. Four
+  // pages say so: the landing and /pricing card and comparison row, the FAQ, and one
+  // blog post. No price, route or other copy moved. Checked before the maps above.
+  const ADMIN_SEATS_PAGES: Readonly<Record<string, string>> = {
+    'index.html': 'd6828fe188118af03473338cf507f55a9fc823876b319bc414d987854ec3c0cf',
+    'pricing/index.html': '522ad58957bc46de7e7d4f36fa482867cca1cb19351a7f46aa493c83bb581dab',
+    'faq/index.html': 'e7675695f1614d262885ead1218da8483817e310a70f6f331ce559b23657bb2f',
+    'blog/year-end-giving-statements-what-to-include/index.html': '5438b120da03338bb067180abbb75693df15e4cd66f37b1fee93d0471b6d9363',
+  };
+  const ADMIN_SEATS_BODIES: Readonly<Record<string, string>> = {
+    'index.html': 'd5a33a0af492296d27aedfd268c27b0aed66b4ad3197481ecde393315de3ee8a',
+    'pricing/index.html': 'b81b843feca5312fb6bbb5f5433aeecdd83897e5be98a4495e00250d29490bd6',
+    'faq/index.html': '1a1ba3034f34105c8c67c897fb180c87da026fb75d314a2afc39d9d260469eee',
+    'blog/year-end-giving-statements-what-to-include/index.html': '4123b2d19315255e7359a8582583f6e0f1516693684ff465466004385e18cf19',
+  };
+
   const pagesInDist = (): string[] => {
     const out: string[] = [];
     (function walk(dir: string) {
@@ -1772,7 +1790,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
 
   it.runIf(comparable).each(Object.keys(BASELINE))('%s matches the approved full-site Fabale presentation', (page) => {
     const actual = sha(normalise(read(path.join('dist', page))));
-    expect(actual, `${page} moved since SEO indexing`).toBe(SCHEDULER_PILLS_PAGES[page] ?? MERGED_SEO_FABALE_PAGES[page]);
+    expect(actual, `${page} moved since SEO indexing`).toBe(ADMIN_SEATS_PAGES[page] ?? SCHEDULER_PILLS_PAGES[page] ?? MERGED_SEO_FABALE_PAGES[page]);
   });
 
   it.runIf(comparable)('SEO indexing leaves every complete page body unchanged', () => {
@@ -1783,7 +1801,7 @@ describe('6 — the built pages are byte-identical to the pre-Tailwind build', (
       const html = normalise(read(path.join('dist', page)));
       const body = html.match(/<body\b[^>]*>[\s\S]*<\/body>/)?.[0];
       expect(body, `${page} has no body`).toBeDefined();
-      expect(sha(body!), `${page} body changed during SEO work`).toBe(SCHEDULER_PILLS_BODIES[page] ?? expected);
+      expect(sha(body!), `${page} body changed during SEO work`).toBe(ADMIN_SEATS_BODIES[page] ?? SCHEDULER_PILLS_BODIES[page] ?? expected);
     }
   });
 
