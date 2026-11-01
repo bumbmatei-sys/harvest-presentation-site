@@ -96,7 +96,7 @@ export interface FaqPlanClaim {
  */
 export const FAQ_PLAN_CLAIMS: FaqPlanClaim[] = [
   { planId: 'plus', name: 'Church', monthly: 30, annual: 300, people: '500', admins: '2', productFee: 0.05, aiMessages: 300 },
-  { planId: 'max', name: 'Ministry', monthly: 90, annual: 900, people: '5,000', admins: '15', productFee: 0.02, aiMessages: 5000 },
+  { planId: 'max', name: 'Ministry', monthly: 90, annual: 900, people: '5,000', admins: '5', productFee: 0.02, aiMessages: 5000 },
 ];
 
 /** Shape of the bits of `Plan` this check needs. Passed in rather than imported

@@ -276,7 +276,8 @@ describe('no retired plan name or price survives on the site', () => {
       ['plus', 'Church', 30, 300], ['max', 'Ministry', 90, 900],
     ]);
     expect(FAQ_PLAN_CLAIMS.map((c) => [c.planId, c.name, c.monthly, c.annual, c.people, c.admins])).toEqual([
-      ['plus', 'Church', 30, 300, '500', '2'], ['max', 'Ministry', 90, 900, '5,000', '15'],
+      // WAS 15. Matei 2026-11-01: the Ministry plan includes 5 admins; the Admin seat add-on adds more.
+      ['plus', 'Church', 30, 300, '500', '2'], ['max', 'Ministry', 90, 900, '5,000', '5'],
     ]);
   });
 

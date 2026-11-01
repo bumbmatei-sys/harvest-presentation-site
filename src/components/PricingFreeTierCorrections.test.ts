@@ -334,7 +334,7 @@ describe("the two priced tiers' cards are the approved lineup", () => {
       '300 AI assistant messages a month — coming soon',
     ],
     max: [
-      'Everything in Church', '5,000 people · 15 admins', 'Unlimited communities',
+      'Everything in Church', '5,000 people · 5 admins', /* WAS 15 admins (Matei 2026-11-01) */ 'Unlimited communities',
       'Livestream, chat & prayer requests in every community — coming soon',
       'Discovery listing — coming soon', 'Events with Registration & Check-In', 'Service Planning',
       'Custom Forms → CRM', 'Giving records — statements & year-end receipts', 'AI Knowledge Base',

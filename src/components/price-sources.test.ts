@@ -354,7 +354,7 @@ describe('the plan feature matrix keeps its guarantees', () => {
     // that carries the people and admin ceilings.
     expect(plans.find((p) => p.planId === 'plus')!.features[0]).toBe('500 people · 2 admins');
     expect(plans.find((p) => p.planId === 'max')!.features.slice(0, 2))
-      .toEqual(['Everything in Church', '5,000 people · 15 admins']);
+      .toEqual(['Everything in Church', '5,000 people · 5 admins']); // WAS 15. Matei 2026-11-01: the Ministry plan includes 5 admins; the Admin seat add-on adds more.
   });
 
   it('names no retired plan on any card', () => {
@@ -366,7 +366,8 @@ describe('the plan feature matrix keeps its guarantees', () => {
   });
 
   it('keeps the comparison table ceilings where they are', () => {
-    for (const row of ['500', '5,000', '2', '15']) {
+    // WAS 15. Matei 2026-11-01: the Ministry plan includes 5 admins; the Admin seat add-on adds more.
+    for (const row of ['500', '5,000', '2', '5']) {
       expect(text, `the comparison table no longer states "${row}"`).toContain(row);
     }
     for (const gone of ['150', '2,000', '4,000']) {
